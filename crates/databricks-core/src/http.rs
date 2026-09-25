@@ -325,7 +325,24 @@ impl ApiClient {
         if let Some(ws) = self.workspace_header().filter(|_| workspace_header) {
             req = req.header("X-Databricks-Workspace-Id", ws);
         }
-        for (k, v) in provider.headers().await.map_err(Failure::Fatal)? {
+        let auth = provider.headers().await.map_err(Failure::Fatal)?;
+        for (k, v) in &self.inner.cfg.headers {
+            let reserved = [
+                "authorization",
+                "user-agent",
+                "content-type",
+                "accept",
+                "x-databricks-workspace-id",
+            ];
+            if reserved.iter().any(|r| k.eq_ignore_ascii_case(r))
+                || auth.iter().any(|(a, _)| a.as_str().eq_ignore_ascii_case(k))
+            {
+                tracing::debug!(header = %k, "ignoring custom header that the SDK manages");
+                continue;
+            }
+            req = req.header(k.as_str(), v.as_str());
+        }
+        for (k, v) in auth {
             req = req.header(k, v);
         }
         let resp = match req.send().await {
@@ -432,13 +449,15 @@ pub fn header<T: std::str::FromStr>(headers: &HeaderMap, name: &str) -> Option<T
 
 /// Encode a path parameter.
 ///
-/// Go inserts most values with `%v` (no escaping, so `/` in a resource name
-/// such as `catalogs/a/schemas/b` stays a separator) and escapes each
-/// segment of multi-segment parameters with `url.PathEscape`. Here both
-/// keep `/` and escape everything that would change the URL's meaning
-/// (`?`, `#`, `%`, spaces, non-ASCII) within each segment.
+/// * Single-segment values are escaped completely, `/` included, so a
+///   column or tag name containing `/` stays one segment (Go's
+///   `EncodeSingleSegmentPathParameter` from databricks-sdk-go#1811, which
+///   fixes #1765; the released Go SDK still inserts these raw).
+/// * Multi-segment values (hierarchical resource names such as
+///   `projects/{p}/branches/{b}`, and file paths) keep `/` as a separator
+///   and escape each segment (`EncodeMultiSegmentPathParameter`).
 #[must_use]
-pub fn path_param(value: &str, _multi_segment: bool) -> String {
+pub fn path_param(value: &str, multi_segment: bool) -> String {
     const KEEP: &[u8] = b"-._~!$&'()*+,;=:@";
     let escape = |seg: &str| {
         let mut out = String::with_capacity(seg.len());
@@ -451,7 +470,11 @@ pub fn path_param(value: &str, _multi_segment: bool) -> String {
         }
         out
     };
-    value.split('/').map(escape).collect::<Vec<_>>().join("/")
+    if multi_segment {
+        value.split('/').map(escape).collect::<Vec<_>>().join("/")
+    } else {
+        escape(value)
+    }
 }
 
 enum Failure {
@@ -467,5 +490,100 @@ fn decode<R: DeserializeOwned>(bytes: &[u8]) -> Result<R> {
             .or_else(|_| serde_json::from_slice(b"null"))
             .map_err(|e| Error::json("empty response", e));
     }
-    serde_json::from_slice(bytes).map_err(|e| Error::json("response body", e))
+    match serde_json::from_slice(bytes) {
+        Ok(v) => Ok(v),
+        Err(first) => {
+            // Some services emit bare NaN/Infinity (e.g. MLflow metrics,
+            // databricks-sdk-go#1498), which is not JSON. Read them as null.
+            if let Some(fixed) = non_finite_to_null(bytes)
+                && let Ok(v) = serde_json::from_slice(&fixed)
+            {
+                return Ok(v);
+            }
+            // Say what came back: a gateway's HTML or a plain-text error is
+            // far easier to diagnose than "expected value at line 1"
+            // (databricks-sdk-go#1796).
+            Err(Error::json(
+                format!("response body {}", snippet(bytes)),
+                first,
+            ))
+        }
+    }
+}
+
+/// Replace bare `NaN`, `Infinity` and `-Infinity` tokens outside strings
+/// with `null`. `None` if there were none.
+fn non_finite_to_null(bytes: &[u8]) -> Option<Vec<u8>> {
+    const TOKENS: [&[u8]; 3] = [b"-Infinity", b"Infinity", b"NaN"];
+    let mut out = Vec::with_capacity(bytes.len());
+    let (mut in_str, mut escaped, mut changed) = (false, false, false);
+    let mut i = 0;
+    while i < bytes.len() {
+        let b = bytes[i];
+        if in_str {
+            out.push(b);
+            match (escaped, b) {
+                (true, _) => escaped = false,
+                (false, b'\\') => escaped = true,
+                (false, b'"') => in_str = false,
+                _ => {}
+            }
+            i += 1;
+            continue;
+        }
+        if b == b'"' {
+            in_str = true;
+            out.push(b);
+            i += 1;
+            continue;
+        }
+        if let Some(t) = TOKENS.iter().find(|t| bytes[i..].starts_with(t)) {
+            out.extend_from_slice(b"null");
+            i += t.len();
+            changed = true;
+            continue;
+        }
+        out.push(b);
+        i += 1;
+    }
+    changed.then_some(out)
+}
+
+/// First 200 characters of a body, for error messages.
+fn snippet(bytes: &[u8]) -> String {
+    let text = String::from_utf8_lossy(bytes);
+    let mut s: String = text.chars().take(200).collect();
+    if text.chars().count() > 200 {
+        s.push('…');
+    }
+    format!("{s:?}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn non_finite_numbers_become_null() {
+        #[derive(serde::Deserialize, Debug)]
+        struct M {
+            value: Option<f64>,
+            key: String,
+        }
+        let m: Vec<M> = decode(br#"[{"key":"NaN","value":NaN},{"key":"a\"Infinity","value":-Infinity},{"key":"x","value":1.5}]"#).unwrap();
+        assert_eq!(m[0].key, "NaN");
+        assert!(m[0].value.is_none() && m[1].value.is_none());
+        assert_eq!(m[1].key, "a\"Infinity");
+        assert_eq!(m[2].value, Some(1.5));
+        assert!(non_finite_to_null(br#"{"a":1}"#).is_none());
+    }
+
+    #[test]
+    fn decode_errors_show_the_body() {
+        let e = decode::<serde_json::Value>(b"rate limited, retry later").unwrap_err();
+        assert!(e.to_string().contains("rate limited, retry later"), "{e}");
+        let long = "x".repeat(500);
+        let e = decode::<serde_json::Value>(long.as_bytes()).unwrap_err();
+        assert!(e.to_string().contains('…'), "{e}");
+    }
 }

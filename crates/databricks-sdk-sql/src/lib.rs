@@ -128,7 +128,11 @@ pub struct Alert {
     /// Number of seconds an alert must wait after being triggered to rearm
     /// itself. After rearming, it can be triggered again. If 0 or not specified,
     /// the alert will not be triggered again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub seconds_to_retrigger: Option<i64>,
     /// Current state of the alert's trigger status. This field is set to UNKNOWN
     /// if the alert has not yet been evaluated or ran into an error during the
@@ -388,7 +392,11 @@ pub struct AlertOperandValue {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bool_value: Option<bool>,
     /// `double_value`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub double_value: Option<f64>,
     /// `string_value`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -595,7 +603,11 @@ pub struct AlertQuery {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<String>,
     /// The ID of the user who owns the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
 }
 
@@ -1070,7 +1082,11 @@ pub struct AlertV2Notification {
     /// this value to 1 allows the alert to send a notification on every
     /// evaluation where the condition is met, effectively making it always
     /// retrigger for notification purposes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub retrigger_seconds: Option<i64>,
     /// `subscriptions`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1183,7 +1199,11 @@ pub struct AlertV2OperandValue {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bool_value: Option<bool>,
     /// `double_value`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub double_value: Option<f64>,
     /// `string_value`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1277,16 +1297,32 @@ impl AlertV2Subscription {
 pub struct BaseChunkInfo {
     /// The number of bytes in the result chunk. This field is not available when
     /// using `INLINE` disposition.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub byte_count: Option<i64>,
     /// The position within the sequence of result set chunks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub chunk_index: Option<i64>,
     /// The number of rows within the result chunk.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
     /// The starting row offset within the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_offset: Option<i64>,
 }
 
@@ -1535,7 +1571,11 @@ pub struct ColumnInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The ordinal position of the column (starting at position 0).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The format of the interval type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1546,11 +1586,19 @@ pub struct ColumnInfo {
     pub type_name: Option<ColumnInfoTypeName>,
     /// Specifies the number of digits in a number. This applies to the DECIMAL
     /// type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_precision: Option<i64>,
     /// Specifies the number of digits to the right of the decimal point in a
     /// number. This applies to the DECIMAL type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_scale: Option<i64>,
     /// The full SQL type specification.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1694,7 +1742,11 @@ pub struct CreateAlert {
     /// Number of seconds after being triggered before the alert rearms itself
     /// and can be triggered again. If `null`, alert will never be triggered
     /// again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rearm: Option<i64>,
 }
 
@@ -1800,7 +1852,11 @@ pub struct CreateAlertRequestAlert {
     /// Number of seconds an alert must wait after being triggered to rearm
     /// itself. After rearming, it can be triggered again. If 0 or not specified,
     /// the alert will not be triggered again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub seconds_to_retrigger: Option<i64>,
 }
 
@@ -2240,7 +2296,11 @@ pub struct CreateWarehouseRequest {
     /// Supported values: - Must be == 0 or \>= 10 mins - 0 indicates no autostop.
     ///
     /// Defaults to 120 mins
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub auto_stop_mins: Option<i64>,
     /// Channel Details
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2273,7 +2333,11 @@ pub struct CreateWarehouseRequest {
     /// Supported values: - Must be \>= min_num_clusters - Must be \<= 40.
     ///
     /// Defaults to min_clusters if unset.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_num_clusters: Option<i64>,
     /// Minimum number of available clusters that will be maintained for this SQL
     /// warehouse. Increasing this will ensure that a larger number of clusters
@@ -2284,7 +2348,11 @@ pub struct CreateWarehouseRequest {
     /// Supported values: - Must be \> 0 - Must be \<= min(max_num_clusters, 30)
     ///
     /// Defaults to 1
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_num_clusters: Option<i64>,
     /// Logical name for the cluster.
     ///
@@ -2453,7 +2521,7 @@ pub struct CreateWidget {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visualization_id: Option<String>,
     /// Width of a widget
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub width: i64,
 }
 
@@ -2609,7 +2677,11 @@ pub struct Dashboard {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<User>,
     /// The ID of the user who owns the dashboard.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
     /// `widgets`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2835,7 +2907,11 @@ pub struct DataSource {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pause_reason: Option<String>,
     /// Reserved for internal use.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub paused: Option<i64>,
     /// Reserved for internal use.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2986,7 +3062,11 @@ pub struct DateRangeValue {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub precision: Option<DatePrecision>,
     /// `start_day_of_week`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_day_of_week: Option<i64>,
 }
 
@@ -3432,7 +3512,11 @@ pub struct EditAlert {
     /// Number of seconds after being triggered before the alert rearms itself
     /// and can be triggered again. If `null`, alert will never be triggered
     /// again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rearm: Option<i64>,
 }
 
@@ -3486,7 +3570,11 @@ pub struct EditWarehouseRequest {
     /// Supported values: - Must be == 0 or \>= 10 mins - 0 indicates no autostop.
     ///
     /// Defaults to 120 mins
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub auto_stop_mins: Option<i64>,
     /// Channel Details
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3522,7 +3610,11 @@ pub struct EditWarehouseRequest {
     /// Supported values: - Must be \>= min_num_clusters - Must be \<= 40.
     ///
     /// Defaults to min_clusters if unset.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_num_clusters: Option<i64>,
     /// Minimum number of available clusters that will be maintained for this SQL
     /// warehouse. Increasing this will ensure that a larger number of clusters
@@ -3533,7 +3625,11 @@ pub struct EditWarehouseRequest {
     /// Supported values: - Must be \> 0 - Must be \<= min(max_num_clusters, 30)
     ///
     /// Defaults to 1
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_num_clusters: Option<i64>,
     /// Logical name for the cluster.
     ///
@@ -3779,7 +3875,11 @@ pub struct EndpointInfo {
     /// Supported values: - Must be == 0 or \>= 10 mins - 0 indicates no autostop.
     ///
     /// Defaults to 120 mins
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub auto_stop_mins: Option<i64>,
     /// Channel Details
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3822,7 +3922,11 @@ pub struct EndpointInfo {
     /// Supported values: - Must be \>= min_num_clusters - Must be \<= 40.
     ///
     /// Defaults to min_clusters if unset.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_num_clusters: Option<i64>,
     /// Minimum number of available clusters that will be maintained for this SQL
     /// warehouse. Increasing this will ensure that a larger number of clusters
@@ -3833,7 +3937,11 @@ pub struct EndpointInfo {
     /// Supported values: - Must be \> 0 - Must be \<= min(max_num_clusters, 30)
     ///
     /// Defaults to 1
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_num_clusters: Option<i64>,
     /// Logical name for the cluster.
     ///
@@ -3842,10 +3950,18 @@ pub struct EndpointInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Deprecated. current number of active sessions for the warehouse
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_active_sessions: Option<i64>,
     /// current number of clusters running for the service
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_clusters: Option<i64>,
     /// ODBC parameters for the SQL warehouse
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4117,7 +4233,11 @@ pub struct ExecuteStatementRequest {
     /// byte limit, then `truncated` in the response is set to `true`. When using
     /// `EXTERNAL_LINKS` disposition, a default `byte_limit` of 100 GiB is
     /// applied if `byte_limit` is not explicitly set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub byte_limit: Option<i64>,
     /// Sets default catalog for statement execution, similar to [`USE CATALOG`]
     /// in SQL.
@@ -4250,7 +4370,11 @@ pub struct ExecuteStatementRequest {
     /// Applies the given row limit to the statement's result set, but unlike the
     /// `LIMIT` clause in SQL, it also sets the `truncated` field in the response
     /// to indicate whether the result was trimmed due to the limit or not.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_limit: Option<i64>,
     /// Sets default schema for statement execution, similar to [`USE SCHEMA`] in
     /// SQL.
@@ -4407,10 +4531,18 @@ impl ExecuteStatementRequest {
 pub struct ExternalLink {
     /// The number of bytes in the result chunk. This field is not available when
     /// using `INLINE` disposition.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub byte_count: Option<i64>,
     /// The position within the sequence of result set chunks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub chunk_index: Option<i64>,
     /// Indicates the date-time that the given external link will expire and
     /// becomes invalid, after which point a new `external_link` must be
@@ -4436,7 +4568,11 @@ pub struct ExternalLink {
     /// When fetching, provides the `chunk_index` for the _next_ chunk. If
     /// absent, indicates there are no more chunks. The next chunk can be fetched
     /// with a :method:statementexecution/getstatementresultchunkn request.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_chunk_index: Option<i64>,
     /// When fetching, provides a link to fetch the _next_ chunk. If absent,
     /// indicates there are no more chunks. This link is an absolute `path` to be
@@ -4445,10 +4581,18 @@ pub struct ExternalLink {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next_chunk_internal_link: Option<String>,
     /// The number of rows within the result chunk.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
     /// The starting row offset within the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_offset: Option<i64>,
 }
 
@@ -5097,7 +5241,11 @@ pub struct GetWarehouseResponse {
     /// Supported values: - Must be == 0 or \>= 10 mins - 0 indicates no autostop.
     ///
     /// Defaults to 120 mins
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub auto_stop_mins: Option<i64>,
     /// Channel Details
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5140,7 +5288,11 @@ pub struct GetWarehouseResponse {
     /// Supported values: - Must be \>= min_num_clusters - Must be \<= 40.
     ///
     /// Defaults to min_clusters if unset.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_num_clusters: Option<i64>,
     /// Minimum number of available clusters that will be maintained for this SQL
     /// warehouse. Increasing this will ensure that a larger number of clusters
@@ -5151,7 +5303,11 @@ pub struct GetWarehouseResponse {
     /// Supported values: - Must be \> 0 - Must be \<= min(max_num_clusters, 30)
     ///
     /// Defaults to 1
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_num_clusters: Option<i64>,
     /// Logical name for the cluster.
     ///
@@ -5160,10 +5316,18 @@ pub struct GetWarehouseResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Deprecated. current number of active sessions for the warehouse
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_active_sessions: Option<i64>,
     /// current number of clusters running for the service
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_clusters: Option<i64>,
     /// ODBC parameters for the SQL warehouse
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5510,7 +5674,11 @@ pub struct LegacyAlert {
     /// Number of seconds after being triggered before the alert rearms itself
     /// and can be triggered again. If `null`, alert will never be triggered
     /// again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rearm: Option<i64>,
     /// State of the alert. Possible values are: `unknown` (yet to be evaluated),
     /// `triggered` (evaluated and fulfilled trigger conditions), or `ok`
@@ -5665,7 +5833,11 @@ pub struct LegacyQuery {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_modified_by: Option<User>,
     /// The ID of the user who last saved changes to this query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_modified_by_id: Option<i64>,
     /// If there is a cached result for this query and user, this field includes
     /// the query result ID. If this query uses parameters, this field is always
@@ -5707,7 +5879,11 @@ pub struct LegacyQuery {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<User>,
     /// The ID of the user who owns the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
     /// `visualizations`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -6091,7 +6267,11 @@ pub struct ListAlertsResponseAlert {
     /// Number of seconds an alert must wait after being triggered to rearm
     /// itself. After rearming, it can be triggered again. If 0 or not specified,
     /// the alert will not be triggered again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub seconds_to_retrigger: Option<i64>,
     /// Current state of the alert's trigger status. This field is set to UNKNOWN
     /// if the alert has not yet been evaluated or ran into an error during the
@@ -6774,13 +6954,25 @@ impl ListQueryObjectsResponseQuery {
 #[non_exhaustive]
 pub struct ListResponse {
     /// The total number of dashboards.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub count: Option<i64>,
     /// The current page being displayed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page: Option<i64>,
     /// The number of dashboards per page.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_size: Option<i64>,
     /// List of dashboards returned.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7010,7 +7202,11 @@ impl MultiValuesOptions {
 #[non_exhaustive]
 pub struct NumericValue {
     /// `value`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub value: Option<f64>,
 }
 
@@ -7062,7 +7258,11 @@ pub struct OdbcParams {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub path: Option<String>,
     /// `port`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub port: Option<i64>,
     /// `protocol`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7592,7 +7792,11 @@ pub struct QueryFilter {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub statuses: Vec<QueryStatus>,
     /// A list of user IDs who ran the queries.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub user_ids: Vec<i64>,
     /// A list of warehouse IDs.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7655,7 +7859,11 @@ pub struct QueryInfo {
     /// Total time of the statement execution. This value does not include the
     /// time taken to retrieve the results, which can result in a discrepancy
     /// between this value and the start-to-finish wall-clock time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub duration: Option<i64>,
     /// Alias for `warehouse_id`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7664,14 +7872,22 @@ pub struct QueryInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error_message: Option<String>,
     /// The ID of the user whose credentials were used to run the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub executed_as_user_id: Option<i64>,
     /// The email address or username of the user whose credentials were used to
     /// run the query.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub executed_as_user_name: Option<String>,
     /// The time execution of the query ended.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_end_time_ms: Option<i64>,
     /// Whether more updates for the query are expected.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7686,7 +7902,11 @@ pub struct QueryInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plans_state: Option<PlansState>,
     /// The time the query ended.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub query_end_time_ms: Option<i64>,
     /// The query ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7697,7 +7917,11 @@ pub struct QueryInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub query_source: Option<ExternalQuerySource>,
     /// The time the query started.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub query_start_time_ms: Option<i64>,
     /// A query execution can be optionally annotated with query tags
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7706,7 +7930,11 @@ pub struct QueryInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub query_text: Option<String>,
     /// The number of results returned by the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rows_produced: Option<i64>,
     /// The spark session UUID that query ran on. This is either the Spark
     /// Connect, DBSQL, or SDP session ID.
@@ -7726,7 +7954,11 @@ pub struct QueryInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<QueryStatus>,
     /// The ID of the user who ran the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
     /// The email address or username of the user who ran the query.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7932,13 +8164,25 @@ impl QueryInfo {
 #[non_exhaustive]
 pub struct QueryList {
     /// The total number of queries.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub count: Option<i64>,
     /// The page number that is currently displayed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page: Option<i64>,
     /// The number of queries per page.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_size: Option<i64>,
     /// List of queries returned.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7981,90 +8225,182 @@ impl QueryList {
 #[non_exhaustive]
 pub struct QueryMetrics {
     /// Time spent loading metadata and optimizing the query, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub compilation_time_ms: Option<i64>,
     /// Time spent executing the query, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_time_ms: Option<i64>,
     /// Total amount of data sent over the network between executor nodes during
     /// shuffle, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub network_sent_bytes: Option<i64>,
     /// Timestamp of when the query was enqueued waiting while the warehouse was
     /// at max load. This field is optional and will not appear if the query
     /// skipped the overloading queue.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub overloading_queue_start_timestamp: Option<i64>,
     /// Total execution time for all individual Photon query engine tasks in the
     /// query, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub photon_total_time_ms: Option<i64>,
     /// projected remaining work to be done aggregated across all stages in the
     /// query, in milliseconds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub projected_remaining_task_total_time_ms: Option<i64>,
     /// projected lower bound on remaining total task time based on
     /// projected_remaining_task_total_time_ms / maximum concurrency
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub projected_remaining_wallclock_time_ms: Option<i64>,
     /// Timestamp of when the query was enqueued waiting for a cluster to be
     /// provisioned for the warehouse. This field is optional and will not appear
     /// if the query skipped the provisioning queue.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub provisioning_queue_start_timestamp: Option<i64>,
     /// Total number of file bytes in all tables not read due to pruning
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pruned_bytes: Option<i64>,
     /// Total number of files from all tables not read due to pruning
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pruned_files_count: Option<i64>,
     /// Timestamp of when the underlying compute started compilation of the
     /// query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub query_compilation_start_timestamp: Option<i64>,
     /// Total size of data read by the query, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_bytes: Option<i64>,
     /// Size of persistent data read from the cache, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_cache_bytes: Option<i64>,
     /// Total number of file bytes in all tables read
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_files_bytes: Option<i64>,
     /// Number of files read after pruning
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_files_count: Option<i64>,
     /// Number of partitions read after pruning.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_partitions_count: Option<i64>,
     /// Size of persistent data read from cloud object storage on your cloud
     /// tenant, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_remote_bytes: Option<i64>,
     /// number of remaining tasks to complete this is based on the current status
     /// and could be bigger or smaller in the future based on future updates
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remaining_task_count: Option<i64>,
     /// Time spent fetching the query results after the execution finished, in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub result_fetch_time_ms: Option<i64>,
     /// `true` if the query result was fetched from cache, `false` otherwise.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub result_from_cache: Option<bool>,
     /// Total number of rows returned by the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rows_produced_count: Option<i64>,
     /// Total number of rows read by the query.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub rows_read_count: Option<i64>,
     /// number of remaining tasks to complete, calculated by autoscaler
     /// StatementAnalysis.scala deprecated: use remaining_task_count instead
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub runnable_tasks: Option<i64>,
     /// Size of data temporarily written to disk while executing the query, in
     /// bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spill_to_disk_bytes: Option<i64>,
     /// sum of task times completed in a range of wall clock time, approximated
     /// to a configurable number of points aggregated over all stages and jobs in
@@ -8072,20 +8408,36 @@ pub struct QueryMetrics {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub task_time_over_time_range: Option<TaskTimeOverRange>,
     /// Sum of execution time for all of the query’s tasks, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub task_total_time_ms: Option<i64>,
     /// Total execution time of the query from the client’s point of view, in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_time_ms: Option<i64>,
     /// remaining work to be done across all stages in the query, calculated by
     /// autoscaler StatementAnalysis.scala, in milliseconds deprecated: using
     /// projected_remaining_task_total_time_ms instead
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub work_to_be_done: Option<i64>,
     /// Size pf persistent data written to cloud object storage in your cloud
     /// tenant, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub write_remote_bytes: Option<i64>,
 }
 
@@ -8738,10 +9090,18 @@ impl RestoreQueriesLegacyRequest {
 pub struct ResultData {
     /// The number of bytes in the result chunk. This field is not available when
     /// using `INLINE` disposition.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub byte_count: Option<i64>,
     /// The position within the sequence of result set chunks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub chunk_index: Option<i64>,
     /// The `JSON_ARRAY` format is an array of arrays of values, where each
     /// non-null value is formatted as a string. Null values are encoded as JSON
@@ -8754,7 +9114,11 @@ pub struct ResultData {
     /// When fetching, provides the `chunk_index` for the _next_ chunk. If
     /// absent, indicates there are no more chunks. The next chunk can be fetched
     /// with a :method:statementexecution/getstatementresultchunkn request.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_chunk_index: Option<i64>,
     /// When fetching, provides a link to fetch the _next_ chunk. If absent,
     /// indicates there are no more chunks. This link is an absolute `path` to be
@@ -8763,10 +9127,18 @@ pub struct ResultData {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next_chunk_internal_link: Option<String>,
     /// The number of rows within the result chunk.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
     /// The starting row offset within the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_offset: Option<i64>,
 }
 
@@ -8843,13 +9215,25 @@ pub struct ResultManifest {
     pub schema: Option<ResultSchema>,
     /// The total number of bytes in the result set. This field is not available
     /// when using `INLINE` disposition.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_byte_count: Option<i64>,
     /// The total number of chunks that the result set has been divided into.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_chunk_count: Option<i64>,
     /// The total number of rows in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_row_count: Option<i64>,
     /// Indicates whether the result is truncated due to `row_limit` or
     /// `byte_limit`.
@@ -8913,7 +9297,11 @@ impl ResultManifest {
 #[non_exhaustive]
 pub struct ResultSchema {
     /// `column_count`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub column_count: Option<i64>,
     /// `columns`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -9566,7 +9954,11 @@ pub struct TaskTimeOverRange {
     /// interval length for all entries (difference in start time and end time of
     /// an entry range) the same for all entries start time of first interval is
     /// query_start_time_ms
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub interval: Option<i64>,
 }
 
@@ -9592,7 +9984,11 @@ impl TaskTimeOverRange {
 pub struct TaskTimeOverRangeEntry {
     /// total task completion time in this time range, aggregated over all stages
     /// and jobs in the query
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub task_completed_time_ms: Option<i64>,
 }
 
@@ -10067,10 +10463,18 @@ impl TextValue {
 #[non_exhaustive]
 pub struct TimeRange {
     /// The end time in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time_ms: Option<i64>,
     /// The start time in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time_ms: Option<i64>,
 }
 
@@ -10357,7 +10761,11 @@ pub struct UpdateAlertRequestAlert {
     /// Number of seconds an alert must wait after being triggered to rearm
     /// itself. After rearming, it can be triggered again. If 0 or not specified,
     /// the alert will not be triggered again.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub seconds_to_retrigger: Option<i64>,
 }
 
@@ -10852,7 +11260,7 @@ pub struct UpdateWidgetRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visualization_id: Option<String>,
     /// Width of a widget
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub width: i64,
 }
 
@@ -10908,7 +11316,11 @@ pub struct User {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     /// `id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// `name`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -11359,7 +11771,11 @@ pub struct Widget {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visualization: Option<LegacyVisualization>,
     /// Unused field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub width: Option<i64>,
 }
 
@@ -11491,16 +11907,34 @@ pub struct WidgetPosition {
     )]
     pub auto_height: Option<bool>,
     /// column in the dashboard grid. Values start with 0
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub col: Option<i64>,
     /// row in the dashboard grid. Values start with 0
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row: Option<i64>,
     /// width of the widget measured in dashboard grid cells
-    #[serde(rename = "sizeX", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        rename = "sizeX",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size_x: Option<i64>,
     /// height of the widget measured in dashboard grid cells
-    #[serde(rename = "sizeY", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        rename = "sizeY",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size_y: Option<i64>,
 }
 
@@ -13181,7 +13615,7 @@ impl WarehousesApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/warehouses/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -13245,7 +13679,7 @@ impl WarehousesApi {
     ) -> ::databricks_core::Result<DefaultWarehouseOverride> {
         let path = format!(
             "/api/warehouses/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<DefaultWarehouseOverride>(call).await
@@ -13502,7 +13936,7 @@ impl WarehousesApi {
     ) -> ::databricks_core::Result<DefaultWarehouseOverride> {
         let path = format!(
             "/api/warehouses/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("allow_missing", &request.allow_missing)?);

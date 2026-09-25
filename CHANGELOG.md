@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `databricks-sdk-<package>` crate per package (39) covering 1,260
   operations, plus OpenAPI 3.1 documents `spec/openapi/{account,workspace}.json`.
 - Weekly upstream-spec workflow and `scripts/check_upstream.py`.
+- Fixes from a review of databricks-sdk-go issues and PRs (`docs/upstream-review.md`):
+  - Integer fields accept numeric strings (Go #1808), and float fields accept
+    `"NaN"`/`"Infinity"` (Go #1498), via `databricks_core::serde_num`.
+  - Path parameters are escaped by segment type: `/` becomes `%2F` in
+    single-segment values, and resource names keep `/` (Go #1811, #1765).
+  - `Config::headers` / `Config::header` for custom request headers (Go #1846).
+  - `Config::group_id` / `DATABRICKS_GROUP_ID` group role assumption for
+    OAuth M2M; PAT refuses to authenticate while it is set (Go #1812, #1817).
+  - Decode errors include a snippet of the response body, and bare
+    `NaN`/`Infinity` tokens in responses decode as `null`.
 
 ### Changed
 - Request types use `Default` + `with_*` setters (and `new(..)` for one or

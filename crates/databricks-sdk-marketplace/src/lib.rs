@@ -783,7 +783,7 @@ impl CreateProviderResponse {
 #[non_exhaustive]
 pub struct DataRefreshInfo {
     /// `interval`
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub interval: i64,
     /// `unit`
     #[serde(default)]
@@ -1007,7 +1007,11 @@ pub struct Exchange {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// `created_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1025,7 +1029,11 @@ pub struct Exchange {
     #[serde(default)]
     pub name: String,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// `updated_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1111,7 +1119,11 @@ impl Exchange {
 #[non_exhaustive]
 pub struct ExchangeFilter {
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// `created_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1132,7 +1144,11 @@ pub struct ExchangeFilter {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// `updated_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1217,7 +1233,11 @@ impl ExchangeFilter {
 #[non_exhaustive]
 pub struct ExchangeListing {
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// `created_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1295,7 +1315,11 @@ impl ExchangeListing {
 #[non_exhaustive]
 pub struct FileInfo {
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Name displayed to users for applicable files, e.g. embedded notebooks
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1323,7 +1347,11 @@ pub struct FileInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_message: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
 }
 
@@ -1558,7 +1586,11 @@ impl GetFileResponse {
 #[non_exhaustive]
 pub struct GetLatestVersionProviderAnalyticsDashboardResponse {
     /// version here is latest logical version of the dashboard template
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -1872,7 +1904,11 @@ pub struct InstallationDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// `installed_on`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub installed_on: Option<i64>,
     /// `listing_id`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2802,7 +2838,11 @@ pub struct ListProviderAnalyticsDashboardResponse {
     #[serde(default)]
     pub id: String,
     /// `version`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -2951,10 +2991,18 @@ pub struct ListingDetail {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub assets: Vec<AssetType>,
     /// The ending date timestamp for when the data spans
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collection_date_end: Option<i64>,
     /// The starting date timestamp for when the data spans
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collection_date_start: Option<i64>,
     /// Smallest unit of time in the dataset
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2992,7 +3040,11 @@ pub struct ListingDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub privacy_policy_link: Option<String>,
     /// size of the dataset in GB
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<f64>,
     /// `support_link`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3266,13 +3318,21 @@ pub struct ListingSummary {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub categories: Vec<Category>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// `created_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
     /// `created_by_id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by_id: Option<i64>,
     /// `exchange_ids`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -3294,7 +3354,11 @@ pub struct ListingSummary {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provider_region: Option<RegionInfo>,
     /// `published_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub published_at: Option<i64>,
     /// `published_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3312,13 +3376,21 @@ pub struct ListingSummary {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub subtitle: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// `updated_by`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_by: Option<String>,
     /// `updated_by_id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_by_id: Option<i64>,
 }
 
@@ -3542,7 +3614,11 @@ pub struct PersonalizationRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contact_info: Option<ContactInfo>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// `id`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3579,7 +3655,11 @@ pub struct PersonalizationRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_message: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
 }
 
@@ -4234,6 +4314,7 @@ pub struct TokenDetail {
     /// message: RetrieveToken.Response in
     /// managed-catalog/api/messages/recipient.proto
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "shareCredentialsVersion",
         default,
         skip_serializing_if = "Option::is_none"
@@ -4280,19 +4361,31 @@ pub struct TokenInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub activation_url: Option<String>,
     /// Time at which this Recipient Token was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of Recipient Token creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
     /// Expiration timestamp of the token in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// Unique id of the Recipient Token.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Time at which this Recipient Token was updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of Recipient Token updater.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4670,7 +4763,11 @@ pub struct UpdateProviderAnalyticsDashboardRequest {
     /// this is the version of the dashboard template we want to update our user
     /// to current expectation is that it should be equal to latest version of
     /// the dashboard template
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -4710,7 +4807,11 @@ pub struct UpdateProviderAnalyticsDashboardResponse {
     #[serde(default)]
     pub id: String,
     /// `version`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 

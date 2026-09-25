@@ -190,10 +190,18 @@ impl AiClassifyResponseMetadata {
 #[non_exhaustive]
 pub struct AiExtractBbox {
     /// Pixel coordinates on the page image as [x0, y0, x1, y1].
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub coord: Vec<i64>,
     /// 0-based page index the box is on.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_id: Option<i64>,
 }
 
@@ -224,15 +232,27 @@ pub struct AiExtractCitation {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub bbox: Vec<AiExtractBbox>,
     /// Integer matching a citation_ids entry on an extracted field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// Inclusive 0-based character offset into the input string; set for span
     /// citations.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start: Option<i64>,
     /// Exclusive 0-based character offset into the input string; set for span
     /// citations.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub stop: Option<i64>,
 }
 
@@ -496,7 +516,11 @@ pub struct AiParseDocumentFileMetadata {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub file_path: Option<String>,
     /// Size of the source file in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub file_size: Option<i64>,
 }
 
@@ -592,7 +616,11 @@ pub struct AiParseDocumentPageError {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error_message: Option<String>,
     /// 0-based index of the page that failed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_id: Option<i64>,
 }
 

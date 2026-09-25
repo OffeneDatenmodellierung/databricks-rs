@@ -9,6 +9,7 @@
     feature = "compute",
     feature = "files",
     feature = "iam",
+    feature = "ml",
     feature = "provisioning",
     feature = "sql"
 ))]
@@ -17,10 +18,11 @@ use std::time::Duration;
 
 use databricks_sdk::core::config::HostMetadata;
 use databricks_sdk::service::agentbricks::CancelCustomLlmOptimizationRunRequest;
-use databricks_sdk::service::catalog::{McpService, UpdateMcpServiceRequest};
-use databricks_sdk::service::compute::{CreateCluster, StartCluster, State};
+use databricks_sdk::service::catalog::{GetSchemaRequest, McpService, UpdateMcpServiceRequest};
+use databricks_sdk::service::compute::{ClusterDetails, CreateCluster, StartCluster, State};
 use databricks_sdk::service::files::{GetDirectoryMetadataRequest, GetMetadataRequest};
 use databricks_sdk::service::iam::ListUsersRequest;
+use databricks_sdk::service::ml::Metric;
 use databricks_sdk::service::provisioning::GetWorkspaceRequest;
 use databricks_sdk::service::sql::ListDashboardsRequest;
 use databricks_sdk::{AccountClient, Config, WorkspaceClient};
@@ -211,6 +213,50 @@ async fn multi_segment_path_is_escaped_per_segment() {
         .get_directory_metadata(GetDirectoryMetadataRequest::new("/Volumes/main/my vol/a#b"))
         .await
         .unwrap();
+}
+
+#[tokio::test]
+async fn single_segment_path_escapes_slashes() {
+    // databricks-sdk-go#1765: a name that is one path segment must not
+    // turn a `/` into a new segment.
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/unity-catalog/schemas/main.a%2Fb"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"name": "a/b"})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    workspace(&server)
+        .await
+        .schemas()
+        .get(GetSchemaRequest::new("main.a/b"))
+        .await
+        .unwrap();
+}
+
+#[test]
+fn int64_fields_accept_numeric_strings_and_null() {
+    // databricks-sdk-go#1808: proto3 JSON encodes int64 as a string.
+    let c: ClusterDetails = serde_json::from_value(json!({
+        "num_workers": "4",
+        "spark_context_id": "9007199254740993",
+        "autotermination_minutes": null,
+    }))
+    .unwrap();
+    assert_eq!(c.num_workers, Some(4));
+    assert_eq!(c.spark_context_id, Some(9_007_199_254_740_993));
+    assert_eq!(c.autotermination_minutes, None);
+    // Serialisation stays numeric.
+    assert_eq!(serde_json::to_value(&c).unwrap()["num_workers"], json!(4));
+}
+
+#[test]
+fn float_fields_accept_non_finite_strings() {
+    // databricks-sdk-go#1498: MLflow returns metric values as "NaN".
+    let m: Metric = serde_json::from_value(json!({"key": "loss", "value": "NaN"})).unwrap();
+    assert!(m.value.is_some_and(f64::is_nan));
+    let m: Metric = serde_json::from_value(json!({"key": "loss", "value": 0.5})).unwrap();
+    assert_eq!(m.value, Some(0.5));
 }
 
 #[tokio::test]

@@ -626,10 +626,18 @@ impl ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule {
 #[non_exhaustive]
 pub struct ClusterAutoRestartMessageMaintenanceWindowWindowStartTime {
     /// `hours`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hours: Option<i64>,
     /// `minutes`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub minutes: Option<i64>,
 }
 
@@ -1049,7 +1057,11 @@ pub struct CreateOboTokenRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// The number of seconds before the token expires.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lifetime_seconds: Option<i64>,
     /// `scopes`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1281,7 +1293,11 @@ pub struct CreateTokenRequest {
     /// The lifetime of the token, in seconds.
     ///
     /// If the lifetime is not specified, this token remains valid for 2 years.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lifetime_seconds: Option<i64>,
     /// Optional scopes of the token.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1620,7 +1636,11 @@ impl CustomerFacingIngressNetworkPolicyAuthentication {
 #[non_exhaustive]
 pub struct CustomerFacingIngressNetworkPolicyAuthenticationIdentity {
     /// `principal_id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
     /// `principal_type`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2435,7 +2455,11 @@ impl CustomerFacingIngressNetworkPolicyWorkspaceApiDestination {
 #[non_exhaustive]
 pub struct CustomerFacingIngressNetworkPolicyWorkspaceIdList {
     /// `workspace_ids`
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspace_ids: Vec<i64>,
 }
 
@@ -2492,13 +2516,21 @@ pub struct CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
         CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRulePrivateLinkConnectionState,
     >,
     /// Time in epoch milliseconds when this object was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Whether this private endpoint is deactivated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deactivated: Option<bool>,
     /// Time in epoch milliseconds when this object was deactivated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deactivated_at: Option<i64>,
     /// Only used by private endpoints towards a VPC endpoint service for
     /// customer-managed VPC endpoint service.
@@ -2537,7 +2569,11 @@ pub struct CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rule_id: Option<String>,
     /// Time in epoch milliseconds when this object was updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_time: Option<i64>,
     /// The AWS VPC endpoint ID. You can use this ID to identify VPC endpoint
     /// created by Databricks.
@@ -4428,7 +4464,11 @@ impl EgressNetworkPolicyNetworkAccessPolicy {
 #[non_exhaustive]
 pub struct EgressNetworkPolicyNetworkAccessPolicyDatabricksDestination {
     /// The workspace IDs to allow egress traffic to.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspace_ids: Vec<i64>,
 }
 
@@ -4926,13 +4966,19 @@ pub struct ExchangeToken {
     /// The end-of-life timestamp of the token. The value is in milliseconds
     /// since the Unix epoch.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "credentialEolTime",
         default,
         skip_serializing_if = "Option::is_none"
     )]
     pub credential_eol_time: Option<i64>,
     /// User ID of the user that owns this token.
-    #[serde(rename = "ownerId", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        rename = "ownerId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub owner_id: Option<i64>,
     /// The scopes of access granted in the token.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -6009,13 +6055,25 @@ impl GoogleApiEndpoints {
 #[non_exhaustive]
 pub struct IpAccessListInfo {
     /// Total number of IP or CIDR values.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub address_count: Option<i64>,
     /// Creation timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// User ID of the user who created this list.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by: Option<i64>,
     /// Specifies whether this IP access list is enabled.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6033,10 +6091,18 @@ pub struct IpAccessListInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub list_type: Option<ListType>,
     /// Update timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// User ID of the user who updated this list.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_by: Option<i64>,
 }
 
@@ -6786,13 +6852,21 @@ pub struct NccAzurePrivateEndpointRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_state: Option<NccAzurePrivateEndpointRuleConnectionState>,
     /// Time in epoch milliseconds when this object was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Whether this private endpoint is deactivated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deactivated: Option<bool>,
     /// Time in epoch milliseconds when this object was deactivated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deactivated_at: Option<i64>,
     /// Not used by customer-managed private endpoint services.
     ///
@@ -6824,7 +6898,11 @@ pub struct NccAzurePrivateEndpointRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rule_id: Option<String>,
     /// Time in epoch milliseconds when this object was updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_time: Option<i64>,
 }
 
@@ -7105,13 +7183,21 @@ pub struct NccPrivateEndpointRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_state: Option<NccPrivateEndpointRulePrivateLinkConnectionState>,
     /// Time in epoch milliseconds when this object was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Whether this private endpoint is deactivated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deactivated: Option<bool>,
     /// Time in epoch milliseconds when this object was deactivated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deactivated_at: Option<i64>,
     /// Only used by private endpoints to customer-managed private endpoint
     /// services.
@@ -7164,7 +7250,11 @@ pub struct NccPrivateEndpointRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rule_id: Option<String>,
     /// Time in epoch milliseconds when this object was updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_time: Option<i64>,
     /// The AWS VPC endpoint ID. You can use this ID to identify the VPC endpoint
     /// created by Databricks.
@@ -7332,7 +7422,11 @@ pub struct NetworkConnectivityConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub account_id: Option<String>,
     /// Time in epoch milliseconds when this object was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// The network connectivity rules that apply to network traffic from your
     /// serverless compute resources.
@@ -7353,7 +7447,11 @@ pub struct NetworkConnectivityConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub region: Option<String>,
     /// Time in epoch milliseconds when this object was updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_time: Option<i64>,
 }
 
@@ -7514,6 +7612,7 @@ impl PagerdutyConfig {
 pub struct PartitionId {
     /// The ID of the workspace.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "workspaceId",
         default,
         skip_serializing_if = "Option::is_none"
@@ -7643,11 +7742,19 @@ pub struct PublicTokenInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Server time (in epoch milliseconds) when the token was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Server time (in epoch milliseconds) when the token will expire, or -1 if
     /// not applicable.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry_time: Option<i64>,
     /// Output only. Inferred API path scopes collected for this token when
     /// autoscope is enabled.
@@ -8179,16 +8286,28 @@ pub struct TokenInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// User ID of the user that created the token.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by_id: Option<i64>,
     /// Username of the user that created the token.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by_username: Option<String>,
     /// Timestamp when the token was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Timestamp when the token expires.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry_time: Option<i64>,
     /// Output only. Inferred API path scopes collected for this token when
     /// autoscope is enabled.
@@ -8196,10 +8315,18 @@ pub struct TokenInfo {
     pub inferred_scopes: Vec<String>,
     /// Approximate timestamp for the day the token was last used. Accurate up to
     /// 1 day.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_used_day: Option<i64>,
     /// User ID of the user that owns the token.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub owner_id: Option<i64>,
     /// Scope of the token was created with, if applicable.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -8208,7 +8335,11 @@ pub struct TokenInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub token_id: Option<String>,
     /// If applicable, the ID of the workspace that the token was created in.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -10047,7 +10178,11 @@ pub struct WorkspaceNetworkOption {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub network_policy_id: Option<String>,
     /// The workspace ID.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 

@@ -129,12 +129,20 @@ pub struct AutoScale {
     /// The maximum number of workers to which the cluster can scale up when
     /// overloaded. Note that `max_workers` must be strictly greater than
     /// `min_workers`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_workers: Option<i64>,
     /// The minimum number of workers to which the cluster can scale down when
     /// underutilized. It is also the initial number of workers the cluster will
     /// have after creation.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_workers: Option<i64>,
 }
 
@@ -178,22 +186,38 @@ pub struct AwsAttributes {
     ///
     /// Please note that if EBS volumes are specified, then the Spark
     /// configuration `spark.local.dir` will be overridden.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub ebs_volume_count: Option<i64>,
     /// If using gp3 volumes, what IOPS to use for the disk. If this is not set,
     /// the maximum performance of a gp2 volume with the same volume size will be
     /// used.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub ebs_volume_iops: Option<i64>,
     /// The size of each EBS volume (in GiB) launched for each instance. For
     /// general purpose SSD, this value must be within the range 100 - 4096. For
     /// throughput optimized HDD, this value must be within the range 500 - 4096.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub ebs_volume_size: Option<i64>,
     /// If using gp3 volumes, what throughput to use for the disk. If this is not
     /// set, the maximum performance of a gp2 volume with the same volume size
     /// will be used.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub ebs_volume_throughput: Option<i64>,
     /// The type of EBS volumes that will be launched with this cluster.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -207,7 +231,11 @@ pub struct AwsAttributes {
     /// instances and the remainder will be placed on `availability` instances.
     /// Note that this value does not affect cluster size and cannot currently be
     /// mutated over the lifetime of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub first_on_demand: Option<i64>,
     /// Nodes for this cluster will only be placed on AWS instances with this
     /// instance profile. If ommitted, nodes will be placed on instances without
@@ -227,7 +255,11 @@ pub struct AwsAttributes {
     /// instances whose bid price percentage matches this field will be
     /// considered. Note that, for safety, we enforce this field to be no more
     /// than 10000.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spot_bid_price_percent: Option<i64>,
     /// Identifier for the availability zone/datacenter in which the cluster
     /// resides. This string will be of a form like "us-west-2a". The provided
@@ -368,7 +400,11 @@ pub struct AzureAttributes {
     /// instances and the remainder will be placed on `availability` instances.
     /// Note that this value does not affect cluster size and cannot currently be
     /// mutated over the lifetime of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub first_on_demand: Option<i64>,
     /// Defines values necessary to configure and run Azure Log Analytics agent
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -378,7 +414,11 @@ pub struct AzureAttributes {
     /// specified, the default value is -1, which specifies that the instance
     /// cannot be evicted on the basis of price, and only on the basis of
     /// availability. Further, the value should \> 0 or -1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spot_bid_max_price: Option<f64>,
 }
 
@@ -755,7 +795,11 @@ pub struct ClusterAttributes {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -864,7 +908,11 @@ pub struct ClusterAttributes {
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -921,7 +969,11 @@ pub struct ClusterAttributes {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -1270,7 +1322,11 @@ pub struct ClusterDetails {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -1283,7 +1339,11 @@ pub struct ClusterDetails {
     /// Number of CPU cores available for this cluster. Note that this can be
     /// fractional, e.g. 7.5 cores, since certain node types are configured to
     /// share cores between Spark nodes on the same instance.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cluster_cores: Option<f64>,
     /// Canonical identifier for the cluster. This id is retained during cluster
     /// restarts and resizes, while each new cluster has a globally unique id.
@@ -1302,7 +1362,11 @@ pub struct ClusterDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cluster_log_status: Option<LogSyncStatus>,
     /// Total amount of cluster memory, in megabytes
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cluster_memory_mb: Option<i64>,
     /// Cluster name requested by the user. This doesn't have to be unique. If
     /// not specified at creation, the cluster name will be an empty string. For
@@ -1412,17 +1476,29 @@ pub struct ClusterDetails {
     pub is_single_node: Option<bool>,
     /// Port on which Spark JDBC server is listening, in the driver nod. No
     /// service will be listeningon on this port in executor nodes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub jdbc_port: Option<i64>,
     /// `kind`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<Kind>,
     /// the timestamp that the cluster was started/restarted
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_restarted_time: Option<i64>,
     /// Time when the cluster driver last lost its state (due to a restart or
     /// driver failure).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_state_loss_time: Option<i64>,
     /// This field encodes, through a single value, the resources available to
     /// each of the Spark nodes in this cluster. For example, the Spark nodes can
@@ -1443,14 +1519,22 @@ pub struct ClusterDetails {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -1478,7 +1562,11 @@ pub struct ClusterDetails {
     /// A canonical SparkContext identifier. This value *does* change when the
     /// Spark driver restarts. The pair `(cluster_id, spark_context_id)` is a
     /// globally unique identifier over all Spark contexts.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spark_context_id: Option<i64>,
     /// An object containing a set of optional, user-specified environment
     /// variable key-value pairs. Please note that key-value pair of the form
@@ -1517,7 +1605,11 @@ pub struct ClusterDetails {
     pub ssh_public_keys: Vec<String>,
     /// Time (in epoch milliseconds) when the cluster creation request was
     /// received (when the cluster entered a `PENDING` state).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Current state of the cluster.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1528,7 +1620,11 @@ pub struct ClusterDetails {
     pub state_message: Option<String>,
     /// Time (in epoch milliseconds) when the cluster was terminated, if
     /// applicable.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub terminated_time: Option<i64>,
     /// Information about why the cluster was terminated. This field only appears
     /// when the cluster is in a `TERMINATING` or `TERMINATED` state.
@@ -1536,7 +1632,11 @@ pub struct ClusterDetails {
     pub termination_reason: Option<TerminationReason>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -1960,7 +2060,11 @@ pub struct ClusterEvent {
     /// The timestamp when the event occurred, stored as the number of
     /// milliseconds since the Unix epoch. If not provided, this will be assigned
     /// by the Timeline service.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timestamp: Option<i64>,
     /// `type`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2572,7 +2676,11 @@ pub struct ClusterSize {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
 }
 
@@ -2634,7 +2742,11 @@ pub struct ClusterSpec {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -2748,14 +2860,22 @@ pub struct ClusterSpec {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -2812,7 +2932,11 @@ pub struct ClusterSpec {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -3370,7 +3494,11 @@ pub struct CreateCluster {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -3488,14 +3616,22 @@ pub struct CreateCluster {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -3552,7 +3688,11 @@ pub struct CreateCluster {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -3937,7 +4077,11 @@ pub struct CreateInstancePool {
     /// threshold must be between 0 and 10000 minutes. Users can also set this
     /// value to 0 to instantly remove idle instances from the cache if min cache
     /// size could still hold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub idle_instance_autotermination_minutes: Option<i64>,
     /// Pool name requested by the user. Pool name must be unique. Length must be
     /// between 1 and 100 characters.
@@ -3946,10 +4090,18 @@ pub struct CreateInstancePool {
     /// Maximum number of outstanding instances to keep in the pool, including
     /// both instances used by clusters and idle instances. Clusters that require
     /// further instance provisioning will fail during upsize requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_capacity: Option<i64>,
     /// Minimum number of idle instances to keep in the instance pool
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_idle_instances: Option<i64>,
     /// Flexible node type configuration for the pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3976,11 +4128,19 @@ pub struct CreateInstancePool {
     pub preloaded_spark_versions: Vec<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
 }
 
@@ -4148,7 +4308,11 @@ pub struct CreatePolicy {
     pub libraries: Vec<Library>,
     /// Max number of clusters per user that can be active using this policy. If
     /// not present, there is no max limit.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_clusters_per_user: Option<i64>,
     /// Cluster Policy name requested by the user. This has to be unique. Length
     /// must be between 1 and 100 characters.
@@ -4327,13 +4491,21 @@ pub struct DataPlaneEventDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub event_type: Option<DataPlaneEventDetailsEventType>,
     /// `executor_failures`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub executor_failures: Option<i64>,
     /// `host_id`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub host_id: Option<String>,
     /// `timestamp`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timestamp: Option<i64>,
 }
 
@@ -4657,10 +4829,18 @@ pub struct DiskSpec {
     ///
     /// Disks will be mounted at: - For AWS: `/ebs0`, `/ebs1`, and etc. - For
     /// Azure: `/remote_volume0`, `/remote_volume1`, and etc.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub disk_count: Option<i64>,
     /// `disk_iops`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub disk_iops: Option<i64>,
     /// The size of each disk (in GiB) launched for each instance. Values must
     /// fall into the supported range for a particular instance type.
@@ -4670,10 +4850,18 @@ pub struct DiskSpec {
     ///
     /// For Azure: - Premium LRS (SSD): 1 - 1023 GiB - Standard LRS (HDD): 1-
     /// 1023 GiB
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub disk_size: Option<i64>,
     /// `disk_throughput`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub disk_throughput: Option<i64>,
     /// The type of disks that will be launched with this cluster.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4856,7 +5044,11 @@ pub struct EditCluster {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -4973,14 +5165,22 @@ pub struct EditCluster {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -5037,7 +5237,11 @@ pub struct EditCluster {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -5354,7 +5558,11 @@ pub struct EditInstancePool {
     /// threshold must be between 0 and 10000 minutes. Users can also set this
     /// value to 0 to instantly remove idle instances from the cache if min cache
     /// size could still hold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub idle_instance_autotermination_minutes: Option<i64>,
     /// Instance pool ID
     #[serde(default)]
@@ -5366,10 +5574,18 @@ pub struct EditInstancePool {
     /// Maximum number of outstanding instances to keep in the pool, including
     /// both instances used by clusters and idle instances. Clusters that require
     /// further instance provisioning will fail during upsize requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_capacity: Option<i64>,
     /// Minimum number of idle instances to keep in the instance pool
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_idle_instances: Option<i64>,
     /// This field encodes, through a single value, the resources available to
     /// each of the Spark nodes in this cluster. For example, the Spark nodes can
@@ -5382,11 +5598,19 @@ pub struct EditInstancePool {
     pub node_type_id: String,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
 }
 
@@ -5477,7 +5701,11 @@ pub struct EditPolicy {
     pub libraries: Vec<Library>,
     /// Max number of clusters per user that can be active using this policy. If
     /// not present, there is no max limit.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_clusters_per_user: Option<i64>,
     /// Cluster Policy name requested by the user. This has to be unique. Length
     /// must be between 1 and 100 characters.
@@ -5704,7 +5932,11 @@ pub struct EnforcePolicyComplianceForClusterResponseClusterSettings {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -5818,14 +6050,22 @@ pub struct EnforcePolicyComplianceForClusterResponseClusterSettings {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -5882,7 +6122,11 @@ pub struct EnforcePolicyComplianceForClusterResponseClusterSettings {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///
@@ -6263,16 +6507,28 @@ pub struct EventDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cluster_size: Option<ClusterSize>,
     /// The current number of vCPUs in the cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub current_num_vcpus: Option<i64>,
     /// The current number of nodes in the cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub current_num_workers: Option<i64>,
     /// `did_not_expand_reason`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub did_not_expand_reason: Option<String>,
     /// Current disk size in bytes
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub disk_size: Option<i64>,
     /// More details about the change in driver's state
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6282,7 +6538,11 @@ pub struct EventDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enable_termination_for_node_blocklisted: Option<bool>,
     /// `free_space`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub free_space: Option<i64>,
     /// List of global and cluster init scripts associated with this cluster
     /// event.
@@ -6303,7 +6563,11 @@ pub struct EventDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub previous_cluster_size: Option<ClusterSize>,
     /// Previous disk size in bytes
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub previous_disk_size: Option<i64>,
     /// A termination reason: * On a TERMINATED event, this is the reason of the
     /// termination. * On a RESIZE_COMPLETE event, this indicates the reason that
@@ -6311,10 +6575,18 @@ pub struct EventDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reason: Option<TerminationReason>,
     /// The targeted number of vCPUs in the cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_num_vcpus: Option<i64>,
     /// The targeted number of nodes in the cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_num_workers: Option<i64>,
     /// The user that caused the event to occur. (Empty if it was done by the
     /// control plane.)
@@ -6568,7 +6840,11 @@ pub struct GcpAttributes {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub availability: Option<GcpAvailability>,
     /// Boot disk size in GB
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub boot_disk_size: Option<i64>,
     /// The confidential computing technology for this cluster's instances.
     /// Currently only SEV_SNP is supported, and only on N2D instance types. When
@@ -6584,7 +6860,11 @@ pub struct GcpAttributes {
     /// instances and the remainder will be placed on `availability` instances.
     /// Note that this value does not affect cluster size and cannot currently be
     /// mutated over the lifetime of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub first_on_demand: Option<i64>,
     /// If provided, the cluster will impersonate the google service account when
     /// accessing gcloud services (like GCS). The google service account must
@@ -6598,7 +6878,11 @@ pub struct GcpAttributes {
     /// instance type.
     ///
     /// [GCP documentation]: https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_ssd_count: Option<i64>,
     /// This field determines whether the spark executors will be scheduled to
     /// run on preemptible VMs (when set to true) versus standard compute engine
@@ -7009,7 +7293,11 @@ pub struct GetEvents {
     pub cluster_id: String,
     /// The end time in epoch milliseconds. If empty, returns events up to the
     /// current time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// An optional set of event types to filter on. If empty, all event types
     /// are returned.
@@ -7019,14 +7307,22 @@ pub struct GetEvents {
     ///
     /// The maximum number of events to include in a page of events. Defaults to
     /// 50, and maximum allowed value is 500.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub limit: Option<i64>,
     /// Deprecated: use page_token in combination with page_size instead.
     ///
     /// The offset in the result set. Defaults to 0 (no offset). When an offset
     /// is specified and the results are requested in descending order, the
     /// end_time field is required.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub offset: Option<i64>,
     /// The order to list events in; either "ASC" or "DESC". Defaults to "DESC".
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7036,7 +7332,11 @@ pub struct GetEvents {
     /// page. If the page_size is empty or 0, the server will decide the number
     /// of results to be returned. The field has to be in the range [0,500]. If
     /// the value is outside the range, the server enforces 0 or 500.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_size: Option<i64>,
     /// Use next_page_token or prev_page_token returned from the previous request
     /// to list the next or previous page of events respectively. If page_token
@@ -7045,7 +7345,11 @@ pub struct GetEvents {
     pub page_token: Option<String>,
     /// The start time in epoch milliseconds. If empty, returns events starting
     /// from the beginning of time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
 }
 
@@ -7160,7 +7464,11 @@ pub struct GetEventsResponse {
     ///
     /// The total number of events filtered by the start_time, end_time, and
     /// event_types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_count: Option<i64>,
 }
 
@@ -7287,7 +7595,11 @@ pub struct GetInstancePool {
     /// threshold must be between 0 and 10000 minutes. Users can also set this
     /// value to 0 to instantly remove idle instances from the cache if min cache
     /// size could still hold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub idle_instance_autotermination_minutes: Option<i64>,
     /// Canonical unique identifier for the pool.
     #[serde(default)]
@@ -7299,10 +7611,18 @@ pub struct GetInstancePool {
     /// Maximum number of outstanding instances to keep in the pool, including
     /// both instances used by clusters and idle instances. Clusters that require
     /// further instance provisioning will fail during upsize requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_capacity: Option<i64>,
     /// Minimum number of idle instances to keep in the instance pool
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_idle_instances: Option<i64>,
     /// Flexible node type configuration for the pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7329,7 +7649,11 @@ pub struct GetInstancePool {
     pub preloaded_spark_versions: Vec<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Current state of the instance pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7342,7 +7666,11 @@ pub struct GetInstancePool {
     pub status: Option<InstancePoolStatus>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
 }
 
@@ -7689,7 +8017,11 @@ pub struct GlobalInitScriptCreateRequest {
     /// position. If an explicit position value conflicts with an existing script
     /// value, your request succeeds, but the original script at that position
     /// and all later scripts have their positions incremented by 1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The Base64-encoded content of the script.
     #[serde(default)]
@@ -7742,7 +8074,11 @@ impl GlobalInitScriptCreateRequest {
 pub struct GlobalInitScriptDetails {
     /// Time when the script was created, represented as a Unix timestamp in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The username of the user who created the script.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7755,14 +8091,22 @@ pub struct GlobalInitScriptDetails {
     pub name: Option<String>,
     /// The position of a script, where 0 represents the first script to run, 1
     /// is the second script to run, in ascending order.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The global init script ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub script_id: Option<String>,
     /// Time when the script was updated, represented as a Unix timestamp in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The username of the user who last updated the script
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7833,7 +8177,11 @@ impl GlobalInitScriptDetails {
 pub struct GlobalInitScriptDetailsWithContent {
     /// Time when the script was created, represented as a Unix timestamp in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The username of the user who created the script.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7846,7 +8194,11 @@ pub struct GlobalInitScriptDetailsWithContent {
     pub name: Option<String>,
     /// The position of a script, where 0 represents the first script to run, 1
     /// is the second script to run, in ascending order.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The Base64-encoded content of the script.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7856,7 +8208,11 @@ pub struct GlobalInitScriptDetailsWithContent {
     pub script_id: Option<String>,
     /// Time when the script was updated, represented as a Unix timestamp in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The username of the user who last updated the script
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7950,7 +8306,11 @@ pub struct GlobalInitScriptUpdateRequest {
     /// If an explicit position value conflicts with an existing script, your
     /// request succeeds, but the original script at that position and all later
     /// scripts have their positions incremented by 1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The Base64-encoded content of the script.
     #[serde(default)]
@@ -8186,7 +8546,11 @@ pub struct InitScriptInfoAndExecutionDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error_message: Option<String>,
     /// The number duration of the script execution in seconds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_duration_seconds: Option<i64>,
     /// destination needs to be provided, e.g. `{ "file": { "destination":
     /// "file:/my/local/file.sh" } }`
@@ -8505,7 +8869,11 @@ pub struct InstancePoolAndStats {
     /// threshold must be between 0 and 10000 minutes. Users can also set this
     /// value to 0 to instantly remove idle instances from the cache if min cache
     /// size could still hold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub idle_instance_autotermination_minutes: Option<i64>,
     /// Canonical unique identifier for the pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8517,10 +8885,18 @@ pub struct InstancePoolAndStats {
     /// Maximum number of outstanding instances to keep in the pool, including
     /// both instances used by clusters and idle instances. Clusters that require
     /// further instance provisioning will fail during upsize requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_capacity: Option<i64>,
     /// Minimum number of idle instances to keep in the instance pool
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_idle_instances: Option<i64>,
     /// Flexible node type configuration for the pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8547,7 +8923,11 @@ pub struct InstancePoolAndStats {
     pub preloaded_spark_versions: Vec<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Current state of the instance pool.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8560,7 +8940,11 @@ pub struct InstancePoolAndStats {
     pub status: Option<InstancePoolStatus>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Currently only supported for GCP HYPERDISK_BALANCED types.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
 }
 
@@ -8749,7 +9133,11 @@ pub struct InstancePoolAwsAttributes {
     /// instances whose bid price percentage matches this field will be
     /// considered. Note that, for safety, we enforce this field to be no more
     /// than 10000.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spot_bid_price_percent: Option<i64>,
     /// Identifier for the availability zone/datacenter in which the cluster
     /// resides. This string will be of a form like "us-west-2a". The provided
@@ -8840,7 +9228,11 @@ pub struct InstancePoolAzureAttributes {
     /// price. The price for the VM will be the current price for spot or the
     /// price for a standard VM, which ever is less, as long as there is capacity
     /// and quota available.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub spot_bid_max_price: Option<f64>,
 }
 
@@ -8894,7 +9286,11 @@ pub struct InstancePoolGcpAttributes {
     /// type.
     ///
     /// [GCP documentation]: https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_ssd_count: Option<i64>,
     /// Identifier for the availability zone/datacenter in which the cluster
     /// resides. This string will be of a form like "us-west1-a". The provided
@@ -9117,16 +9513,32 @@ impl InstancePoolPermissionsRequest {
 #[non_exhaustive]
 pub struct InstancePoolStats {
     /// Number of active instances in the pool that are NOT part of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub idle_count: Option<i64>,
     /// Number of pending instances in the pool that are NOT part of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pending_idle_count: Option<i64>,
     /// Number of pending instances in the pool that are part of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pending_used_count: Option<i64>,
     /// Number of active instances in the pool that are part of a cluster.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub used_count: Option<i64>,
 }
 
@@ -10034,7 +10446,11 @@ impl LogAnalyticsInfo {
 pub struct LogSyncStatus {
     /// The timestamp of last attempt. If the last attempt fails,
     /// `last_exception` will contain the exception in the last attempt.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_attempted: Option<i64>,
     /// The exception thrown in the last attempt, it would be null (omitted in
     /// the response) if there is no exception in last attempted.
@@ -10124,17 +10540,33 @@ pub struct NodeInstanceType {
     pub instance_type_id: String,
     /// Size of the individual local disks attached to this instance (i.e. per
     /// local disk).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_disk_size_gb: Option<i64>,
     /// Number of local disks that are present on this instance.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_disks: Option<i64>,
     /// Size of the individual local nvme disks attached to this instance (i.e.
     /// per local disk).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_nvme_disk_size_gb: Option<i64>,
     /// Number of local nvme disks that are present on this instance.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub local_nvme_disks: Option<i64>,
 }
 
@@ -10198,7 +10630,11 @@ pub struct NodeType {
     pub description: String,
     /// An optional hint at the display order of node types in the UI. Within a
     /// node type category, lowest numbers come first.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub display_order: Option<i64>,
     /// An identifier for the type of hardware that this node runs on, e.g.,
     /// "r3.2xlarge" in AWS.
@@ -10222,7 +10658,7 @@ pub struct NodeType {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_io_cache_enabled: Option<bool>,
     /// Memory (in MB) available for this node type.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub memory_mb: i64,
     /// A collection of node type info reported by the cloud provider
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10236,10 +10672,14 @@ pub struct NodeType {
     /// Number of CPU cores available for this node type. Note that this can be
     /// fractional, e.g., 2.5 cores, if the number of cores on a machine instance
     /// is not divisible by the number of Spark nodes on that machine.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::f64", default)]
     pub num_cores: f64,
     /// Number of GPUs available for this node type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_gpus: Option<i64>,
     /// `photon_driver_capable`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10601,7 +11041,11 @@ impl PinCluster {
 pub struct Policy {
     /// Creation time. The timestamp (in millisecond) when this Cluster Policy
     /// was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at_timestamp: Option<i64>,
     /// Creator user name. The field won't be included in the response if the
     /// user has already been deleted.
@@ -10627,7 +11071,11 @@ pub struct Policy {
     pub libraries: Vec<Library>,
     /// Max number of clusters per user that can be active using this policy. If
     /// not present, there is no max limit.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_clusters_per_user: Option<i64>,
     /// Cluster Policy name requested by the user. This has to be unique. Length
     /// must be between 1 and 100 characters.
@@ -10914,7 +11362,11 @@ pub struct ResizeCluster {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
 }
 
@@ -11036,7 +11488,11 @@ pub struct Results {
     )]
     pub is_json_schema: Option<bool>,
     /// internal field used by SDK
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pos: Option<i64>,
     /// `resultType`
     #[serde(
@@ -11273,7 +11729,11 @@ pub struct SparkNode {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub public_dns: Option<String>,
     /// The timestamp (in millisecond) when the Spark node is launched.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_timestamp: Option<i64>,
 }
 
@@ -12012,7 +12472,11 @@ pub struct UpdateClusterResource {
     /// terminated. If specified, the threshold must be between 10 and 10000
     /// minutes. Users can also set this value to 0 to explicitly disable
     /// automatic termination.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autotermination_minutes: Option<i64>,
     /// Attributes related to clusters running on Amazon Web Services. If not
     /// specified at cluster creation, a set of default values will be used.
@@ -12126,14 +12590,22 @@ pub struct UpdateClusterResource {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub policy_id: Option<String>,
     /// If set, what the configurable throughput (in Mb/s) for the remote disk
     /// is. Currently only supported for GCP HYPERDISK_BALANCED disks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub remote_disk_throughput: Option<i64>,
     /// Determines the cluster's runtime engine, either standard or Photon.
     ///
@@ -12190,7 +12662,11 @@ pub struct UpdateClusterResource {
     pub ssh_public_keys: Vec<String>,
     /// If set, what the total initial volume size (in GB) of the remote disks
     /// should be. Supported for GCP.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_initial_remote_disk_size: Option<i64>,
     /// This field can only be used when `kind = CLASSIC_PREVIEW`.
     ///

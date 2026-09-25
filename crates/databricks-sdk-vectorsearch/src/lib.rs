@@ -64,7 +64,11 @@ pub struct CreateEndpoint {
     /// actual replica count is calculated at index creation/sync time based on
     /// this value. Best-effort target; the system does not guarantee this QPS
     /// will be achieved.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_qps: Option<i64>,
     /// The usage policy id to be applied once we've migrated to usage policies
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -250,7 +254,11 @@ pub struct DeleteDataResult {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub failed_primary_keys: Vec<String>,
     /// Count of successfully processed rows.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub success_row_count: Option<i64>,
 }
 
@@ -702,7 +710,11 @@ impl EmbeddingSourceColumn {
 #[non_exhaustive]
 pub struct EmbeddingVectorColumn {
     /// Dimension of the embedding vector
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub embedding_dimension: Option<i64>,
     /// Name of the column
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -733,7 +745,11 @@ pub struct EndpointInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub budget_policy_id: Option<String>,
     /// Timestamp of endpoint creation
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Creator of the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -754,7 +770,11 @@ pub struct EndpointInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Timestamp of last update to the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// User who last updated the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -763,7 +783,11 @@ pub struct EndpointInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Number of indexes on the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_indexes: Option<i64>,
     /// Scaling information for the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -869,7 +893,11 @@ impl EndpointInfo {
 pub struct EndpointScalingInfo {
     /// The requested QPS target for the endpoint. Best-effort; the system does
     /// not guarantee this QPS will be achieved.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub requested_target_qps: Option<i64>,
     /// The current state of the scaling change request.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -956,7 +984,11 @@ pub struct FacetResultData {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub facet_array: Vec<Vec<String>>,
     /// Number of facet rows returned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub facet_row_count: Option<i64>,
 }
 
@@ -1304,7 +1336,11 @@ pub struct Metric {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Percentile for the metric
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub percentile: Option<f64>,
 }
 
@@ -1364,10 +1400,18 @@ impl MetricLabel {
 #[non_exhaustive]
 pub struct MetricValue {
     /// Timestamp of the metric value (milliseconds since epoch)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timestamp: Option<i64>,
     /// Metric value
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub value: Option<f64>,
 }
 
@@ -1568,7 +1612,11 @@ pub struct PatchEndpointRequest {
     pub endpoint_name: String,
     /// Target QPS for the endpoint. Best-effort; the system does not guarantee
     /// this QPS will be achieved.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_qps: Option<i64>,
 }
 
@@ -1695,7 +1743,11 @@ pub struct QueryVectorIndexRequest {
     #[serde(skip)]
     pub index_name: String,
     /// Number of results to return. Defaults to 10.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_results: Option<i64>,
     /// Text columns to search for `query_text`. When empty, all text columns are
     /// searched.
@@ -1710,7 +1762,11 @@ pub struct QueryVectorIndexRequest {
     pub query_type: Option<String>,
     /// Query vector. Required for Direct Vector Access Index and Delta Sync
     /// Index using self-managed vectors.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_f64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub query_vector: Vec<f64>,
     /// If set, the top 50 results are reranked with the Databricks Reranker
     /// model before returning the `num_results` results to the user. The setting
@@ -1722,7 +1778,11 @@ pub struct QueryVectorIndexRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reranker: Option<RerankerConfig>,
     /// Threshold for the approximate nearest neighbor search. Defaults to 0.0.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub score_threshold: Option<f64>,
     /// Sort results by column values instead of the default relevance ordering.
     /// Each clause has the form `"<column> ASC"` or `"<column> DESC"`, for
@@ -1941,7 +2001,11 @@ pub struct ResultData {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub data_array: Vec<Vec<String>>,
     /// Number of rows in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
 }
 
@@ -1966,13 +2030,21 @@ impl ResultData {
 #[non_exhaustive]
 pub struct ResultManifest {
     /// Number of columns in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub column_count: Option<i64>,
     /// Information about each column in the result set.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub columns: Vec<ColumnInfo>,
     /// Number of columns in `facet_result`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub facet_column_count: Option<i64>,
     /// Information about each column in `facet_result`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2017,7 +2089,11 @@ pub struct RetrieveUserVisibleMetricsRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub end_time: Option<String>,
     /// Granularity in seconds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub granularity_in_seconds: Option<i64>,
     /// List of metrics to retrieve
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2138,7 +2214,11 @@ pub struct ScanVectorIndexRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_primary_key: Option<String>,
     /// Number of results to return. Defaults to 10.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_results: Option<i64>,
 }
 
@@ -2321,7 +2401,11 @@ pub struct UpsertDataResult {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub failed_primary_keys: Vec<String>,
     /// Count of successfully processed rows.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub success_row_count: Option<i64>,
 }
 
@@ -2431,7 +2515,11 @@ pub struct Value {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub list_value: Option<ListValue>,
     /// `number_value`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub number_value: Option<f64>,
     /// `string_value`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2600,7 +2688,11 @@ pub struct VectorIndexStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub index_url: Option<String>,
     /// Number of rows indexed
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub indexed_row_count: Option<i64>,
     /// Message associated with the index status
     #[serde(default, skip_serializing_if = "Option::is_none")]

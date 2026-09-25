@@ -5,7 +5,7 @@ use std::sync::Arc;
 use futures_util::future::BoxFuture;
 use secrecy::{ExposeSecret, SecretString};
 
-use super::{CredentialsProvider, CredentialsStrategy, Headers, bearer};
+use super::{CredentialsProvider, CredentialsStrategy, Headers, bearer, reject_group_role};
 use crate::config::Config;
 use crate::error::{Error, Result};
 
@@ -24,6 +24,7 @@ impl CredentialsStrategy for PatCredentials {
         _http: &'a reqwest::Client,
     ) -> BoxFuture<'a, Result<Option<Arc<dyn CredentialsProvider>>>> {
         Box::pin(async move {
+            reject_group_role(cfg, "pat")?;
             let Some(token) = cfg.token.as_ref().filter(|t| !t.expose_secret().is_empty()) else {
                 return Ok(None);
             };

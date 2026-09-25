@@ -678,13 +678,21 @@ pub struct GenieConversation {
     #[serde(default)]
     pub conversation_id: String,
     /// Timestamp when the message was created
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_timestamp: Option<i64>,
     /// Conversation ID. Legacy identifier, use conversation_id instead
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Timestamp when the message was last updated
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Genie space ID
     #[serde(default)]
@@ -693,7 +701,11 @@ pub struct GenieConversation {
     #[serde(default)]
     pub title: String,
     /// ID of the user who created the conversation
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
 }
 
@@ -761,7 +773,11 @@ pub struct GenieConversationSummary {
     #[serde(default)]
     pub conversation_id: String,
     /// `created_timestamp`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_timestamp: Option<i64>,
     /// `title`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1179,7 +1195,11 @@ pub struct GenieEvalResult {
     #[serde(default)]
     pub benchmark_question_id: String,
     /// User ID who created evaluation result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by_user: Option<i64>,
     /// Stored snapshot of original benchmark question text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1400,7 +1420,11 @@ impl GenieEvalResultDetails {
 #[non_exhaustive]
 pub struct GenieEvalRunResponse {
     /// Timestamp when the evaluation run was created (milliseconds since epoch).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_timestamp: Option<i64>,
     /// The unique identifier for the evaluation run.
     #[serde(default)]
@@ -1410,22 +1434,46 @@ pub struct GenieEvalRunResponse {
     pub eval_run_status: Option<EvaluationStatusType>,
     /// Timestamp when the evaluation run was last updated (milliseconds since
     /// epoch).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Number of questions answered correctly.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_correct: Option<i64>,
     /// Number of questions that have been completed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_done: Option<i64>,
     /// Number of questions that need manual review.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_needs_review: Option<i64>,
     /// Total number of questions in the evaluation run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_questions: Option<i64>,
     /// User ID who initiated the evaluation run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_by_user: Option<i64>,
 }
 
@@ -2688,7 +2736,11 @@ pub struct GenieMessage {
     #[serde(default)]
     pub conversation_id: String,
     /// Timestamp when the message was created
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_timestamp: Option<i64>,
     /// Error message if Genie failed to respond to the message
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2700,7 +2752,11 @@ pub struct GenieMessage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Timestamp when the message was last updated
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Message ID
     #[serde(default)]
@@ -2717,7 +2773,11 @@ pub struct GenieMessage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<MessageStatus>,
     /// ID of the user who created the message
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
 }
 
@@ -2825,7 +2885,11 @@ pub struct GenieMessageComment {
     #[serde(default)]
     pub conversation_id: String,
     /// Timestamp when the comment was created
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_timestamp: Option<i64>,
     /// Comment ID
     #[serde(default)]
@@ -2837,7 +2901,11 @@ pub struct GenieMessageComment {
     #[serde(default)]
     pub space_id: String,
     /// ID of the user who created the comment
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub user_id: Option<i64>,
 }
 
@@ -2903,7 +2971,11 @@ pub struct GenieQueryAttachment {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Time when the user updated the query last
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// `parameters`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -3000,7 +3072,11 @@ pub struct GenieResultMetadata {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_truncated: Option<bool>,
     /// The number of rows in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
 }
 
@@ -4353,7 +4429,11 @@ pub struct Result {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_truncated: Option<bool>,
     /// Row count of the result
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
     /// Statement Execution API statement id. Use [Get status, manifest, and
     /// result first chunk](:method:statementexecution/getstatement) to get the
@@ -4669,7 +4749,11 @@ pub struct Subscription {
     pub create_time: Option<String>,
     /// UserId of the user who adds subscribers (users or notification
     /// destinations) to the dashboard's schedule.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by_user_id: Option<i64>,
     /// UUID identifying the dashboard to which the subscription belongs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4806,7 +4890,7 @@ impl SubscriptionSubscriberDestination {
 #[non_exhaustive]
 pub struct SubscriptionSubscriberUser {
     /// UserId of the subscriber.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub user_id: i64,
 }
 

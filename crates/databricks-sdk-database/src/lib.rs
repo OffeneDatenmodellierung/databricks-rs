@@ -343,14 +343,22 @@ pub struct DatabaseInstance {
     /// only field that contains the value computed from the input field combined
     /// with server side defaults. Use the field without the effective_ prefix to
     /// set the value.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub effective_node_count: Option<i64>,
     /// The retention window for the instance. This is the time window in days
     /// for which the historical data is retained. This is an output only field
     /// that contains the value computed from the input field combined with
     /// server side defaults. Use the field without the effective_ prefix to set
     /// the value.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub effective_retention_window_in_days: Option<i64>,
     /// Whether the instance is stopped. This is an output only field that
     /// contains the value computed from the input field combined with server
@@ -378,7 +386,11 @@ pub struct DatabaseInstance {
     /// The number of nodes in the instance, composed of 1 primary and 0 or more
     /// secondaries. Defaults to 1 primary and 0 secondaries. This field is input
     /// only, see effective_node_count for the output.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub node_count: Option<i64>,
     /// The ref of the parent instance. This is only available if the instance is
     /// child instance. Input: For specifying the parent instance to create a
@@ -399,7 +411,11 @@ pub struct DatabaseInstance {
     /// The retention window for the instance. This is the time window in days
     /// for which the historical data is retained. The default value is 7 days.
     /// Valid values are 2 to 35 days.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub retention_window_in_days: Option<i64>,
     /// The current state of the instance.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1132,7 +1148,11 @@ pub struct DeltaTableSyncInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_commit_timestamp: Option<String>,
     /// The Delta Lake commit version that was last successfully synced.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_commit_version: Option<i64>,
 }
 
@@ -1929,7 +1949,11 @@ pub struct SyncedTableContinuousUpdateStatus {
     pub initial_pipeline_sync_progress: Option<SyncedTablePipelineProgress>,
     /// The last source table Delta version that was successfully synced to the
     /// synced table.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The end timestamp of the last time any data was synchronized from the
     /// source table to the synced table. This is when the data is available in
@@ -1973,7 +1997,11 @@ pub struct SyncedTableFailedStatus {
     /// synced table. The last source table Delta version that was synced to the
     /// synced table. Only populated if the table is still synced and available
     /// for serving.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The end timestamp of the last time any data was synchronized from the
     /// source table to the synced table. Only populated if the table is still
@@ -2003,24 +2031,44 @@ impl SyncedTableFailedStatus {
 #[non_exhaustive]
 pub struct SyncedTablePipelineProgress {
     /// The estimated time remaining to complete this update in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub estimated_completion_time_seconds: Option<f64>,
     /// The source table Delta version that was last processed by the pipeline.
     /// The pipeline may not have completely processed this version yet.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub latest_version_currently_processing: Option<i64>,
     /// The current phase of the data synchronization pipeline.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provisioning_phase: Option<ProvisioningPhase>,
     /// The completion ratio of this update. This is a number between 0 and 1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sync_progress_completion: Option<f64>,
     /// The number of rows that have been synced in this update.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub synced_row_count: Option<i64>,
     /// The total number of rows that need to be synced in this update. This
     /// number may be an estimate.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_row_count: Option<i64>,
 }
 
@@ -2294,7 +2342,11 @@ pub struct SyncedTableSpecTypeOverride {
     /// Size parameter for the target type, for types that take one (e.g. vector
     /// dimension, varchar length). Required when the chosen pg_type needs a
     /// size.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<i64>,
 }
 
@@ -2480,7 +2532,11 @@ impl SyncedTableStatus {
 pub struct SyncedTableTriggeredUpdateStatus {
     /// The last source table Delta version that was successfully synced to the
     /// synced table.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The end timestamp of the last time any data was synchronized from the
     /// source table to the synced table. This is when the data is available in

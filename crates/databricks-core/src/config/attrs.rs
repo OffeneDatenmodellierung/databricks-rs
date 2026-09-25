@@ -138,6 +138,7 @@ pub(crate) static ATTRIBUTES: &[Attr] = &[
         None,
         workspace_id
     ),
+    string_attr!("group_id", Some("DATABRICKS_GROUP_ID"), None, group_id),
     secret_attr!("token", Some("DATABRICKS_TOKEN"), Some("pat"), token),
     other_attr!(
         "username",

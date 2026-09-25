@@ -168,6 +168,8 @@ pub struct FieldInfo {
     pub optional: bool,
     pub boxed: bool,
     pub kind: String,
+    /// Element kind for lists and maps.
+    pub elem_kind: String,
     pub json: String,
 }
 
@@ -222,6 +224,12 @@ pub fn field_infos(types: &Types<'_>, pkg: &str, t: &TypeDef) -> Vec<FieldInfo> 
                     .boxed
                     .contains(&(pkg.to_owned(), t.name.clone(), f.name.clone())),
                 kind: f.ty.kind.clone(),
+                elem_kind: f
+                    .ty
+                    .elem
+                    .as_ref()
+                    .map(|e| e.kind.clone())
+                    .unwrap_or_default(),
                 json: f.json.clone(),
             }
         })

@@ -82,7 +82,7 @@ type TypeRef struct {
 }
 
 type Service struct {
-	Client   string    `json:"client"` // workspace | account
+	Client string `json:"client"` // workspace | account
 	// Parent service for nested accessors (w.settings().default_namespace()).
 	Parent   string    `json:"parent,omitempty"`
 	Accessor string    `json:"accessor"`
@@ -582,10 +582,51 @@ func (p *pkgInfo) parsePath(reqType string, e ast.Expr, m *Method) []*PathPart {
 				m.Unsupported = "path arg " + arg
 				continue
 			}
+			goField := strings.TrimPrefix(arg, "request.")
+			if !multi {
+				multi = p.isResourceName(reqType, goField, m.Name, lastLit(out))
+			}
 			out = append(out, &PathPart{Field: w, MultiSegment: multi})
 		}
 	}
 	return out
+}
+
+var resourcePattern = regexp.MustCompile(`[a-z][a-z_-]*/\{[a-z_]+\}`)
+var versionSuffix = regexp.MustCompile(`/(v\d+|\d+\.\d+)/$`)
+
+// isResourceName reports whether a string path parameter holds a
+// hierarchical resource name (`projects/{p}/branches/{b}`) whose slashes are
+// path separators. The released Go SDK inserts every value raw; open PR
+// databricks-sdk-go#1811 escapes single-segment values (so `/` in, e.g., a
+// column name no longer splits the path, issue #1765) and keeps `/` only in
+// resource names. This heuristic reproduces that PR's classification for
+// 766 of 769 parameters (the rest are values without `/`).
+func (p *pkgInfo) isResourceName(reqType, goField, method, prevLit string) bool {
+	t := p.goType[reqType][goField]
+	if t == nil || t.Kind != "string" {
+		return false
+	}
+	var doc string
+	for _, f := range p.types[reqType].fieldsOrEmpty() {
+		if f.GoName == goField {
+			doc = f.Doc
+		}
+	}
+	if resourcePattern.MatchString(doc) {
+		return true
+	}
+	if goField != "Name" && goField != "Parent" {
+		return false
+	}
+	return versionSuffix.MatchString(prevLit) || strings.Contains(method, "Operation")
+}
+
+func lastLit(parts []*PathPart) string {
+	if len(parts) == 0 {
+		return ""
+	}
+	return parts[len(parts)-1].Lit
 }
 
 // Pagination: public List(ctx, request) listing.Iterator[T] built from

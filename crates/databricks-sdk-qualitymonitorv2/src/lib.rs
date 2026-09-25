@@ -246,7 +246,11 @@ pub struct PercentNullValidityCheck {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub column_names: Vec<String>,
     /// Optional upper bound; we should use auto determined bounds for now
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub upper_bound: Option<f64>,
 }
 
@@ -338,10 +342,18 @@ pub struct RangeValidityCheck {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub column_names: Vec<String>,
     /// Lower bound for the range
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lower_bound: Option<f64>,
     /// Upper bound for the range
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub upper_bound: Option<f64>,
 }
 

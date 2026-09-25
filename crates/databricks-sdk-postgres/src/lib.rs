@@ -249,7 +249,11 @@ pub struct BranchStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_protected: Option<bool>,
     /// The logical size of the branch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub logical_size_bytes: Option<i64>,
     /// The pending state of the branch, if a state transition is in progress.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1304,7 +1308,11 @@ impl CreateSyncedTableRequest {
 #[non_exhaustive]
 pub struct DailySchedule {
     /// The hour of the day, in UTC, at which to take the snapshot, in [0, 23].
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hour: Option<i64>,
 }
 
@@ -1402,7 +1410,11 @@ pub struct DataApiDataApiSpec {
     pub db_extra_search_path: Vec<String>,
     /// Maximum number of rows returned in a single Data API response. Must be a
     /// positive integer.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub db_max_rows: Option<i64>,
     /// Database schemas exposed through the Data API. Each entry must be a valid
     /// PostgreSQL schema name (1-63 chars, [a-zA-Z_][a-zA-Z0-9_$]*). Maximum 100
@@ -1508,7 +1520,11 @@ pub struct DataApiDataApiStatus {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub db_extra_search_path: Vec<String>,
     /// Actual max rows setting read from the database.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub db_max_rows: Option<i64>,
     /// Actual exposed schemas read from the database.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2230,7 +2246,11 @@ pub struct DeltaTableSyncInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_commit_time: Option<String>,
     /// The Delta Lake commit version that was last successfully synced.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_commit_version: Option<i64>,
 }
 
@@ -2353,11 +2373,11 @@ pub struct EndpointGroupSpec {
     /// must be equal to min. Set to 1 for single compute endpoints, to disable
     /// HA. To manually suspend all computes in an endpoint group, set disabled
     /// to true on the EndpointSpec.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub max: i64,
     /// The minimum number of computes in the endpoint group. Currently, this
     /// must be equal to max. This must be greater than or equal to 1.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub min: i64,
 }
 
@@ -2406,11 +2426,11 @@ pub struct EndpointGroupStatus {
     /// must be equal to min. Set to 1 for single compute endpoints, to disable
     /// HA. To manually suspend all computes in an endpoint group, set disabled
     /// to true on the EndpointSpec.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub max: i64,
     /// The minimum number of computes in the endpoint group. Currently, this
     /// must be equal to max. This must be greater than or equal to 1.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub min: i64,
 }
 
@@ -2544,10 +2564,18 @@ pub struct EndpointSpec {
     /// The maximum number of Compute Units. The maximum value is 64. The
     /// difference between the minimum and maximum Compute Units (max - min) must
     /// not exceed 16.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_max_cu: Option<f64>,
     /// The minimum number of Compute Units. Minimum value is 0.5.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_min_cu: Option<f64>,
     /// Whether to restrict connections to the compute endpoint. Enabling this
     /// option schedules a suspend compute operation. A disabled compute endpoint
@@ -2651,10 +2679,18 @@ pub struct EndpointStatus {
     /// The maximum number of Compute Units. The maximum value is 64. The
     /// difference between the minimum and maximum Compute Units (max - min) must
     /// not exceed 16.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_max_cu: Option<f64>,
     /// The minimum number of Compute Units.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_min_cu: Option<f64>,
     /// `current_state`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3421,10 +3457,18 @@ impl InitialBranchSpec {
 #[non_exhaustive]
 pub struct InitialEndpointSpec {
     /// The maximum number of Compute Units for the initial endpoint.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_max_cu: Option<f64>,
     /// The minimum number of Compute Units for the initial endpoint.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_min_cu: Option<f64>,
     /// Settings for HA configuration of the endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4108,10 +4152,14 @@ pub struct MonthlySchedule {
     /// shorter months the snapshot is taken on the last day instead (day 31 runs
     /// on Feb 28 or 29, and on Apr 30), so every month gets exactly one
     /// snapshot.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub day: i64,
     /// The hour of the day, in UTC, at which to take the snapshot, in [0, 23].
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hour: Option<i64>,
 }
 
@@ -4456,10 +4504,18 @@ impl ProjectCustomTag {
 #[non_exhaustive]
 pub struct ProjectDefaultEndpointSettings {
     /// The maximum number of Compute Units. Minimum value is 0.5.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_max_cu: Option<f64>,
     /// The minimum number of Compute Units. Minimum value is 0.5.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub autoscaling_limit_min_cu: Option<f64>,
     /// When set to true, explicitly disables automatic suspension (never
     /// suspend). Should be set to true when provided. Mutually exclusive with
@@ -4565,7 +4621,11 @@ pub struct ProjectSpec {
     pub history_retention_duration: Option<String>,
     /// The major Postgres version number. The set of supported versions may
     /// vary; consult the API documentation for currently accepted values.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pg_version: Option<i64>,
 }
 
@@ -4635,7 +4695,11 @@ impl ProjectSpec {
 #[non_exhaustive]
 pub struct ProjectStatus {
     /// The logical size limit for a branch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub branch_logical_size_limit_bytes: Option<i64>,
     /// The budget policy that is applied to the project.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4667,13 +4731,21 @@ pub struct ProjectStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner: Option<String>,
     /// The effective major Postgres version number.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pg_version: Option<i64>,
     /// Part of the resource name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub project_id: Option<String>,
     /// The current space occupied by the project in storage.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub synthetic_storage_size_bytes: Option<i64>,
 }
 
@@ -5451,13 +5523,21 @@ impl SnapshotSpec {
 pub struct SnapshotStatus {
     /// Incremental storage size in bytes since the previous snapshot. Unset when
     /// the snapshot is not billed on incremental usage.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub diff_size_bytes: Option<i64>,
     /// Absolute time at which the snapshot is deleted.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expire_time: Option<String>,
     /// Full logical size of the snapshot, in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub full_size_bytes: Option<i64>,
     /// True if the snapshot never expires.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5593,21 +5673,41 @@ impl SyncedTableOperationMetadata {}
 #[non_exhaustive]
 pub struct SyncedTablePipelineProgress {
     /// The estimated time remaining to complete this update in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub estimated_completion_time_seconds: Option<f64>,
     /// The source table Delta version that was last processed by the pipeline.
     /// The pipeline may not have completely processed this version yet.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub latest_version_currently_processing: Option<i64>,
     /// The completion ratio of this update. This is a number between 0 and 1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sync_progress_completion: Option<f64>,
     /// The number of rows that have been synced in this update.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub synced_row_count: Option<i64>,
     /// The total number of rows that need to be synced in this update. This
     /// number may be an estimate.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_row_count: Option<i64>,
 }
 
@@ -5997,7 +6097,11 @@ pub struct SyncedTableSyncedTableSpecTypeOverride {
     /// Size parameter for the target type, for types that take one (e.g. vector
     /// dimension, varchar length). Required when the chosen pg_type needs a
     /// size.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<i64>,
 }
 
@@ -6049,7 +6153,11 @@ pub struct SyncedTableSyncedTableStatus {
     pub detailed_state: Option<SyncedTableState>,
     /// The last source table Delta version that was successfully synced to the
     /// synced table.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// Summary of the last successful synchronization from source to
     /// destination.
@@ -6517,7 +6625,11 @@ pub struct WeeklySchedule {
     #[serde(default)]
     pub day_of_week: DayOfWeek,
     /// The hour of the day, in UTC, at which to take the snapshot, in [0, 23].
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hour: Option<i64>,
 }
 
@@ -6581,7 +6693,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/branches",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("branch_id", &request.branch_id)?);
@@ -6613,7 +6725,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/cdf-configs",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("cdf_config_id", &request.cdf_config_id)?);
@@ -6630,7 +6742,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/data-api",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.data_api)?;
@@ -6646,7 +6758,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/databases",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("database_id", &request.database_id)?);
@@ -6664,7 +6776,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("endpoint_id", &request.endpoint_id)?);
@@ -6696,7 +6808,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/roles",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("replace_existing", &request.replace_existing)?);
@@ -6714,7 +6826,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/snapshots",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("snapshot_id", &request.snapshot_id)?);
@@ -6745,7 +6857,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("purge", &request.purge)?);
@@ -6761,7 +6873,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6776,7 +6888,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("force", &request.force)?);
@@ -6792,7 +6904,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6807,7 +6919,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6822,7 +6934,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6837,7 +6949,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("purge", &request.purge)?);
@@ -6853,7 +6965,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field(
@@ -6872,7 +6984,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6887,7 +6999,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api.send::<Operation>(call).await
@@ -6912,7 +7024,7 @@ impl PostgresApi {
     pub async fn get_branch(&self, request: GetBranchRequest) -> ::databricks_core::Result<Branch> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Branch>(call).await
@@ -6927,7 +7039,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Catalog> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Catalog>(call).await
@@ -6944,7 +7056,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<CdfConfig> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<CdfConfig>(call).await
@@ -6960,7 +7072,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<CdfStatus> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<CdfStatus>(call).await
@@ -6975,7 +7087,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<DataApi> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<DataApi>(call).await
@@ -6990,7 +7102,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Database> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Database>(call).await
@@ -7006,7 +7118,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Endpoint>(call).await
@@ -7021,7 +7133,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Operation>(call).await
@@ -7036,7 +7148,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Project> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Project>(call).await
@@ -7049,7 +7161,7 @@ impl PostgresApi {
     pub async fn get_role(&self, request: GetRoleRequest) -> ::databricks_core::Result<Role> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Role>(call).await
@@ -7064,7 +7176,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Snapshot> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Snapshot>(call).await
@@ -7080,7 +7192,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<SnapshotSchedule> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<SnapshotSchedule>(call).await
@@ -7095,7 +7207,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<SyncedTable> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<SyncedTable>(call).await
@@ -7110,7 +7222,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListBranchesResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/branches",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7161,7 +7273,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListCdfConfigsResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/cdf-configs",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7213,7 +7325,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListCdfStatusesResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/cdf-statuses",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7265,7 +7377,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListDatabasesResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/databases",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7315,7 +7427,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListEndpointsResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7414,7 +7526,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListRolesResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/roles",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7464,7 +7576,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<ListSnapshotsResponse> {
         let path = format!(
             "/api/2.0/postgres/{}/snapshots",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -7514,7 +7626,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/undelete",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -7530,7 +7642,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}/undelete",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -7546,7 +7658,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7563,7 +7675,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7580,7 +7692,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7597,7 +7709,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7614,7 +7726,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7631,7 +7743,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -7648,7 +7760,7 @@ impl PostgresApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/postgres/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);

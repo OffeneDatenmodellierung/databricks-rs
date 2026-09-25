@@ -113,7 +113,11 @@ pub struct AutoFullRefreshPolicy {
     /// timestamp at which a table was last full refreshed and the current
     /// timestamp for triggering auto full If unspecified and autoFullRefresh is
     /// enabled then by default min_interval_hours is 24 hours.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_interval_hours: Option<i64>,
 }
 
@@ -259,7 +263,11 @@ pub struct ClonePipelineRequest {
     /// If present, the last-modified time of the pipeline settings before the
     /// clone. If the settings were modified after that time, then the request
     /// will fail with a conflict.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expected_last_modified: Option<i64>,
     /// Filters on which Pipeline packages to include in the deployed graph.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1291,7 +1299,11 @@ pub struct DataPlaneId {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instance: Option<String>,
     /// A sequence number, unique and increasing within the data plane instance.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub seq_no: Option<i64>,
 }
 
@@ -1502,7 +1514,11 @@ pub struct EditPipeline {
     /// If present, the last-modified time of the pipeline settings before the
     /// edit. If the settings were modified after that time, then the request
     /// will fail with a conflict.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expected_last_modified: Option<i64>,
     /// Filters on which Pipeline packages to include in the deployed graph.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2315,7 +2331,11 @@ pub struct GetPipelineResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub health: Option<GetPipelineResponseHealth>,
     /// The last time the pipeline settings were modified or created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_modified: Option<i64>,
     /// Status of the latest updates for the pipeline. Ordered with the newest
     /// update first.
@@ -2646,7 +2666,11 @@ pub struct GoogleAdsOptions {
     pub custom_report_options: Option<GoogleAdsCustomReportOptions>,
     /// (Optional) Number of days to look back for report tables to capture
     /// late-arriving data. If not specified, defaults to 30 days.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lookback_window_days: Option<i64>,
     /// (Optional at this level) Manager Account ID (also called MCC Account ID)
     /// used to list and access customer accounts under this manager account.
@@ -3081,7 +3105,11 @@ pub struct IngestionPipelineDefinitionTableSpecificConfigQueryBasedConnectorConf
     /// instead of happening more often. If not set, hard deletion
     /// synchronization via snapshots is disabled. This field is mutable and can
     /// be updated without triggering a full snapshot.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hard_deletion_sync_min_interval_in_seconds: Option<i64>,
 }
 
@@ -3344,7 +3372,11 @@ pub struct KafkaOptions {
     pub key_transformer: Option<Transformer>,
     /// Internal option to control the maximum number of offsets to process per
     /// trigger.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_offsets_per_trigger: Option<i64>,
     /// (Optional) Where to begin reading when no checkpoint exists. Valid
     /// values: "latest" and "earliest". Defaults to "latest".
@@ -3433,7 +3465,11 @@ pub struct LinkedInAdsOptions {
     pub custom_report_options: Option<LinkedInAdsOptionsLinkedInAdsCustomReportOptions>,
     /// (Optional) Days to look back during incremental sync for late-arriving
     /// data. If not specified, defaults to 30 days.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lookback_window_days: Option<i64>,
     /// (Optional) Start date for the initial sync of report tables, YYYY-MM-DD.
     /// Earliest date from which to sync historical data; overrides the default
@@ -3959,7 +3995,11 @@ pub struct MetaMarketingOptions {
     pub breakdowns: Vec<String>,
     /// (Optional) Window in days to revisit data during sync to capture updated
     /// conversion data from the API, shared by prebuilt and custom reports.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_insights_lookback_window: Option<i64>,
     /// (Optional) Per-table custom report definition. When set, defines the
     /// shape of the insights call for this table
@@ -4186,7 +4226,7 @@ pub struct OperationTimeWindow {
     pub days_of_week: Vec<DayOfWeek>,
     /// An integer between 0 and 23 denoting the start hour for the window in the
     /// 24-hour day.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub start_hour: i64,
     /// Time zone id of window. See
     /// https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html
@@ -4232,7 +4272,11 @@ impl OperationTimeWindow {
 #[non_exhaustive]
 pub struct Origin {
     /// The id of a batch. Unique within a flow.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub batch_id: Option<i64>,
     /// The cloud provider, e.g., AWS or Azure.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4280,7 +4324,11 @@ pub struct Origin {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub materialization_name: Option<String>,
     /// The org id of the user. Unique within a cloud.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub org_id: Option<i64>,
     /// The id of the pipeline. Globally unique.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4838,7 +4886,11 @@ pub struct PipelineCluster {
     /// field will immediately be updated to reflect the target size of 10
     /// workers, whereas the workers listed in `spark_info` will gradually
     /// increase from 5 to 10 as the new nodes are provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub num_workers: Option<i64>,
     /// The ID of the cluster policy used to create the cluster if applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5041,12 +5093,12 @@ impl PipelineCluster {
 pub struct PipelineClusterAutoscale {
     /// The maximum number of workers to which the cluster can scale up when
     /// overloaded. `max_workers` must be strictly greater than `min_workers`.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub max_workers: i64,
     /// The minimum number of workers the cluster can scale down to when
     /// underutilized. It is also the initial number of workers the cluster will
     /// have after creation.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub min_workers: i64,
     /// Databricks Enhanced Autoscaling optimizes cluster utilization by
     /// automatically allocating cluster resources based on workload volume, with
@@ -6105,7 +6157,11 @@ pub struct ProtobufTransformerOptions {
     /// SQL does not natively support recursive types, so recursive fields are
     /// expanded up to this depth and truncated beyond it. Valid values: -1
     /// (disallow recursive fields), 0 (drop), 1-10.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub recursive_fields_max_depth: Option<i64>,
     /// (Optional) Schema registry to resolve the Protobuf schema at runtime
     /// instead of providing it via desc_file_path.
@@ -6202,7 +6258,11 @@ pub struct RedditAdsOptions {
     /// (Optional) Number of days to look back for report tables during
     /// incremental sync to capture late-arriving conversions and attribution
     /// data. If not specified, defaults to 30 days.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lookback_window_days: Option<i64>,
     /// (Optional) Start date for the initial sync of report tables in YYYY-MM-DD
     /// format. This determines the earliest date from which to sync historical
@@ -6371,7 +6431,7 @@ pub struct RestartWindow {
     /// An integer between 0 and 23 denoting the start hour for the restart
     /// window in the 24-hour day. Continuous pipeline restart is triggered only
     /// within a five-hour window starting at this hour.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub start_hour: i64,
     /// Time zone id of restart window. See
     /// https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html
@@ -6696,7 +6756,11 @@ impl SchemaSpec {
 #[non_exhaustive]
 pub struct Sequencing {
     /// A sequence number, unique and increasing per pipeline.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub control_plane_seq_no: Option<i64>,
     /// the ID assigned by the data plane.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6916,7 +6980,11 @@ pub struct StackFrame {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub file_name: Option<String>,
     /// Line from which the method was called
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub line_number: Option<i64>,
     /// Name of the method which was called
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7509,7 +7577,11 @@ pub struct TikTokAdsOptions {
     /// (Optional) Number of days to look back for report tables during
     /// incremental sync to capture late-arriving conversions and attribution
     /// data.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lookback_window_days: Option<i64>,
     /// Deprecated. Use custom_report_options.metrics instead.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7826,7 +7898,11 @@ pub struct UpdateInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config: Option<PipelineSpec>,
     /// The time when this update was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// If true, this update will reset all tables before running.
     #[serde(default, skip_serializing_if = "Option::is_none")]

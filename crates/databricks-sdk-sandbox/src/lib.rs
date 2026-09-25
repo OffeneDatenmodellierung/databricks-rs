@@ -207,7 +207,11 @@ pub struct ExecuteCommandSyncResponse {
     /// Process exit code. Unset when the process was terminated by a signal
     /// (e.g. on `TIMED_OUT`) or never started (`FAILED`) rather than exiting
     /// normally.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub exit_code: Option<i64>,
     /// Terminal status of the command execution. Always set on a successful
     /// response; never `EXECUTE_COMMAND_STATUS_UNSPECIFIED`.
@@ -612,7 +616,7 @@ impl SandboxApi {
         &self,
         request: DeleteSandboxRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -630,7 +634,7 @@ impl SandboxApi {
     ) -> ::databricks_core::Result<ExecuteCommandSyncResponse> {
         let path = format!(
             "/api/2.0/sandbox-exec/{}/exec-sync",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -644,7 +648,7 @@ impl SandboxApi {
         &self,
         request: GetSandboxRequest,
     ) -> ::databricks_core::Result<Sandbox> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Sandbox>(call).await
     }
@@ -706,7 +710,7 @@ impl SandboxApi {
     ) -> ::databricks_core::Result<Sandbox> {
         let path = format!(
             "/api/2.0/{}/start",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -723,7 +727,7 @@ impl SandboxApi {
     ) -> ::databricks_core::Result<Sandbox> {
         let path = format!(
             "/api/2.0/{}/stop",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -740,7 +744,7 @@ impl SandboxApi {
         &self,
         request: UpdateSandboxRequest,
     ) -> ::databricks_core::Result<Sandbox> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.sandbox)?;

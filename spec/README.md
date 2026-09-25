@@ -27,7 +27,7 @@ Plain OpenAPI can't describe these Databricks behaviours:
 | `x-databricks-workspace-header` | operation | Send `X-Databricks-Workspace-Id` when a workspace ID is configured (unified hosts). |
 | `x-databricks-resource-name` | operation | The path was expanded from a resource-name parameter so that OpenAPI paths stay unique. For example, `{name}` becomes `projects/{project_id}/branches/{branch_id}` (`pattern`); clients join the parts back into `param`. |
 | `x-databricks-shared-path-operations` | path item | Operations whose verb and path collide with another and can't be expanded. Each carries `x-databricks-verb`. |
-| `x-databricks-multi-segment` | path parameter | The value may contain `/`. Escape each segment separately. |
+| `x-databricks-multi-segment` | path parameter | The value is a hierarchical resource name or file path, and may contain `/`. Escape each segment separately and keep the `/` separators. Every other string path parameter is a single segment, so escape `/` as `%2F`. See `docs/upstream-review.md` for how parameters are classified. |
 | `x-databricks-unsupported` | operation | Binary or streaming payload that the Rust SDK does not generate yet. |
 | `x-databricks-package`, `x-databricks-service` | operation, tag | The Go SDK package and service name. |
 | `x-enum-descriptions` | enum schema | Description of each value. |
@@ -35,6 +35,7 @@ Plain OpenAPI can't describe these Databricks behaviours:
 Two conventions to be aware of:
 - Query parameters for nested request objects are flattened to `parent.child`, which is how the SDKs send them.
 - Schemas are named `<package>.<Type>`, for example `compute.ClusterDetails`.
+- `int64` and `double` fields are typed as numbers, but services sometimes send them as strings: `"123"`, or `"NaN"`/`"Infinity"` for floats. Clients should accept both.
 
 ## Keeping it current
 

@@ -395,7 +395,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/user-credentials"
@@ -493,7 +494,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -513,7 +515,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/user-credentials"
@@ -541,7 +544,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -561,7 +565,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -581,7 +586,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -606,7 +612,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/user-credentials"
@@ -634,7 +641,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -659,7 +667,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -783,7 +792,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -821,7 +831,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -859,7 +870,8 @@
        "lit": "/api/2.1/unity-catalog/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -906,7 +918,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -942,7 +955,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/indexes"
@@ -978,7 +992,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -998,7 +1013,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -1018,7 +1034,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -1043,7 +1060,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -1068,7 +1086,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -1107,7 +1126,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/indexes"
@@ -1146,7 +1166,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":query"
@@ -1175,7 +1196,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":removeData"
@@ -1204,7 +1226,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":scan"
@@ -1233,7 +1256,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":sync"
@@ -1262,7 +1286,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -1296,7 +1321,8 @@
        "lit": "/api/2.0/ai-search/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":upsertData"
@@ -2068,7 +2094,8 @@
        "lit": "/api/2.0/app-spaces/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/operation"
@@ -2763,7 +2790,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/complete"
@@ -2816,7 +2844,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/versions"
@@ -2852,7 +2881,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -2872,7 +2902,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -2897,7 +2928,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -2922,7 +2954,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -2947,7 +2980,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -2972,7 +3006,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/heartbeat"
@@ -3034,7 +3069,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/operations"
@@ -3073,7 +3109,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/resources"
@@ -3112,7 +3149,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/versions"
@@ -3151,7 +3189,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -3185,7 +3224,8 @@
        "lit": "/api/2.0/bundle/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -6303,7 +6343,8 @@
        "lit": "/api/data-classification/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/config"
@@ -6333,7 +6374,8 @@
        "lit": "/api/data-classification/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -6353,7 +6395,8 @@
        "lit": "/api/data-classification/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -6378,7 +6421,8 @@
        "lit": "/api/data-classification/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -7899,7 +7943,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -7919,7 +7964,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -7977,7 +8023,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8245,7 +8292,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8265,7 +8313,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8290,7 +8339,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8315,7 +8365,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8372,7 +8423,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/refresh"
@@ -8401,7 +8453,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -8434,7 +8487,8 @@
        "lit": "/api/environments/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -9813,7 +9867,8 @@
        "lit": "/api/2.0/feature-engineering/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": ":cancel"
@@ -10088,7 +10143,8 @@
        "lit": "/api/2.0/feature-engineering/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -11221,7 +11277,8 @@
        "lit": "/api/2.0/genie/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/download-visualization"
@@ -13693,7 +13750,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/examples"
@@ -13747,7 +13805,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/knowledge-sources"
@@ -13777,7 +13836,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13797,7 +13857,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13817,7 +13878,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13837,7 +13899,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13862,7 +13925,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13887,7 +13951,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -13965,7 +14030,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/examples"
@@ -14037,7 +14103,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/knowledge-sources"
@@ -14102,7 +14169,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/knowledge-sources:sync"
@@ -14126,7 +14194,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -14160,7 +14229,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -14194,7 +14264,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -17851,7 +17922,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/branches"
@@ -17919,7 +17991,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/cdf-configs"
@@ -17954,7 +18027,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/data-api"
@@ -17983,7 +18057,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/databases"
@@ -18022,7 +18097,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -18090,7 +18166,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/roles"
@@ -18129,7 +18206,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/snapshots"
@@ -18193,7 +18271,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18217,7 +18296,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18241,7 +18321,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18265,7 +18346,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18289,7 +18371,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18313,7 +18396,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18337,7 +18421,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18361,7 +18446,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18385,7 +18471,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18409,7 +18496,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18457,7 +18545,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18482,7 +18571,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18507,7 +18597,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18532,7 +18623,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18557,7 +18649,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18582,7 +18675,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18607,7 +18701,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18632,7 +18727,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18657,7 +18753,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18682,7 +18779,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18707,7 +18805,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18732,7 +18831,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18757,7 +18857,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -18782,7 +18883,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/branches"
@@ -18821,7 +18923,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/cdf-configs"
@@ -18860,7 +18963,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/cdf-statuses"
@@ -18899,7 +19003,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/databases"
@@ -18938,7 +19043,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -19010,7 +19116,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/roles"
@@ -19049,7 +19156,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/snapshots"
@@ -19087,7 +19195,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/undelete"
@@ -19115,7 +19224,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/undelete"
@@ -19143,7 +19253,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19176,7 +19287,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19209,7 +19321,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19242,7 +19355,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19275,7 +19389,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19308,7 +19423,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -19341,7 +19457,8 @@
        "lit": "/api/2.0/postgres/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -22473,7 +22590,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -22493,7 +22611,8 @@
        "lit": "/api/2.0/sandbox-exec/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/exec-sync"
@@ -22522,7 +22641,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -22580,7 +22700,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/start"
@@ -22609,7 +22730,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/stop"
@@ -22638,7 +22760,8 @@
        "lit": "/api/2.0/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25677,7 +25800,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/examples"
@@ -25731,7 +25855,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/tools"
@@ -25767,7 +25892,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25787,7 +25913,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25807,7 +25934,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25827,7 +25955,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25905,7 +26034,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25930,7 +26060,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -25955,7 +26086,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/examples"
@@ -26027,7 +26159,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/tools"
@@ -26092,7 +26225,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -26152,7 +26286,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -26186,7 +26321,8 @@
        "lit": "/api/2.1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -28226,7 +28362,8 @@
        "lit": "/api/warehouses/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -28301,7 +28438,8 @@
        "lit": "/api/warehouses/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -28566,7 +28704,8 @@
        "lit": "/api/warehouses/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -29640,7 +29779,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -29665,7 +29805,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -29690,7 +29831,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31253,7 +31395,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/failover-groups"
@@ -31293,7 +31436,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/stable-urls"
@@ -31333,7 +31477,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31353,7 +31498,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31373,7 +31519,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       },
       {
        "lit": "/failover"
@@ -31402,7 +31549,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31427,7 +31575,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31452,7 +31601,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/failover-groups"
@@ -31491,7 +31641,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/stable-urls"
@@ -31530,7 +31681,8 @@
        "lit": "/api/disaster-recovery/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31703,7 +31855,8 @@
        "lit": "/api/networking/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -31733,7 +31886,8 @@
        "lit": "/api/networking/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31753,7 +31907,8 @@
        "lit": "/api/networking/v1/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -31778,7 +31933,8 @@
        "lit": "/api/networking/v1/"
       },
       {
-       "field": "parent"
+       "field": "parent",
+       "multi_segment": true
       },
       {
        "lit": "/endpoints"
@@ -32602,7 +32758,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -32627,7 +32784,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {
@@ -32652,7 +32810,8 @@
        "lit": "/api/2.0/identity/"
       },
       {
-       "field": "name"
+       "field": "name",
+       "multi_segment": true
       }
      ],
      "request": {

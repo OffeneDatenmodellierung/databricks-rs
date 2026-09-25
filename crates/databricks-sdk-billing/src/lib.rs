@@ -214,7 +214,11 @@ pub struct BudgetConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub budget_configuration_id: Option<String>,
     /// Creation time of this budget configuration.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub create_time: Option<i64>,
     /// Human-readable name of budget configuration. Max Length: 128
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -230,7 +234,11 @@ pub struct BudgetConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resource_type: Option<BudgetResourceType>,
     /// Update time of this budget configuration.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub update_time: Option<i64>,
 }
 
@@ -397,7 +405,11 @@ pub struct BudgetConfigurationFilterWorkspaceIdClause {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub operator: Option<BudgetConfigurationFilterOperator>,
     /// `values`
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub values: Vec<i64>,
 }
 
@@ -424,7 +436,11 @@ pub struct BudgetPolicy {
     /// List of workspaces that this budget policy will be exclusively bound to.
     /// An empty binding implies that this budget policy is open to any workspace
     /// in the account.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub binding_workspace_ids: Vec<i64>,
     /// A list of tags defined by the customer. At most 20 entries are allowed
     /// per policy.
@@ -500,7 +516,11 @@ pub struct CreateBillingUsageDashboardRequest {
     pub major_version: Option<UsageDashboardMajorVersion>,
     /// The workspace ID of the workspace in which the usage dashboard is
     /// created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -880,7 +900,11 @@ pub struct CreateLogDeliveryConfigurationParams {
     /// delivery won't include account level logs. For some types of Databricks
     /// deployments there is only one workspace per account ID, so this field is
     /// unnecessary.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspace_ids_filter: Vec<i64>,
 }
 
@@ -1115,7 +1139,11 @@ impl DownloadResponse {
 pub struct Filter {
     /// The policy creator user id to be filtered on. If unspecified, all
     /// policies will be returned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creator_user_id: Option<i64>,
     /// Deprecated: Do not use this field in new integrations. Creator filtering
     /// will be removed in a future version. The policy creator user name to be
@@ -1562,7 +1590,11 @@ pub struct LogDeliveryConfiguration {
     pub config_name: Option<String>,
     /// Time in epoch milliseconds when the log delivery configuration was
     /// created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// The ID for a method:credentials/create that represents the AWS IAM role
     /// with policy and trust relationship as described in the main billable
@@ -1624,7 +1656,11 @@ pub struct LogDeliveryConfiguration {
     pub storage_configuration_id: String,
     /// Time in epoch milliseconds when the log delivery configuration was
     /// updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub update_time: Option<i64>,
     /// Optional filter that specifies workspace IDs to deliver logs for. By
     /// default the workspace filter is empty and log delivery applies at the
@@ -1639,7 +1675,11 @@ pub struct LogDeliveryConfiguration {
     /// delivery won't include account level logs. For some types of Databricks
     /// deployments there is only one workspace per account ID, so this field is
     /// unnecessary.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspace_ids_filter: Vec<i64>,
 }
 
@@ -1842,7 +1882,11 @@ pub struct PrincipalOverride {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub override_threshold: Option<String>,
     /// Account-level principal id (user, group, or service principal).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
 }
 

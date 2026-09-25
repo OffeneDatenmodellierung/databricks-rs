@@ -323,7 +323,7 @@ impl DataClassificationApi {
     ) -> ::databricks_core::Result<CatalogConfig> {
         let path = format!(
             "/api/data-classification/v1/{}/config",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.catalog_config)?;
@@ -339,7 +339,7 @@ impl DataClassificationApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/data-classification/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -357,7 +357,7 @@ impl DataClassificationApi {
     ) -> ::databricks_core::Result<CatalogConfig> {
         let path = format!(
             "/api/data-classification/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<CatalogConfig>(call).await
@@ -374,7 +374,7 @@ impl DataClassificationApi {
     ) -> ::databricks_core::Result<CatalogConfig> {
         let path = format!(
             "/api/data-classification/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);

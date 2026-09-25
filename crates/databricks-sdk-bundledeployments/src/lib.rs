@@ -1058,7 +1058,11 @@ pub struct Operation {
     /// caller must echo the value it last observed; if it no longer matches the
     /// server's value, the update is rejected with ABORTED so the caller can
     /// re-read and retry.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sequence_id: Option<i64>,
     /// Serialized local config state after the operation. Its presence records
     /// whether the resource still exists, so an operation that records no state
@@ -1807,7 +1811,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Version> {
         let path = format!(
             "/api/2.0/bundle/{}/complete",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -1851,7 +1855,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Version> {
         let path = format!(
             "/api/2.0/bundle/{}/versions",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("version_id", &request.version_id)?);
@@ -1868,7 +1872,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -1886,7 +1890,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Deployment> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Deployment>(call).await
@@ -1901,7 +1905,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Operation>(call).await
@@ -1916,7 +1920,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Resource> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Resource>(call).await
@@ -1931,7 +1935,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Version> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Version>(call).await
@@ -1950,7 +1954,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<HeartbeatResponse> {
         let path = format!(
             "/api/2.0/bundle/{}/heartbeat",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -2013,7 +2017,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<ListOperationsResponse> {
         let path = format!(
             "/api/2.0/bundle/{}/operations",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -2063,7 +2067,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<ListResourcesResponse> {
         let path = format!(
             "/api/2.0/bundle/{}/resources",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -2113,7 +2117,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<ListVersionsResponse> {
         let path = format!(
             "/api/2.0/bundle/{}/versions",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -2164,7 +2168,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Deployment> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -2195,7 +2199,7 @@ impl BundleDeploymentsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/bundle/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);

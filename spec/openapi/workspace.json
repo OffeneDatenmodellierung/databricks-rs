@@ -54397,7 +54397,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The list of fields to update.",
@@ -54457,7 +54458,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -54506,7 +54508,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -54555,7 +54558,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -54604,7 +54608,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -54653,7 +54658,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -54702,7 +54708,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Best-effort upper bound on the number of results to return. Honored as an\nupper bound by the shim: `page_size` only narrows the legacy backend's\nresponse, never widens it, so the practical cap is `min(page_size,\nlegacy_fixed_page_size)`.",
@@ -54764,7 +54771,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The user-supplied short name for the Endpoint, per AIP-133. The server\ncomposes the full `Endpoint.name` as `{parent}/endpoints/{endpoint_id}`.\nAIP-133 does not list `endpoint_id` as a fields-may-be-required entry, so\nwe annotate it OPTIONAL on the wire; the server still rejects empty\nvalues with INVALID_PARAMETER_VALUE.",
@@ -54822,7 +54830,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Best-effort upper bound on the number of results to return. Honored as an\nupper bound by the shim: `page_size` only narrows the legacy backend's\nresponse, never widens it, so the practical cap is `min(page_size,\nlegacy_fixed_page_size)`.",
@@ -54884,7 +54893,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The user-supplied Unity Catalog table name for the Index, per AIP-133.\nThe server composes the full `Index.name` as\n`{parent}/indexes/{index_id}`. AIP-133 does not list `index_id` as a\nfields-may-be-required entry, so we annotate it OPTIONAL on the wire; the\nserver still rejects empty values with INVALID_PARAMETER_VALUE.",
@@ -55382,7 +55392,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -56927,7 +56938,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -56959,7 +56971,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -57008,7 +57021,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -57057,7 +57071,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The maximum number of operations to return. The service may return fewer\nthan this value. If unspecified, at most 50 operations will be returned.\nThe maximum value is 1000; values above 1000 will be coerced to 1000.",
@@ -57121,7 +57136,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The maximum number of resources to return. The service may return fewer\nthan this value. If unspecified, at most 50 resources will be returned.\nThe maximum value is 1000; values above 1000 will be coerced to 1000.",
@@ -57185,7 +57201,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The maximum number of versions to return. The service may return fewer\nthan this value. If unspecified, at most 20 versions will be returned.\nThe maximum value is 100; values above 100 will be coerced to 100.",
@@ -57247,7 +57264,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The ID to use for the version, which becomes the final component of the\nversion's resource name. A numeric string (base-10, fits in a signed\n64-bit integer) chosen by the caller; must be greater than or equal to 1.\nMust be numerically greater than the deployment's most recent version\n(see `version.previous_version_id`); it does not need to start at 1 or\nincrease by exactly 1. If the value is not numerically greater, the\nserver returns `INVALID_PARAMETER_VALUE`.",
@@ -62016,7 +62034,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -62055,7 +62074,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -64837,7 +64857,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -79906,7 +79927,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -79942,7 +79964,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -79978,7 +80001,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The list of fields to update.",
@@ -80035,7 +80059,8 @@
               "required": true,
               "schema": {
                 "type": "string"
-              }
+              },
+              "x-databricks-multi-segment": true
             }
           ],
           "responses": {
@@ -80072,7 +80097,8 @@
               "required": true,
               "schema": {
                 "type": "string"
-              }
+              },
+              "x-databricks-multi-segment": true
             }
           ],
           "responses": {
@@ -80113,7 +80139,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Upper bound for items returned. Cannot be negative.",
@@ -80183,7 +80210,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The ID to use for the Branch. This becomes the final component of the\nbranch's resource name. The ID is required and must be 1-63 characters\nlong, start with a lowercase letter, and contain only lowercase letters,\nnumbers, and hyphens. For example, `development` becomes\n`projects/my-app/branches/development`.",
@@ -80249,7 +80277,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Maximum number of CdfConfigs to return.",
@@ -80310,7 +80339,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The user-specified id for the CdfConfig, forming the final segment of its\nresource name. Must match the pattern `[a-z][a-z0-9_]{0,62}`. Defaults to\nthe Postgres schema name when omitted.",
@@ -80367,7 +80397,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Maximum number of CdfStatuses to return.",
@@ -80430,7 +80461,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -80478,7 +80510,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Upper bound for items returned.",
@@ -80539,7 +80572,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The ID to use for the Database, which will become the final component of\nthe database's resource name. This ID becomes the database name in\npostgres.\n\nThis value should be 4-63 characters, and only use characters available\nin DNS names, as defined by RFC-1123\n\nIf database_id is not specified in the request, it is generated\nautomatically.",
@@ -80605,7 +80639,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Upper bound for items returned. Cannot be negative.",
@@ -80666,7 +80701,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The ID to use for the Endpoint. This becomes the final component of the\nendpoint's resource name. The ID is required and must be 1-63 characters\nlong, start with a lowercase letter, and contain only lowercase letters,\nnumbers, and hyphens. For example, `primary` becomes\n`projects/my-app/branches/development/endpoints/primary`.",
@@ -80732,7 +80768,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Upper bound for items returned. Cannot be negative.",
@@ -80793,7 +80830,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "If true, update the role if it already exists instead of returning an\nerror.\n\nWhen the role already exists, the provided `role` spec fully replaces the\nexisting one: `membership_roles` is overwritten, not merged. Leaving\n`membership_roles` empty clears all of the role's existing memberships,\nincluding `DATABRICKS_SUPERUSER`. Always send the complete desired list\nof memberships when using this field.",
@@ -80859,7 +80897,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Maximum number of snapshots to return per page.",
@@ -80920,7 +80959,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Client-chosen ID for the snapshot. It becomes the final segment of the\nsnapshot resource name and cannot be changed after creation.",
@@ -83625,7 +83665,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -89416,7 +89457,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -89445,7 +89487,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -89482,7 +89525,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Field paths to update. Must be a non-empty subset of: - display_name -\nspec.compute.inactivity_timeout Any other path returns\nINVALID_PARAMETER_VALUE.",
@@ -89542,7 +89586,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -89591,7 +89636,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -100708,7 +100754,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -100745,7 +100792,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -100782,7 +100830,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -100831,7 +100880,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Field mask for fields to be updated.",
@@ -100891,7 +100941,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -100933,7 +100984,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "in": "query",
@@ -100993,7 +101045,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -101042,7 +101095,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "in": "query",
@@ -101102,7 +101156,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "The ID to use for the tool, which will become the final component of the\ntool's resource name.",
@@ -102153,7 +102208,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -102183,7 +102239,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -102220,7 +102277,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Field mask specifying which fields to update.",
@@ -102280,7 +102338,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -103098,7 +103157,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -103128,7 +103188,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -103165,7 +103226,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Field mask specifying which fields to update. Use comma as the separator\nfor multiple fields (no space). The special value '*' indicates that all\nfields should be updated (full replacement). Valid field paths:\ncpu_workspace_base_environment, gpu_workspace_base_environment\n\nTo unset one or both defaults, include the field path(s) in the mask and\nomit them from the request body. To unset both, you must list both paths\nexplicitly — the wildcard '*' cannot be used to unset fields.",
@@ -103224,7 +103286,8 @@
               "required": true,
               "schema": {
                 "type": "string"
-              }
+              },
+              "x-databricks-multi-segment": true
             }
           ],
           "responses": {
@@ -103260,7 +103323,8 @@
               "required": true,
               "schema": {
                 "type": "string"
-              }
+              },
+              "x-databricks-multi-segment": true
             }
           ],
           "requestBody": {
@@ -103309,7 +103373,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -103459,7 +103524,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -103489,7 +103555,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -103526,7 +103593,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "If set to true, and the override is not found, a new override will be\ncreated. In this situation, `update_mask` is ignored and all fields are\napplied. Defaults to false.",

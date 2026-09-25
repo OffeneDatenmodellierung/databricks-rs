@@ -294,7 +294,11 @@ impl AiGatewayInferenceTableConfig {
 pub struct AiGatewayRateLimit {
     /// Used to specify how many calls are allowed for a key within the
     /// renewal_period.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub calls: Option<i64>,
     /// Key field for a rate limit. Currently, 'user', 'user_group,
     /// 'service_principal', and 'endpoint' are supported, with 'endpoint' being
@@ -312,7 +316,11 @@ pub struct AiGatewayRateLimit {
     pub renewal_period: AiGatewayRateLimitRenewalPeriod,
     /// Used to specify how many tokens are allowed for a key within the
     /// renewal_period.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub tokens: Option<i64>,
 }
 
@@ -1297,7 +1305,11 @@ pub struct DataframeSplitInput {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub data: Vec<::serde_json::Value>,
     /// Index array for the dataframe
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub index: Vec<i64>,
 }
 
@@ -1386,10 +1398,18 @@ impl EmailNotifications {
 #[non_exhaustive]
 pub struct EmbeddingsV1ResponseEmbeddingElement {
     /// The embedding vector
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_f64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub embedding: Vec<f64>,
     /// The index of the embedding in the response.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub index: Option<i64>,
     /// This will always be 'embedding'.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1512,7 +1532,11 @@ pub struct EndpointCoreConfigOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub auto_capture_config: Option<AutoCaptureConfigOutput>,
     /// The config version that the serving endpoint is currently serving.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub config_version: Option<i64>,
     /// The list of served entities under the serving endpoint config.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1603,7 +1627,11 @@ pub struct EndpointPendingConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub auto_capture_config: Option<AutoCaptureConfigOutput>,
     /// The config version that the serving endpoint is currently serving.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub config_version: Option<i64>,
     /// The list of served entities belonging to the last issued update to the
     /// serving endpoint.
@@ -1614,7 +1642,11 @@ pub struct EndpointPendingConfig {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub served_models: Vec<ServedModelOutput>,
     /// The timestamp when the update to the pending config started.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// The traffic config defining how invocations to the serving endpoint
     /// should be routed.
@@ -2103,13 +2135,25 @@ impl ExternalModel {
 #[non_exhaustive]
 pub struct ExternalModelUsageElement {
     /// The number of tokens in the chat/completions response.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub completion_tokens: Option<i64>,
     /// The number of tokens in the prompt.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub prompt_tokens: Option<i64>,
     /// The total number of tokens in the prompt and response.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_tokens: Option<i64>,
 }
 
@@ -2926,7 +2970,7 @@ pub struct PtServedModel {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The number of model units to be provisioned.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub provisioned_model_units: i64,
 }
 
@@ -3232,7 +3276,11 @@ pub struct QueryEndpointInput {
     /// The max tokens field used ONLY for __completions__ and __chat external &
     /// foundation model__ serving endpoints. This is an integer and should only
     /// be used with other chat/completions query fields.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_tokens: Option<i64>,
     /// The messages field used ONLY for __chat external & foundation model__
     /// serving endpoints. This is an array of ChatMessage objects and should
@@ -3243,7 +3291,11 @@ pub struct QueryEndpointInput {
     /// __chat external & foundation model__ serving endpoints. This is an
     /// integer between 1 and 5 with a default of 1 and should only be used with
     /// other chat/completions query fields.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub n: Option<i64>,
     /// The name of the serving endpoint. This field is required and is provided
     /// via the path parameter.
@@ -3268,7 +3320,11 @@ pub struct QueryEndpointInput {
     /// foundation model__ serving endpoints. This is a float between 0.0 and 2.0
     /// with a default of 1.0 and should only be used with other chat/completions
     /// query fields.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub temperature: Option<f64>,
     /// Optional user-provided context that will be recorded in the usage
     /// tracking table.
@@ -3418,7 +3474,11 @@ pub struct QueryEndpointResponse {
     pub choices: Vec<V1ResponseChoiceElement>,
     /// The timestamp in seconds when the query was created in Unix time returned
     /// by a __completions or chat external/foundation model__ serving endpoint.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created: Option<i64>,
     /// The list of the embeddings returned by the __embeddings
     /// external/foundation model__ serving endpoint.
@@ -3548,7 +3608,7 @@ impl QueryEndpointResponse {
 pub struct RateLimit {
     /// Used to specify how many calls are allowed for a key within the
     /// renewal_period.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub calls: i64,
     /// Key field for a serving endpoint rate limit. Currently, only 'user' and
     /// 'endpoint' are supported, with 'endpoint' being the default if not
@@ -3624,7 +3684,7 @@ pub struct Route {
     pub served_model_name: Option<String>,
     /// The percentage of endpoint traffic to send to this route. It must be an
     /// integer between 0 and 100 inclusive.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub traffic_percentage: i64,
 }
 
@@ -3707,17 +3767,33 @@ pub struct ServedEntityInput {
     pub instance_profile_arn: Option<String>,
     /// The maximum provisioned concurrency that the endpoint can scale up to. Do
     /// not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_concurrency: Option<i64>,
     /// The maximum tokens per second that the endpoint can scale up to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_throughput: Option<i64>,
     /// The minimum provisioned concurrency that the endpoint can scale down to.
     /// Do not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_concurrency: Option<i64>,
     /// The minimum tokens per second that the endpoint can scale down to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_throughput: Option<i64>,
     /// The name of a served entity. It must be unique across an endpoint. A
     /// served entity name can consist of alphanumeric characters, dashes, and
@@ -3727,7 +3803,11 @@ pub struct ServedEntityInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The number of model units provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub provisioned_model_units: Option<i64>,
     /// Whether the compute resources for the served entity should scale down to
     /// zero.
@@ -3877,7 +3957,11 @@ pub struct ServedEntityOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub burst_scaling_enabled: Option<bool>,
     /// `creation_timestamp`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// `creator`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3922,17 +4006,33 @@ pub struct ServedEntityOutput {
     pub instance_profile_arn: Option<String>,
     /// The maximum provisioned concurrency that the endpoint can scale up to. Do
     /// not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_concurrency: Option<i64>,
     /// The maximum tokens per second that the endpoint can scale up to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_throughput: Option<i64>,
     /// The minimum provisioned concurrency that the endpoint can scale down to.
     /// Do not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_concurrency: Option<i64>,
     /// The minimum tokens per second that the endpoint can scale down to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_throughput: Option<i64>,
     /// The name of a served entity. It must be unique across an endpoint. A
     /// served entity name can consist of alphanumeric characters, dashes, and
@@ -3942,7 +4042,11 @@ pub struct ServedEntityOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The number of model units provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub provisioned_model_units: Option<i64>,
     /// Whether the compute resources for the served entity should scale down to
     /// zero.
@@ -4197,17 +4301,33 @@ pub struct ServedModelInput {
     pub instance_profile_arn: Option<String>,
     /// The maximum provisioned concurrency that the endpoint can scale up to. Do
     /// not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_concurrency: Option<i64>,
     /// The maximum tokens per second that the endpoint can scale up to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_throughput: Option<i64>,
     /// The minimum provisioned concurrency that the endpoint can scale down to.
     /// Do not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_concurrency: Option<i64>,
     /// The minimum tokens per second that the endpoint can scale down to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_throughput: Option<i64>,
     /// `model_name`
     #[serde(default)]
@@ -4223,7 +4343,11 @@ pub struct ServedModelInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The number of model units provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub provisioned_model_units: Option<i64>,
     /// Whether the compute resources for the served entity should scale down to
     /// zero.
@@ -4391,7 +4515,11 @@ pub struct ServedModelOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub burst_scaling_enabled: Option<bool>,
     /// `creation_timestamp`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// `creator`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4413,11 +4541,19 @@ pub struct ServedModelOutput {
     pub instance_profile_arn: Option<String>,
     /// The maximum provisioned concurrency that the endpoint can scale up to. Do
     /// not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_provisioned_concurrency: Option<i64>,
     /// The minimum provisioned concurrency that the endpoint can scale down to.
     /// Do not use if workload_size is specified.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_provisioned_concurrency: Option<i64>,
     /// `model_name`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4433,7 +4569,11 @@ pub struct ServedModelOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The number of model units provisioned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub provisioned_model_units: Option<i64>,
     /// Whether the compute resources for the served entity should scale down to
     /// zero.
@@ -4701,7 +4841,11 @@ pub struct ServingEndpoint {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config: Option<EndpointCoreConfigSummary>,
     /// The timestamp when the endpoint was created in Unix time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// The email of the user who created the serving endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4714,7 +4858,11 @@ pub struct ServingEndpoint {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// The timestamp when the endpoint was last updated by a user in Unix time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// The name of the serving endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4965,7 +5113,11 @@ pub struct ServingEndpointDetailed {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config: Option<EndpointCoreConfigOutput>,
     /// The timestamp when the endpoint was created in Unix time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// The email of the user who created the serving endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4987,7 +5139,11 @@ pub struct ServingEndpointDetailed {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// The timestamp when the endpoint was last updated by a user in Unix time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// The name of the serving endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5440,7 +5596,11 @@ pub struct TelemetryInferenceTableConfig {
     pub name: Option<String>,
     /// Fraction of requests sampled for payload logging, in the range [0.0,
     /// 1.0], where 1.0 logs all requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sampling_fraction: Option<f64>,
 }
 
@@ -5647,10 +5807,18 @@ pub struct V1ResponseChoiceElement {
     )]
     pub finish_reason: Option<String>,
     /// The index of the choice in the __chat or completions__ response.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub index: Option<i64>,
     /// The logprobs returned only by the __completions__ endpoint.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub logprobs: Option<i64>,
     /// The message response from the __chat__ endpoint.
     #[serde(default, skip_serializing_if = "Option::is_none")]

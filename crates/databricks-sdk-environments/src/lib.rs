@@ -957,7 +957,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -977,7 +977,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<DefaultWorkspaceBaseEnvironment> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<DefaultWorkspaceBaseEnvironment>(call).await
@@ -993,7 +993,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Operation>(call).await
@@ -1008,7 +1008,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<WorkspaceBaseEnvironment> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<WorkspaceBaseEnvironment>(call).await
@@ -1087,7 +1087,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/environments/v1/{}/refresh",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -1105,7 +1105,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<DefaultWorkspaceBaseEnvironment> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -1122,7 +1122,7 @@ impl EnvironmentsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/environments/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request.workspace_base_environment)?;

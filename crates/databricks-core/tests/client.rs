@@ -58,6 +58,34 @@ async fn pat_request_carries_auth_user_agent_and_workspace_header() {
 }
 
 #[tokio::test]
+async fn custom_headers_are_sent_but_never_override_sdk_headers() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/x"))
+        .and(header("x-trace", "abc"))
+        .and(header("authorization", "Bearer dapi-1"))
+        .and(header("accept", "application/json"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let c = cfg(&server)
+        .token("dapi-1")
+        .header("X-Trace", "abc")
+        .header("Authorization", "Bearer evil")
+        .header("accept", "text/plain");
+    let api = client(c).await;
+    let _: Value = api
+        .query(Method::GET, "/api/2.0/x", &json!({}))
+        .await
+        .unwrap();
+    let reqs = server.received_requests().await.unwrap();
+    let auth: Vec<_> = reqs[0].headers.get_all("authorization").iter().collect();
+    assert_eq!(auth.len(), 1, "{auth:?}");
+    assert_eq!(reqs[0].headers.get_all("accept").iter().count(), 1);
+}
+
+#[tokio::test]
 async fn json_body_and_empty_responses() {
     #[derive(serde::Deserialize, Default)]
     struct Empty {
@@ -251,6 +279,44 @@ async fn oauth_m2m_discovers_endpoints_and_caches_the_token() {
         assert_eq!(s, "hi");
     }
     assert_eq!(api.auth_type(), Some("oauth-m2m"));
+}
+
+#[tokio::test]
+async fn group_role_assumption_is_sent_by_m2m_and_refused_by_pat() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/oidc/v1/token"))
+        .and(body_string_contains("assume_group=grp-7"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "access_token": "group-token",
+            "expires_in": 3600
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    mount_workspace_oidc(&server, 0).await;
+    let mut c = cfg(&server).client_credentials("sp-id", "sp-secret");
+    c.group_id = Some("grp-7".into());
+    let api = client(c).await;
+    assert_eq!(api.authenticate().await.unwrap(), "oauth-m2m");
+
+    // PAT can only give normal access, so it refuses rather than ignoring
+    // the group; the default chain then has nothing left.
+    let mut c = cfg(&server).token("dapi-1");
+    c.group_id = Some("grp-7".into());
+    let e = client(c.clone()).await.authenticate().await.unwrap_err();
+    assert!(
+        e.to_string()
+            .contains("cannot configure default credentials"),
+        "{e}"
+    );
+    c.auth_type = Some("pat".into());
+    let e = client(c).await.authenticate().await.unwrap_err();
+    assert!(
+        e.to_string()
+            .contains("does not support group role assumption"),
+        "{e}"
+    );
 }
 
 #[tokio::test]
@@ -550,4 +616,20 @@ fn response_header_parsing() {
     );
     assert_eq!(header::<i64>(&h, "x-bad"), None);
     assert_eq!(header::<i64>(&h, "missing"), None);
+}
+
+#[test]
+fn path_param_escaping_by_segment_type() {
+    use databricks_core::http::path_param;
+    // Single segment: `/` is data (databricks-sdk-go#1765).
+    assert_eq!(path_param("main.sch.tbl/col", false), "main.sch.tbl%2Fcol");
+    assert_eq!(path_param("a#b?c d", false), "a%23b%3Fc%20d");
+    assert_eq!(path_param("café", false), "caf%C3%A9");
+    // Multi segment: `/` separates, each segment escaped.
+    assert_eq!(
+        path_param("projects/p1/branches/b 1", true),
+        "projects/p1/branches/b%201"
+    );
+    assert_eq!(path_param("/a//b/", true), "/a//b/");
+    assert_eq!(path_param("", false), "");
 }

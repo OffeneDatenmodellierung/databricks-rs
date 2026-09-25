@@ -1486,7 +1486,7 @@ impl SupervisorAgentsApi {
     ) -> ::databricks_core::Result<Example> {
         let path = format!(
             "/api/2.1/{}/examples",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.example)?;
@@ -1519,7 +1519,7 @@ impl SupervisorAgentsApi {
     pub async fn create_tool(&self, request: CreateToolRequest) -> ::databricks_core::Result<Tool> {
         let path = format!(
             "/api/2.1/{}/tools",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("tool_id", &request.tool_id)?);
@@ -1534,7 +1534,7 @@ impl SupervisorAgentsApi {
         &self,
         request: DeleteExampleRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1549,7 +1549,7 @@ impl SupervisorAgentsApi {
         &self,
         request: DeleteSupervisorAgentRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1561,7 +1561,7 @@ impl SupervisorAgentsApi {
     ///
     /// `DELETE /api/2.1/{name}`
     pub async fn delete_tool(&self, request: DeleteToolRequest) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1576,7 +1576,7 @@ impl SupervisorAgentsApi {
         &self,
         request: GetExampleRequest,
     ) -> ::databricks_core::Result<Example> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Example>(call).await
     }
@@ -1621,7 +1621,7 @@ impl SupervisorAgentsApi {
         &self,
         request: GetSupervisorAgentRequest,
     ) -> ::databricks_core::Result<SupervisorAgent> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<SupervisorAgent>(call).await
     }
@@ -1630,7 +1630,7 @@ impl SupervisorAgentsApi {
     ///
     /// `GET /api/2.1/{name}`
     pub async fn get_tool(&self, request: GetToolRequest) -> ::databricks_core::Result<Tool> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Tool>(call).await
     }
@@ -1644,7 +1644,7 @@ impl SupervisorAgentsApi {
     ) -> ::databricks_core::Result<ListExamplesResponse> {
         let path = format!(
             "/api/2.1/{}/examples",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1744,7 +1744,7 @@ impl SupervisorAgentsApi {
     ) -> ::databricks_core::Result<ListToolsResponse> {
         let path = format!(
             "/api/2.1/{}/tools",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1810,7 +1810,7 @@ impl SupervisorAgentsApi {
         &self,
         request: UpdateExampleRequest,
     ) -> ::databricks_core::Result<Example> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.example)?;
@@ -1842,7 +1842,7 @@ impl SupervisorAgentsApi {
         &self,
         request: UpdateSupervisorAgentRequest,
     ) -> ::databricks_core::Result<SupervisorAgent> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.supervisor_agent)?;
@@ -1855,7 +1855,7 @@ impl SupervisorAgentsApi {
     ///
     /// `PATCH /api/2.1/{name}`
     pub async fn update_tool(&self, request: UpdateToolRequest) -> ::databricks_core::Result<Tool> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.tool)?;

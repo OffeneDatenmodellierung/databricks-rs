@@ -418,7 +418,11 @@ impl AccountUser {
 #[non_exhaustive]
 pub struct Actor {
     /// `actor_id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub actor_id: Option<i64>,
 }
 
@@ -2315,6 +2319,7 @@ impl ListAccountGroupsRequest {
 pub struct ListAccountGroupsResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2326,6 +2331,7 @@ pub struct ListAccountGroupsResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2333,6 +2339,7 @@ pub struct ListAccountGroupsResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2460,6 +2467,7 @@ impl ListAccountServicePrincipalsRequest {
 pub struct ListAccountServicePrincipalsResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2471,6 +2479,7 @@ pub struct ListAccountServicePrincipalsResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2478,6 +2487,7 @@ pub struct ListAccountServicePrincipalsResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2606,6 +2616,7 @@ impl ListAccountUsersRequest {
 pub struct ListAccountUsersResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2617,6 +2628,7 @@ pub struct ListAccountUsersResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2624,6 +2636,7 @@ pub struct ListAccountUsersResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2751,6 +2764,7 @@ impl ListGroupsRequest {
 pub struct ListGroupsResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2765,6 +2779,7 @@ pub struct ListGroupsResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2772,6 +2787,7 @@ pub struct ListGroupsResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2830,6 +2846,7 @@ impl ListGroupsResponse {
 pub struct ListServicePrincipalResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2844,6 +2861,7 @@ pub struct ListServicePrincipalResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2851,6 +2869,7 @@ pub struct ListServicePrincipalResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -3080,6 +3099,7 @@ impl ListUsersRequest {
 pub struct ListUsersResponse {
     /// Total results returned in the response.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "itemsPerPage",
         default,
         skip_serializing_if = "Option::is_none"
@@ -3094,6 +3114,7 @@ pub struct ListUsersResponse {
     /// Starting index of all the results that matched the request filters. First
     /// item is number 1.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "startIndex",
         default,
         skip_serializing_if = "Option::is_none"
@@ -3101,6 +3122,7 @@ pub struct ListUsersResponse {
     pub start_index: Option<i64>,
     /// Total results that match the request filters.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "totalResults",
         default,
         skip_serializing_if = "Option::is_none"
@@ -3208,14 +3230,18 @@ pub struct MigratePermissionsRequest {
     #[serde(default)]
     pub from_workspace_group_name: String,
     /// The maximum number of permissions that will be migrated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<i64>,
     /// The name of the account group that permissions will be migrated to.
     #[serde(default)]
     pub to_account_group_name: String,
     /// WorkspaceId of the associated workspace where the permission migration
     /// will occur.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub workspace_id: i64,
 }
 
@@ -3254,7 +3280,11 @@ impl MigratePermissionsRequest {
 #[non_exhaustive]
 pub struct MigratePermissionsResponse {
     /// Number of permissions migrated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub permissions_migrated: Option<i64>,
 }
 
@@ -4139,7 +4169,11 @@ pub struct PrincipalOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub group_name: Option<String>,
     /// The unique, opaque id of the principal.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
     /// The name of the service principal. Present only if the principal is a
     /// service principal.

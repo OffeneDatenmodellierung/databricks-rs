@@ -33,7 +33,11 @@ pub struct Activity {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Source stage of the transition (if the activity is stage transition
     /// related). Valid values are:
@@ -51,7 +55,11 @@ pub struct Activity {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Time of the object at last update, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Comment made by system, for example explaining an activity of type
     /// `SYSTEM_TRANSITION`. It usually describes a side effect, such as a
@@ -489,7 +497,11 @@ pub struct ApproxCountDistinctFunction {
     pub input: String,
     /// The maximum relative standard deviation allowed (default defined by
     /// Spark).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub relative_sd: Option<f64>,
 }
 
@@ -523,13 +535,17 @@ impl ApproxCountDistinctFunction {
 #[non_exhaustive]
 pub struct ApproxPercentileFunction {
     /// The accuracy parameter (higher is more accurate but slower).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub accuracy: Option<i64>,
     /// The input column from which the approximate percentile is computed.
     #[serde(default)]
     pub input: String,
     /// The percentile value to compute (between 0 and 1).
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::f64", default)]
     pub percentile: f64,
 }
 
@@ -976,13 +992,21 @@ pub struct CommentObject {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Unique identifier for the object.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Time of the object at last update, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// The username of the user that created the object.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1325,7 +1349,7 @@ pub struct CreateForecastingExperimentRequest {
     /// The number of time steps into the future to make predictions, calculated
     /// as a multiple of forecast_granularity. This value represents how far
     /// ahead the model should forecast.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub forecast_horizon: i64,
     /// The fully qualified path of a Unity Catalog table, formatted as
     /// catalog_name.schema_name.table_name, used to store future feature data
@@ -1346,7 +1370,11 @@ pub struct CreateForecastingExperimentRequest {
     pub include_features: Vec<String>,
     /// The maximum duration for the experiment in minutes. The experiment stops
     /// automatically if it exceeds this limit.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_runtime: Option<i64>,
     /// The fully qualified path of a Unity Catalog table, formatted as
     /// catalog_name.schema_name.table_name, used to store predictions.
@@ -1995,7 +2023,11 @@ pub struct CreateRun {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub run_name: Option<String>,
     /// Unix timestamp in milliseconds of when the run started.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Additional metadata for run.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2979,12 +3011,16 @@ pub struct DeleteRuns {
     pub experiment_id: String,
     /// An optional positive integer indicating the maximum number of runs to
     /// delete. The maximum allowed value for max_runs is 10000.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_runs: Option<i64>,
     /// The maximum creation timestamp in milliseconds since the UNIX epoch for
     /// deleting runs. Only runs created prior to or at this timestamp are
     /// deleted.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub max_timestamp_millis: i64,
 }
 
@@ -3026,7 +3062,11 @@ impl DeleteRuns {
 #[non_exhaustive]
 pub struct DeleteRunsResponse {
     /// The number of runs deleted.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub runs_deleted: Option<i64>,
 }
 
@@ -3586,13 +3626,21 @@ pub struct Experiment {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub artifact_location: Option<String>,
     /// Creation time
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Unique identifier for the experiment.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub experiment_id: Option<String>,
     /// Last update time
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_update_time: Option<i64>,
     /// Current life cycle stage of the experiment: "active" or "deleted".
     /// Deleted experiments are not returned by APIs.
@@ -4217,7 +4265,11 @@ pub struct FeatureLineageModel {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The version of the model.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -4413,7 +4465,11 @@ impl FieldDefinition {
 #[non_exhaustive]
 pub struct FileInfo {
     /// The size in bytes of the file. Unset for directories.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub file_size: Option<i64>,
     /// Whether the path is a directory.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4513,7 +4569,7 @@ pub struct FirstDistinctFunction {
     #[serde(default)]
     pub input: String,
     /// The number of distinct values to return.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub n: i64,
 }
 
@@ -4578,7 +4634,7 @@ pub struct FirstNFunction {
     #[serde(default)]
     pub input: String,
     /// The number of values to return.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub n: i64,
 }
 
@@ -5854,7 +5910,11 @@ impl HttpUrlSpecWithoutSecret {
 pub struct IngestionConfig {
     /// The ID of the Databricks Job that performs the historical backfill of the
     /// ingestion Delta table.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub backfill_job_id: Option<i64>,
     /// A user-provided source for backfilling data. Historical data is used when
     /// creating a training set from streaming features linked to this Stream.
@@ -5884,7 +5944,11 @@ pub struct IngestionConfig {
     #[serde(default)]
     pub ingestion_destination: IngestionDestination,
     /// The ID of the Databricks Job that performs the forward-fill ingestion.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub ingestion_job_id: Option<i64>,
     /// The ID of the SDP pipeline that continuously copies new events from the
     /// streaming source into the ingestion Delta table.
@@ -6076,10 +6140,18 @@ impl InputTag {
 #[non_exhaustive]
 pub struct JobContext {
     /// The job ID where this API invoked.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// The job run ID where this API was invoked.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_run_id: Option<i64>,
 }
 
@@ -6511,7 +6583,7 @@ pub struct LastDistinctFunction {
     #[serde(default)]
     pub input: String,
     /// The number of distinct values to return.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub n: i64,
 }
 
@@ -6576,7 +6648,7 @@ pub struct LastNFunction {
     #[serde(default)]
     pub input: String,
     /// The number of values to return.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub n: i64,
 }
 
@@ -6616,7 +6688,11 @@ pub struct LineageContext {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub job_context: Option<JobContext>,
     /// The notebook ID where this API was invoked.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub notebook_id: Option<i64>,
 }
 
@@ -7665,13 +7741,17 @@ pub struct LogMetric {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub run_uuid: Option<String>,
     /// Step at which to log the metric
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub step: Option<i64>,
     /// Unix timestamp in milliseconds at the time metric was logged.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub timestamp: i64,
     /// Double value of the metric being logged.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::f64", default)]
     pub value: f64,
 }
 
@@ -7931,17 +8011,29 @@ pub struct LoggedModelInfo {
     pub artifact_uri: Option<String>,
     /// The timestamp when the model was created in milliseconds since the UNIX
     /// epoch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp_ms: Option<i64>,
     /// The ID of the user or principal that created the model.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creator_id: Option<i64>,
     /// The ID of the experiment that owns the model.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub experiment_id: Option<String>,
     /// The timestamp when the model was last updated in milliseconds since the
     /// UNIX epoch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp_ms: Option<i64>,
     /// The unique identifier for the logged model.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8378,13 +8470,25 @@ pub struct Metric {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub run_id: Option<String>,
     /// The step at which the metric was logged.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub step: Option<i64>,
     /// The timestamp at which the metric was recorded.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timestamp: Option<i64>,
     /// The value of the metric.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub value: Option<f64>,
 }
 
@@ -8478,14 +8582,22 @@ impl MinFunction {
 #[non_exhaustive]
 pub struct Model {
     /// Timestamp recorded when this `registered_model` was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Description of this `registered_model`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// Timestamp recorded when metadata for this `registered_model` was last
     /// updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Collection of latest model versions for each stage. Only contains models
     /// with current `READY` status.
@@ -8558,7 +8670,11 @@ impl Model {
 #[non_exhaustive]
 pub struct ModelDatabricks {
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// User-specified description for the object.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8567,7 +8683,11 @@ pub struct ModelDatabricks {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Last update time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Array of model versions, each the latest version for its stage.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -8686,7 +8806,7 @@ pub struct ModelOutput {
     #[serde(default)]
     pub model_id: String,
     /// The step at which the model was produced.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub step: i64,
 }
 
@@ -8749,7 +8869,11 @@ impl ModelTag {
 #[non_exhaustive]
 pub struct ModelVersion {
     /// Timestamp recorded when this `model_version` was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Current stage for this `model_version`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8759,7 +8883,11 @@ pub struct ModelVersion {
     pub description: Option<String>,
     /// Timestamp recorded when metadata for this `model_version` was last
     /// updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Unique name of the model
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8890,7 +9018,11 @@ impl ModelVersion {
 #[non_exhaustive]
 pub struct ModelVersionDatabricks {
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// `current_stage`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8907,7 +9039,11 @@ pub struct ModelVersionDatabricks {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub feature_list: Option<FeatureList>,
     /// Time of the object at last update, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Name of the model.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9276,7 +9412,11 @@ pub struct OnlineStore {
     #[serde(default)]
     pub name: String,
     /// The number of read replicas for the online store. Defaults to 0.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub read_replica_count: Option<i64>,
     /// The current state of the online store.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9763,7 +9903,11 @@ pub struct PurgeFeatureEntitiesMetadata {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub features: Vec<String>,
     /// ID of the job that executes this purge.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// Current state of the purge operation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10305,7 +10449,11 @@ impl RegisteredModelPermissionsRequest {
 #[non_exhaustive]
 pub struct RegistryWebhook {
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// User-specified description for the webhook.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10355,7 +10503,11 @@ pub struct RegistryWebhook {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub job_spec: Option<JobSpecWithoutSecret>,
     /// Time of the object at last update, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
     /// Name of the model whose events would trigger this webhook.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10692,12 +10844,16 @@ pub struct RestoreRuns {
     pub experiment_id: String,
     /// An optional positive integer indicating the maximum number of runs to
     /// restore. The maximum allowed value for max_runs is 10000.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_runs: Option<i64>,
     /// The minimum deletion timestamp in milliseconds since the UNIX epoch for
     /// restoring runs. Only runs deleted no earlier than this timestamp are
     /// restored.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub min_timestamp_millis: i64,
 }
 
@@ -10739,7 +10895,11 @@ impl RestoreRuns {
 #[non_exhaustive]
 pub struct RestoreRunsResponse {
     /// The number of runs restored.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub runs_restored: Option<i64>,
 }
 
@@ -10871,7 +11031,11 @@ pub struct RunInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub artifact_uri: Option<String>,
     /// Unix timestamp of when the run ended in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The experiment ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10890,7 +11054,11 @@ pub struct RunInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub run_uuid: Option<String>,
     /// Unix timestamp of when the run started in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Current status of the run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -11306,7 +11474,11 @@ pub struct SearchExperiments {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filter: Option<String>,
     /// Maximum number of experiments desired. Max threshold is 3000.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_results: Option<i64>,
     /// List of columns for ordering search results, which can include experiment
     /// name and last updated timestamp with an optional "DESC" or "ASC"
@@ -11512,7 +11684,11 @@ pub struct SearchLoggedModelsRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filter: Option<String>,
     /// The maximum number of Logged Models to return. The maximum limit is 50.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_results: Option<i64>,
     /// The list of columns for ordering the results, with additional fields for
     /// sorting criteria.
@@ -11778,7 +11954,11 @@ pub struct SearchRuns {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filter: Option<String>,
     /// Maximum number of runs desired. Max threshold is 50000
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_results: Option<i64>,
     /// List of columns to be ordered by, including attributes, params, metrics,
     /// and tags with an optional `"DESC"` or `"ASC"` annotation, where `"ASC"`
@@ -12815,7 +12995,11 @@ pub struct TestRegistryWebhookResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     /// Status code returned by the webhook URL
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub status_code: Option<i64>,
 }
 
@@ -13027,7 +13211,11 @@ pub struct TransitionRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Creation time of the object, as a Unix timestamp in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_timestamp: Option<i64>,
     /// Target stage of the transition (if the activity is stage transition
     /// related). Valid values are:
@@ -13770,7 +13958,11 @@ impl UpdateRegistryWebhook {
 #[non_exhaustive]
 pub struct UpdateRun {
     /// Unix timestamp in milliseconds of when the run ended.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// ID of the run to update. Must be provided.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -14892,7 +15084,7 @@ impl FeatureEngineeringApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.0/feature-engineering/{}:cancel",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -15087,7 +15279,7 @@ impl FeatureEngineeringApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/feature-engineering/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Operation>(call).await

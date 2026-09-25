@@ -567,7 +567,11 @@ pub struct FederationPolicy {
     pub policy_id: Option<String>,
     /// The service principal ID that this federation policy applies to. Output
     /// only. Only set for service principal federation policies.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub service_principal_id: Option<i64>,
     /// Unique, immutable id of the federation policy.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -677,7 +681,11 @@ pub struct GetCustomAppIntegrationOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub create_time: Option<String>,
     /// `created_by`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by: Option<i64>,
     /// `creator_username`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -849,7 +857,11 @@ pub struct GetPublishedAppIntegrationOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub create_time: Option<String>,
     /// `created_by`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_by: Option<i64>,
     /// Unique integration id for the published OAuth app
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1555,10 +1567,18 @@ pub struct TokenAccessPolicy {
     /// during refresh token rotation, it will inherit the same absolute TTL as
     /// the old refresh token. In other words, this represents the maximum amount
     /// of time a user can stay logged in without re-authenticating.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub absolute_session_lifetime_in_minutes: Option<i64>,
     /// access token time to live in minutes
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub access_token_ttl_in_minutes: Option<i64>,
     /// Whether to enable single-use refresh tokens (refresh token rotation). If
     /// this feature is enabled, upon successfully getting a new access token
@@ -1572,7 +1592,11 @@ pub struct TokenAccessPolicy {
     /// enabled, this represents the TTL of an individual refresh token. If the
     /// refresh token is used before it expires, a new one is issued with a
     /// renewed individual TTL.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub refresh_token_ttl_in_minutes: Option<i64>,
 }
 

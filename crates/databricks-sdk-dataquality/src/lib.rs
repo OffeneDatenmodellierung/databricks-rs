@@ -315,7 +315,11 @@ pub struct DataProfilingConfig {
     /// will be represented in a numeric fashion (1,2,3...). The field has
     /// flexibility to take on negative values, which can indicate corrupted
     /// monitor_version numbers.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub monitor_version: Option<i64>,
     /// Unity Catalog table to monitor. Format: `catalog.schema.table_name`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1166,7 +1170,11 @@ impl NotificationSettings {
 #[non_exhaustive]
 pub struct Refresh {
     /// Time when the refresh ended (milliseconds since 1/1/1970 UTC).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time_ms: Option<i64>,
     /// An optional message to give insight into the current state of the refresh
     /// (e.g. FAILURE messages).
@@ -1193,10 +1201,18 @@ pub struct Refresh {
     #[serde(default)]
     pub object_type: String,
     /// Unique id of the refresh operation.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub refresh_id: Option<i64>,
     /// Time when the refresh started (milliseconds since 1/1/1970 UTC).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time_ms: Option<i64>,
     /// The current state of the refresh.
     #[serde(default, skip_serializing_if = "Option::is_none")]

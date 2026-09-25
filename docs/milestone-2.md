@@ -76,13 +76,14 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 
 ## Verification
 
-- 78 tests pass under `cargo test --workspace --all-features`.
+- 94 tests pass under `cargo test --workspace --all-features`.
 - The 10 milestone-1 spike tests pass against the generated code. The only changes are the construction syntax (from `builder()` to `new`/`with_*`) and dropping the `other` map assertion.
 - `tests/generated_patterns.rs` has one test per generated shape:
   - SCIM offset pagination;
   - page-number pagination;
   - explicit query parameters, a field mask and a sub-field body;
-  - multi-segment path escaping;
+  - multi-segment and single-segment path escaping;
+  - numeric strings in integer and float fields;
   - waiters bound from the response and from the request;
   - account paths sending no workspace header.
 - `xtask` unit tests cover naming, doc conversion and resource-format parsing.
@@ -97,8 +98,19 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 
 - The `bon` builders are gone; use `new(..)` or `Default` plus `with_*`.
 - Response structs no longer have an `other` map. Unknown fields are ignored, and every known field is typed.
-- Integer fields are `i64` throughout. Go's `int` is 64-bit, so an `i32` could fail to deserialise large values.
+- Integer fields are `i64` throughout. Go's `int` is 64-bit, so an `i32` could fail to deserialise large values. They also accept numeric strings, and float fields accept `"NaN"`/`"Infinity"` (`databricks_core::serde_num`).
 - `AccountClient::workspaces()` and the other accessors are generated. Account IDs are read from the config on each call.
+
+## Upstream review
+
+`docs/upstream-review.md` goes through the open databricks-sdk-go issues and PRs, and the PRs closed since v0.182.0. Adopted from it:
+- segment-aware path escaping;
+- lenient integer and float decoding;
+- custom headers;
+- group role assumption;
+- clearer decode errors.
+
+It also lists the auth work to follow when the remaining strategies are ported.
 
 ## Open items
 

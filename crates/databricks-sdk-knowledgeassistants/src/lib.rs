@@ -1514,7 +1514,7 @@ impl KnowledgeAssistantsApi {
     ) -> ::databricks_core::Result<Example> {
         let path = format!(
             "/api/2.1/{}/examples",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.example)?;
@@ -1543,7 +1543,7 @@ impl KnowledgeAssistantsApi {
     ) -> ::databricks_core::Result<KnowledgeSource> {
         let path = format!(
             "/api/2.1/{}/knowledge-sources",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.knowledge_source)?;
@@ -1557,7 +1557,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: DeleteExampleRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1572,7 +1572,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: DeleteKnowledgeAssistantRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1587,7 +1587,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: DeleteKnowledgeSourceRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
             .send::<::serde::de::IgnoredAny>(call)
@@ -1602,7 +1602,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: GetExampleRequest,
     ) -> ::databricks_core::Result<Example> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Example>(call).await
     }
@@ -1614,7 +1614,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: GetKnowledgeAssistantRequest,
     ) -> ::databricks_core::Result<KnowledgeAssistant> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<KnowledgeAssistant>(call).await
     }
@@ -1626,7 +1626,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: GetKnowledgeSourceRequest,
     ) -> ::databricks_core::Result<KnowledgeSource> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<KnowledgeSource>(call).await
     }
@@ -1673,7 +1673,7 @@ impl KnowledgeAssistantsApi {
     ) -> ::databricks_core::Result<ListExamplesResponse> {
         let path = format!(
             "/api/2.1/{}/examples",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1773,7 +1773,7 @@ impl KnowledgeAssistantsApi {
     ) -> ::databricks_core::Result<ListKnowledgeSourcesResponse> {
         let path = format!(
             "/api/2.1/{}/knowledge-sources",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1845,7 +1845,7 @@ impl KnowledgeAssistantsApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.1/{}/knowledge-sources:sync",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -1862,7 +1862,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: UpdateExampleRequest,
     ) -> ::databricks_core::Result<Example> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.example)?;
@@ -1876,7 +1876,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: UpdateKnowledgeAssistantRequest,
     ) -> ::databricks_core::Result<KnowledgeAssistant> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.knowledge_assistant)?;
@@ -1890,7 +1890,7 @@ impl KnowledgeAssistantsApi {
         &self,
         request: UpdateKnowledgeSourceRequest,
     ) -> ::databricks_core::Result<KnowledgeSource> {
-        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.knowledge_source)?;

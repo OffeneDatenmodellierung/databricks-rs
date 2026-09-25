@@ -149,6 +149,24 @@ fn serde_attr(i: &FieldInfo) -> String {
         return "    #[serde(skip)]\n".into();
     }
     let mut parts = Vec::new();
+    // Integers may arrive as numeric strings (databricks-sdk-go #1808) and
+    // floats as "NaN"/"Infinity" (#1498).
+    let de = match (i.kind.as_str(), i.elem_kind.as_str()) {
+        ("int" | "int64", _) if i.optional => Some("opt_i64"),
+        ("int" | "int64", _) => Some("i64"),
+        ("list", "int" | "int64") => Some("vec_i64"),
+        ("map", "int" | "int64") => Some("map_i64"),
+        ("float64", _) if i.optional => Some("opt_f64"),
+        ("float64", _) => Some("f64"),
+        ("list", "float64") => Some("vec_f64"),
+        ("map", "float64") => Some("map_f64"),
+        _ => None,
+    };
+    if let Some(f) = de.filter(|_| !i.boxed) {
+        parts.push(format!(
+            "deserialize_with = \"::databricks_core::serde_num::{f}\""
+        ));
+    }
     if i.ident.trim_start_matches("r#") != i.json {
         parts.push(format!("rename = {:?}", i.json));
     }

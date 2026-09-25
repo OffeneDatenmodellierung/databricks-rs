@@ -151,7 +151,11 @@ pub struct CreateCredentialsRequest {
     pub personal_access_token: Option<String>,
     /// The ID of the service principal whose credentials will be modified. Only
     /// service principal managers can perform this action.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
 }
 
@@ -220,7 +224,7 @@ impl CreateCredentialsRequest {
 #[non_exhaustive]
 pub struct CreateCredentialsResponse {
     /// ID of the credential object in the workspace.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub credential_id: i64,
     /// The authenticating email associated with your Git provider user account.
     /// Used for authentication with the remote repository and also sets the
@@ -308,7 +312,11 @@ impl CreateCredentialsResponse {
 pub struct CreateRepoRequest {
     /// Git credential ID to use when cloning the repository. The Git credential
     /// must be configured for the current user.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub git_credential_id: Option<i64>,
     /// Desired path for the repo in the workspace. Almost any path in the
     /// workspace can be chosen. If repo is created in `/Repos`, path must be in
@@ -390,7 +398,11 @@ pub struct CreateRepoResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub head_commit_id: Option<String>,
     /// ID of the Git folder (repo) object in the workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// Path of the Git folder (repo) in the workspace.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -526,7 +538,7 @@ impl CreateScope {
 #[non_exhaustive]
 pub struct CredentialInfo {
     /// ID of the credential object in the workspace.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub credential_id: i64,
     /// The authenticating email associated with your Git provider user account.
     /// Used for authentication with the remote repository and also sets the
@@ -1030,7 +1042,7 @@ impl GetCredentialsRequest {
 #[non_exhaustive]
 pub struct GetCredentialsResponse {
     /// ID of the credential object in the workspace.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub credential_id: i64,
     /// The authenticating email associated with your Git provider user account.
     /// Used for authentication with the remote repository and also sets the
@@ -1228,7 +1240,11 @@ pub struct GetRepoResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub head_commit_id: Option<String>,
     /// ID of the Git folder (repo) object in the workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// Path of the Git folder (repo) in the workspace.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1921,7 +1937,11 @@ impl Mkdirs {
 #[non_exhaustive]
 pub struct ObjectInfo {
     /// Only applicable to files. The creation UTC timestamp.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Additional metadata about the directory. Only set for objects of type
     /// ``DIRECTORY``.
@@ -1932,10 +1952,18 @@ pub struct ObjectInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub language: Option<Language>,
     /// Only applicable to files, the last modified UTC timestamp.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub modified_at: Option<i64>,
     /// Unique identifier for the object.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub object_id: Option<i64>,
     /// The type of the object in workspace.
     ///
@@ -1952,7 +1980,11 @@ pub struct ObjectInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resource_id: Option<String>,
     /// Only applicable to files. The file size in bytes can be returned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<i64>,
 }
 
@@ -2252,7 +2284,11 @@ pub struct RepoInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub head_commit_id: Option<String>,
     /// Id of the git folder (repo) in the Workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// Root path of the git folder (repo) in the Workspace.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2502,7 +2538,11 @@ pub struct SecretMetadata {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub key: Option<String>,
     /// The last updated timestamp (in milliseconds) for the secret.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_updated_timestamp: Option<i64>,
 }
 
@@ -2651,7 +2691,11 @@ pub struct UpdateCredentialsRequest {
     pub personal_access_token: Option<String>,
     /// The ID of the service principal whose credentials will be modified. Only
     /// service principal managers can perform this action.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
 }
 
@@ -2746,7 +2790,11 @@ pub struct UpdateRepoRequest {
     pub dangerously_force_discard_all: Option<bool>,
     /// Git credential ID to use for this update operation. The Git credential
     /// must be configured for the current user.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub git_credential_id: Option<i64>,
     /// ID of the Git folder (repo) object in the workspace.
     #[serde(skip)]

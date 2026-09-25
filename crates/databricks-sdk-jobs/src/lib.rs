@@ -373,7 +373,11 @@ impl AlertTaskSubscriber {
 pub struct BaseJob {
     /// The time at which this job was created in epoch milliseconds
     /// (milliseconds since 1/1/1970 UTC).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_time: Option<i64>,
     /// The creator user name. This field won’t be included in the response if
     /// the user has already been deleted.
@@ -398,7 +402,11 @@ pub struct BaseJob {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub has_more: Option<bool>,
     /// The canonical identifier for this job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// Settings for this job and all of its runs. These settings can be updated
     /// using the `resetJob` method.
@@ -492,14 +500,22 @@ pub struct BaseRun {
     /// original attempt’s ID and an incrementing `attempt_number`. Runs are
     /// retried only until they succeed, and the maximum `attempt_number` is the
     /// same as the `max_retries` value for the job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub attempt_number: Option<i64>,
     /// The time in milliseconds it took to terminate the cluster and clean up
     /// any associated artifacts. The duration of a task run is the sum of the
     /// `setup_duration`, `execution_duration`, and the `cleanup_duration`. The
     /// `cleanup_duration` field is set to 0 for multitask job runs. The total
     /// duration of a multitask job run is the value of the `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cleanup_duration: Option<i64>,
     /// The cluster used for this run. If the run is specified to use a new
     /// cluster, this field is set once the Jobs service has requested a cluster
@@ -540,7 +556,11 @@ pub struct BaseRun {
     pub effective_usage_policy_id: Option<String>,
     /// The time at which this run ended in epoch milliseconds (milliseconds
     /// since 1/1/1970 UTC). This field is set to 0 if the job is still running.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The time in milliseconds it took to execute the commands in the JAR or
     /// notebook until they completed, failed, timed out, were cancelled, or
@@ -549,7 +569,11 @@ pub struct BaseRun {
     /// The `execution_duration` field is set to 0 for multitask job runs. The
     /// total duration of a multitask job run is the value of the `run_duration`
     /// field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_duration: Option<i64>,
     /// An optional specification for a remote Git repository containing the
     /// source code used by tasks. Version-controlled source code is supported by
@@ -577,7 +601,11 @@ pub struct BaseRun {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub job_clusters: Vec<JobCluster>,
     /// The canonical identifier of the job that contains this run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// Job-level parameters used in the run
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -586,32 +614,56 @@ pub struct BaseRun {
     /// job runs the field is populated with the job run ID. For task runs, the
     /// field is populated with the ID of the job run that the task run belongs
     /// to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_run_id: Option<i64>,
     /// A unique identifier for this job run. This is set to the same value as
     /// `run_id`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub number_in_job: Option<i64>,
     /// If this run is a retry of a prior run attempt, this field contains the
     /// run_id of the original attempt; otherwise, it is the same as the run_id.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub original_attempt_run_id: Option<i64>,
     /// The parameters used for this run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub overriding_parameters: Option<RunParameters>,
     /// The time in milliseconds that the run has spent in the queue.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub queue_duration: Option<i64>,
     /// The repair history of the run.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub repair_history: Vec<RepairHistoryItem>,
     /// The time in milliseconds it took the job run and all of its repairs to
     /// finish.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_duration: Option<i64>,
     /// The canonical identifier of the run. This ID is unique across all runs of
     /// all jobs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
     /// An optional name for the run. The maximum length is 4096 bytes in UTF-8
     /// encoding.
@@ -634,13 +686,21 @@ pub struct BaseRun {
     /// `cleanup_duration`. The `setup_duration` field is set to 0 for multitask
     /// job runs. The total duration of a multitask job run is the value of the
     /// `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub setup_duration: Option<i64>,
     /// The time at which this run was started in epoch milliseconds
     /// (milliseconds since 1/1/1970 UTC). This may not be the time when the job
     /// task starts executing, for example, if the job is scheduled to run on a
     /// new cluster, this is the time the cluster creation call is issued.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Deprecated. Please use the `status` field instead.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -935,7 +995,11 @@ pub struct CancelAllRuns {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub all_queued_runs: Option<bool>,
     /// The canonical identifier of the job to cancel all runs of.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
 }
 
@@ -960,7 +1024,7 @@ impl CancelAllRuns {
 #[non_exhaustive]
 pub struct CancelRun {
     /// This field is required.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub run_id: i64,
 }
 
@@ -1319,7 +1383,7 @@ pub struct ComputeConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gpu_type: Option<String>,
     /// Number of GPUs.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub num_gpus: i64,
 }
 
@@ -1364,7 +1428,7 @@ pub struct ComputeSpec {
     /// multiple of the per-node accelerator count encoded in `accelerator_type`.
     /// For example, `GPU_8xH100` with `accelerator_count: 16` allocates 2 nodes
     /// (8 GPUs per node).
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub accelerator_count: i64,
     /// Hardware accelerator type (for example, `GPU_1xA10` or `GPU_8xH100`). The
     /// number of accelerators per node is encoded in the enum value —
@@ -1594,13 +1658,21 @@ impl ContinuousTriggerConfiguration {
 #[non_exhaustive]
 pub struct ContinuousTriggerState {
     /// `consecutive_failures`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub consecutive_failures: Option<i64>,
     /// `is_backing_off`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_backing_off: Option<bool>,
     /// `next_attempt_ms`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_attempt_ms: Option<i64>,
 }
 
@@ -1714,7 +1786,11 @@ pub struct CreateJob {
     /// runs. However, from then on, new runs are skipped unless there are fewer
     /// than 3 active runs. This value cannot exceed 1000. Setting this value to
     /// `0` causes all new runs to be skipped.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_concurrent_runs: Option<i64>,
     /// An optional name for the job. The maximum length is 4096 bytes in UTF-8
     /// encoding.
@@ -1777,7 +1853,11 @@ pub struct CreateJob {
     pub tasks: Vec<Task>,
     /// An optional timeout applied to each run of this job. A value of `0` means
     /// no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// A configuration to trigger a run when certain conditions are met. The
     /// default behavior is that the job runs only when triggered by clicking
@@ -2011,7 +2091,11 @@ impl CreateJob {
 #[non_exhaustive]
 pub struct CreateResponse {
     /// The canonical identifier for the newly created job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
 }
 
@@ -2273,7 +2357,11 @@ impl DashboardTaskOutput {
 #[non_exhaustive]
 pub struct DbtCloudJobRunStep {
     /// Orders the steps in the job
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub index: Option<i64>,
     /// Output of the step
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2325,7 +2413,11 @@ pub struct DbtCloudTask {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_resource_name: Option<String>,
     /// Id of the dbt Cloud job to be triggered
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub dbt_cloud_job_id: Option<i64>,
 }
 
@@ -2350,7 +2442,11 @@ impl DbtCloudTask {
 #[non_exhaustive]
 pub struct DbtCloudTaskOutput {
     /// Id of the job run in dbt Cloud
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub dbt_cloud_job_run_id: Option<i64>,
     /// Steps of the job run as received from dbt Cloud
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2428,7 +2524,11 @@ impl DbtOutput {
 #[non_exhaustive]
 pub struct DbtPlatformJobRunStep {
     /// Orders the steps in the job
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub index: Option<i64>,
     /// Output of the step
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2707,7 +2807,7 @@ impl DbtTask {
 #[non_exhaustive]
 pub struct DeleteJob {
     /// The canonical identifier of the job to delete. This field is required.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
 }
 
@@ -2734,7 +2834,7 @@ impl DeleteJob {
 #[non_exhaustive]
 pub struct DeleteRun {
     /// ID of the run to delete.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub run_id: i64,
 }
 
@@ -2875,7 +2975,7 @@ impl EnforcePolicyComplianceForJobResponseJobClusterSettingsChange {
 #[non_exhaustive]
 pub struct EnforcePolicyComplianceRequest {
     /// The ID of the job you want to enforce policy compliance on.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// If set, previews changes made to the job to comply with its policy, but
     /// does not update the job.
@@ -3021,7 +3121,11 @@ pub struct FileArrivalTriggerConfiguration {
     /// If set, the trigger starts a run only after the specified amount of time
     /// passed since the last time the trigger fired. The minimum allowed value
     /// is 60 seconds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_time_between_triggers_seconds: Option<i64>,
     /// URL to be monitored for file arrivals. The path must point to the root or
     /// a subpath of the external location.
@@ -3031,7 +3135,11 @@ pub struct FileArrivalTriggerConfiguration {
     /// for the specified amount of time. This makes it possible to wait for a
     /// batch of incoming files to arrive before triggering a run. The minimum
     /// allowed value is 60 seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub wait_after_last_change_seconds: Option<i64>,
 }
 
@@ -3124,7 +3232,11 @@ pub struct ForEachTask {
     /// An optional maximum allowed number of concurrent runs of the task. Set
     /// this value if you want to be able to execute multiple runs of the task
     /// concurrently.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub concurrency: Option<i64>,
     /// Array for task to iterate on. This can be a JSON string or a reference to
     /// an array parameter.
@@ -3174,7 +3286,11 @@ impl ForEachTask {
 pub struct ForEachTaskErrorMessageStats {
     /// Describes the count of such error message encountered during the
     /// iterations.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub count: Option<i64>,
     /// Describes the error message occurred during the iterations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3213,22 +3329,46 @@ impl ForEachTaskErrorMessageStats {
 pub struct ForEachTaskTaskRunStats {
     /// Describes the iteration runs having an active lifecycle state or an
     /// active run sub state.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub active_iterations: Option<i64>,
     /// Describes the number of failed and succeeded iteration runs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub completed_iterations: Option<i64>,
     /// Describes the number of failed iteration runs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub failed_iterations: Option<i64>,
     /// Describes the number of iteration runs that have been scheduled.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub scheduled_iterations: Option<i64>,
     /// Describes the number of succeeded iteration runs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub succeeded_iterations: Option<i64>,
     /// Describes the length of the list of items to iterate over.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_iterations: Option<i64>,
 }
 
@@ -3842,7 +3982,11 @@ impl GitSource {
 pub struct Job {
     /// The time at which this job was created in epoch milliseconds
     /// (milliseconds since 1/1/1970 UTC).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_time: Option<i64>,
     /// The creator user name. This field won’t be included in the response if
     /// the user has already been deleted.
@@ -3867,7 +4011,11 @@ pub struct Job {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub has_more: Option<bool>,
     /// The canonical identifier for this job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// A token that can be used to list the next page of array properties.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4145,7 +4293,7 @@ pub struct JobCompliance {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_compliant: Option<bool>,
     /// Canonical unique identifier for a job.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// An object containing key-value mappings representing the first 200 policy
     /// validation errors. The keys indicate the path where the policy validation
@@ -4810,7 +4958,11 @@ pub struct JobSettings {
     /// runs. However, from then on, new runs are skipped unless there are fewer
     /// than 3 active runs. This value cannot exceed 1000. Setting this value to
     /// `0` causes all new runs to be skipped.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_concurrent_runs: Option<i64>,
     /// An optional name for the job. The maximum length is 4096 bytes in UTF-8
     /// encoding.
@@ -4873,7 +5025,11 @@ pub struct JobSettings {
     pub tasks: Vec<Task>,
     /// An optional timeout applied to each run of this job. A value of `0` means
     /// no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// A configuration to trigger a run when certain conditions are met. The
     /// default behavior is that the job runs only when triggered by clicking
@@ -5224,7 +5380,7 @@ pub struct JobsHealthRule {
     pub op: JobsHealthOperator,
     /// Specifies the threshold value that the health metric should obey to
     /// satisfy the health rule.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub value: i64,
 }
 
@@ -5666,7 +5822,7 @@ pub struct MaintenanceWindow {
     /// window in the 24-hour day. Platform-initiated maintenance is triggered
     /// only within a one-hour window starting at this hour. This field is
     /// required.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub start_hour: i64,
     /// A Java timezone ID. The maintenance window is resolved with respect to
     /// this timezone. See [Java TimeZone] for details. This field is required.
@@ -5713,7 +5869,11 @@ pub struct ModelTriggerConfiguration {
     /// If set, the trigger starts a run only after the specified amount of time
     /// has passed since the last time the trigger fired. The minimum allowed
     /// value is 60 seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_time_between_triggers_seconds: Option<i64>,
     /// Name of the securable to monitor ("mycatalog.myschema.mymodel" in the
     /// case of model-level triggers, "mycatalog.myschema" in the case of
@@ -5724,7 +5884,11 @@ pub struct ModelTriggerConfiguration {
     /// occurred for the specified time and can be used to wait for a series of
     /// model updates before triggering a run. The minimum allowed value is 60
     /// seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub wait_after_last_change_seconds: Option<i64>,
 }
 
@@ -5930,7 +6094,11 @@ pub struct OutputSchemaInfo {
     pub catalog_name: Option<String>,
     /// The expiration time for the output schema as a Unix timestamp in
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// `schema_name`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6081,7 +6249,7 @@ impl PerTriggerState {
 #[non_exhaustive]
 pub struct PeriodicTriggerConfiguration {
     /// The interval at which the trigger should run.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub interval: i64,
     /// The unit of time for the interval.
     #[serde(default)]
@@ -6133,7 +6301,11 @@ impl PeriodicTriggerConfiguration {
 #[non_exhaustive]
 pub struct PeriodicTriggerState {
     /// `next_run_time`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_run_time: Option<i64>,
 }
 
@@ -6684,14 +6856,26 @@ pub struct RepairHistoryItem {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub effective_performance_target: Option<PerformanceTarget>,
     /// The end time of the (repaired) run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The ID of the repair. Only returned for the items that represent a repair
     /// in `repair_history`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub id: Option<i64>,
     /// The start time of the (repaired) run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Deprecated. Please use the `status` field instead.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6701,7 +6885,11 @@ pub struct RepairHistoryItem {
     pub status: Option<RunStatus>,
     /// The run IDs of the task runs that ran as part of this repair history
     /// item.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub task_run_ids: Vec<i64>,
     /// The repair history item type. Indicates whether a run is the original run
     /// or a repair run.
@@ -6819,7 +7007,11 @@ pub struct RepairRun {
     /// The ID of the latest repair. This parameter is not required when
     /// repairing a run for the first time, but must be provided on subsequent
     /// requests to repair the same run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub latest_repair_id: Option<i64>,
     /// A map from keys to values for jobs with notebook task, for example
     /// `"notebook_params": {"name": "john doe", "age": "35"}`. The map is passed
@@ -6898,7 +7090,7 @@ pub struct RepairRun {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rerun_tasks: Vec<String>,
     /// The job run ID of the run to repair. The run must not be in progress.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub run_id: i64,
     /// A list of parameters for jobs with spark submit task, for example
     /// `"spark_submit_params": ["--class",
@@ -7069,7 +7261,11 @@ impl RepairRun {
 pub struct RepairRunResponse {
     /// The ID of the repair. Must be provided in subsequent repairs using the
     /// `latest_repair_id` field to ensure sequential repairs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub repair_id: Option<i64>,
 }
 
@@ -7087,7 +7283,7 @@ impl RepairRunResponse {
 #[non_exhaustive]
 pub struct ResetJob {
     /// The canonical identifier of the job to reset. This field is required.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// The new settings of the job. These settings completely replace the old
     /// settings.
@@ -7490,14 +7686,22 @@ pub struct Run {
     /// original attempt’s ID and an incrementing `attempt_number`. Runs are
     /// retried only until they succeed, and the maximum `attempt_number` is the
     /// same as the `max_retries` value for the job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub attempt_number: Option<i64>,
     /// The time in milliseconds it took to terminate the cluster and clean up
     /// any associated artifacts. The duration of a task run is the sum of the
     /// `setup_duration`, `execution_duration`, and the `cleanup_duration`. The
     /// `cleanup_duration` field is set to 0 for multitask job runs. The total
     /// duration of a multitask job run is the value of the `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cleanup_duration: Option<i64>,
     /// The cluster used for this run. If the run is specified to use a new
     /// cluster, this field is set once the Jobs service has requested a cluster
@@ -7538,7 +7742,11 @@ pub struct Run {
     pub effective_usage_policy_id: Option<String>,
     /// The time at which this run ended in epoch milliseconds (milliseconds
     /// since 1/1/1970 UTC). This field is set to 0 if the job is still running.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The time in milliseconds it took to execute the commands in the JAR or
     /// notebook until they completed, failed, timed out, were cancelled, or
@@ -7547,7 +7755,11 @@ pub struct Run {
     /// The `execution_duration` field is set to 0 for multitask job runs. The
     /// total duration of a multitask job run is the value of the `run_duration`
     /// field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_duration: Option<i64>,
     /// An optional specification for a remote Git repository containing the
     /// source code used by tasks. Version-controlled source code is supported by
@@ -7579,7 +7791,11 @@ pub struct Run {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub job_clusters: Vec<JobCluster>,
     /// The canonical identifier of the job that contains this run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_id: Option<i64>,
     /// Job-level parameters used in the run
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -7588,35 +7804,59 @@ pub struct Run {
     /// job runs the field is populated with the job run ID. For task runs, the
     /// field is populated with the ID of the job run that the task run belongs
     /// to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub job_run_id: Option<i64>,
     /// A token that can be used to list the next page of array properties.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next_page_token: Option<String>,
     /// A unique identifier for this job run. This is set to the same value as
     /// `run_id`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub number_in_job: Option<i64>,
     /// If this run is a retry of a prior run attempt, this field contains the
     /// run_id of the original attempt; otherwise, it is the same as the run_id.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub original_attempt_run_id: Option<i64>,
     /// The parameters used for this run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub overriding_parameters: Option<RunParameters>,
     /// The time in milliseconds that the run has spent in the queue.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub queue_duration: Option<i64>,
     /// The repair history of the run.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub repair_history: Vec<RepairHistoryItem>,
     /// The time in milliseconds it took the job run and all of its repairs to
     /// finish.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_duration: Option<i64>,
     /// The canonical identifier of the run. This ID is unique across all runs of
     /// all jobs.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
     /// An optional name for the run. The maximum length is 4096 bytes in UTF-8
     /// encoding.
@@ -7639,13 +7879,21 @@ pub struct Run {
     /// `cleanup_duration`. The `setup_duration` field is set to 0 for multitask
     /// job runs. The total duration of a multitask job run is the value of the
     /// `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub setup_duration: Option<i64>,
     /// The time at which this run was started in epoch milliseconds
     /// (milliseconds since 1/1/1970 UTC). This may not be the time when the job
     /// task starts executing, for example, if the job is scheduled to run on a
     /// new cluster, this is the time the cluster creation call is issued.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Deprecated. Please use the `status` field instead.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8012,7 +8260,11 @@ pub struct RunForEachTask {
     /// An optional maximum allowed number of concurrent runs of the task. Set
     /// this value if you want to be able to execute multiple runs of the task
     /// concurrently.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub concurrency: Option<i64>,
     /// Array for task to iterate on. This can be a JSON string or a reference to
     /// an array parameter.
@@ -8099,7 +8351,11 @@ impl RunForEachTask {
 #[non_exhaustive]
 pub struct RunJobOutput {
     /// The run id of the triggered job run
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
 }
 
@@ -8141,7 +8397,7 @@ pub struct RunJobTask {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub jar_params: Vec<String>,
     /// ID of the job to trigger.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// Job-level parameters used to trigger the job.
     #[serde(
@@ -8434,7 +8690,7 @@ pub struct RunNow {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub jar_params: Vec<String>,
     /// The ID of the job to be executed
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// Job-level parameters used in the run. for example `"param":
     /// "overriding_val"`
@@ -8682,10 +8938,18 @@ impl RunNow {
 pub struct RunNowResponse {
     /// A unique identifier for this job run. This is set to the same value as
     /// `run_id`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub number_in_job: Option<i64>,
     /// The globally unique ID of the newly triggered run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
 }
 
@@ -9239,7 +9503,11 @@ pub struct RunTask {
     /// original attempt’s ID and an incrementing `attempt_number`. Runs are
     /// retried only until they succeed, and the maximum `attempt_number` is the
     /// same as the `max_retries` value for the job.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub attempt_number: Option<i64>,
     /// The task runs a [clean rooms] notebook when the
     /// `clean_rooms_notebook_task` field is present.
@@ -9252,7 +9520,11 @@ pub struct RunTask {
     /// `setup_duration`, `execution_duration`, and the `cleanup_duration`. The
     /// `cleanup_duration` field is set to 0 for multitask job runs. The total
     /// duration of a multitask job run is the value of the `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cleanup_duration: Option<i64>,
     /// The cluster used for this run. If the run is specified to use a new
     /// cluster, this field is set once the Jobs service has requested a cluster
@@ -9322,7 +9594,11 @@ pub struct RunTask {
     pub email_notifications: Option<JobEmailNotifications>,
     /// The time at which this run ended in epoch milliseconds (milliseconds
     /// since 1/1/1970 UTC). This field is set to 0 if the job is still running.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The key that references an environment spec in a job. This field is
     /// required for Python script, Python wheel and dbt tasks when using
@@ -9336,7 +9612,11 @@ pub struct RunTask {
     /// The `execution_duration` field is set to 0 for multitask job runs. The
     /// total duration of a multitask job run is the value of the `run_duration`
     /// field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub execution_duration: Option<i64>,
     /// If existing_cluster_id, the ID of an existing cluster that is used for
     /// all runs. When running jobs or tasks on an existing cluster, you may need
@@ -9373,12 +9653,20 @@ pub struct RunTask {
     /// is considered to be unsuccessful if it completes with the `FAILED`
     /// result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means
     /// to retry indefinitely and the value `0` means to never retry.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_retries: Option<i64>,
     /// An optional minimal interval in milliseconds between the start of the
     /// failed run and the subsequent retry run. The default behavior is that
     /// unsuccessful runs are immediately retried.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_retry_interval_millis: Option<i64>,
     /// If new_cluster, a description of a new cluster that is created for each
     /// run.
@@ -9408,7 +9696,11 @@ pub struct RunTask {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub python_wheel_task: Option<PythonWheelTask>,
     /// The time in milliseconds that the run has spent in the queue.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub queue_duration: Option<i64>,
     /// Parameter values including resolved references
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9419,10 +9711,18 @@ pub struct RunTask {
     pub retry_on_timeout: Option<bool>,
     /// The time in milliseconds it took the job run and all of its repairs to
     /// finish.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_duration: Option<i64>,
     /// The ID of the task run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
     /// An optional value indicating the condition that determines whether the
     /// task should be run once its dependencies have been completed. When
@@ -9443,7 +9743,11 @@ pub struct RunTask {
     /// `cleanup_duration`. The `setup_duration` field is set to 0 for multitask
     /// job runs. The total duration of a multitask job run is the value of the
     /// `run_duration` field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub setup_duration: Option<i64>,
     /// The task runs a JAR when the `spark_jar_task` field is present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9465,7 +9769,11 @@ pub struct RunTask {
     /// (milliseconds since 1/1/1970 UTC). This may not be the time when the job
     /// task starts executing, for example, if the job is scheduled to run on a
     /// new cluster, this is the time the cluster creation call is issued.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// Deprecated. Please use the `status` field instead.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9481,7 +9789,11 @@ pub struct RunTask {
     pub task_key: String,
     /// An optional timeout applied to each run of this job task. A value of `0`
     /// means no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// A collection of system notification IDs to notify when the run begins or
     /// completes. The default behavior is to not send any system notifications.
@@ -10390,7 +10702,11 @@ impl SqlDashboardOutput {
 #[non_exhaustive]
 pub struct SqlDashboardWidgetOutput {
     /// Time (in epoch milliseconds) when execution of the SQL widget ends.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time: Option<i64>,
     /// The information about the error when execution fails.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10399,7 +10715,11 @@ pub struct SqlDashboardWidgetOutput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output_link: Option<String>,
     /// Time (in epoch milliseconds) when execution of the SQL widget starts.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// The execution status of the SQL widget.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -11001,7 +11321,11 @@ pub struct SubmitRun {
     pub tasks: Vec<SubmitTask>,
     /// An optional timeout applied to each run of this job. A value of `0` means
     /// no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// The user specified id of the usage policy to use for this one-time run.
     /// If not specified, a default usage policy may be applied when creating or
@@ -11136,7 +11460,11 @@ impl SubmitRun {
 #[non_exhaustive]
 pub struct SubmitRunResponse {
     /// The canonical identifier for the newly submitted run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
 }
 
@@ -11241,12 +11569,20 @@ pub struct SubmitTask {
     /// is considered to be unsuccessful if it completes with the `FAILED`
     /// result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means
     /// to retry indefinitely and the value `0` means to never retry.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_retries: Option<i64>,
     /// An optional minimal interval in milliseconds between the start of the
     /// failed run and the subsequent retry run. The default behavior is that
     /// unsuccessful runs are immediately retried.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_retry_interval_millis: Option<i64>,
     /// If new_cluster, a description of a new cluster that is created for each
     /// run.
@@ -11312,7 +11648,11 @@ pub struct SubmitTask {
     pub task_key: String,
     /// An optional timeout applied to each run of this job task. A value of `0`
     /// means no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// A collection of system notification IDs to notify when the run begins or
     /// completes. The default behavior is to not send any system notifications.
@@ -11754,7 +12094,11 @@ pub struct TableUpdateTriggerConfiguration {
     /// If set, the trigger starts a run only after the specified amount of time
     /// has passed since the last time the trigger fired. The minimum allowed
     /// value is 60 seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_time_between_triggers_seconds: Option<i64>,
     /// A list of tables to monitor for changes. The table name must be in the
     /// format `catalog_name.schema_name.table_name`.
@@ -11764,7 +12108,11 @@ pub struct TableUpdateTriggerConfiguration {
     /// occurred for the specified time and can be used to wait for a series of
     /// table updates before triggering a run. The minimum allowed value is 60
     /// seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub wait_after_last_change_seconds: Option<i64>,
 }
 
@@ -11904,12 +12252,20 @@ pub struct Task {
     /// is considered to be unsuccessful if it completes with the `FAILED`
     /// result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means
     /// to retry indefinitely and the value `0` means to never retry.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_retries: Option<i64>,
     /// An optional minimal interval in milliseconds between the start of the
     /// failed run and the subsequent retry run. The default behavior is that
     /// unsuccessful runs are immediately retried.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub min_retry_interval_millis: Option<i64>,
     /// If new_cluster, a description of a new cluster that is created for each
     /// run.
@@ -11980,7 +12336,11 @@ pub struct Task {
     pub task_key: String,
     /// An optional timeout applied to each run of this job task. A value of `0`
     /// means no timeout.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timeout_seconds: Option<i64>,
     /// A collection of system notification IDs to notify when runs of this task
     /// begin or complete. The default behavior is to not send any system
@@ -12811,10 +13171,18 @@ pub struct TriggerEvaluation {
     pub description: Option<String>,
     /// The ID of the run that was triggered by the trigger evaluation. Only
     /// returned if a run was triggered.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
     /// Timestamp at which the trigger was evaluated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub timestamp: Option<i64>,
 }
 
@@ -12884,7 +13252,11 @@ impl TriggerHistory {
 #[non_exhaustive]
 pub struct TriggerInfo {
     /// The run id of the Run Job task run
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_id: Option<i64>,
     /// SQL condition evaluation details for this run
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -13076,7 +13448,7 @@ pub struct UpdateJob {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub fields_to_remove: Vec<String>,
     /// The canonical identifier of the job to update. This field is required.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub job_id: i64,
     /// The new settings for the job.
     ///

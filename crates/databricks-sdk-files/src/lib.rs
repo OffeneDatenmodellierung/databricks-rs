@@ -28,7 +28,7 @@ pub struct AddBlock {
     #[serde(default)]
     pub data: String,
     /// The handle on an open stream.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub handle: i64,
 }
 
@@ -63,7 +63,7 @@ impl AddBlock {
 #[non_exhaustive]
 pub struct Close {
     /// The handle on an open stream.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub handle: i64,
 }
 
@@ -155,7 +155,11 @@ impl CreateDirectoryRequest {
 pub struct CreateResponse {
     /// Handle which should subsequently be passed into the AddBlock and Close
     /// calls when writing to a file through a stream.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub handle: Option<i64>,
 }
 
@@ -266,13 +270,21 @@ impl DeleteFileRequest {
 #[non_exhaustive]
 pub struct DirectoryEntry {
     /// The length of the file in bytes. This field is omitted for directories.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub file_size: Option<i64>,
     /// True if the path is a directory.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_directory: Option<bool>,
     /// Last modification time of given file in milliseconds since unix epoch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_modified: Option<i64>,
     /// The name of the file or directory. This is the last component of the
     /// path.
@@ -409,13 +421,21 @@ impl DownloadResponse {
 #[non_exhaustive]
 pub struct FileInfo {
     /// The length of the file in bytes. Set to 0 for directories.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub file_size: Option<i64>,
     /// True if the path is a directory.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_dir: Option<bool>,
     /// Last modification time of given file in milliseconds since epoch.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub modification_time: Option<i64>,
     /// The absolute path of the file or directory.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -879,7 +899,11 @@ pub struct ReadResponse {
     /// The number of bytes read (could be less than ``length`` if we hit end of
     /// file). This refers to number of bytes read in unencoded version (response
     /// data is base64-encoded).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub bytes_read: Option<i64>,
     /// The base64-encoded contents of the file read.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -339,10 +339,18 @@ impl ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule {
 #[non_exhaustive]
 pub struct ClusterAutoRestartMessageMaintenanceWindowWindowStartTime {
     /// `hours`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub hours: Option<i64>,
     /// `minutes`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub minutes: Option<i64>,
 }
 
@@ -506,7 +514,11 @@ impl GetPublicWorkspaceSettingRequest {
 #[non_exhaustive]
 pub struct IntegerMessage {
     /// `value`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub value: Option<i64>,
 }
 

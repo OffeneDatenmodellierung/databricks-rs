@@ -35,11 +35,19 @@ pub struct App {
     pub budget_policy_id: Option<String>,
     /// Maximum number of app instances. Must be set together with
     /// `compute_min_instances`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub compute_max_instances: Option<i64>,
     /// Minimum number of app instances. Must be set together with
     /// `compute_max_instances`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub compute_min_instances: Option<i64>,
     /// `compute_size`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -114,7 +122,11 @@ pub struct App {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_principal_client_id: Option<String>,
     /// `service_principal_id`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub service_principal_id: Option<i64>,
     /// `service_principal_name`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -731,7 +743,7 @@ pub struct AppManifest {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub resource_specs: Vec<AppManifestAppResourceSpec>,
     /// The manifest schema version, for now only 1 is allowed
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub version: i64,
 }
 
@@ -2062,11 +2074,19 @@ pub struct AppUpdate {
     pub budget_policy_id: Option<String>,
     /// Maximum number of app instances. Must be set together with
     /// `compute_min_instances`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub compute_max_instances: Option<i64>,
     /// Minimum number of app instances. Must be set together with
     /// `compute_max_instances`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub compute_min_instances: Option<i64>,
     /// `compute_size`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2251,7 +2271,11 @@ pub struct ApplicationStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
     /// The number of running instances of this application.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub running_instances: Option<i64>,
     /// State of the application.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2376,7 +2400,11 @@ impl AsyncUpdateAppRequest {
 #[non_exhaustive]
 pub struct ComputeStatus {
     /// The number of compute instances used and billed for this application.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub active_instances: Option<i64>,
     /// Compute status message
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3241,7 +3269,11 @@ pub struct GitRepository {
     pub auto_deploy: Option<bool>,
     /// ID of a personal access token Git credential owned by the caller, used to
     /// grant the app's service principal access to this repository.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub caller_credential_id: Option<i64>,
     /// Git provider. Case insensitive. Supported values: gitHub,
     /// gitHubEnterprise, bitbucketCloud, bitbucketServer, azureDevOpsServices,
@@ -3735,7 +3767,11 @@ pub struct Space {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_principal_client_id: Option<String>,
     /// The service principal ID for the app space.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub service_principal_id: Option<i64>,
     /// The service principal name for the app space.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4537,7 +4573,7 @@ impl AppsApi {
     ) -> ::databricks_core::Result<Operation> {
         let path = format!(
             "/api/2.0/app-spaces/{}/operation",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Operation>(call).await

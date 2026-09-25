@@ -557,7 +557,7 @@ impl EndpointsApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/networking/v1/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path);
         call = call.json(&request.endpoint)?;
@@ -575,7 +575,7 @@ impl EndpointsApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/networking/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path);
         self.api
@@ -593,7 +593,7 @@ impl EndpointsApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/networking/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<Endpoint>(call).await
@@ -608,7 +608,7 @@ impl EndpointsApi {
     ) -> ::databricks_core::Result<ListEndpointsResponse> {
         let path = format!(
             "/api/networking/v1/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path);
         call = call.query(query::field("page_size", &request.page_size)?);

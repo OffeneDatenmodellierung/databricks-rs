@@ -20,6 +20,7 @@ pub mod error;
 pub mod http;
 pub mod paging;
 pub mod query;
+pub mod serde_num;
 pub mod useragent;
 pub mod wait;
 

@@ -193,6 +193,16 @@ async fn more_than_one_auth_method_is_rejected_unless_auth_type_is_set() {
 }
 
 #[tokio::test]
+async fn group_id_comes_from_env() {
+    let mut c = offline();
+    c.host = Some("https://x.example".into());
+    let c = resolve(c, &[("DATABRICKS_GROUP_ID", "grp-1")], None)
+        .await
+        .unwrap();
+    assert_eq!(c.group_id.as_deref(), Some("grp-1"));
+}
+
+#[tokio::test]
 async fn host_normalisation_lifts_ids_from_query() {
     let mut c = offline();
     c.host = Some("adb-1.2.azuredatabricks.net/some/path?o=123456".into());

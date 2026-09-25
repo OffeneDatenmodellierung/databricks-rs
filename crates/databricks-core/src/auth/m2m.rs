@@ -61,6 +61,7 @@ impl CredentialsStrategy for M2mCredentials {
                 client_id: id.to_owned(),
                 client_secret: secret.clone(),
                 scopes: cfg.scopes_or_default().join(" "),
+                assume_group: cfg.group_id.clone().filter(|g| !g.is_empty()),
             };
             Ok(Some(
                 Arc::new(M2m(CachedTokenSource::new(source, true))) as Arc<dyn CredentialsProvider>
@@ -84,6 +85,8 @@ struct ClientCredentials {
     client_id: String,
     client_secret: SecretString,
     scopes: String,
+    /// Go: `EndpointParams{"assume_group": cfg.GroupID}`.
+    assume_group: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -102,8 +105,9 @@ impl ClientCredentials {
             .post(&self.token_url)
             .basic_auth(&self.client_id, Some(self.client_secret.expose_secret()))
             .form(&[
-                ("grant_type", "client_credentials"),
-                ("scope", self.scopes.as_str()),
+                ("grant_type", Some("client_credentials")),
+                ("scope", Some(self.scopes.as_str())),
+                ("assume_group", self.assume_group.as_deref()),
             ])
             .send()
             .await;

@@ -32,7 +32,11 @@ pub struct CleanRoom {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// When the clean room was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Whether allow task to write to shared output schema. When enabled, clean
     /// room task runs triggered by the current collaborator can write to the
@@ -66,7 +70,11 @@ pub struct CleanRoom {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<CleanRoomStatusEnum>,
     /// When the clean room was last updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
 }
 
@@ -164,7 +172,11 @@ impl CleanRoom {
 #[non_exhaustive]
 pub struct CleanRoomAsset {
     /// When the asset is added to the clean room, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub added_at: Option<i64>,
     /// The type of the asset.
     #[serde(default)]
@@ -783,7 +795,11 @@ pub struct CleanRoomAutoApprovalRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clean_room_name: Option<String>,
     /// Timestamp of when the rule was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// A generated UUID identifying the rule.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -890,7 +906,11 @@ pub struct CleanRoomCollaborator {
     /// Workspace ID of the user who is receiving the clean room "invitation".
     /// Must be specified if invite_recipient_email is specified. It should be
     /// empty when the collaborator is the creator of the clean room.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub invite_recipient_workspace_id: Option<i64>,
     /// [Organization
     /// name](:method:metastores/list#metastores-delta_sharing_organization_name)
@@ -961,7 +981,11 @@ pub struct CleanRoomJarAnalysisReview {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// timestamp of when the review was submitted
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at_millis: Option<i64>,
     /// review outcome
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1045,7 +1069,11 @@ pub struct CleanRoomNotebookReview {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// When the review was submitted, in epoch milliseconds
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at_millis: Option<i64>,
     /// Review outcome
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1144,22 +1172,38 @@ pub struct CleanRoomNotebookTaskRun {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notebook_name: Option<String>,
     /// The timestamp of when the notebook was last updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub notebook_updated_at: Option<i64>,
     /// Expiration time of the output schema of the task run (if any), in epoch
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub output_schema_expiration_time: Option<i64>,
     /// Name of the output schema associated with the clean rooms notebook task
     /// run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output_schema_name: Option<String>,
     /// Duration of the task run, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_duration: Option<i64>,
     /// Expiration time of the shared output schema of the task run (if any), in
     /// epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub shared_output_schema_expiration_time: Option<i64>,
     /// Name of the shared output schema associated with the clean rooms notebook
     /// task run. This schema is accessible by all collaborators when
@@ -1167,7 +1211,11 @@ pub struct CleanRoomNotebookTaskRun {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shared_output_schema_name: Option<String>,
     /// When the task run started, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
 }
 
@@ -1451,14 +1499,22 @@ pub struct CleanRoomTaskRun {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output_info: Option<CleanRoomTaskRunOutputInfo>,
     /// Duration of the task run, in milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_duration: Option<i64>,
     /// Information about shared output accessible by all collaborators. This
     /// field is only populated when enable_shared_output is true.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shared_output_info: Option<CleanRoomTaskRunOutputInfo>,
     /// When the task run started, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_time: Option<i64>,
     /// State of the task run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1551,7 +1607,11 @@ pub struct CleanRoomTaskRunCleanRoomTaskAnalysisDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub etag: Option<String>,
     /// The timestamp of when the asset was last updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
 }
 
@@ -1577,7 +1637,11 @@ impl CleanRoomTaskRunCleanRoomTaskAnalysisDetails {
 pub struct CleanRoomTaskRunOutputInfo {
     /// Expiration time of the output schema of the task run (if any), in epoch
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub output_schema_expiration_time: Option<i64>,
     /// Name of the output schema associated with the clean room task run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1618,16 +1682,32 @@ pub struct CollaboratorJobRunInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collaborator_alias: Option<String>,
     /// Job ID of the task run in the collaborator's workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collaborator_job_id: Option<i64>,
     /// Job run ID of the task run in the collaborator's workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collaborator_job_run_id: Option<i64>,
     /// Task run ID of the task run in the collaborator's workspace.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collaborator_task_run_id: Option<i64>,
     /// ID of the collaborator's workspace that triggered the task run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub collaborator_workspace_id: Option<i64>,
 }
 

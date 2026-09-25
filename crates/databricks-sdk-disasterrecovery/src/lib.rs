@@ -1003,7 +1003,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<FailoverGroup> {
         let path = format!(
             "/api/disaster-recovery/v1/{}/failover-groups",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path);
         call = call.query(query::field(
@@ -1024,7 +1024,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<StableUrl> {
         let path = format!(
             "/api/disaster-recovery/v1/{}/stable-urls",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path);
         call = call.query(query::field("stable_url_id", &request.stable_url_id)?);
@@ -1042,7 +1042,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/disaster-recovery/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path);
         call = call.query(query::field("etag", &request.etag)?);
@@ -1061,7 +1061,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/disaster-recovery/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path);
         self.api
@@ -1079,7 +1079,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<FailoverGroup> {
         let path = format!(
             "/api/disaster-recovery/v1/{}/failover",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path);
         call = call.json(&request)?;
@@ -1095,7 +1095,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<FailoverGroup> {
         let path = format!(
             "/api/disaster-recovery/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<FailoverGroup>(call).await
@@ -1110,7 +1110,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<StableUrl> {
         let path = format!(
             "/api/disaster-recovery/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<StableUrl>(call).await
@@ -1125,7 +1125,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<ListFailoverGroupsResponse> {
         let path = format!(
             "/api/disaster-recovery/v1/{}/failover-groups",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path);
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1181,7 +1181,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<ListStableUrlsResponse> {
         let path = format!(
             "/api/disaster-recovery/v1/{}/stable-urls",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path);
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -1231,7 +1231,7 @@ impl DisasterRecoveryApi {
     ) -> ::databricks_core::Result<FailoverGroup> {
         let path = format!(
             "/api/disaster-recovery/v1/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path);
         call = call.query(query::field("etag", &request.etag)?);

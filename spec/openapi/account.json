@@ -17532,7 +17532,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Optional opaque version string for optimistic locking, obtained from a\nprior read of the failover group. If provided, the update is rejected\nunless it matches the failover group's current etag. If omitted, the\nupdate proceeds without an optimistic-lock check.",
@@ -17600,7 +17601,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {
@@ -17648,7 +17650,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Maximum number of failover groups to return per page: - when set to a\nvalue greater than 0, the page length is the minimum of this value and a\nserver configured value; - when set to 0 or unset, the page length is set\nto a server configured value (recommended); - when set to a value less\nthan 0, an invalid parameter error is returned.",
@@ -17709,7 +17712,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Client-provided identifier for the failover group. Used to construct the\nresource name as {parent}/failover-groups/{failover_group_id}.",
@@ -17775,7 +17779,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Maximum number of stable URLs to return per page: - when set to a value\ngreater than 0, the page length is the minimum of this value and a server\nconfigured value; - when set to 0 or unset, the page length is set to a\nserver configured value (recommended); - when set to a value less than 0,\nan invalid parameter error is returned.",
@@ -17836,7 +17841,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "description": "Client-provided identifier for the stable URL. Used to construct the\nresource name as {parent}/stable-urls/{stable_url_id}.",
@@ -17901,7 +17907,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -17929,7 +17936,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "responses": {
@@ -17967,7 +17975,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           },
           {
             "in": "query",
@@ -18026,7 +18035,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "x-databricks-multi-segment": true
           }
         ],
         "requestBody": {

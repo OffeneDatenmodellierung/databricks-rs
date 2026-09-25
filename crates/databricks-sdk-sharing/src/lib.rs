@@ -202,7 +202,11 @@ pub struct CreateRecipient {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub data_recipient_global_metastore_id: Option<String>,
     /// Expiration timestamp of the token, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// [Create,Update:IGN] common - id of the recipient
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -845,7 +849,11 @@ pub struct FunctionParameterInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parameter_type: Option<FunctionParameterType>,
     /// The position of the parameter.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// The interval type of the parameter type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -857,10 +865,18 @@ pub struct FunctionParameterInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub type_name: Option<ColumnTypeName>,
     /// The precision of the parameter type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_precision: Option<i64>,
     /// The scale of the parameter type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_scale: Option<i64>,
     /// The type of the parameter in text format.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2116,7 +2132,11 @@ pub struct ProviderInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this Provider was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of Provider creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2149,7 +2169,11 @@ pub struct ProviderInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub region: Option<String>,
     /// Time at which this Provider was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified Provider.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2297,7 +2321,11 @@ pub struct RecipientInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this recipient was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of recipient creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2309,7 +2337,11 @@ pub struct RecipientInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub data_recipient_global_metastore_id: Option<String>,
     /// Expiration timestamp of the token, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// [Create,Update:IGN] common - id of the recipient
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2345,7 +2377,11 @@ pub struct RecipientInfo {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tokens: Vec<RecipientTokenInfo>,
     /// Time at which the recipient was updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of recipient updater.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2505,7 +2541,11 @@ pub struct RecipientProfile {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub endpoint: Option<String>,
     /// The version number of the recipient's credentials on a share.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub share_credentials_version: Option<i64>,
 }
 
@@ -2541,19 +2581,31 @@ pub struct RecipientTokenInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub activation_url: Option<String>,
     /// Time at which this recipient token was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of recipient token creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
     /// Expiration timestamp of the token in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// Unique ID of the recipient token.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Time at which this recipient token was updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of recipient token updater.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2619,7 +2671,11 @@ pub struct RegisteredModelAlias {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub alias_name: Option<String>,
     /// Numeric model version that alias will reference.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version_num: Option<i64>,
 }
 
@@ -2689,6 +2745,7 @@ pub struct RetrieveTokenResponse {
     pub expiration_time: Option<String>,
     /// These field names must follow the delta sharing protocol.
     #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
         rename = "shareCredentialsVersion",
         default,
         skip_serializing_if = "Option::is_none"
@@ -2734,7 +2791,7 @@ pub struct RotateRecipientToken {
     /// the expiration_time of existing token only to a smaller timestamp, it
     /// cannot extend the expiration_time. Use 0 to expire the existing token
     /// immediately, negative number will return an error.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub existing_token_expire_in_seconds: i64,
     /// The name of the Recipient.
     #[serde(skip)]
@@ -2834,7 +2891,11 @@ pub struct ShareInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this share was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of share creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2855,7 +2916,11 @@ pub struct ShareInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_root: Option<String>,
     /// Time at which this share was updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of share updater.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3026,7 +3091,11 @@ impl ShareToPrivilegeAssignment {
 pub struct SharedDataObject {
     /// The time when this data object is added to the share, in epoch
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub added_at: Option<i64>,
     /// Username of the sharer.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3090,7 +3159,11 @@ pub struct SharedDataObject {
     /// version of the object at the time it was added to the share.
     ///
     /// NOTE: The start_version should be \<= the `current` version of the object.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub start_version: Option<i64>,
     /// One of: **ACTIVE**, **PERMISSION_DENIED**.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3549,7 +3622,11 @@ pub struct UpdateRecipient {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Expiration timestamp of the token, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// [Create,Update:IGN] common - id of the recipient
     #[serde(default, skip_serializing_if = "Option::is_none")]

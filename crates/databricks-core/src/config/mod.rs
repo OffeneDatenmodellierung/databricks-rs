@@ -91,6 +91,14 @@ pub struct Config {
     pub account_id: Option<String>,
     /// Workspace ID, sent as `X-Databricks-Workspace-Id` on unified hosts.
     pub workspace_id: Option<String>,
+    /// ID of a Databricks group whose role the client assumes
+    /// (`DATABRICKS_GROUP_ID`).
+    ///
+    /// This needs OAuth auth. `oauth-m2m` sends it to the token endpoint as
+    /// `assume_group`; `pat` refuses to authenticate while it is set rather
+    /// than quietly giving normal access. As of August 2026 Databricks
+    /// honours it for workspace authorization only.
+    pub group_id: Option<String>,
     /// Personal access token.
     pub token: Option<SecretString>,
     /// OAuth client (service principal) ID.
@@ -121,6 +129,13 @@ pub struct Config {
     pub debug_headers: bool,
     /// Pre-fetched host metadata; when set, the discovery request is skipped.
     pub host_metadata: Option<HostMetadata>,
+    /// Extra HTTP headers sent on every request (Go: `Config.Headers`).
+    ///
+    /// Set in code only. Headers the SDK manages itself (`Authorization`,
+    /// `User-Agent`, `Content-Type`, `Accept`, `X-Databricks-Workspace-Id`
+    /// and any header the credentials provider sets) are never overridden;
+    /// a custom header with one of those names is ignored.
+    pub headers: Vec<(String, String)>,
 
     /// Recognised attributes for auth types not yet implemented in Rust.
     pub(crate) other: BTreeMap<String, String>,
@@ -162,6 +177,13 @@ impl Config {
     #[must_use]
     pub fn account(mut self, account_id: impl Into<String>) -> Self {
         self.account_id = Some(account_id.into());
+        self
+    }
+
+    /// Add a header sent on every request. See [`Config::headers`].
+    #[must_use]
+    pub fn header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.headers.push((name.into(), value.into()));
         self
     }
 

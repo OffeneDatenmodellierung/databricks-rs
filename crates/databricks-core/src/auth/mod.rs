@@ -143,6 +143,20 @@ impl DefaultCredentials {
     }
 }
 
+/// Go: `unsupportedGroupRoleAssumption`. Strategies that can only produce
+/// normal-access credentials refuse to run when a group role is requested.
+pub(crate) fn reject_group_role(cfg: &Config, auth_type: &str) -> Result<()> {
+    if cfg.group_id.as_deref().is_none_or(str::is_empty) {
+        return Ok(());
+    }
+    Err(Error::Auth {
+        auth_type: auth_type.into(),
+        message: format!(
+            "auth type {auth_type:?} does not support group role assumption. Use Databricks OAuth authentication"
+        ),
+    })
+}
+
 fn as_auth(name: &str, e: Error) -> Error {
     match e {
         Error::Auth { .. } => e,

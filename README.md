@@ -76,11 +76,13 @@ Request types are built with `Default` plus `with_<field>` setters. Types with o
 | Source | Notes |
 |---|---|
 | Code | `Config::with_host(..).token(..)`, `.client_credentials(..)`, `.account(..)`, or `set_attribute(name, value)` |
-| Env | `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_CLIENT_ID`, `DATABRICKS_CLIENT_SECRET`, `DATABRICKS_ACCOUNT_ID`, `DATABRICKS_WORKSPACE_ID`, `DATABRICKS_CONFIG_PROFILE`, `DATABRICKS_CONFIG_FILE`, `DATABRICKS_AUTH_TYPE`, … (same names as Go) |
+| Env | `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_CLIENT_ID`, `DATABRICKS_CLIENT_SECRET`, `DATABRICKS_ACCOUNT_ID`, `DATABRICKS_WORKSPACE_ID`, `DATABRICKS_GROUP_ID`, `DATABRICKS_CONFIG_PROFILE`, `DATABRICKS_CONFIG_FILE`, `DATABRICKS_AUTH_TYPE`, … (same names as Go) |
 | `~/.databrickscfg` | Uses the requested profile, else `[__settings__] default_profile`, else `DEFAULT`. The file is skipped when a host or credentials are already set and no profile was requested. |
 | Host metadata | Best-effort `/.well-known/databricks-config`. Fills in `account_id`, `workspace_id`, `cloud`, the host type (workspace, account or unified) and the OIDC discovery URL. |
 
-Auth types implemented: `pat`, `oauth-m2m`. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
+Custom headers for every request go in `Config::header(name, value)`; they never override the headers the SDK sets itself.
+
+Auth types implemented: `pat`, `oauth-m2m`. Setting `group_id` makes `oauth-m2m` assume that group's role, and makes `pat` fail rather than give normal access. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
 
 The rest of Go's chain is planned and listed in `auth::PLANNED_AUTH_TYPES`: basic, U2M/CLI, metadata-service, the OIDC/WIF variants, Azure and GCP. Setting `DATABRICKS_AUTH_TYPE` to one of those gives a clear "not implemented in Rust yet" error.
 

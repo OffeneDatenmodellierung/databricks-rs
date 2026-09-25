@@ -563,7 +563,11 @@ pub struct ArtifactAllowlistInfo {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub artifact_matchers: Vec<ArtifactMatcher>,
     /// Time at which this artifact allowlist was set, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of the user who set the artifact allowlist.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1288,13 +1292,21 @@ pub struct CatalogInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_name: Option<String>,
     /// Time at which this catalog was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of catalog creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
     /// Custom maximum retention period in hours for the catalog
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// `effective_predictive_optimization_flag`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1356,7 +1368,11 @@ pub struct CatalogInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_root: Option<String>,
     /// Time at which this catalog was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified catalog.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1639,10 +1655,18 @@ pub struct ColumnInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nullable: Option<bool>,
     /// Partition index for column.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub partition_index: Option<i64>,
     /// Ordinal position of column (starting at position 0).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<i64>,
     /// Format of IntervalType.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1654,10 +1678,18 @@ pub struct ColumnInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub type_name: Option<ColumnTypeName>,
     /// Digits of precision; required for DecimalTypes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_precision: Option<i64>,
     /// Digits to right of decimal; Required for DecimalTypes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_scale: Option<i64>,
     /// Full data type specification as SQL/catalogString text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2003,7 +2035,11 @@ pub struct ConnectionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_type: Option<ConnectionType>,
     /// Time at which this connection was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of connection creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2049,7 +2085,11 @@ pub struct ConnectionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub securable_type: Option<SecurableType>,
     /// Time at which this connection was updated, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified connection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2283,7 +2323,11 @@ pub struct ContinuousUpdateStatus {
     /// The last source table Delta version that was synced to the online table.
     /// Note that this Delta version may not be completely synced to the online
     /// table yet.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The timestamp of the last time any data was synchronized from the source
     /// table to the online table.
@@ -2573,7 +2617,11 @@ pub struct CreateCatalog {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection_name: Option<String>,
     /// Custom maximum retention period in hours for the catalog
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// Control CMK encryption for managed catalog data
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3930,7 +3978,11 @@ pub struct CreateRegisteredModelRequest {
     pub comment: Option<String>,
     /// Creation timestamp of the registered model in milliseconds since the Unix
     /// epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the registered model
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3956,7 +4008,11 @@ pub struct CreateRegisteredModelRequest {
     pub storage_location: Option<String>,
     /// Last-update timestamp of the registered model in milliseconds since the
     /// Unix epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the registered model last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4151,7 +4207,11 @@ pub struct CreateSchema {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Custom maximum retention period in hours for the schema.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// Name of schema, relative to parent catalog.
     #[serde(default)]
@@ -4609,7 +4669,11 @@ pub struct CredentialInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this credential was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of credential creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4645,7 +4709,11 @@ pub struct CredentialInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
     /// Time at which this credential was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the credential.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -6909,7 +6977,11 @@ pub struct ExternalLineageModelVersionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model_name: Option<String>,
     /// Version number of the model.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -7238,7 +7310,11 @@ pub struct ExternalLocationInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this external location was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of external location creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7294,7 +7370,11 @@ pub struct ExternalLocationInfo {
     pub read_only: Option<bool>,
     /// Time at which external location this was last modified, in epoch
     /// milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the external location.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7609,7 +7689,11 @@ pub struct FailedStatus {
     /// Note that this Delta version may only be partially synced to the online
     /// table. Only populated if the table is still online and available for
     /// serving.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The timestamp of the last time any data was synchronized from the source
     /// table to the online table. Only populated if the table is still online
@@ -7863,7 +7947,11 @@ pub struct FunctionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this function was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of function creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -7944,7 +8032,11 @@ pub struct FunctionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sql_path: Option<String>,
     /// Time at which this function was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the function.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8221,7 +8313,7 @@ pub struct FunctionParameterInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parameter_type: Option<FunctionParameterType>,
     /// Ordinal position of column (starting at position 0).
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub position: i64,
     /// Format of IntervalType.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8233,10 +8325,18 @@ pub struct FunctionParameterInfo {
     #[serde(default)]
     pub type_name: ColumnTypeName,
     /// Digits of precision; required on Create for DecimalTypes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_precision: Option<i64>,
     /// Digits to right of decimal; Required on Create for DecimalTypes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub type_scale: Option<i64>,
     /// Full data type spec, SQL/catalogString text.
     #[serde(default)]
@@ -8481,7 +8581,11 @@ pub struct GenerateTemporaryPathCredentialResponse {
     pub azure_user_delegation_sas: Option<AzureUserDelegationSas>,
     /// Server time when the credential will expire, in epoch milliseconds. The
     /// API client is advised to cache the credential given this expiration time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// `gcp_oauth_token`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8687,7 +8791,11 @@ pub struct GenerateTemporaryTableCredentialResponse {
     pub azure_user_delegation_sas: Option<AzureUserDelegationSas>,
     /// Server time when the credential will expire, in epoch milliseconds. The
     /// API client is advised to cache the credential given this expiration time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// `gcp_oauth_token`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -8799,7 +8907,11 @@ pub struct GenerateTemporaryVolumeCredentialResponse {
     pub azure_user_delegation_sas: Option<AzureUserDelegationSas>,
     /// Server time when the credential will expire, in epoch milliseconds. The
     /// API client is advised to cache the credential given this expiration time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// `gcp_oauth_token`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9182,7 +9294,11 @@ impl GetCatalogRequest {
 #[non_exhaustive]
 pub struct GetCatalogWorkspaceBindingsResponse {
     /// A list of workspace IDs
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspaces: Vec<i64>,
 }
 
@@ -9643,7 +9759,11 @@ pub struct GetMetastoreSummaryResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cloud: Option<String>,
     /// Time at which this metastore was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of metastore creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9656,7 +9776,11 @@ pub struct GetMetastoreSummaryResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_sharing_organization_name: Option<String>,
     /// The lifetime of delta sharing recipient token in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_sharing_recipient_token_lifetime_in_seconds: Option<i64>,
     /// The scope of Delta Sharing enabled for the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -9695,7 +9819,11 @@ pub struct GetMetastoreSummaryResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_root_credential_name: Option<String>,
     /// Time at which the metastore was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10596,7 +10724,11 @@ impl ListAccountMetastoreAssignmentsRequest {
 #[non_exhaustive]
 pub struct ListAccountMetastoreAssignmentsResponse {
     /// `workspace_ids`
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspace_ids: Vec<i64>,
 }
 
@@ -13361,7 +13493,7 @@ pub struct MetastoreAssignment {
     #[serde(default)]
     pub metastore_id: String,
     /// The unique ID of the Databricks workspace.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub workspace_id: i64,
 }
 
@@ -13406,7 +13538,11 @@ pub struct MetastoreInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cloud: Option<String>,
     /// Time at which this metastore was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of metastore creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -13419,7 +13555,11 @@ pub struct MetastoreInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_sharing_organization_name: Option<String>,
     /// The lifetime of delta sharing recipient token in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_sharing_recipient_token_lifetime_in_seconds: Option<i64>,
     /// The scope of Delta Sharing enabled for the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -13458,7 +13598,11 @@ pub struct MetastoreInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_root_credential_name: Option<String>,
     /// Time at which the metastore was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -14920,7 +15064,11 @@ pub struct ModelServiceConfigDestinationConfig {
     /// the primary percentages must sum to 100; a single primary destination
     /// receives all traffic. Fallback destinations are ordered and do not use
     /// this field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub traffic_percentage: Option<i64>,
 }
 
@@ -15216,7 +15364,11 @@ pub struct ModelVersionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the model version
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -15240,7 +15392,11 @@ pub struct ModelVersionInfo {
     pub run_id: Option<String>,
     /// ID of the Databricks workspace containing the MLflow run that generated
     /// this model version, if applicable
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_workspace_id: Option<i64>,
     /// The name of the schema containing the model version, relative to parent
     /// catalog
@@ -15261,14 +15417,22 @@ pub struct ModelVersionInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_location: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the model version last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_by: Option<String>,
     /// Integer model version number, used to reference the model version in API
     /// requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version: Option<i64>,
 }
 
@@ -15643,7 +15807,7 @@ pub struct MonitorInfo {
     /// version in use. The version will be represented in a numeric fashion
     /// (1,2,3...). The field has flexibility to take on negative values, which
     /// can indicate corrupted monitor_version numbers.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub monitor_version: i64,
     /// [Create:OPT Update:OPT] Field for specifying notification settings.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -15960,18 +16124,22 @@ impl MonitorNotifications {
 pub struct MonitorRefreshInfo {
     /// Time at which refresh operation completed (milliseconds since 1/1/1970
     /// UTC).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_time_ms: Option<i64>,
     /// An optional message to give insight into the current state of the job
     /// (e.g. FAILURE messages).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
     /// Unique id of the refresh operation.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub refresh_id: i64,
     /// Time at which refresh operation was initiated (milliseconds since
     /// 1/1/1970 UTC).
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub start_time_ms: i64,
     /// The current state of the refresh.
     #[serde(default)]
@@ -16717,21 +16885,41 @@ impl PermissionsChange {
 #[non_exhaustive]
 pub struct PipelineProgress {
     /// The estimated time remaining to complete this update in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub estimated_completion_time_seconds: Option<f64>,
     /// The source table Delta version that was last processed by the pipeline.
     /// The pipeline may not have completely processed this version yet.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub latest_version_currently_processing: Option<i64>,
     /// The completion ratio of this update. This is a number between 0 and 1.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sync_progress_completion: Option<f64>,
     /// The number of rows that have been synced in this update.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub synced_row_count: Option<i64>,
     /// The total number of rows that need to be synced in this update. This
     /// number may be an estimate.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub total_row_count: Option<i64>,
 }
 
@@ -16815,7 +17003,11 @@ pub struct PolicyInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which the policy was created, in epoch milliseconds. Output only.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of the user who created the policy. Output only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -16876,7 +17068,11 @@ pub struct PolicyInfo {
     pub to_principals: Vec<String>,
     /// Time at which the policy was last modified, in epoch milliseconds. Output
     /// only.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of the user who last modified the policy. Output only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -17336,7 +17532,11 @@ impl ProvisioningStatus {
 #[non_exhaustive]
 pub struct QuotaInfo {
     /// The timestamp that indicates when the quota count was last updated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_refreshed_at: Option<i64>,
     /// Name of the parent resource. Returns metastore ID if the parent is a
     /// metastore.
@@ -17346,10 +17546,18 @@ pub struct QuotaInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parent_securable_type: Option<SecurableType>,
     /// The current usage of the resource quota.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub quota_count: Option<i64>,
     /// The current limit of the resource quota.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub quota_limit: Option<i64>,
     /// The name of the quota.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -17459,11 +17667,19 @@ pub struct RateLimit {
     pub renewal_period: RateLimitRateLimitRenewalPeriod,
     /// Maximum requests allowed in one renewal period. Leave unset for no
     /// request limit. Set to `0` to deny all requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub requests: Option<i64>,
     /// Maximum tokens allowed in one renewal period. Leave unset for no token
     /// limit. Set to `0` to deny all requests.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub tokens: Option<i64>,
 }
 
@@ -17673,7 +17889,11 @@ pub struct RegisteredModelAlias {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub schema_name: Option<String>,
     /// Integer version number of the model version to which this alias points.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub version_num: Option<i64>,
 }
 
@@ -17741,7 +17961,11 @@ pub struct RegisteredModelInfo {
     pub comment: Option<String>,
     /// Creation timestamp of the registered model in milliseconds since the Unix
     /// epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the registered model
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -17767,7 +17991,11 @@ pub struct RegisteredModelInfo {
     pub storage_location: Option<String>,
     /// Last-update timestamp of the registered model in milliseconds since the
     /// Unix epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the registered model last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -17963,13 +18191,21 @@ pub struct SchemaInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this schema was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of schema creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
     /// Custom maximum retention period in hours for the schema.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// `effective_predictive_optimization_flag`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -18006,7 +18242,11 @@ pub struct SchemaInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_root: Option<String>,
     /// Time at which this schema was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified schema.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -18655,7 +18895,11 @@ pub struct SetArtifactAllowlist {
     #[serde(skip)]
     pub artifact_type: ArtifactType,
     /// Time at which this artifact allowlist was set, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of the user who set the artifact allowlist.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -18726,7 +18970,7 @@ pub struct SetRegisteredModelAliasRequest {
     #[serde(skip)]
     pub full_name: String,
     /// The version number of the model version to which the alias points
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub version_num: i64,
 }
 
@@ -18840,7 +19084,11 @@ pub struct StorageCredentialInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this credential was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of credential creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -18873,7 +19121,11 @@ pub struct StorageCredentialInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
     /// Time at which this credential was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the credential.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -19219,7 +19471,11 @@ pub struct TableInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Time at which this table was created, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// Username of table creator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -19232,7 +19488,11 @@ pub struct TableInfo {
     pub data_source_format: Option<DataSourceFormat>,
     /// Time at which this table was deleted, in epoch milliseconds. Field is
     /// omitted if table is not deleted.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deleted_at: Option<i64>,
     /// Information pertaining to current state of the delta table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -19299,7 +19559,11 @@ pub struct TableInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub table_type: Option<TableType>,
     /// Time at which this table was last modified, in epoch milliseconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// Username of user who last modified the table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -19794,7 +20058,11 @@ pub struct TemporaryCredentials {
     pub azure_aad: Option<AzureActiveDirectoryToken>,
     /// Server time when the credential will expire, in epoch milliseconds. The
     /// API client is advised to cache the credential given this expiration time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiration_time: Option<i64>,
     /// `gcp_oauth_token`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -19849,7 +20117,11 @@ pub struct TriggeredUpdateStatus {
     /// The last source table Delta version that was synced to the online table.
     /// Note that this Delta version may not be completely synced to the online
     /// table yet.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_processed_commit_version: Option<i64>,
     /// The timestamp of the last time any data was synchronized from the source
     /// table to the online table.
@@ -19986,7 +20258,11 @@ pub struct UpdateAccountsMetastore {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_sharing_organization_name: Option<String>,
     /// The lifetime of delta sharing recipient token in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_sharing_recipient_token_lifetime_in_seconds: Option<i64>,
     /// The scope of Delta Sharing enabled for the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -20172,7 +20448,11 @@ pub struct UpdateCatalog {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Custom maximum retention period in hours for the catalog
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// Whether predictive optimization should be enabled for this object and
     /// objects under it.
@@ -20306,7 +20586,11 @@ impl UpdateCatalog {
 #[non_exhaustive]
 pub struct UpdateCatalogWorkspaceBindingsResponse {
     /// A list of workspace IDs
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub workspaces: Vec<i64>,
 }
 
@@ -21005,7 +21289,11 @@ pub struct UpdateMetastore {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delta_sharing_organization_name: Option<String>,
     /// The lifetime of delta sharing recipient token in seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delta_sharing_recipient_token_lifetime_in_seconds: Option<i64>,
     /// The scope of Delta Sharing enabled for the metastore.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -21298,7 +21586,11 @@ pub struct UpdateModelVersionRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the model version
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -21325,7 +21617,11 @@ pub struct UpdateModelVersionRequest {
     pub run_id: Option<String>,
     /// ID of the Databricks workspace containing the MLflow run that generated
     /// this model version, if applicable
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub run_workspace_id: Option<i64>,
     /// The name of the schema containing the model version, relative to parent
     /// catalog
@@ -21346,7 +21642,11 @@ pub struct UpdateModelVersionRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_location: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the model version last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -21830,7 +22130,11 @@ pub struct UpdateRegisteredModelRequest {
     pub comment: Option<String>,
     /// Creation timestamp of the registered model in milliseconds since the Unix
     /// epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the registered model
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -21859,7 +22163,11 @@ pub struct UpdateRegisteredModelRequest {
     pub storage_location: Option<String>,
     /// Last-update timestamp of the registered model in milliseconds since the
     /// Unix epoch
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the registered model last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -22067,7 +22375,11 @@ pub struct UpdateSchema {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// Custom maximum retention period in hours for the schema.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub custom_max_retention_hours: Option<i64>,
     /// Whether predictive optimization should be enabled for this object and
     /// objects under it.
@@ -22457,13 +22769,21 @@ impl UpdateVolumeRequestContent {
 #[non_exhaustive]
 pub struct UpdateWorkspaceBindings {
     /// A list of workspace IDs.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub assign_workspaces: Vec<i64>,
     /// The name of the catalog.
     #[serde(skip)]
     pub name: String,
     /// A list of workspace IDs.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub unassign_workspaces: Vec<i64>,
 }
 
@@ -22935,7 +23255,11 @@ pub struct VolumeInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     /// `created_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<i64>,
     /// The identifier of the user who created the volume
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -22962,7 +23286,11 @@ pub struct VolumeInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_location: Option<String>,
     /// `updated_at`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_at: Option<i64>,
     /// The identifier of the user who updated the volume last time
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -23129,7 +23457,7 @@ pub struct WorkspaceBinding {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub binding_type: Option<WorkspaceBindingBindingType>,
     /// Required
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub workspace_id: i64,
 }
 
@@ -23224,7 +23552,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<McpServiceUserMappedCredential> {
         let path = format!(
             "/api/2.1/unity-catalog/{}/user-credentials",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.login)?;
@@ -23298,7 +23626,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);
@@ -23321,7 +23649,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<DeleteMcpServiceUserMappedCredentialResponse> {
         let path = format!(
             "/api/2.1/unity-catalog/{}/user-credentials",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -23344,7 +23672,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);
@@ -23368,7 +23696,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);
@@ -23391,7 +23719,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<McpService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<McpService>(call).await
@@ -23414,7 +23742,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<McpServiceUserMappedCredential> {
         let path = format!(
             "/api/2.1/unity-catalog/{}/user-credentials",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<McpServiceUserMappedCredential>(call).await
@@ -23433,7 +23761,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<ModelProviderService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<ModelProviderService>(call).await
@@ -23452,7 +23780,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<ModelService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<ModelService>(call).await
@@ -23647,7 +23975,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<McpService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);
@@ -23675,7 +24003,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<ModelProviderService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);
@@ -23704,7 +24032,7 @@ impl AiGatewayApi {
     ) -> ::databricks_core::Result<ModelService> {
         let path = format!(
             "/api/2.1/unity-catalog/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("etag", &request.etag)?);

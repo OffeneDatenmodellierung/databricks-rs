@@ -782,13 +782,17 @@ pub struct DirectGroupMember {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub external_id: Option<String>,
     /// The internal ID of the group this member belongs to.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub group_id: Option<i64>,
     /// The source of group membership (internal or from identity provider).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub membership_source: Option<GroupMembershipSource>,
     /// Internal ID of the principal in Databricks.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub principal_id: i64,
     /// The type of the principal (user/service principal/group).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3618,7 +3622,11 @@ pub struct WorkspaceAccessDetail {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub permissions: Vec<WorkspacePermission>,
     /// The internal ID of the principal (user/sp/group) in Databricks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
     /// `principal_type`
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -3628,7 +3636,11 @@ pub struct WorkspaceAccessDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<State>,
     /// The workspace ID where the principal has access.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -3745,14 +3757,18 @@ pub struct WorkspaceAssignment {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entitlements: Vec<Entitlement>,
     /// The internal ID of the principal (user/sp/group) in Databricks.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub principal_id: i64,
     /// The type of the principal (user/service principal/group) that is
     /// assigned.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub principal_type: Option<PrincipalType>,
     /// The workspace ID where the principal is assigned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -3851,13 +3867,17 @@ pub struct WorkspaceAssignmentDetail {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entitlements: Vec<Entitlement>,
     /// The internal ID of the principal (user/sp/group) in Databricks.
-    #[serde(default)]
+    #[serde(deserialize_with = "::databricks_core::serde_num::i64", default)]
     pub principal_id: i64,
     /// `principal_type`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub principal_type: Option<PrincipalType>,
     /// The workspace ID where the principal is assigned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -3924,7 +3944,11 @@ pub struct WorkspaceIdentityDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub assignment_type: Option<WorkspaceIdentityDetailAssignmentType>,
     /// The internal ID of the principal (user/sp/group) in Databricks.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub principal_id: Option<i64>,
     /// The type of the principal (user/service principal/group).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -4260,7 +4284,7 @@ impl WorkspaceIamV2Api {
     ) -> ::databricks_core::Result<ExternalGroup> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<ExternalGroup>(call).await
@@ -4279,7 +4303,7 @@ impl WorkspaceIamV2Api {
     ) -> ::databricks_core::Result<ExternalServicePrincipal> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<ExternalServicePrincipal>(call).await
@@ -4297,7 +4321,7 @@ impl WorkspaceIamV2Api {
     ) -> ::databricks_core::Result<ExternalUser> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<ExternalUser>(call).await
@@ -5211,7 +5235,7 @@ impl AccountIamV2Api {
     ) -> ::databricks_core::Result<ExternalGroup> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<ExternalGroup>(call).await
@@ -5229,7 +5253,7 @@ impl AccountIamV2Api {
     ) -> ::databricks_core::Result<ExternalServicePrincipal> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<ExternalServicePrincipal>(call).await
@@ -5247,7 +5271,7 @@ impl AccountIamV2Api {
     ) -> ::databricks_core::Result<ExternalUser> {
         let path = format!(
             "/api/2.0/identity/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<ExternalUser>(call).await

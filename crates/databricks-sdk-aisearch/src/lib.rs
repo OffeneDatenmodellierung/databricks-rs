@@ -204,7 +204,11 @@ pub struct DataModificationResult {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub failed_primary_keys: Vec<String>,
     /// Count of rows processed successfully.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub success_row_count: Option<i64>,
 }
 
@@ -488,7 +492,11 @@ impl EmbeddingSourceColumn {
 #[non_exhaustive]
 pub struct EmbeddingVectorColumn {
     /// Dimension of the embedding vector.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub embedding_dimension: Option<i64>,
     /// Name of the column.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -542,7 +550,11 @@ pub struct Endpoint {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Number of indexes on the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub index_count: Option<i64>,
     /// User who last updated the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -556,14 +568,22 @@ pub struct Endpoint {
     pub name: Option<String>,
     /// The client-supplied desired number of replicas for the endpoint, applied
     /// at create/update time. Mutually exclusive with `target_qps`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub replica_count: Option<i64>,
     /// Scaling information for the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub scaling_info: Option<EndpointScalingInfo>,
     /// Target QPS for the endpoint. Mutually exclusive with `replica_count`.
     /// Best-effort; the system does not guarantee this QPS will be achieved.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_qps: Option<i64>,
     /// Throughput information for the endpoint
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -713,7 +733,11 @@ impl Endpoint {
 pub struct EndpointScalingInfo {
     /// The requested QPS target for the endpoint. Best-effort; the system does
     /// not guarantee this QPS will be achieved.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub requested_target_qps: Option<i64>,
     /// The current state of the scaling change request.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -798,25 +822,53 @@ pub struct EndpointThroughputInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub change_request_state: Option<ThroughputChangeRequestState>,
     /// The current concurrency (total CPU) allocated to the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub current_concurrency: Option<f64>,
     /// The current utilization of concurrency as a percentage (0-100)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub current_concurrency_utilization_percentage: Option<f64>,
     /// The current number of replicas allocated to the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub current_num_replicas: Option<i64>,
     /// The maximum concurrency allowed for this endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub maximum_concurrency_allowed: Option<f64>,
     /// The minimum concurrency allowed for this endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub minimal_concurrency_allowed: Option<f64>,
     /// The requested concurrency (total CPU) for the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub requested_concurrency: Option<f64>,
     /// The requested number of replicas for the endpoint
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub requested_num_replicas: Option<i64>,
 }
 
@@ -906,7 +958,11 @@ pub struct FacetResultData {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub facet_array: Vec<Vec<::serde_json::Value>>,
     /// Number of facet rows returned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub facet_row_count: Option<i64>,
 }
 
@@ -1114,7 +1170,11 @@ pub struct IndexStatus {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub index_url: Option<String>,
     /// Number of rows indexed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub indexed_row_count: Option<i64>,
     /// Human-readable detail about the index's current state.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1392,7 +1452,11 @@ pub struct QueryIndexRequest {
     pub filters_json: Option<String>,
     /// Maximum number of results to return (the legacy `num_results`). Defaults
     /// to 10.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub max_results: Option<i64>,
     /// Full resource name of the index to query. Format:
     /// `workspaces/{workspace_id}/endpoints/{endpoint_id}/indexes/{index_id}`
@@ -1411,14 +1475,22 @@ pub struct QueryIndexRequest {
     pub query_type: Option<String>,
     /// Query vector. Required for Direct Access indexes and Delta Sync indexes
     /// with self-managed vectors.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_f64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub query_vector: Vec<f64>,
     /// If set, results are reranked before being returned.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reranker: Option<RerankerConfig>,
     /// Score threshold for the approximate nearest-neighbor search. Defaults to
     /// 0.0.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_f64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub score_threshold: Option<f64>,
     /// Sort clauses, e.g. `["rating DESC", "price ASC"]`. Overrides relevance
     /// ordering.
@@ -1713,7 +1785,11 @@ pub struct ResultData {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub data_array: Vec<Vec<::serde_json::Value>>,
     /// Number of rows in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub row_count: Option<i64>,
 }
 
@@ -1738,13 +1814,21 @@ impl ResultData {
 #[non_exhaustive]
 pub struct ResultManifest {
     /// Number of columns in the result set.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub column_count: Option<i64>,
     /// Information about each column in the result set.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub columns: Vec<ColumnInfo>,
     /// Number of columns in the facet result.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub facet_column_count: Option<i64>,
     /// Information about each facet column.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1805,7 +1889,11 @@ pub struct ScanIndexRequest {
     #[serde(skip)]
     pub name: String,
     /// Maximum number of rows to return in this page.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub page_size: Option<i64>,
     /// Page token from a previous response; if unset, scanning starts from the
     /// beginning.
@@ -2069,7 +2157,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/2.0/ai-search/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("endpoint_id", &request.endpoint_id)?);
@@ -2086,7 +2174,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<Index> {
         let path = format!(
             "/api/2.0/ai-search/{}/indexes",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("index_id", &request.index_id)?);
@@ -2103,7 +2191,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.0/ai-search/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -2118,7 +2206,7 @@ impl AiSearchApi {
     pub async fn delete_index(&self, request: DeleteIndexRequest) -> ::databricks_core::Result<()> {
         let path = format!(
             "/api/2.0/ai-search/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::DELETE, path).workspace();
         self.api
@@ -2136,7 +2224,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/2.0/ai-search/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Endpoint>(call).await
@@ -2148,7 +2236,7 @@ impl AiSearchApi {
     pub async fn get_index(&self, request: GetIndexRequest) -> ::databricks_core::Result<Index> {
         let path = format!(
             "/api/2.0/ai-search/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Index>(call).await
@@ -2163,7 +2251,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<ListEndpointsResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}/endpoints",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -2213,7 +2301,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<ListIndexesResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}/indexes",
-            path_param(&request.parent.to_string(), false)
+            path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
@@ -2264,7 +2352,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<QueryIndexResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}:query",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -2280,7 +2368,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<RemoveDataResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}:removeData",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -2296,7 +2384,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<ScanIndexResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}:scan",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -2314,7 +2402,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<SyncIndexResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}:sync",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
@@ -2334,7 +2422,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<Endpoint> {
         let path = format!(
             "/api/2.0/ai-search/{}",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
@@ -2351,7 +2439,7 @@ impl AiSearchApi {
     ) -> ::databricks_core::Result<UpsertDataResponse> {
         let path = format!(
             "/api/2.0/ai-search/{}:upsertData",
-            path_param(&request.name.to_string(), false)
+            path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;

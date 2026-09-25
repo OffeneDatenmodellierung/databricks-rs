@@ -102,7 +102,11 @@ impl DeleteDomainRequest {
 pub struct Domain {
     /// Principal IDs of the business owners (users, groups, or service
     /// principals).
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub business_owner_ids: Vec<i64>,
     /// Timestamp when the domain was created.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -142,7 +146,11 @@ pub struct Domain {
     pub tag_key: String,
     /// Principal IDs of the technical owners (users, groups, or service
     /// principals).
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::vec_i64",
+        default,
+        skip_serializing_if = "Vec::is_empty"
+    )]
     pub technical_owner_ids: Vec<i64>,
     /// Timestamp when the domain was last updated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -611,7 +619,7 @@ impl DomainsApi {
         &self,
         request: DeleteDomainRequest,
     ) -> ::databricks_core::Result<()> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("force", &request.force)?);
         self.api
@@ -626,7 +634,7 @@ impl DomainsApi {
     ///
     /// `GET /api/2.0/{name}`
     pub async fn get_domain(&self, request: GetDomainRequest) -> ::databricks_core::Result<Domain> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let call = Call::new(Method::GET, path).workspace();
         self.api.send::<Domain>(call).await
     }
@@ -691,7 +699,7 @@ impl DomainsApi {
         &self,
         request: UpdateDomainRequest,
     ) -> ::databricks_core::Result<Domain> {
-        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), false));
+        let path = format!("/api/2.0/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.domain)?;

@@ -1052,7 +1052,11 @@ pub struct Credential {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub aws_credentials: Option<AwsCredentials>,
     /// Time in epoch milliseconds when the credential was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Databricks credential configuration ID.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1152,7 +1156,11 @@ pub struct CustomerManagedKey {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub azure_key_info: Option<AzureKeyInfo>,
     /// Time in epoch milliseconds when the customer key was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// ID of the encryption key configuration object.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -1981,7 +1989,11 @@ pub struct Network {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub account_id: Option<String>,
     /// Time in epoch milliseconds when the network was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Array of error messages about the network configuration.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2017,7 +2029,11 @@ pub struct Network {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub warning_messages: Vec<NetworkWarning>,
     /// Workspace ID associated with this network configuration.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
 }
 
@@ -2394,7 +2410,11 @@ pub struct StorageConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub account_id: Option<String>,
     /// Time in epoch milliseconds when the storage configuration was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// Optional IAM role that is used to access the workspace catalog which is
     /// created during workspace creation for UC by Default. If a storage
@@ -2707,7 +2727,11 @@ pub struct Workspace {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub compute_mode: Option<CustomerFacingComputeMode>,
     /// Time in epoch milliseconds when the workspace was created.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub creation_time: Option<i64>,
     /// ID of the workspace's credential configuration object.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -2779,7 +2803,11 @@ pub struct Workspace {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub storage_mode: Option<CustomerFacingStorageMode>,
     /// A unique integer ID for the workspace
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        deserialize_with = "::databricks_core::serde_num::opt_i64",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub workspace_id: Option<i64>,
     /// The human-readable name of the workspace.
     #[serde(default, skip_serializing_if = "Option::is_none")]
