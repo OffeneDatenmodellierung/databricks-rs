@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets --all-features --locked
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable, "1.94"] # MSRV
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        exclude:
+          - { toolchain: "1.94", os: macos-latest }
+          - { toolchain: "1.94", os: windows-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace --all-features --locked
+      - name: Feature subsets compile
+        run: |
+          cargo check -p databricks-sdk --no-default-features --locked
+          cargo check -p databricks-sdk --no-default-features --features jobs --locked
+
+  docs:
+    runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo doc --workspace --no-deps --all-features --locked
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-tarpaulin
+      - run: >
+          cargo tarpaulin --workspace --engine ptrace --out Json --out Xml
+          --output-dir target/coverage
+          --exclude-files 'crates/*/examples/*'
+          --exclude-files 'crates/*/build.rs'
+          --exclude-files 'crates/*/tests/*'
+      - name: Per-file coverage gate (85%)
+        run: python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json
+
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  dependency-age:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: No crate published in the last 48 hours
+        run: python3 scripts/check_dep_age.py check Cargo.lock

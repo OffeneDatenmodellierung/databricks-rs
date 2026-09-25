@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Per-file coverage ratchet.
+
+Reads tarpaulin's JSON report and fails if any library source file
+(crates/*/src/**) is below the threshold (default 85%).
+
+    cargo tarpaulin --workspace --out Json --output-dir target/coverage \
+        --exclude-files 'crates/*/examples/*' --exclude-files 'crates/*/build.rs' \
+        --exclude-files 'crates/*/tests/*'
+    python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json
+"""
+
+import json
+import os
+import sys
+
+THRESHOLD = float(os.environ.get("COVERAGE_THRESHOLD", "85"))
+
+
+def main(report: str) -> int:
+    data = json.load(open(report))
+    rows, failures = [], []
+    for f in data["files"]:
+        parts = f["path"]
+        path = "/".join(parts[parts.index("crates"):]) if "crates" in parts else "/".join(parts)
+        if "/src/" not in path or not f["coverable"]:
+            continue
+        pct = 100.0 * f["covered"] / f["coverable"]
+        rows.append((path, f["covered"], f["coverable"], pct))
+        if pct < THRESHOLD:
+            failures.append(path)
+    for path, cov, tot, pct in sorted(rows):
+        flag = "  FAIL" if path in failures else ""
+        print(f"{pct:6.1f}%  {cov:4}/{tot:<4}  {path}{flag}")
+    print(f"\ntotal {100.0 * data['covered'] / data['coverable']:.2f}%  (per-file gate {THRESHOLD:.0f}%)")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "target/coverage/tarpaulin-report.json"))

@@ -1,0 +1,18 @@
+[workspace]
+changelog_update = true
+git_release_enable = true
+semver_check = true
+# Dependency bumps go through the 48-hour rule (scripts/check_dep_age.py),
+# not release-plz.
+dependencies_update = false
+
+[changelog]
+protect_breaking_commits = true
+
+[[package]]
+name = "databricks-core"
+git_tag_name = "databricks-core-v{{ version }}"
+
+[[package]]
+name = "databricks-sdk"
+git_tag_name = "v{{ version }}"
