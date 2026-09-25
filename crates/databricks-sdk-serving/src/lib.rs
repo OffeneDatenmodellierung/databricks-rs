@@ -5974,7 +5974,14 @@ impl ServingEndpointsApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        self.api.send::<QueryEndpointResponse>(call).await
+        {
+            let (mut resp, headers) = self
+                .api
+                .send_with_headers::<QueryEndpointResponse>(call)
+                .await?;
+            resp.served_model_name = ::databricks_core::http::header(&headers, "served-model-name");
+            Ok(resp)
+        }
     }
 
     /// Sets permissions on an object, replacing existing permissions if they exist.

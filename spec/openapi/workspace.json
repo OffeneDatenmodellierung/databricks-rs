@@ -19967,10 +19967,6 @@
         },
         "type": "object"
       },
-      "files.GetMetadataResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "files.ListDirectoryResponse": {
         "properties": {
           "contents": {
@@ -62956,7 +62952,27 @@
                 }
               }
             },
-            "description": "Success."
+            "description": "Success.",
+            "headers": {
+              "content-length": {
+                "description": "The length of the HTTP response body in bytes.",
+                "schema": {
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "content-type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "last-modified": {
+                "description": "The last modified time of the file in HTTP-date (RFC 7231) format.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "default": {
             "$ref": "#/components/responses/Error"
@@ -62988,14 +63004,27 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
+            "description": "Success.",
+            "headers": {
+              "content-length": {
+                "description": "The length of the HTTP response body in bytes.",
                 "schema": {
-                  "$ref": "#/components/schemas/files.GetMetadataResponse"
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "content-type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "last-modified": {
+                "description": "The last modified time of the file in HTTP-date (RFC 7231) format.",
+                "schema": {
+                  "type": "string"
                 }
               }
-            },
-            "description": "Success."
+            }
           },
           "default": {
             "$ref": "#/components/responses/Error"
@@ -103588,7 +103617,15 @@
                 }
               }
             },
-            "description": "Success."
+            "description": "Success.",
+            "headers": {
+              "served-model-name": {
+                "description": "The name of the served model that served the request. This is useful when\nthere are multiple models behind the same endpoint with traffic split.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "default": {
             "$ref": "#/components/responses/Error"

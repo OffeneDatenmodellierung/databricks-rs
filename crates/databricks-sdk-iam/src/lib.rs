@@ -5807,7 +5807,7 @@ impl GroupsV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)
@@ -6108,7 +6108,7 @@ impl ServicePrincipalsV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)
@@ -6311,7 +6311,7 @@ impl UsersV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)
@@ -6588,7 +6588,7 @@ impl AccountGroupsV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)
@@ -6764,7 +6764,7 @@ impl AccountServicePrincipalsV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)
@@ -6954,7 +6954,7 @@ impl AccountUsersV2Api {
                 let items = resp.resources;
                 let more = !items.is_empty();
                 req.start_index = Some(
-                    resp.start_index.unwrap_or_default()
+                    resp.start_index.or(req.start_index).unwrap_or(1)
                         + i64::try_from(items.len()).unwrap_or(i64::MAX),
                 );
                 (items, more)

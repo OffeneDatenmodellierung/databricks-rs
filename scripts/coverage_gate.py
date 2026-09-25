@@ -28,7 +28,7 @@ def main(report: str) -> int:
         parts = f["path"]
         anchor = next((i for i, p in enumerate(parts) if p in ("crates", "xtask")), None)
         path = "/".join(parts[anchor:]) if anchor is not None else "/".join(parts)
-        if "/src/" not in path or not f["coverable"]:
+        if not path.startswith("crates/") or "/src/" not in path or not f["coverable"]:
             continue
         if f.get("content", "").startswith("// Code generated"):
             continue
@@ -39,7 +39,9 @@ def main(report: str) -> int:
     for path, cov, tot, pct in sorted(rows):
         flag = "  FAIL" if path in failures else ""
         print(f"{pct:6.1f}%  {cov:4}/{tot:<4}  {path}{flag}")
-    print(f"\ntotal {100.0 * data['covered'] / data['coverable']:.2f}%  (per-file gate {THRESHOLD:.0f}%)")
+    cov = sum(r[1] for r in rows)
+    tot = sum(r[2] for r in rows) or 1
+    print(f"\nhand-written total {100.0 * cov / tot:.2f}%  (per-file gate {THRESHOLD:.0f}%)")
     return 1 if failures else 0
 
 

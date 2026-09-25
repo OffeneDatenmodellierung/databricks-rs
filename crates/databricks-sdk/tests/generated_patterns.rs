@@ -17,7 +17,7 @@ use std::time::Duration;
 use databricks_sdk::core::config::HostMetadata;
 use databricks_sdk::service::catalog::{McpService, UpdateMcpServiceRequest};
 use databricks_sdk::service::compute::{CreateCluster, StartCluster, State};
-use databricks_sdk::service::files::GetDirectoryMetadataRequest;
+use databricks_sdk::service::files::{GetDirectoryMetadataRequest, GetMetadataRequest};
 use databricks_sdk::service::iam::ListUsersRequest;
 use databricks_sdk::service::provisioning::GetWorkspaceRequest;
 use databricks_sdk::service::sql::ListDashboardsRequest;
@@ -76,6 +76,67 @@ async fn offset_pagination_scim() {
     assert_eq!(names, ["a@x", "b@x", "c@x"]);
     let first = &server.received_requests().await.unwrap()[0];
     assert!(first.url.query().unwrap().contains("filter=active+eq+true"));
+}
+
+#[tokio::test]
+async fn offset_pagination_without_response_cursor() {
+    // A page that omits `startIndex` must continue after the page, not
+    // restart from zero.
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Users"))
+        .and(query_param_is_missing("startIndex"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "Resources": [{"id": "1"}, {"id": "2"}]
+        })))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Users"))
+        .and(query_param("startIndex", "3"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"Resources": [{"id": "3"}]})))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Users"))
+        .and(query_param("startIndex", "4"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
+        .mount(&server)
+        .await;
+    let users = workspace(&server)
+        .await
+        .users_v2()
+        .list_all(ListUsersRequest::default())
+        .await
+        .unwrap();
+    let ids: Vec<_> = users.iter().filter_map(|u| u.id.as_deref()).collect();
+    assert_eq!(ids, ["1", "2", "3"]);
+}
+
+#[tokio::test]
+async fn response_headers_populate_header_fields() {
+    let server = MockServer::start().await;
+    Mock::given(method("HEAD"))
+        .and(path("/api/2.0/fs/files/Volumes/c/s/v/f.csv"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .insert_header("content-type", "text/csv")
+                .insert_header("last-modified", "Wed, 24 Sep 2026 10:00:00 GMT"),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let meta = workspace(&server)
+        .await
+        .files()
+        .get_metadata(GetMetadataRequest::new("/Volumes/c/s/v/f.csv"))
+        .await
+        .unwrap();
+    assert_eq!(meta.content_type.as_deref(), Some("text/csv"));
+    assert_eq!(
+        meta.last_modified.as_deref(),
+        Some("Wed, 24 Sep 2026 10:00:00 GMT")
+    );
 }
 
 #[tokio::test]

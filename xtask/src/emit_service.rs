@@ -203,12 +203,43 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
     s.replace("MUT_call", if mutated { "mut call" } else { "call" })
 }
 
-fn send_expr(m: &Method, pkg: &str) -> String {
-    if m.response.is_none() {
-        "self.api.send::<::serde::de::IgnoredAny>(call).await.map(|_| ())".to_owned()
-    } else {
-        format!("self.api.send::<{}>(call).await", resp_ty(m, pkg))
+fn send_expr(types: &Types<'_>, m: &Method, pkg: &str) -> String {
+    let Some(r) = &m.response else {
+        return "self.api.send::<::serde::de::IgnoredAny>(call).await.map(|_| ())".to_owned();
+    };
+    // Fields carried in response headers (e.g. Files API HEAD metadata).
+    let header_fields: Vec<(String, FieldInfo)> = types
+        .get(r)
+        .map(|t| {
+            let infos = crate::model::field_infos(types, &r.pkg, t);
+            t.fields
+                .as_deref()
+                .unwrap_or_default()
+                .iter()
+                .zip(infos)
+                .filter(|(f, _)| f.location == "header")
+                .map(|(f, i)| (f.name.clone(), i))
+                .collect()
+        })
+        .unwrap_or_default();
+    if header_fields.is_empty() {
+        return format!("self.api.send::<{}>(call).await", resp_ty(m, pkg));
     }
+    let mut s = format!(
+        "{{\n            let (mut resp, headers) = self.api.send_with_headers::<{}>(call).await?;\n",
+        resp_ty(m, pkg)
+    );
+    for (name, f) in header_fields {
+        let value = format!("::databricks_core::http::header(&headers, {name:?})");
+        let value = if f.optional {
+            value
+        } else {
+            format!("{value}.unwrap_or_default()")
+        };
+        let _ = writeln!(s, "            resp.{} = {value};", f.ident);
+    }
+    s.push_str("            Ok(resp)\n        }");
+    s
 }
 
 fn emit_method(
@@ -260,7 +291,7 @@ fn emit_method(
             out,
             "    /// One page of [`{fname}`](Self::{fname}).\n{path_doc}    pub async fn {page_fn}(&self{req_param}) -> ::databricks_core::Result<{resp_t}> {{\n{req_unused}{}        {}\n    }}\n\n",
             build_call(types, svc, m),
-            send_expr(m, pkg)
+            send_expr(types, m, pkg)
         );
         // Stream.
         let step = pagination_step(types, m);
@@ -305,7 +336,7 @@ fn emit_method(
         "()".to_owned()
     };
     let mut body = build_call(types, svc, m);
-    let mut tail = send_expr(m, pkg);
+    let mut tail = send_expr(types, m, pkg);
     if let Some(wb) = &m.wait
         && let Some(w) = waiters.get(wb.waiter.as_str())
     {
@@ -383,8 +414,17 @@ fn pagination_step(types: &Types<'_>, m: &Method) -> String {
         "offset" | "page" => {
             let rf = get_resp(&pg.resp_field);
             let qf = get_req(&pg.req_field);
+            // Where this page started: the response's cursor, else the
+            // request's, else the API's first position. SCIM `startIndex`
+            // and page numbers are 1-based.
+            let base = u8::from(pg.kind == "page" || pg.req_field == "startIndex");
+            let req_cur = if qf.optional {
+                format!("req.{}", qf.ident)
+            } else {
+                format!("Some(req.{})", qf.ident)
+            };
             let cur = if rf.optional {
-                format!("resp.{}.unwrap_or_default()", rf.ident)
+                format!("resp.{}.or({req_cur}).unwrap_or({base})", rf.ident)
             } else {
                 format!("resp.{}", rf.ident)
             };

@@ -216,13 +216,23 @@ impl ApiClient {
         query: &[(String, String)],
         body: Option<Vec<u8>>,
     ) -> Result<Bytes> {
-        self.run(method, path, query, body, true).await
+        Ok(self.run(method, path, query, body, true).await?.0)
     }
 
     /// Send a [`Call`] built by generated service code and decode the
     /// JSON response.
     pub async fn send<R: DeserializeOwned>(&self, call: Call) -> Result<R> {
-        let bytes = self
+        Ok(self.send_with_headers(call).await?.0)
+    }
+
+    /// As [`send`](Self::send), also returning the response headers (for
+    /// operations whose result is partly or wholly in headers, e.g. the
+    /// Files API `HEAD` metadata calls).
+    pub async fn send_with_headers<R: DeserializeOwned>(
+        &self,
+        call: Call,
+    ) -> Result<(R, HeaderMap)> {
+        let (bytes, headers) = self
             .run(
                 call.method,
                 &call.path,
@@ -231,7 +241,7 @@ impl ApiClient {
                 call.workspace_header,
             )
             .await?;
-        decode(&bytes)
+        Ok((decode(&bytes)?, headers))
     }
 
     /// The configured account ID, required by account-level paths.
@@ -251,7 +261,7 @@ impl ApiClient {
         query: &[(String, String)],
         body: Option<Vec<u8>>,
         workspace_header: bool,
-    ) -> Result<Bytes> {
+    ) -> Result<(Bytes, HeaderMap)> {
         let mut url = self
             .inner
             .base
@@ -278,7 +288,7 @@ impl ApiClient {
                 )
                 .await;
             let (err, hint) = match outcome {
-                Ok(bytes) => return Ok(bytes),
+                Ok(done) => return Ok(done),
                 Err(Failure::Fatal(e)) => return Err(e),
                 Err(Failure::Retriable(e, hint)) => (e, hint),
             };
@@ -300,7 +310,7 @@ impl ApiClient {
         provider: &dyn CredentialsProvider,
         user_agent: &str,
         workspace_header: bool,
-    ) -> std::result::Result<Bytes, Failure> {
+    ) -> std::result::Result<(Bytes, HeaderMap), Failure> {
         let mut req = self
             .inner
             .http
@@ -326,7 +336,8 @@ impl ApiClient {
             Err(e) => return Err(Failure::Fatal(e.into())),
         };
         let status = resp.status();
-        let hint = retry_after(resp.headers());
+        let headers = resp.headers().clone();
+        let hint = retry_after(&headers);
         if self.inner.cfg.debug_headers {
             tracing::trace!(%method, %url, %status, headers = ?resp.headers(), "response");
         } else {
@@ -338,7 +349,7 @@ impl ApiClient {
             Err(e) => return Err(Failure::Fatal(e.into())),
         };
         if status.is_success() || status.is_redirection() {
-            return Ok(bytes);
+            return Ok((bytes, headers));
         }
         let api = ApiError::from_response(status.as_u16(), method.as_str(), url.path(), &bytes);
         let retriable = api.is_retriable()
@@ -411,6 +422,12 @@ impl Call {
         self.body = Some(serde_json::to_vec(body).map_err(|e| Error::json("request body", e))?);
         Ok(self)
     }
+}
+
+/// A response header parsed as `T` (`None` when absent or unparsable).
+#[must_use]
+pub fn header<T: std::str::FromStr>(headers: &HeaderMap, name: &str) -> Option<T> {
+    headers.get(name)?.to_str().ok()?.trim().parse().ok()
 }
 
 /// Encode a path parameter.

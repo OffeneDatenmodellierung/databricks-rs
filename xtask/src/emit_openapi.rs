@@ -262,6 +262,14 @@ fn operation(
     }
     let body_verb = matches!(m.verb.as_str(), "POST" | "PUT" | "PATCH");
     if let Some(r) = &m.request {
+        for f in types.fields(r).iter().filter(|f| f.location == "header") {
+            params.push(with_desc(
+                json!({"name": f.name, "in": "header", "required": f.required, "schema": type_schema(&f.ty, reach)}),
+                &f.doc,
+            ));
+        }
+    }
+    if let Some(r) = &m.request {
         if body_verb {
             for q in m.explicit_query.as_deref().unwrap_or_default() {
                 if let Some(f) = field(types, Some(r), &q.field) {
@@ -303,7 +311,29 @@ fn operation(
             } else {
                 "application/json"
             };
-            json!({"description": "Success.", "content": {ct: {"schema": type_schema(r, reach)}}})
+            let mut ok = json!({"description": "Success."});
+            let header_fields: Vec<&Field> = types
+                .fields(r)
+                .iter()
+                .filter(|f| f.location == "header")
+                .collect();
+            // Header-only responses (HEAD metadata) have no body.
+            if header_fields.len() < types.fields(r).len() || header_fields.is_empty() {
+                ok["content"] = json!({ct: {"schema": type_schema(r, reach)}});
+            }
+            if !header_fields.is_empty() {
+                let headers: Map<String, Value> = header_fields
+                    .iter()
+                    .map(|f| {
+                        (
+                            f.name.clone(),
+                            with_desc(json!({"schema": type_schema(&f.ty, reach)}), &f.doc),
+                        )
+                    })
+                    .collect();
+                ok["headers"] = Value::Object(headers);
+            }
+            ok
         }
         None => json!({"description": "Success."}),
     };

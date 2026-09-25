@@ -1318,7 +1318,16 @@ impl FilesApi {
             path_param(&request.file_path.to_string(), true)
         );
         let call = Call::new(Method::HEAD, path).workspace();
-        self.api.send::<GetMetadataResponse>(call).await
+        {
+            let (mut resp, headers) = self
+                .api
+                .send_with_headers::<GetMetadataResponse>(call)
+                .await?;
+            resp.content_length = ::databricks_core::http::header(&headers, "content-length");
+            resp.content_type = ::databricks_core::http::header(&headers, "content-type");
+            resp.last_modified = ::databricks_core::http::header(&headers, "last-modified");
+            Ok(resp)
+        }
     }
 
     /// One page of [`list_directory_contents`](Self::list_directory_contents).

@@ -12070,7 +12070,7 @@ impl DashboardsApi {
             |req, resp| {
                 let items = resp.results;
                 let more = !items.is_empty();
-                req.page = Some(resp.page.unwrap_or_default() + 1);
+                req.page = Some(resp.page.or(req.page).unwrap_or(1) + 1);
                 (items, more)
             },
         )
@@ -12564,7 +12564,7 @@ impl QueriesLegacyApi {
             |req, resp| {
                 let items = resp.results;
                 let more = !items.is_empty();
-                req.page = Some(resp.page.unwrap_or_default() + 1);
+                req.page = Some(resp.page.or(req.page).unwrap_or(1) + 1);
                 (items, more)
             },
         )

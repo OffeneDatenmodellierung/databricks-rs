@@ -535,3 +535,19 @@ mod custom_chain {
         assert!(e.to_string().contains("host is required"), "{e}");
     }
 }
+
+#[test]
+fn response_header_parsing() {
+    use databricks_core::http::header;
+    use reqwest::header::{HeaderMap, HeaderValue};
+    let mut h = HeaderMap::new();
+    h.insert("content-length", HeaderValue::from_static(" 1234 "));
+    h.insert("x-bad", HeaderValue::from_static("abc"));
+    assert_eq!(header::<i64>(&h, "content-length"), Some(1234));
+    assert_eq!(
+        header::<String>(&h, "content-length").as_deref(),
+        Some("1234")
+    );
+    assert_eq!(header::<i64>(&h, "x-bad"), None);
+    assert_eq!(header::<i64>(&h, "missing"), None);
+}

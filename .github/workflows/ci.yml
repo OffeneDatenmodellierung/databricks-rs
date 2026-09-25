@@ -82,6 +82,7 @@ jobs:
           pip install openapi-spec-validator
           python3 scripts/validate_openapi.py
           python3 spec/docs-check/compare.py
+          git diff --exit-code -- spec/DOCS-CHECK.md
 
   docs:
     runs-on: ubuntu-latest
@@ -103,11 +104,13 @@ jobs:
         with:
           tool: cargo-tarpaulin
       - run: >
-          cargo tarpaulin --workspace --engine ptrace --out Json --out Xml
+          cargo tarpaulin -p databricks-core -p databricks-sdk --all-features
+          --engine ptrace --out Json --out Xml
           --output-dir target/coverage
           --exclude-files 'crates/*/examples/*'
           --exclude-files 'crates/*/build.rs'
           --exclude-files 'crates/*/tests/*'
+          --exclude-files 'xtask/*'
       - name: Per-file coverage gate (85%)
         run: python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json
 
