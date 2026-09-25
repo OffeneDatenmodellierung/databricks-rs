@@ -52,6 +52,14 @@ macro_rules! open_enum {
             pub const KNOWN: &'static [&'static str] = &[$( $wire ),+];
         }
 
+        // An empty `Unknown` value, used when a required field is absent
+        // from a response.
+        impl ::core::default::Default for $name {
+            fn default() -> Self {
+                Self::Unknown(::std::string::String::new())
+            }
+        }
+
         impl ::core::convert::From<&str> for $name {
             fn from(s: &str) -> Self {
                 match s {

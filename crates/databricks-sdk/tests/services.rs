@@ -62,19 +62,14 @@ async fn clusters_list_streams_every_page_with_nested_query_params() {
         .await;
 
     let w = workspace(&server).await;
-    let req = ListClustersRequest::builder()
-        .page_size(2)
-        .filter_by(
-            ListClustersFilterBy::builder()
-                .cluster_states(vec![State::Running, State::Pending])
-                .build(),
+    let req = ListClustersRequest::default()
+        .with_page_size(2)
+        .with_filter_by(
+            ListClustersFilterBy::default().with_cluster_states([State::Running, State::Pending]),
         )
-        .sort_by(
-            ListClustersSortBy::builder()
-                .field(ListClustersSortByField::ClusterName)
-                .build(),
-        )
-        .build();
+        .with_sort_by(
+            ListClustersSortBy::default().with_field(ListClustersSortByField::ClusterName),
+        );
     let all: Vec<_> = w.clusters().list(req.clone()).try_collect().await.unwrap();
 
     let ids: Vec<_> = all.iter().filter_map(|c| c.cluster_id.as_deref()).collect();
@@ -82,7 +77,7 @@ async fn clusters_list_streams_every_page_with_nested_query_params() {
     assert_eq!(all[0].state, Some(State::Running));
     assert_eq!(all[0].cluster_source, Some(ClusterSource::Ui));
     assert_eq!(all[0].autoscale.as_ref().unwrap().max_workers, Some(4));
-    assert_eq!(all[0].other["brand_new_field"], json!({"x": 1}));
+    // Fields this SDK version doesn't know ("brand_new_field") are ignored.
     assert_eq!(all[1].state, Some(State::Unknown("HIBERNATING".into())));
 
     // The repeated, dot-nested filter params Go sends.
@@ -149,11 +144,9 @@ async fn run_now_then_wait_until_terminated() {
     let waiter = w
         .jobs()
         .run_now(
-            RunNow::builder()
-                .job_id(42)
-                .job_parameters([("env".to_owned(), "dev".to_owned())].into())
-                .queue(QueueSettings::new(true))
-                .build(),
+            RunNow::new(42)
+                .with_job_parameters([("env".to_owned(), "dev".to_owned())])
+                .with_queue(QueueSettings::new(true)),
         )
         .await
         .unwrap();
@@ -238,16 +231,11 @@ async fn get_run_merges_task_pages_like_go() {
     let run = workspace(&server)
         .await
         .jobs()
-        .get_run(
-            GetRunRequest::builder()
-                .run_id(9)
-                .include_history(true)
-                .build(),
-        )
+        .get_run(GetRunRequest::new(9).with_include_history(true))
         .await
         .unwrap();
-    let keys: Vec<_> = run.tasks.iter().map(|t| t["task_key"].clone()).collect();
-    assert_eq!(keys, [json!("a"), json!("b")]);
+    let keys: Vec<_> = run.tasks.iter().map(|t| t.task_key.as_str()).collect();
+    assert_eq!(keys, ["a", "b"]);
     assert_eq!(run.job_clusters.len(), 2);
     assert_eq!(run.repair_history.len(), 1);
     assert!(run.next_page_token.is_none());
@@ -274,7 +262,7 @@ async fn get_run_for_each_merges_iterations_not_tasks() {
     let run = workspace(&server)
         .await
         .jobs()
-        .get_run(GetRunRequest::builder().run_id(9).build())
+        .get_run(GetRunRequest::new(9))
         .await
         .unwrap();
     assert_eq!(run.iterations.len(), 2);

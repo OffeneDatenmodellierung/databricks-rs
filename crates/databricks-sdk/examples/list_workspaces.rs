@@ -18,7 +18,7 @@ async fn main() -> databricks_sdk::Result<()> {
     for ws in a.workspaces().list().await? {
         println!(
             "{:<20} {:<14} {}",
-            ws.workspace_id,
+            ws.workspace_id.unwrap_or_default(),
             ws.workspace_status
                 .map(|s| s.to_string())
                 .unwrap_or_default(),

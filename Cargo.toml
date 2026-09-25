@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/databricks-core", "crates/databricks-sdk"]
+members = ["crates/*", "xtask"]
 
 [workspace.package]
 version = "0.1.0"
@@ -16,7 +16,6 @@ categories = ["api-bindings", "asynchronous"]
 # 2026-09-25 (house rule). See docs/dependency-policy.md.
 [workspace.dependencies]
 databricks-core = { path = "crates/databricks-core", version = "0.1.0" }
-bon = "3.10.1"
 bytes = "1.12.1"
 fastrand = "2.5.0"
 futures-core = "0.3.34"

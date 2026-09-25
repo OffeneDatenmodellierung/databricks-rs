@@ -21,10 +21,7 @@ async fn main() -> databricks_sdk::Result<()> {
         .expect("usage: run_job <job_id>");
 
     let w = WorkspaceClient::from_env().await?;
-    let waiter = w
-        .jobs()
-        .run_now(RunNow::builder().job_id(job_id).build())
-        .await?;
+    let waiter = w.jobs().run_now(RunNow::new(job_id)).await?;
     println!("started run {}", waiter.run_id);
 
     let run = waiter

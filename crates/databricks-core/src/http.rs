@@ -14,6 +14,7 @@
 //! * `X-Databricks-Workspace-Id` is sent when `workspace_id` is configured
 //!   (Go adds it per operation; every workspace-level operation does so).
 
+use std::fmt::Write as _;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -215,6 +216,42 @@ impl ApiClient {
         query: &[(String, String)],
         body: Option<Vec<u8>>,
     ) -> Result<Bytes> {
+        self.run(method, path, query, body, true).await
+    }
+
+    /// Send a [`Call`] built by generated service code and decode the
+    /// JSON response.
+    pub async fn send<R: DeserializeOwned>(&self, call: Call) -> Result<R> {
+        let bytes = self
+            .run(
+                call.method,
+                &call.path,
+                &call.query,
+                call.body,
+                call.workspace_header,
+            )
+            .await?;
+        decode(&bytes)
+    }
+
+    /// The configured account ID, required by account-level paths.
+    pub fn account_id(&self) -> Result<&str> {
+        self.inner
+            .cfg
+            .account_id
+            .as_deref()
+            .filter(|a| !a.is_empty())
+            .ok_or_else(|| Error::Config("account_id is required for account-level APIs".into()))
+    }
+
+    async fn run(
+        &self,
+        method: Method,
+        path: &str,
+        query: &[(String, String)],
+        body: Option<Vec<u8>>,
+        workspace_header: bool,
+    ) -> Result<Bytes> {
         let mut url = self
             .inner
             .base
@@ -237,6 +274,7 @@ impl ApiClient {
                     body.as_deref(),
                     provider.as_ref(),
                     &user_agent,
+                    workspace_header,
                 )
                 .await;
             let (err, hint) = match outcome {
@@ -261,6 +299,7 @@ impl ApiClient {
         body: Option<&[u8]>,
         provider: &dyn CredentialsProvider,
         user_agent: &str,
+        workspace_header: bool,
     ) -> std::result::Result<Bytes, Failure> {
         let mut req = self
             .inner
@@ -273,7 +312,7 @@ impl ApiClient {
                 .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
                 .body(b.to_vec());
         }
-        if let Some(ws) = self.workspace_header() {
+        if let Some(ws) = self.workspace_header().filter(|_| workspace_header) {
             req = req.header("X-Databricks-Workspace-Id", ws);
         }
         for (k, v) in provider.headers().await.map_err(Failure::Fatal)? {
@@ -321,6 +360,81 @@ impl ApiClient {
         }
         cfg.workspace_id.as_deref().filter(|w| !w.is_empty())
     }
+}
+
+/// One API call, as built by generated service code.
+#[derive(Debug, Clone)]
+#[non_exhaustive]
+pub struct Call {
+    /// HTTP verb.
+    pub method: Method,
+    /// Path including any encoded path parameters.
+    pub path: String,
+    /// Query-string pairs.
+    pub query: Vec<(String, String)>,
+    /// JSON body, if any.
+    pub body: Option<Vec<u8>>,
+    /// Send `X-Databricks-Workspace-Id` when configured (workspace-level
+    /// operations only, as in Go).
+    pub workspace_header: bool,
+}
+
+impl Call {
+    /// A call with no query or body.
+    #[must_use]
+    pub fn new(method: Method, path: String) -> Self {
+        Self {
+            method,
+            path,
+            query: Vec::new(),
+            body: None,
+            workspace_header: false,
+        }
+    }
+
+    /// Send the workspace header.
+    #[must_use]
+    pub fn workspace(mut self) -> Self {
+        self.workspace_header = true;
+        self
+    }
+
+    /// Append query pairs.
+    #[must_use]
+    pub fn query(mut self, pairs: Vec<(String, String)>) -> Self {
+        self.query.extend(pairs);
+        self
+    }
+
+    /// Set the JSON body.
+    pub fn json<B: Serialize + ?Sized>(mut self, body: &B) -> Result<Self> {
+        self.body = Some(serde_json::to_vec(body).map_err(|e| Error::json("request body", e))?);
+        Ok(self)
+    }
+}
+
+/// Encode a path parameter.
+///
+/// Go inserts most values with `%v` (no escaping, so `/` in a resource name
+/// such as `catalogs/a/schemas/b` stays a separator) and escapes each
+/// segment of multi-segment parameters with `url.PathEscape`. Here both
+/// keep `/` and escape everything that would change the URL's meaning
+/// (`?`, `#`, `%`, spaces, non-ASCII) within each segment.
+#[must_use]
+pub fn path_param(value: &str, _multi_segment: bool) -> String {
+    const KEEP: &[u8] = b"-._~!$&'()*+,;=:@";
+    let escape = |seg: &str| {
+        let mut out = String::with_capacity(seg.len());
+        for b in seg.bytes() {
+            if b.is_ascii_alphanumeric() || KEEP.contains(&b) {
+                out.push(char::from(b));
+            } else {
+                let _ = write!(out, "%{b:02X}");
+            }
+        }
+        out
+    };
+    value.split('/').map(escape).collect::<Vec<_>>().join("/")
 }
 
 enum Failure {

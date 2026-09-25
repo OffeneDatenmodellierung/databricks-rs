@@ -1,0 +1,8 @@
+databricks-rs
+Copyright 2026 Mark Olliver
+
+This product includes data derived from databricks-sdk-go
+(https://github.com/databricks/databricks-sdk-go), Copyright Databricks, Inc.,
+licensed under the Apache License, Version 2.0. The files spec/ir.json,
+spec/openapi/*.json and the generated modules under
+crates/databricks-sdk/src/service/ are produced from it.

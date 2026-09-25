@@ -30,6 +30,17 @@ pub fn to_pairs<T: Serialize + ?Sized>(value: &T) -> Result<Vec<(String, String)
     Ok(out)
 }
 
+/// Encode one named query parameter (Go's url-tag serialisation of a single
+/// field). `None`, empty strings for optional values, and empty lists are
+/// dropped by the caller choosing `Option`/`Vec`; nested objects become
+/// `name.child`.
+pub fn field<T: Serialize + ?Sized>(name: &str, value: &T) -> Result<Vec<(String, String)>> {
+    let v = serde_json::to_value(value).map_err(|e| Error::json("query parameter", e))?;
+    let mut out = Vec::new();
+    flatten(name, &v, &mut out);
+    Ok(out)
+}
+
 fn flatten(key: &str, v: &Value, out: &mut Vec<(String, String)>) {
     match v {
         Value::Null => {}
@@ -72,6 +83,11 @@ mod tests {
             ]
         );
         assert!(to_pairs(&()).unwrap().is_empty());
+        assert_eq!(
+            field("sort_by", &json!({"field": "NAME"})).unwrap(),
+            vec![("sort_by.field".to_owned(), "NAME".to_owned())]
+        );
+        assert!(field("x", &None::<u8>).unwrap().is_empty());
         assert!(to_pairs(&1).is_err());
     }
 }

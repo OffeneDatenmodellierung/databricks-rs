@@ -18,14 +18,14 @@ pub type Paged<'a, T> = Pin<Box<dyn Stream<Item = Result<T>> + Send + 'a>>;
 /// Build a paginated stream.
 ///
 /// * `fetch` loads one page for a request.
-/// * `split` turns a response into its items and the next page token
-///   (`None` or empty ends the stream).
-/// * `advance` writes the token into the request for the next page.
+/// * `step` takes the request that produced a response and the response,
+///   updates the request for the next page (token, offset or page number)
+///   and returns the page's items plus whether another page should be
+///   fetched.
 pub fn paginate<'a, Req, Resp, T, F, Fut>(
     request: Req,
     fetch: F,
-    split: fn(Resp) -> (Vec<T>, Option<String>),
-    advance: fn(&mut Req, String),
+    step: fn(&mut Req, Resp) -> (Vec<T>, bool),
 ) -> Paged<'a, T>
 where
     Req: Send + 'a,
@@ -43,14 +43,8 @@ where
             let Some((mut req, resp)) = fut else {
                 return Ok::<_, crate::Error>(None);
             };
-            let (items, next) = split(resp.await?);
-            let next_state = match next.filter(|t| !t.is_empty()) {
-                Some(token) => {
-                    advance(&mut req, token);
-                    Some(req)
-                }
-                None => None,
-            };
+            let (items, more) = step(&mut req, resp.await?);
+            let next_state = more.then_some(req);
             Ok(Some((items, next_state)))
         }
     });
@@ -58,6 +52,18 @@ where
         .map_ok(|items| stream::iter(items.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
+}
+
+/// Step function for token pagination: `token` is the response's next-page
+/// token; continue while it is non-empty.
+pub fn next_token(token: Option<String>, set: impl FnOnce(String)) -> bool {
+    match token.filter(|t| !t.is_empty()) {
+        Some(t) => {
+            set(t);
+            true
+        }
+        None => false,
+    }
 }
 
 /// Drain a paginated stream into a `Vec` (Go's `ListAll`).
@@ -94,8 +100,10 @@ mod tests {
                     })
                 }
             },
-            |r| r,
-            |r, t| r.token = Some(t),
+            |r: &mut Req, (items, token): (Vec<i32>, Option<String>)| {
+                let more = next_token(token, |t| r.token = Some(t));
+                (items, more)
+            },
         );
         let mut s = s;
         assert_eq!(s.next().await.unwrap().unwrap(), 1);
@@ -112,8 +120,7 @@ mod tests {
             |_r: &Req| async {
                 Err::<(Vec<i32>, Option<String>), _>(crate::Error::OperationFailed("x".into()))
             },
-            |r| r,
-            |r, t| r.token = Some(t),
+            |_r: &mut Req, (items, _): (Vec<i32>, Option<String>)| (items, false),
         );
         assert!(collect(s).await.is_err());
     }

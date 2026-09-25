@@ -54,6 +54,35 @@ jobs:
           cargo check -p databricks-sdk --no-default-features --locked
           cargo check -p databricks-sdk --no-default-features --features jobs --locked
 
+  codegen:
+    name: generated code, IR and OpenAPI are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p xtask --locked
+      - run: cargo xtask codegen --check
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: IR matches the pinned databricks-sdk-go release
+        run: |
+          tag=$(python3 -c "import json;print(json.load(open('spec/ir.json'))['source']['go_sdk_version'])")
+          git clone --depth 1 --branch "$tag" https://github.com/databricks/databricks-sdk-go /tmp/go-sdk
+          cd codegen/extract-go && go vet ./... && go run . -sdk /tmp/go-sdk -out /tmp/ir.json
+          diff -q /tmp/ir.json ../../spec/ir.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: OpenAPI documents are valid 3.1
+        run: |
+          pip install openapi-spec-validator
+          python3 scripts/validate_openapi.py
+          python3 spec/docs-check/compare.py
+
   docs:
     runs-on: ubuntu-latest
     env:

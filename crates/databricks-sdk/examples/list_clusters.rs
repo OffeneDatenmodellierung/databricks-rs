@@ -16,14 +16,11 @@ async fn main() -> databricks_sdk::Result<()> {
         .init();
 
     let w = WorkspaceClient::from_env().await?;
-    let request = ListClustersRequest::builder()
-        .page_size(50)
-        .filter_by(
-            ListClustersFilterBy::builder()
-                .cluster_states(vec![State::Running, State::Pending])
-                .build(),
-        )
-        .build();
+    let request = ListClustersRequest::default()
+        .with_page_size(50)
+        .with_filter_by(
+            ListClustersFilterBy::default().with_cluster_states([State::Running, State::Pending]),
+        );
 
     let mut clusters = w.clusters().list(request);
     while let Some(c) = clusters.try_next().await? {

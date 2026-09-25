@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Per-file coverage ratchet.
 
-Reads tarpaulin's JSON report and fails if any library source file
-(crates/*/src/**) is below the threshold (default 85%).
+Reads tarpaulin's JSON report and fails if any hand-written library source
+file (crates/*/src/**) is below the threshold (default 85%). The xtask
+generator is checked end to end instead (`cargo xtask codegen --check` plus
+tests/generated_patterns.rs).
+Generated files (first line `// Code generated`) are exempt: they are
+covered by the generator's own tests and tests/generated_patterns.rs.
 
     cargo tarpaulin --workspace --out Json --output-dir target/coverage \
         --exclude-files 'crates/*/examples/*' --exclude-files 'crates/*/build.rs' \
@@ -22,8 +26,11 @@ def main(report: str) -> int:
     rows, failures = [], []
     for f in data["files"]:
         parts = f["path"]
-        path = "/".join(parts[parts.index("crates"):]) if "crates" in parts else "/".join(parts)
+        anchor = next((i for i, p in enumerate(parts) if p in ("crates", "xtask")), None)
+        path = "/".join(parts[anchor:]) if anchor is not None else "/".join(parts)
         if "/src/" not in path or not f["coverable"]:
+            continue
+        if f.get("content", "").startswith("// Code generated"):
             continue
         pct = 100.0 * f["covered"] / f["coverable"]
         rows.append((path, f["covered"], f["coverable"], pct))

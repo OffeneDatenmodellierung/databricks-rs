@@ -2,7 +2,7 @@
 
 An unofficial Rust SDK for the Databricks **Account** and **Workspace** REST APIs. It behaves like the official SDKs and uses the same configuration.
 
-> **Status: milestone 1 (spike).** The runtime is complete enough to build on. The service surface is deliberately tiny: `clusters.list`, `jobs.run_now` and `jobs.get_run` on the workspace side, and `workspaces.list` on the account side. These are hand-written so the generated code has a fixed target shape. See [docs/milestone-1.md](docs/milestone-1.md).
+> **Status: milestone 2.** The whole Account and Workspace surface is generated: 39 packages, 191 services, 1,260 operations and 3,550 types. Nothing has been run against a live workspace yet. See [docs/milestone-2.md](docs/milestone-2.md).
 
 Behaviour tracks **databricks-sdk-go v0.182.0**, released 2026-09-21. The same env vars and `~/.databrickscfg` profiles, the same auth precedence, the same retry rules, the same error codes and the same user-agent format apply in both SDKs.
 
@@ -11,7 +11,15 @@ Behaviour tracks **databricks-sdk-go v0.182.0**, released 2026-09-21. The same e
 | Crate | What |
 |---|---|
 | `databricks-core` | Runtime: config resolution, auth (PAT, OAuth M2M), HTTP client (retries, rate limit, user agent), typed errors, pagination streams, LRO waiters. |
-| `databricks-sdk` | `WorkspaceClient` / `AccountClient` and the service modules. From milestone 2 the service modules are generated, with one feature flag per service. |
+| `databricks-sdk` | `WorkspaceClient` / `AccountClient`. Each service package is a feature that re-exports its crate as `databricks_sdk::service::<package>`. `default` is `catalog`, `compute`, `jobs` and `provisioning`; `full` is everything. |
+| `databricks-sdk-<package>` ×39 | Generated models and services, one crate per Go SDK package. `compute`, `jobs` and `catalog` are examples. Split into crates so that you only compile what you enable. |
+| `xtask` | `cargo xtask codegen`: `spec/ir.json` → the generated crates and `spec/openapi/*.json`. |
+
+## OpenAPI specs
+
+[`spec/openapi/account.json`](spec/openapi/account.json) and [`spec/openapi/workspace.json`](spec/openapi/workspace.json) are OpenAPI 3.1 documents for the whole Account and Workspace APIs. They come from the same IR as the Rust code. `info.version` is the Go SDK release and `info.x-databricks-openapi-sha` is the upstream spec SHA. Pagination and long-running-operation waiters are kept as `x-databricks-*` extensions.
+
+A weekly workflow regenerates everything when a new upstream spec ships. See [spec/README.md](spec/README.md) and [spec/DOCS-CHECK.md](spec/DOCS-CHECK.md).
 
 ## Quick start
 
@@ -35,16 +43,15 @@ async fn main() -> databricks_sdk::Result<()> {
     let w = WorkspaceClient::from_env().await?;
 
     // Lazily paginated stream.
-    let req = ListClustersRequest::builder()
-        .filter_by(ListClustersFilterBy::builder().cluster_states(vec![State::Running]).build())
-        .build();
+    let req = ListClustersRequest::default()
+        .with_filter_by(ListClustersFilterBy::default().with_cluster_states([State::Running]));
     let mut clusters = w.clusters().list(req);
     while let Some(c) = clusters.try_next().await? {
         println!("{:?} {:?}", c.cluster_id, c.state);
     }
 
     // Long-running operation with a waiter (default timeout 20 min, as in Go).
-    let run = w.jobs().run_now(RunNow::builder().job_id(123).build()).await?
+    let run = w.jobs().run_now(RunNow::new(123)).await?
         .on_progress(|r| println!("{:?}", r.state))
         .wait()
         .await?;
@@ -57,10 +64,12 @@ For account-level APIs:
 
 ```rust
 let a = databricks_sdk::AccountClient::from_env().await?; // needs DATABRICKS_ACCOUNT_ID
-for ws in a.workspaces().list().await? { println!("{} {:?}", ws.workspace_id, ws.workspace_name); }
+for ws in a.workspaces().list().await? { println!("{:?} {:?}", ws.workspace_id, ws.workspace_name); }
 ```
 
 Runnable examples are in `crates/databricks-sdk/examples/` (`list_clusters`, `run_job`, `list_workspaces`).
+
+Request types are built with `Default` plus `with_<field>` setters. Types with one or two required fields also get `new(..)`. Every struct is `#[non_exhaustive]`, so new API fields are not breaking changes, and every enum has an `Unknown(String)` variant, so new server values are not breaking either.
 
 ## Configuration and auth
 
@@ -99,7 +108,8 @@ House rules:
 - Releases are cut by `release-plz`.
 
 ```sh
-cargo test --workspace
+cargo xtask codegen            # regenerate after changing spec/ir.json, codegen/overrides.json or xtask
+cargo test --workspace --all-features
 cargo clippy --workspace --all-targets
 cargo deny check
 cargo tarpaulin --workspace --out Json --output-dir target/coverage \
