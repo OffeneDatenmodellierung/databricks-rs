@@ -55,7 +55,7 @@ fn parse<T: std::str::FromStr>(name: &str, v: &str) -> Result<T, String> {
         .map_err(|_| format!("{name}: cannot parse {v:?}"))
 }
 
-fn parse_bool(name: &str, v: &str) -> Result<bool, String> {
+pub(crate) fn parse_bool(name: &str, v: &str) -> Result<bool, String> {
     match v.trim().to_ascii_lowercase().as_str() {
         "1" | "true" | "yes" | "on" => Ok(true),
         "" | "0" | "false" | "no" | "off" => Ok(false),
@@ -95,7 +95,7 @@ macro_rules! secret_attr {
     };
 }
 
-/// Attributes for auth types not yet implemented in Rust; stored verbatim.
+/// Attributes stored verbatim in `Config::other`; read with `Config::attribute`.
 macro_rules! other_attr {
     ($name:literal, $env:expr, $auth:expr, $sensitive:expr) => {
         Attr {
@@ -308,6 +308,18 @@ pub(crate) static ATTRIBUTES: &[Attr] = &[
     },
     string_attr!("cloud", Some("DATABRICKS_CLOUD"), None, cloud),
     other_attr!("audience", Some("DATABRICKS_TOKEN_AUDIENCE"), None, false),
+    other_attr!(
+        "actions_id_token_request_url",
+        Some("ACTIONS_ID_TOKEN_REQUEST_URL"),
+        None,
+        false
+    ),
+    other_attr!(
+        "actions_id_token_request_token",
+        Some("ACTIONS_ID_TOKEN_REQUEST_TOKEN"),
+        None,
+        true
+    ),
     string_attr!(
         "discovery_url",
         Some("DATABRICKS_DISCOVERY_URL"),

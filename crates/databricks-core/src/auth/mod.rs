@@ -6,15 +6,22 @@
 //! as `databricks-sdk-go` and picks the first that works; setting
 //! `auth_type` (or `DATABRICKS_AUTH_TYPE`) selects one explicitly.
 //!
-//! Milestone 1 implements `pat` and `oauth-m2m`. The rest of Go's chain
-//! (basic, U2M, metadata-service, GitHub/Azure DevOps/env/file OIDC, Azure
-//! MSI/secret/CLI, Google) is listed in [`PLANNED_AUTH_TYPES`] so a
-//! requested-but-missing type produces a clear error.
+//! Implemented, in chain order: `pat`, `oauth-m2m`, `databricks-cli`,
+//! `github-oidc`, `env-oidc`, `file-oidc`, `mem-oidc`, `azure-msi` and
+//! `oauth-m2m-gcp`. `mem-oidc` is Rust-only (an in-memory ID-token source,
+//! databricks-sdk-go#1790). The rest of Go's chain is listed in
+//! [`PLANNED_AUTH_TYPES`] so a requested-but-missing type gives a clear
+//! error.
 
+mod azure_msi;
+mod cli;
+mod common;
+mod gcp;
 mod m2m;
 mod oidc;
 mod pat;
 mod token;
+mod wif;
 
 use std::fmt::Debug;
 use std::sync::Arc;
@@ -22,10 +29,18 @@ use std::sync::Arc;
 use futures_util::future::BoxFuture;
 use reqwest::header::{HeaderName, HeaderValue};
 
+pub use azure_msi::AzureMsiCredentials;
+pub(crate) use azure_msi::ensure_workspace_host;
+pub use cli::DatabricksCliCredentials;
+pub use gcp::GcpM2mCredentials;
 pub use m2m::M2mCredentials;
 pub use oidc::OAuthEndpoints;
 pub use pat::PatCredentials;
 pub use token::{CachedTokenSource, Token, TokenSource};
+pub use wif::{
+    EnvOidcCredentials, FileOidcCredentials, GithubOidcCredentials, IdToken, IdTokenFn,
+    IdTokenSource, MemOidcCredentials,
+};
 
 use crate::config::Config;
 use crate::error::{Error, Result};
@@ -36,14 +51,9 @@ const AUTH_DOC_URL: &str =
 /// Auth types in Go's default chain that are not implemented yet.
 pub const PLANNED_AUTH_TYPES: &[&str] = &[
     "basic",
-    "databricks-cli",
     "metadata-service",
-    "github-oidc",
     "azure-devops-oidc",
-    "env-oidc",
-    "file-oidc",
     "github-oidc-azure",
-    "azure-msi",
     "azure-client-secret",
     "azure-cli",
     "google-credentials",
@@ -81,7 +91,18 @@ pub struct DefaultCredentials {
 impl Default for DefaultCredentials {
     fn default() -> Self {
         Self {
-            strategies: vec![Box::new(PatCredentials), Box::new(M2mCredentials)],
+            // Go's order, minus the strategies not ported yet.
+            strategies: vec![
+                Box::new(PatCredentials),
+                Box::new(M2mCredentials),
+                Box::new(DatabricksCliCredentials),
+                Box::new(GithubOidcCredentials),
+                Box::new(EnvOidcCredentials),
+                Box::new(FileOidcCredentials),
+                Box::new(MemOidcCredentials),
+                Box::new(AzureMsiCredentials),
+                Box::new(GcpM2mCredentials),
+            ],
         }
     }
 }

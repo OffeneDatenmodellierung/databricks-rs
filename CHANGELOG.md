@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `Config::headers` / `Config::header` for custom request headers (Go #1846).
   - `Config::group_id` / `DATABRICKS_GROUP_ID` group role assumption for
     OAuth M2M; PAT refuses to authenticate while it is set (Go #1812, #1817).
+  - New auth types, ported with the open upstream changes:
+    `databricks-cli` (#1832), `github-oidc`/`env-oidc`/`file-oidc` and the
+    Rust-only in-memory `mem-oidc` (#1790), `azure-msi` with Azure Identity
+    endpoint selection (#1813), and `oauth-m2m-gcp` (#1815).
   - Decode errors include a snippet of the response body, and bare
     `NaN`/`Infinity` tokens in responses decode as `null`.
 

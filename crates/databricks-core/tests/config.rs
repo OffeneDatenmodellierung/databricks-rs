@@ -11,7 +11,7 @@ use secrecy::ExposeSecret;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-fn env(pairs: &[(&str, &str)]) -> impl Fn(&str) -> Option<String> + use<> {
+fn env(pairs: &[(&str, &str)]) -> impl Fn(&str) -> Option<String> + Send + Sync + use<> {
     let map: HashMap<String, String> = pairs
         .iter()
         .map(|(k, v)| ((*k).to_owned(), (*v).to_owned()))
@@ -190,6 +190,20 @@ async fn more_than_one_auth_method_is_rejected_unless_auth_type_is_set() {
     )
     .await;
     assert!(ok.is_ok());
+}
+
+#[test]
+fn debug_output_masks_secrets() {
+    let mut c = Config::with_host("https://x").token("dapi-secret");
+    c.set_attribute("password", "hunter2").unwrap();
+    c.set_attribute("actions_id_token_request_token", "gh-secret")
+        .unwrap();
+    c.set_attribute("azure_client_id", "visible-id").unwrap();
+    let d = format!("{c:?}");
+    for secret in ["dapi-secret", "hunter2", "gh-secret"] {
+        assert!(!d.contains(secret), "{secret} leaked: {d}");
+    }
+    assert!(d.contains("visible-id"), "{d}");
 }
 
 #[tokio::test]

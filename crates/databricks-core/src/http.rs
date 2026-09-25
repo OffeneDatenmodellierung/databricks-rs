@@ -114,7 +114,16 @@ impl ApiClient {
 
     /// Like [`new`](Self::new) with a custom credential chain.
     pub async fn with_credentials(cfg: Config, credentials: DefaultCredentials) -> Result<Self> {
-        let cfg = cfg.resolve().await?;
+        let mut cfg = cfg.resolve().await?;
+        if cfg.host.as_deref().is_none_or(str::is_empty) {
+            // Go: `azureEnsureWorkspaceUrl` for managed identity.
+            let http = reqwest::Client::builder()
+                .timeout(cfg.http_timeout())
+                .build()?;
+            crate::auth::ensure_workspace_host(&mut cfg, &http)
+                .await
+                .map_err(|e| cfg.wrap(e))?;
+        }
         Self::from_resolved(cfg, credentials)
     }
 

@@ -14,10 +14,12 @@
 //!    the OIDC discovery URL.
 
 pub(crate) mod attrs;
+mod environment;
 mod file;
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 use secrecy::SecretString;
@@ -25,7 +27,9 @@ use serde::Deserialize;
 use url::Url;
 
 pub use attrs::Source;
+pub use environment::{AzureEnvironment, Cloud, Environment};
 
+use crate::auth::IdTokenSource;
 use crate::error::{Error, Result};
 
 /// Default HTTP timeout (Go: 60s).
@@ -69,6 +73,70 @@ pub struct HostMetadata {
     /// Host type.
     #[serde(default)]
     pub host_type: Option<HostType>,
+    /// Default OIDC audiences for token federation; the first becomes
+    /// `audience` when none is configured.
+    #[serde(default)]
+    pub token_federation_default_oidc_audiences: Vec<String>,
+}
+
+/// Attributes without a typed field. `Debug` masks the sensitive ones
+/// (`password`, `google_credentials`, …) like [`Config::debug_string`].
+#[derive(Clone, Default)]
+pub(crate) struct OtherAttrs(BTreeMap<String, String>);
+
+impl std::ops::Deref for OtherAttrs {
+    type Target = BTreeMap<String, String>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for OtherAttrs {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::fmt::Debug for OtherAttrs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_map()
+            .entries(self.0.iter().map(|(k, v)| {
+                let sensitive = attrs::find(k).is_none_or(|a| a.sensitive);
+                (k, if sensitive { "***" } else { v.as_str() })
+            }))
+            .finish()
+    }
+}
+
+/// How a resolved config reads ambient environment variables, such as the
+/// Azure managed-identity endpoint or the GitHub Actions ID-token request.
+///
+/// [`Config::resolve_with`] keeps the injected lookup, so tests never touch
+/// process-global state; [`Config::resolve`] and unresolved configs read
+/// the process environment.
+#[derive(Clone, Default)]
+pub(crate) struct EnvLookup(Option<EnvFn>);
+
+type EnvFn = Arc<dyn Fn(&str) -> Option<String> + Send + Sync>;
+
+impl std::fmt::Debug for EnvLookup {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(if self.0.is_some() {
+            "EnvLookup(injected)"
+        } else {
+            "EnvLookup(process)"
+        })
+    }
+}
+
+impl EnvLookup {
+    fn get(&self, key: &str) -> Option<String> {
+        match &self.0 {
+            Some(f) => f(key),
+            None => std::env::var(key).ok(),
+        }
+        .filter(|v| !v.is_empty())
+    }
 }
 
 /// Configuration for a [`WorkspaceClient`] or [`AccountClient`].
@@ -129,6 +197,13 @@ pub struct Config {
     pub debug_headers: bool,
     /// Pre-fetched host metadata; when set, the discovery request is skipped.
     pub host_metadata: Option<HostMetadata>,
+    /// An in-memory source of OIDC ID tokens for workload identity
+    /// federation (auth type `mem-oidc`; databricks-sdk-go#1790).
+    ///
+    /// Use this when the token is minted in-process (from a cloud SDK or
+    /// an RPC) and should never be written to a file or an environment
+    /// variable. Set in code only.
+    pub id_token_source: Option<Arc<dyn IdTokenSource>>,
     /// Extra HTTP headers sent on every request (Go: `Config.Headers`).
     ///
     /// Set in code only. Headers the SDK manages itself (`Authorization`,
@@ -137,11 +212,13 @@ pub struct Config {
     /// a custom header with one of those names is ignored.
     pub headers: Vec<(String, String)>,
 
-    /// Recognised attributes for auth types not yet implemented in Rust.
-    pub(crate) other: BTreeMap<String, String>,
+    /// Attributes without a typed field (Azure, Google, OIDC, CLI…); read
+    /// them with [`Config::attribute`].
+    pub(crate) other: OtherAttrs,
     pub(crate) sources: HashMap<&'static str, Source>,
     pub(crate) resolved_host_type: Option<HostType>,
     pub(crate) resolved: bool,
+    pub(crate) env: EnvLookup,
 }
 
 impl Config {
@@ -187,6 +264,13 @@ impl Config {
         self
     }
 
+    /// Set an in-memory OIDC ID-token source. See [`Config::id_token_source`].
+    #[must_use]
+    pub fn id_tokens(mut self, source: impl IdTokenSource + 'static) -> Self {
+        self.id_token_source = Some(Arc::new(source));
+        self
+    }
+
     /// Resolve using the process environment and home directory.
     pub async fn resolve(self) -> Result<Self> {
         self.resolve_with(|k| std::env::var(k).ok(), std::env::home_dir())
@@ -198,18 +282,20 @@ impl Config {
     /// Tests use this instead of mutating process-global state.
     pub async fn resolve_with(
         mut self,
-        env: impl Fn(&str) -> Option<String>,
+        env: impl Fn(&str) -> Option<String> + Send + Sync + 'static,
         home: Option<PathBuf>,
     ) -> Result<Self> {
         if self.resolved {
             return Ok(self);
         }
+        let env: EnvFn = Arc::new(env);
+        self.env = EnvLookup(Some(Arc::clone(&env)));
         for attr in attrs::ATTRIBUTES {
             if attr.is_set(&self) {
                 self.sources.entry(attr.name).or_insert(Source::Code);
             }
         }
-        self.load_env(&env).map_err(|e| self.wrap(e))?;
+        self.load_env(&*env).map_err(|e| self.wrap(e))?;
         file::load(&mut self, home).map_err(|e| self.wrap(e))?;
         self.validate().map_err(|e| self.wrap(e))?;
         self.fix_host().map_err(|e| self.wrap(e))?;
@@ -220,7 +306,7 @@ impl Config {
         Ok(self)
     }
 
-    fn load_env(&mut self, env: &impl Fn(&str) -> Option<String>) -> Result<()> {
+    fn load_env(&mut self, env: &dyn Fn(&str) -> Option<String>) -> Result<()> {
         for attr in attrs::ATTRIBUTES {
             if attr.is_set(self) {
                 continue;
@@ -322,6 +408,23 @@ impl Config {
         (self.account_id, self.workspace_id, self.cloud) = (a, w, c);
         if self.resolved_host_type.is_none() {
             self.resolved_host_type = meta.host_type;
+        }
+        if self.attr("audience").is_none() {
+            let audience = meta
+                .token_federation_default_oidc_audiences
+                .first()
+                .filter(|a| !a.is_empty())
+                .cloned()
+                .or_else(|| {
+                    meta.workspace_id
+                        .is_empty()
+                        .then(|| self.account_id.clone())
+                        .flatten()
+                });
+            if let Some(a) = audience {
+                self.other.insert("audience".to_owned(), a);
+                self.sources.insert("audience", Source::HostMetadata);
+            }
         }
         if self.discovery_url.is_none() && !meta.oidc_endpoint.is_empty() {
             let mut root = meta.oidc_endpoint.clone();
@@ -474,5 +577,65 @@ impl Config {
     #[must_use]
     pub fn attribute(&self, name: &str) -> Option<String> {
         attrs::find(name).and_then(|a| (a.get)(self))
+    }
+
+    /// A non-empty attribute value.
+    pub(crate) fn attr(&self, name: &str) -> Option<String> {
+        self.attribute(name).filter(|v| !v.is_empty())
+    }
+
+    /// A boolean attribute (`true`, `1`, `yes`, `on`).
+    pub(crate) fn attr_bool(&self, name: &str) -> bool {
+        self.attr(name)
+            .is_some_and(|v| attrs::parse_bool(name, &v).unwrap_or(false))
+    }
+
+    /// An ambient environment variable (see [`EnvLookup`]).
+    pub(crate) fn getenv(&self, key: &str) -> Option<String> {
+        self.env.get(key)
+    }
+
+    /// The Databricks environment (cloud, DNS zone, Azure endpoints) for
+    /// this host. Go: `Config.Environment`.
+    #[must_use]
+    pub fn environment(&self) -> Environment {
+        let host = self.host.as_deref().unwrap_or_default();
+        if host.is_empty() && self.attr("azure_workspace_resource_id").is_some() {
+            let name = self
+                .attr("azure_environment")
+                .unwrap_or_else(|| "PUBLIC".to_owned());
+            if let Some(e) = environment::azure_by_name(&name) {
+                return e;
+            }
+        }
+        let hostname = Url::parse(host)
+            .ok()
+            .and_then(|u| u.host_str().map(str::to_owned))
+            .unwrap_or_default();
+        environment::for_hostname(&hostname)
+    }
+
+    fn cloud_override(&self) -> Option<Cloud> {
+        self.cloud.as_deref().and_then(Cloud::parse)
+    }
+
+    /// Databricks on Azure: a workspace resource ID is set, `cloud` says so,
+    /// or the host is an Azure Databricks host.
+    #[must_use]
+    pub fn is_azure(&self) -> bool {
+        if self.attr("azure_workspace_resource_id").is_some() {
+            return true;
+        }
+        self.cloud_override()
+            .unwrap_or_else(|| self.environment().cloud)
+            == Cloud::Azure
+    }
+
+    /// Databricks on Google Cloud.
+    #[must_use]
+    pub fn is_gcp(&self) -> bool {
+        self.cloud_override()
+            .unwrap_or_else(|| self.environment().cloud)
+            == Cloud::Gcp
     }
 }

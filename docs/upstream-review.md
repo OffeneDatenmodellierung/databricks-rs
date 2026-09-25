@@ -44,15 +44,18 @@ The rule lives in `codegen/extract-go/main.go` (`isResourceName`). It marks 167 
 - [#1438](https://github.com/databricks/databricks-sdk-go/pull/1438): a panic from an unchecked type assertion in `shouldRetry`. Our retry decision matches on a typed `Failure` enum, so there is no assertion to panic.
 - [#1363](https://github.com/databricks/databricks-sdk-go/pull/1363): if resetting the request body for a retry failed, that error replaced the real one. We keep the body as bytes and re-send it on each attempt, so there is no reset step.
 
-## Backlog (auth strategies not yet ported)
+## Auth strategies ported for these items
 
-The Rust crate has PAT and OAuth M2M so far. Follow these when the other strategies are ported:
+Each of these needed an auth strategy the crate didn't have yet, so the strategy was ported from v0.182.0 along with the upstream change:
 
-- [#1832](https://github.com/databricks/databricks-sdk-go/pull/1832) (open): the interactive U2M and token-cache APIs are deprecated, and that responsibility moves to the Databricks CLI. Port U2M as "read the CLI's token", not as the deprecated flow.
-- [#1815](https://github.com/databricks/databricks-sdk-go/pull/1815) (open): the `oauth-m2m-gcp` auth type, which adds a Google access token to Databricks M2M for GCP account-level provisioning.
-- [#1813](https://github.com/databricks/databricks-sdk-go/pull/1813) (open): Azure MSI picks its endpoint from the host environment (Function Apps), falling back to IMDS.
-- [#1790](https://github.com/databricks/databricks-sdk-go/issues/1790) (open): pass an OIDC token in memory for workload identity federation, instead of through a file or environment variable.
-- Group role assumption for WIF (#1817) and U2M (#1812): add `assume_group` when those strategies are ported.
+| Upstream | Ported | Notes |
+|---|---|---|
+| [#1832](https://github.com/databricks/databricks-sdk-go/pull/1832) (open) | `databricks-cli` | Interactive U2M is deprecated in favour of the CLI, so Rust only has the CLI path: it runs `databricks auth token`, using `--profile` (CLI ≥ 0.207.1) and `--force-refresh` (≥ 0.296.0) when the installed CLI supports them. The legacy Python CLI is rejected, as in Go. Custom scopes set in code are refused because the CLI's cache ignores them. |
+| [#1790](https://github.com/databricks/databricks-sdk-go/issues/1790) (open) | `github-oidc`, `env-oidc`, `file-oidc`, and a new `mem-oidc` | The RFC 8693 token exchange, with `assume_group` (#1817). `mem-oidc` takes an `IdTokenSource` set in code (`Config::id_tokens`), so a token minted in-process never touches a file or environment variable. The issue suggests `mem-oidc` as a name; Go has no API yet, so this may need renaming to match. |
+| [#1813](https://github.com/databricks/databricks-sdk-go/pull/1813) (open) | `azure-msi` | Endpoint selection follows Azure Identity: Service Fabric, App Service/Functions, Azure Arc (with the key-file challenge, limited to the agent's token directory), Azure ML, Cloud Shell, AKS workload identity, then IMDS. Also includes the management-token and workspace-resource-ID headers, 40s early expiry, and resolving the host from `azure_workspace_resource_id` through ARM. |
+| [#1815](https://github.com/databricks/databricks-sdk-go/pull/1815) (open) | `oauth-m2m-gcp` | Adds `X-Databricks-GCP-SA-Access-Token` to M2M. The Google token comes from a service-account key (an RS256 JWT signed with aws-lc-rs, which rustls already builds), an authorized-user file, or by impersonating `google_service_account` through Application Default Credentials (env file, gcloud file, or the metadata server). External-account (workload identity) Google files are not supported yet. |
+
+Still to port from Go's chain: basic, metadata-service, `azure-devops-oidc`, `github-oidc-azure`, `azure-client-secret`, `azure-cli`, `google-credentials` and `google-id`.
 
 ## Not applicable
 

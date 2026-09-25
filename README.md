@@ -82,9 +82,23 @@ Request types are built with `Default` plus `with_<field>` setters. Types with o
 
 Custom headers for every request go in `Config::header(name, value)`; they never override the headers the SDK sets itself.
 
-Auth types implemented: `pat`, `oauth-m2m`. Setting `group_id` makes `oauth-m2m` assume that group's role, and makes `pat` fail rather than give normal access. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
+Auth types implemented, in the order the default chain tries them:
 
-The rest of Go's chain is planned and listed in `auth::PLANNED_AUTH_TYPES`: basic, U2M/CLI, metadata-service, the OIDC/WIF variants, Azure and GCP. Setting `DATABRICKS_AUTH_TYPE` to one of those gives a clear "not implemented in Rust yet" error.
+| Auth type | Uses |
+|---|---|
+| `pat` | `token` |
+| `oauth-m2m` | `client_id` + `client_secret` |
+| `databricks-cli` | `databricks auth token` from the Databricks CLI (run `databricks auth login` first; interactive login lives in the CLI) |
+| `github-oidc` | GitHub Actions ID token (`ACTIONS_ID_TOKEN_REQUEST_URL`/`_TOKEN`), exchanged for a Databricks token |
+| `env-oidc` | ID token in `DATABRICKS_OIDC_TOKEN` (or the variable named by `oidc_token_env`) |
+| `file-oidc` | ID token in the file at `databricks_id_token_filepath` |
+| `mem-oidc` | ID token from `Config::id_tokens(..)`, an in-memory `IdTokenSource`; never written to a file or env var |
+| `azure-msi` | Azure managed identity (`azure_use_msi`): App Service/Functions, Service Fabric, Arc, Azure ML, Cloud Shell, AKS workload identity or IMDS, picked from the environment |
+| `oauth-m2m-gcp` | `oauth-m2m` plus a Google access token (`google_credentials` or `google_service_account`) in `X-Databricks-GCP-SA-Access-Token`; select it with `auth_type` |
+
+For the OIDC types, `client_id` selects workload identity federation for that service principal; without it the exchange is account-wide token federation. Setting `group_id` makes the OAuth types assume that group's role; `pat`, `databricks-cli` and `azure-msi` refuse to authenticate rather than give normal access. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
+
+The rest of Go's chain is listed in `auth::PLANNED_AUTH_TYPES`: basic, metadata-service, Azure DevOps OIDC, Azure client secret/CLI/GitHub OIDC, and the Google-native types. Setting `DATABRICKS_AUTH_TYPE` to one of those gives a clear "not implemented in Rust yet" error.
 
 ## Errors
 

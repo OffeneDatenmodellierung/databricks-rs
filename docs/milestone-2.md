@@ -76,7 +76,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 
 ## Verification
 
-- 94 tests pass under `cargo test --workspace --all-features`.
+- 129 tests pass under `cargo test --workspace --all-features`.
 - The 10 milestone-1 spike tests pass against the generated code. The only changes are the construction syntax (from `builder()` to `new`/`with_*`) and dropping the `other` map assertion.
 - `tests/generated_patterns.rs` has one test per generated shape:
   - SCIM offset pagination;
@@ -108,9 +108,8 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 - lenient integer and float decoding;
 - custom headers;
 - group role assumption;
-- clearer decode errors.
-
-It also lists the auth work to follow when the remaining strategies are ported.
+- clearer decode errors;
+- the `databricks-cli`, OIDC (`github-oidc`, `env-oidc`, `file-oidc`, `mem-oidc`), `azure-msi` and `oauth-m2m-gcp` auth types, including the open upstream changes to them.
 
 ## Open items
 
