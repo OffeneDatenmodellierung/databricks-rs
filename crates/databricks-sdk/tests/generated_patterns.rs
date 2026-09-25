@@ -4,6 +4,7 @@
 //! Run with `--all-features` (CI does).
 
 #![cfg(all(
+    feature = "agentbricks",
     feature = "catalog",
     feature = "compute",
     feature = "files",
@@ -15,6 +16,7 @@
 use std::time::Duration;
 
 use databricks_sdk::core::config::HostMetadata;
+use databricks_sdk::service::agentbricks::CancelCustomLlmOptimizationRunRequest;
 use databricks_sdk::service::catalog::{McpService, UpdateMcpServiceRequest};
 use databricks_sdk::service::compute::{CreateCluster, StartCluster, State};
 use databricks_sdk::service::files::{GetDirectoryMetadataRequest, GetMetadataRequest};
@@ -281,4 +283,29 @@ async fn account_paths_and_no_workspace_header() {
     assert_eq!(ws.workspace_id, Some(42));
     let req = &server.received_requests().await.unwrap()[0];
     assert!(req.headers.get("x-databricks-workspace-id").is_none());
+}
+
+#[tokio::test]
+async fn bodyless_post_sends_empty_json_object_like_go() {
+    // databricks-sdk-go marshals the request struct for every POST/PUT/PATCH,
+    // so a request with only path fields is sent as `{}` with a JSON
+    // content type. Match it rather than sending no body.
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/api/2.0/custom-llms/llm-1/optimize/cancel"))
+        .and(wiremock::matchers::header(
+            "content-type",
+            "application/json",
+        ))
+        .and(body_json(json!({})))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    workspace(&server)
+        .await
+        .agent_bricks()
+        .cancel_optimize(CancelCustomLlmOptimizationRunRequest::new("llm-1"))
+        .await
+        .unwrap();
 }

@@ -3,6 +3,11 @@ Copyright 2026 Mark Olliver
 
 This product includes data derived from databricks-sdk-go
 (https://github.com/databricks/databricks-sdk-go), Copyright Databricks, Inc.,
-licensed under the Apache License, Version 2.0. The files spec/ir.json,
-spec/openapi/*.json and the generated modules under
-crates/databricks-sdk/src/service/ are produced from it.
+licensed under the Apache License, Version 2.0. The following are produced
+from it by codegen/extract-go and `cargo xtask codegen`:
+
+  spec/ir.json, spec/openapi/*.json, spec/GENERATED.md
+  crates/databricks-sdk-*/src/lib.rs and crates/databricks-sdk-*/Cargo.toml
+    (the generated models and services; src/ext.rs files are hand-written)
+  crates/databricks-sdk/src/accessors.rs and
+    crates/databricks-sdk/src/service/mod.rs (re-exports and accessors)
