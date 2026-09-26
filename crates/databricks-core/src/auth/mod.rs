@@ -7,13 +7,18 @@
 //! `auth_type` (or `DATABRICKS_AUTH_TYPE`) selects one explicitly.
 //!
 //! Implemented, in chain order: `pat`, `oauth-m2m`, `databricks-cli`,
-//! `github-oidc`, `env-oidc`, `file-oidc`, `mem-oidc`, `azure-msi` and
-//! `oauth-m2m-gcp`. `mem-oidc` is Rust-only (an in-memory ID-token source,
-//! databricks-sdk-go#1790). The rest of Go's chain is listed in
-//! [`PLANNED_AUTH_TYPES`] so a requested-but-missing type gives a clear
-//! error.
+//! `github-oidc`, `azure-devops-oidc`, `env-oidc`, `file-oidc`,
+//! `mem-oidc`, `github-oidc-azure`, `azure-msi`, `azure-client-secret`,
+//! `azure-cli`, `oauth-m2m-gcp`, `google-credentials` and `google-id`.
+//! `mem-oidc` is Rust-only (an in-memory ID-token source,
+//! databricks-sdk-go#1790).
+//!
+//! Azure and Google tokens come from the vendors' own crates
+//! (`azure_identity`, `google-cloud-auth`); this crate adds the Databricks
+//! parts. Go's `basic` and `metadata-service` are deliberately not ported
+//! (see [`UNSUPPORTED_AUTH_TYPES`]).
 
-mod azure_msi;
+mod azure;
 mod cli;
 mod common;
 mod gcp;
@@ -29,17 +34,20 @@ use std::sync::Arc;
 use futures_util::future::BoxFuture;
 use reqwest::header::{HeaderName, HeaderValue};
 
-pub use azure_msi::AzureMsiCredentials;
-pub(crate) use azure_msi::ensure_workspace_host;
+pub(crate) use azure::ensure_workspace_host;
+pub use azure::{
+    AzureCliCredentials, AzureClientSecretCredentials, AzureGithubOidcCredentials,
+    AzureMsiCredentials,
+};
 pub use cli::DatabricksCliCredentials;
-pub use gcp::GcpM2mCredentials;
+pub use gcp::{GcpM2mCredentials, GoogleCredentials, GoogleIdCredentials};
 pub use m2m::M2mCredentials;
 pub use oidc::OAuthEndpoints;
 pub use pat::PatCredentials;
 pub use token::{CachedTokenSource, Token, TokenSource};
 pub use wif::{
-    EnvOidcCredentials, FileOidcCredentials, GithubOidcCredentials, IdToken, IdTokenFn,
-    IdTokenSource, MemOidcCredentials,
+    AzureDevOpsOidcCredentials, EnvOidcCredentials, FileOidcCredentials, GithubOidcCredentials,
+    IdToken, IdTokenFn, IdTokenSource, MemOidcCredentials,
 };
 
 use crate::config::Config;
@@ -48,17 +56,10 @@ use crate::error::{Error, Result};
 const AUTH_DOC_URL: &str =
     "https://docs.databricks.com/en/dev-tools/auth.html#databricks-client-unified-authentication";
 
-/// Auth types in Go's default chain that are not implemented yet.
-pub const PLANNED_AUTH_TYPES: &[&str] = &[
-    "basic",
-    "metadata-service",
-    "azure-devops-oidc",
-    "github-oidc-azure",
-    "azure-client-secret",
-    "azure-cli",
-    "google-credentials",
-    "google-id",
-];
+/// Auth types in Go's chain that are deliberately not ported: `basic`
+/// (username and password, retired by Databricks for workspaces) and
+/// `metadata-service` (a local endpoint only the VS Code extension serves).
+pub const UNSUPPORTED_AUTH_TYPES: &[&str] = &["basic", "metadata-service"];
 
 /// Headers to add to a request.
 pub type Headers = Vec<(HeaderName, HeaderValue)>;
@@ -91,17 +92,23 @@ pub struct DefaultCredentials {
 impl Default for DefaultCredentials {
     fn default() -> Self {
         Self {
-            // Go's order, minus the strategies not ported yet.
+            // Go's order, without basic and metadata-service.
             strategies: vec![
                 Box::new(PatCredentials),
                 Box::new(M2mCredentials),
                 Box::new(DatabricksCliCredentials),
                 Box::new(GithubOidcCredentials),
+                Box::new(AzureDevOpsOidcCredentials),
                 Box::new(EnvOidcCredentials),
                 Box::new(FileOidcCredentials),
                 Box::new(MemOidcCredentials),
+                Box::new(AzureGithubOidcCredentials),
                 Box::new(AzureMsiCredentials),
+                Box::new(AzureClientSecretCredentials),
+                Box::new(AzureCliCredentials),
                 Box::new(GcpM2mCredentials),
+                Box::new(GoogleCredentials),
+                Box::new(GoogleIdCredentials),
             ],
         }
     }
@@ -122,8 +129,8 @@ impl DefaultCredentials {
     ) -> Result<(&'static str, Arc<dyn CredentialsProvider>)> {
         if let Some(wanted) = cfg.auth_type.as_deref().filter(|t| !t.is_empty()) {
             let Some(s) = self.strategies.iter().find(|s| s.name() == wanted) else {
-                let hint = if PLANNED_AUTH_TYPES.contains(&wanted) {
-                    " (supported by the Go SDK; not implemented in Rust yet)"
+                let hint = if UNSUPPORTED_AUTH_TYPES.contains(&wanted) {
+                    " (supported by the Go SDK; not ported to Rust)"
                 } else {
                     ""
                 };

@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     `databricks-cli` (#1832), `github-oidc`/`env-oidc`/`file-oidc` and the
     Rust-only in-memory `mem-oidc` (#1790), `azure-msi` with Azure Identity
     endpoint selection (#1813), and `oauth-m2m-gcp` (#1815).
+  - The rest of Go's chain except `basic` and `metadata-service`:
+    `azure-devops-oidc`, `github-oidc-azure`, `azure-client-secret`,
+    `azure-cli`, `google-credentials` and `google-id`. Azure and Google
+    tokens come from `azure_identity` and `google-cloud-auth`.
   - Decode errors include a snippet of the response body, and bare
     `NaN`/`Infinity` tokens in responses decode as `null`.
 

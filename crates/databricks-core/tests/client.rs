@@ -443,11 +443,11 @@ async fn auth_selection_errors() {
         "{e}"
     );
 
-    // A Go auth type not yet ported gets a clear hint.
+    // A Go auth type deliberately not ported gets a clear hint.
     let mut c = cfg(&server);
-    c.auth_type = Some("azure-cli".into());
+    c.auth_type = Some("basic".into());
     let e = client(c).await.authenticate().await.unwrap_err();
-    assert!(e.to_string().contains("not implemented in Rust yet"), "{e}");
+    assert!(e.to_string().contains("not ported to Rust"), "{e}");
 
     // auth_type picks PAT even when M2M is also configured.
     let mut c = cfg(&server).token("t").client_credentials("a", "b");

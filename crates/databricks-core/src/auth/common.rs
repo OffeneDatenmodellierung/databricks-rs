@@ -3,6 +3,7 @@
 //! small wall-clock time parser.
 
 use std::fmt;
+use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
@@ -12,7 +13,9 @@ use secrecy::SecretString;
 use serde::Deserialize;
 use tokio::time::Instant;
 
-use super::token::{CachedTokenSource, Token, TokenSource};
+#[cfg(doc)]
+use super::token::CachedTokenSource;
+use super::token::{Token, TokenSource};
 use super::{CredentialsProvider, Headers, bearer};
 use crate::error::{ApiError, Error, Result};
 use crate::http::{backoff, retry_after};
@@ -101,28 +104,39 @@ pub(crate) fn parse_oauth_token(body: &[u8]) -> Result<Token> {
     })
 }
 
-/// A provider that sets `Authorization` from a cached token and,
+/// A second token sent in its own header (Go: `serviceToServiceVisitor`).
+pub(crate) struct Secondary {
+    pub header: HeaderName,
+    pub source: Arc<dyn TokenSource>,
+    /// Skip the header, rather than fail the request, if the token can't
+    /// be obtained (Go's `secondaryOptional`).
+    pub optional: bool,
+}
+
+/// A provider that sets `Authorization: Bearer` from `primary` and,
 /// optionally, a second token header and fixed headers.
 ///
-/// Go: `serviceToServiceVisitor` / `azureVisitor`.
+/// Sources are used as given: wrap hand-written ones in a
+/// [`CachedTokenSource`]; vendor credentials (`azure_identity`,
+/// `google-cloud-auth`) cache internally.
 pub(crate) struct TokenHeaders {
-    pub primary: CachedTokenSource,
-    pub secondary: Option<(HeaderName, CachedTokenSource)>,
+    pub primary: Arc<dyn TokenSource>,
+    pub secondary: Option<Secondary>,
     pub fixed: Headers,
 }
 
 impl fmt::Debug for TokenHeaders {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("TokenHeaders")
-            .field("secondary", &self.secondary.as_ref().map(|(h, _)| h))
+            .field("secondary", &self.secondary.as_ref().map(|s| &s.header))
             .finish_non_exhaustive()
     }
 }
 
 impl TokenHeaders {
-    pub(crate) fn bearer(primary: CachedTokenSource) -> Self {
+    pub(crate) fn bearer(primary: impl TokenSource + 'static) -> Self {
         Self {
-            primary,
+            primary: Arc::new(primary),
             secondary: None,
             fixed: Vec::new(),
         }
@@ -134,34 +148,22 @@ impl CredentialsProvider for TokenHeaders {
         Box::pin(async move {
             let mut h = self.fixed.clone();
             h.extend(bearer(self.primary.token().await?.secret())?);
-            if let Some((name, source)) = &self.secondary {
-                let t = source.token().await?;
-                let mut v = HeaderValue::from_str(t.secret()).map_err(|_| {
-                    Error::Config("token contains invalid header characters".into())
-                })?;
-                v.set_sensitive(true);
-                h.push((name.clone(), v));
+            if let Some(s) = &self.secondary {
+                match s.source.token().await {
+                    Ok(t) => {
+                        let mut v = HeaderValue::from_str(t.secret()).map_err(|_| {
+                            Error::Config("token contains invalid header characters".into())
+                        })?;
+                        v.set_sensitive(true);
+                        h.push((s.header.clone(), v));
+                    }
+                    Err(e) if s.optional => {
+                        tracing::warn!(header = %s.header, "skipping secondary token: {e}");
+                    }
+                    Err(e) => return Err(e),
+                }
             }
             Ok(h)
-        })
-    }
-}
-
-/// Makes tokens expire `by` early. Go's `azureReuseTokenSource` uses 40s
-/// because Azure Databricks rejects tokens with 30s or less left.
-pub(crate) struct EarlyExpiry<S> {
-    pub inner: S,
-    pub by: Duration,
-}
-
-impl<S: TokenSource> TokenSource for EarlyExpiry<S> {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
-        Box::pin(async move {
-            let mut t = self.inner.token().await?;
-            t.expiry = t
-                .expiry
-                .map(|e| e.checked_sub(self.by).unwrap_or_else(Instant::now));
-            Ok(t)
         })
     }
 }
@@ -261,34 +263,6 @@ pub(crate) fn parse_timestamp(s: &str) -> Option<i64> {
     Some(unix(num(y)?, num(mo)?, num(da)?, h, mi, se)? - offset)
 }
 
-/// Azure ML's `expires_on`: `M/D/YYYY h:mm:ss [AM|PM] +00:00`.
-pub(crate) fn parse_azure_ml_timestamp(value: &str) -> Option<i64> {
-    let rest = value.strip_suffix(" +00:00")?;
-    let mut parts = rest.split(' ');
-    let (date, time) = (parts.next()?, parts.next()?);
-    let meridiem = parts.next();
-    if parts.next().is_some() {
-        return None;
-    }
-    let mut ymd = date.split('/');
-    let (month, day, year) = (num(ymd.next()?)?, num(ymd.next()?)?, ymd.next()?);
-    if ymd.next().is_some() || year.len() != 4 {
-        return None;
-    }
-    let mut hms = time.split(':');
-    let (hour, minute, second) = (num(hms.next()?)?, hms.next()?, hms.next()?);
-    if hms.next().is_some() || minute.len() != 2 || second.len() != 2 {
-        return None;
-    }
-    let hour = match meridiem {
-        None => hour,
-        Some("AM") if (1..=12).contains(&hour) => hour % 12,
-        Some("PM") if (1..=12).contains(&hour) => hour % 12 + 12,
-        Some(_) => return None,
-    };
-    unix(num(year)?, month, day, hour, num(minute)?, num(second)?)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -320,37 +294,6 @@ mod tests {
         }
         assert_eq!(parse_timestamp("1970-01-01T00:00:00Z"), Some(0));
         assert_eq!(parse_timestamp("2000-02-29T00:00:00Z"), Some(951_782_400));
-    }
-
-    #[test]
-    fn azure_ml_timestamps() {
-        let base = 1_710_930_600;
-        assert_eq!(
-            parse_azure_ml_timestamp("03/20/2024 10:30:00 +00:00"),
-            Some(base)
-        );
-        assert_eq!(
-            parse_azure_ml_timestamp("3/20/2024 10:30:00 AM +00:00"),
-            Some(base)
-        );
-        assert_eq!(
-            parse_azure_ml_timestamp("3/20/2024 10:30:00 PM +00:00"),
-            Some(base + 12 * 3_600)
-        );
-        assert_eq!(
-            parse_azure_ml_timestamp("3/20/2024 12:30:00 AM +00:00"),
-            Some(base - 10 * 3_600)
-        );
-        for s in [
-            "03/20/2024 10:30:00",
-            "03/20/2024 10:30:00 +01:00",
-            "03/20/24 10:30:00 +00:00",
-            "3/20/2024 13:30:00 PM +00:00",
-            "3/20/2024 10:30:00 XM +00:00",
-            "3/20/2024 10:30 +00:00",
-        ] {
-            assert_eq!(parse_azure_ml_timestamp(s), None, "{s}");
-        }
     }
 
     #[tokio::test(start_paused = true)]

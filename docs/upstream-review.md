@@ -52,10 +52,26 @@ Each of these needed an auth strategy the crate didn't have yet, so the strategy
 |---|---|---|
 | [#1832](https://github.com/databricks/databricks-sdk-go/pull/1832) (open) | `databricks-cli` | Interactive U2M is deprecated in favour of the CLI, so Rust only has the CLI path: it runs `databricks auth token`, using `--profile` (CLI ≥ 0.207.1) and `--force-refresh` (≥ 0.296.0) when the installed CLI supports them. The legacy Python CLI is rejected, as in Go. Custom scopes set in code are refused because the CLI's cache ignores them. |
 | [#1790](https://github.com/databricks/databricks-sdk-go/issues/1790) (open) | `github-oidc`, `env-oidc`, `file-oidc`, and a new `mem-oidc` | The RFC 8693 token exchange, with `assume_group` (#1817). `mem-oidc` takes an `IdTokenSource` set in code (`Config::id_tokens`), so a token minted in-process never touches a file or environment variable. The issue suggests `mem-oidc` as a name; Go has no API yet, so this may need renaming to match. |
-| [#1813](https://github.com/databricks/databricks-sdk-go/pull/1813) (open) | `azure-msi` | Endpoint selection follows Azure Identity: Service Fabric, App Service/Functions, Azure Arc (with the key-file challenge, limited to the agent's token directory), Azure ML, Cloud Shell, AKS workload identity, then IMDS. Also includes the management-token and workspace-resource-ID headers, 40s early expiry, and resolving the host from `azure_workspace_resource_id` through ARM. |
-| [#1815](https://github.com/databricks/databricks-sdk-go/pull/1815) (open) | `oauth-m2m-gcp` | Adds `X-Databricks-GCP-SA-Access-Token` to M2M. The Google token comes from a service-account key (an RS256 JWT signed with aws-lc-rs, which rustls already builds), an authorized-user file, or by impersonating `google_service_account` through Application Default Credentials (env file, gcloud file, or the metadata server). External-account (workload identity) Google files are not supported yet. |
+| [#1813](https://github.com/databricks/databricks-sdk-go/pull/1813) (open) | `azure-msi` | Uses Microsoft's `azure_identity` crate (see below): App Service/Functions, IMDS and AKS workload identity. `azure_identity` 1.0 detects Azure Arc, Azure ML, Cloud Shell and Service Fabric but reports them as unsupported, so those parts of #1813 arrive when the crate adds them. This crate adds the management-token and workspace-resource-ID headers and resolves the host from `azure_workspace_resource_id` through ARM. |
+| [#1815](https://github.com/databricks/databricks-sdk-go/pull/1815) (open) | `oauth-m2m-gcp` | Adds `X-Databricks-GCP-SA-Access-Token` to M2M, with the Google token from Google's `google-cloud-auth` crate: any credentials file (`google_credentials`) or impersonation of `google_service_account` through Application Default Credentials. |
 
-Still to port from Go's chain: basic, metadata-service, `azure-devops-oidc`, `github-oidc-azure`, `azure-client-secret`, `azure-cli`, `google-credentials` and `google-id`.
+## Rest of Go's chain, on vendor crates
+
+Following the project rule that mainstream vendor-supported crates replace hand-written code, cloud tokens come from the vendors' own crates:
+
+| Crate | Used for |
+|---|---|
+| `azure_identity` 1.0 / `azure_core` 1.1 (Microsoft) | `azure-msi`, `azure-client-secret`, `azure-cli`, `github-oidc-azure` (a `ClientAssertionCredential` fed by the GitHub ID token) |
+| `google-cloud-auth` 1.16 (Google) | `oauth-m2m-gcp`, `google-credentials`, `google-id`: service accounts, user credentials, impersonation, the metadata server, ID tokens, and external accounts from files, URLs, executables and AWS |
+
+What stays hand-written is Databricks-specific: the token exchanges with Databricks, `databricks-cli`, the ID-token fetch for `azure-devops-oidc` (the Databricks exchange needs the raw pipeline token, which `AzurePipelinesCredential` doesn't expose), the `X-Databricks-*` headers, tenant discovery and ARM host resolution.
+
+Differences from Go to be aware of:
+- For service-account keys `google-cloud-auth` sends self-signed JWT access tokens (AIP-4111) where Go exchanges them at Google's token endpoint. Databricks passes the header token to Google Cloud APIs, which accept both.
+- `azure_identity` requests v2 scopes (`{resource}/.default`) where Go sends v1 `resource=`; the tokens are the same.
+- `github-oidc-azure` fetches a fresh GitHub token for every Entra ID token; Go fetches one at start-up and reuses it after it expires.
+
+Deliberately not ported: `basic` (username and password, retired by Databricks for workspaces) and `metadata-service` (a local endpoint only the VS Code extension serves).
 
 ## Not applicable
 

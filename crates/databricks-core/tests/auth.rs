@@ -225,45 +225,86 @@ async fn explicit_oidc_auth_types_report_what_is_missing() {
 }
 
 #[tokio::test]
-async fn azure_msi_sends_the_token_management_token_and_resource_id() {
+async fn azure_devops_oidc_exchanges_the_pipeline_token() {
     let server = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(path("/metadata/identity/oauth2/token"))
-        .and(header("metadata", "true"))
-        .and(query_param("api-version", "2018-02-01"))
-        .and(query_param("client_id", "uami"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(
-            json!({"access_token": "msi", "expires_on": "4102444800", "token_type": "Bearer"}),
+    Mock::given(method("POST"))
+        .and(path(
+            "/org/proj-1/_apis/distributedtask/hubs/build/plans/plan-1/jobs/job-1/oidctoken",
         ))
-        .mount(&server)
-        .await;
-    Mock::given(method("GET"))
-        .and(path("/api/me"))
-        .and(header("authorization", "Bearer msi"))
-        .and(header("x-databricks-azure-sp-management-token", "msi"))
-        .and(header(
-            "x-databricks-azure-workspace-resource-id",
-            "/subscriptions/s/ws",
-        ))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!("ok")))
+        .and(query_param("api-version", "7.2-preview.1"))
+        .and(header("authorization", "Bearer ado-access"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"oidcToken": "ado-jwt"})))
         .expect(1)
         .mount(&server)
         .await;
+    mount_exchange(&server, "ado-jwt", &["client_id=sp-ado"]).await;
+    mount_api(&server, "wif-token").await;
     let mut c = cfg(&server);
-    c.set_attribute("azure_use_msi", "true").unwrap();
-    c.set_attribute("azure_client_id", "uami").unwrap();
-    c.set_attribute("azure_workspace_resource_id", "/subscriptions/s/ws")
-        .unwrap();
-    let api = client(c, &[("AZURE_POD_IDENTITY_AUTHORITY_HOST", &server.uri())]).await;
+    c.client_id = Some("sp-ado".into());
+    let collection = format!("{}/org/", server.uri());
+    let api = client(
+        c,
+        &[
+            ("SYSTEM_ACCESSTOKEN", "ado-access"),
+            ("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI", &collection),
+            ("SYSTEM_TEAMPROJECTID", "proj-1"),
+            ("SYSTEM_HOSTTYPE", "build"),
+            ("SYSTEM_PLANID", "plan-1"),
+            ("SYSTEM_JOBID", "job-1"),
+        ],
+    )
+    .await;
     call(&api).await;
-    assert_eq!(api.auth_type(), Some("azure-msi"));
+    assert_eq!(api.auth_type(), Some("azure-devops-oidc"));
 
-    // Group roles need Databricks OAuth.
+    // Outside a pipeline the explicit type says what is missing.
+    let mut c = cfg(&server);
+    c.auth_type = Some("azure-devops-oidc".into());
+    let e = client(c.clone(), &[])
+        .await
+        .authenticate()
+        .await
+        .unwrap_err();
+    assert!(e.to_string().contains("SYSTEM_ACCESSTOKEN"), "{e}");
+    let e = client(c, &[("SYSTEM_ACCESSTOKEN", "x")])
+        .await
+        .authenticate()
+        .await
+        .unwrap_err();
+    assert!(
+        e.to_string()
+            .contains("missing env var SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"),
+        "{e}"
+    );
+}
+
+#[tokio::test]
+async fn azure_types_select_only_on_azure_and_refuse_group_roles() {
+    let server = MockServer::start().await;
+    // Explicitly selected on a non-Azure host: not configured.
+    for t in [
+        "azure-msi",
+        "azure-client-secret",
+        "github-oidc-azure",
+        "azure-cli",
+    ] {
+        let mut c = cfg(&server);
+        c.auth_type = Some(t.into());
+        c.set_attribute("azure_use_msi", "true").unwrap();
+        let e = client(c, &[]).await.authenticate().await.unwrap_err();
+        assert!(e.to_string().contains("not configured"), "{t}: {e}");
+    }
+    // Managed identity builds without a network call; tokens are fetched
+    // on the first request.
     let mut c = cfg(&server);
     c.auth_type = Some("azure-msi".into());
     c.cloud = Some("AZURE".into());
-    c.group_id = Some("g".into());
     c.set_attribute("azure_use_msi", "1").unwrap();
+    assert_eq!(
+        client(c.clone(), &[]).await.authenticate().await.unwrap(),
+        "azure-msi"
+    );
+    c.group_id = Some("g".into());
     let e = client(c, &[]).await.authenticate().await.unwrap_err();
     assert!(e.to_string().contains("group role"), "{e}");
 }
@@ -289,11 +330,10 @@ async fn oauth_m2m_gcp_adds_the_google_access_token() {
         .await;
     Mock::given(method("POST"))
         .and(path("/google/token"))
-        .and(body_string_contains("grant_type=refresh_token"))
-        .respond_with(
-            ResponseTemplate::new(200)
-                .set_body_json(json!({"access_token": "ya29.g", "expires_in": 3600})),
-        )
+        .and(body_string_contains("\"grant_type\":\"refresh_token\""))
+        .respond_with(ResponseTemplate::new(200).set_body_json(
+            json!({"access_token": "ya29.g", "expires_in": 3600, "token_type": "Bearer"}),
+        ))
         .mount(&server)
         .await;
     Mock::given(method("GET"))
@@ -328,7 +368,7 @@ async fn oauth_m2m_gcp_adds_the_google_access_token() {
 }
 
 #[tokio::test]
-async fn oauth_m2m_gcp_needs_gcp_and_google_credentials() {
+async fn google_types_need_gcp_and_valid_credentials() {
     let server = MockServer::start().await;
     let mut c = cfg(&server).client_credentials("sp", "secret");
     c.auth_type = Some("oauth-m2m-gcp".into());
@@ -339,18 +379,60 @@ async fn oauth_m2m_gcp_needs_gcp_and_google_credentials() {
         .await
         .unwrap_err();
     assert!(e.to_string().contains("not configured"), "{e}");
-    // Impersonation with no ADC file falls back to the metadata server,
-    // which is only contacted when a token is needed.
+    // Unparseable or unsupported credentials fail before any network call.
     c.cloud = Some("GCP".into());
-    c.set_attribute("google_service_account", "sa@p.iam.gserviceaccount.com")
-        .unwrap();
-    c.set_attribute("google_credentials", "{\"type\":\"external_account\"}")
-        .unwrap();
-    let e = client(c, &[]).await.authenticate().await.unwrap_err();
+    c.set_attribute("google_credentials", "not json").unwrap();
+    let e = client(c.clone(), &[])
+        .await
+        .authenticate()
+        .await
+        .unwrap_err();
     assert!(
         e.to_string().contains("could not read GoogleCredentials"),
         "{e}"
     );
+    c.set_attribute("google_credentials", "{\"type\":\"gdch_service_account\"}")
+        .unwrap();
+    let e = client(c, &[]).await.authenticate().await.unwrap_err();
+    assert!(
+        e.to_string()
+            .contains("unsupported Google credentials type"),
+        "{e}"
+    );
+
+    // google-credentials: user credentials have no ID token for the host.
+    let mut c = cfg(&server);
+    c.auth_type = Some("google-credentials".into());
+    c.cloud = Some("GCP".into());
+    c.set_attribute(
+        "google_credentials",
+        json!({"type": "authorized_user", "client_id": "c", "client_secret": "s", "refresh_token": "r"}).to_string(),
+    )
+    .unwrap();
+    let e = client(c.clone(), &[])
+        .await
+        .authenticate()
+        .await
+        .unwrap_err();
+    assert!(e.to_string().contains("cannot mint ID tokens"), "{e}");
+    c.group_id = Some("g".into());
+    let e = client(c, &[]).await.authenticate().await.unwrap_err();
+    assert!(e.to_string().contains("group role"), "{e}");
+
+    // google-id: needs GCP and a service account to impersonate.
+    let mut c = cfg(&server);
+    c.auth_type = Some("google-id".into());
+    c.set_attribute("google_service_account", "sa@p.iam.gserviceaccount.com")
+        .unwrap();
+    let e = client(c.clone(), &[])
+        .await
+        .authenticate()
+        .await
+        .unwrap_err();
+    assert!(e.to_string().contains("not configured"), "{e}");
+    c.group_id = Some("g".into());
+    let e = client(c, &[]).await.authenticate().await.unwrap_err();
+    assert!(e.to_string().contains("group role"), "{e}");
 }
 
 #[cfg(unix)]

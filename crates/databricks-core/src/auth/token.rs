@@ -95,6 +95,12 @@ fn lead_time(ttl: Duration) -> Duration {
     (ttl / 2).min(MAX_ASYNC_LEAD)
 }
 
+impl TokenSource for CachedTokenSource {
+    fn token(&self) -> BoxFuture<'_, Result<Token>> {
+        Box::pin(CachedTokenSource::token(self))
+    }
+}
+
 impl CachedTokenSource {
     /// Wrap `source`. `async_refresh` enables proactive background refresh.
     pub fn new(source: impl TokenSource + 'static, async_refresh: bool) -> Self {

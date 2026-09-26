@@ -90,15 +90,23 @@ Auth types implemented, in the order the default chain tries them:
 | `oauth-m2m` | `client_id` + `client_secret` |
 | `databricks-cli` | `databricks auth token` from the Databricks CLI (run `databricks auth login` first; interactive login lives in the CLI) |
 | `github-oidc` | GitHub Actions ID token (`ACTIONS_ID_TOKEN_REQUEST_URL`/`_TOKEN`), exchanged for a Databricks token |
+| `azure-devops-oidc` | Azure DevOps pipeline OIDC token (`SYSTEM_ACCESSTOKEN` and the `SYSTEM_*` job variables), exchanged for a Databricks token |
 | `env-oidc` | ID token in `DATABRICKS_OIDC_TOKEN` (or the variable named by `oidc_token_env`) |
 | `file-oidc` | ID token in the file at `databricks_id_token_filepath` |
 | `mem-oidc` | ID token from `Config::id_tokens(..)`, an in-memory `IdTokenSource`; never written to a file or env var |
-| `azure-msi` | Azure managed identity (`azure_use_msi`): App Service/Functions, Service Fabric, Arc, Azure ML, Cloud Shell, AKS workload identity or IMDS, picked from the environment |
+| `github-oidc-azure` | GitHub Actions ID token federated to an Entra ID app (`azure_client_id`, `azure_tenant_id`) |
+| `azure-msi` | Azure managed identity (`azure_use_msi`, optional `azure_client_id`): App Service/Functions, VMs (IMDS) and AKS workload identity |
+| `azure-client-secret` | Entra ID service principal: `azure_client_id`, `azure_client_secret`, `azure_tenant_id` |
+| `azure-cli` | The Azure CLI login (`az login`, CLI 2.54 or later) |
 | `oauth-m2m-gcp` | `oauth-m2m` plus a Google access token (`google_credentials` or `google_service_account`) in `X-Databricks-GCP-SA-Access-Token`; select it with `auth_type` |
+| `google-credentials` | A Google credentials file (`google_credentials`, path or inline JSON): service account, impersonated service account, or external account (workload identity federation from a file, URL, executable or AWS) |
+| `google-id` | Impersonate `google_service_account` with Application Default Credentials |
 
-For the OIDC types, `client_id` selects workload identity federation for that service principal; without it the exchange is account-wide token federation. Setting `group_id` makes the OAuth types assume that group's role; `pat`, `databricks-cli` and `azure-msi` refuse to authenticate rather than give normal access. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
+Azure tokens come from Microsoft's `azure_identity` crate and Google tokens from Google's `google-cloud-auth` crate; this crate adds only the Databricks parts (token resources and audiences, the `X-Databricks-*` headers, tenant discovery and resolving the host from `azure_workspace_resource_id`). `azure_identity` 1.0 does not yet support managed identity on Azure Arc, Azure ML, Cloud Shell or Service Fabric; it reports those clearly as unsupported.
 
-The rest of Go's chain is listed in `auth::PLANNED_AUTH_TYPES`: basic, metadata-service, Azure DevOps OIDC, Azure client secret/CLI/GitHub OIDC, and the Google-native types. Setting `DATABRICKS_AUTH_TYPE` to one of those gives a clear "not implemented in Rust yet" error.
+For the OIDC types, `client_id` selects workload identity federation for that service principal; without it the exchange is account-wide token federation. Setting `group_id` makes the Databricks OAuth types (`oauth-m2m`, the OIDC types, `oauth-m2m-gcp`) assume that group's role; the others refuse to authenticate rather than give normal access. OAuth tokens are cached and refreshed in the background once they enter their refresh window, `min(TTL/2, 20 min)` before expiry, as in Go.
+
+Go's `basic` and `metadata-service` are deliberately not ported (`auth::UNSUPPORTED_AUTH_TYPES`); asking for them gives a clear error.
 
 ## Errors
 

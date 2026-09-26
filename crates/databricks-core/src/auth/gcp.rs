@@ -1,47 +1,249 @@
-//! `oauth-m2m-gcp`: Databricks OAuth M2M plus a Google Cloud access token.
+//! Google Cloud auth: `oauth-m2m-gcp`, `google-credentials` and
+//! `google-id`.
 //!
-//! Go: `GcpM2mCredentials` (databricks-sdk-go#1815). The identity is a
-//! Databricks service principal (the `Authorization` header). A Google
-//! access token with the `cloud-platform` scope goes in
-//! `X-Databricks-GCP-SA-Access-Token`, so Databricks can provision GCP
-//! resources for the caller. This is how GCP account-level provisioning
-//! APIs are called when SSO is enabled.
+//! Google tokens come from Google's `google-cloud-auth` crate: service
+//! account keys, `gcloud` user credentials, impersonation, external
+//! accounts (workload identity federation from files, URLs, executables or
+//! AWS) and the metadata server. This module only adds the Databricks
+//! parts (Go: `auth_gcp_*.go`):
 //!
-//! The Google token comes from `google_credentials` (a service-account
-//! key or authorized-user JSON, as a path or inline) or, failing that,
-//! from impersonating `google_service_account` with Application Default
-//! Credentials.
+//! * `Authorization: Bearer <Google ID token>` with the workspace host as
+//!   the audience (`google-credentials`, `google-id`), or a Databricks M2M
+//!   token (`oauth-m2m-gcp`, databricks-sdk-go#1815);
+//! * a Google access token with the `cloud-platform` scope in
+//!   `X-Databricks-GCP-SA-Access-Token`, which Databricks uses to call
+//!   Google Cloud APIs for the caller.
+//!
+//! For service-account keys `google-cloud-auth` mints self-signed JWT
+//! access tokens (AIP-4111) where Go exchanges them at Google's token
+//! endpoint. Both are accepted by Google Cloud APIs, which is all
+//! Databricks does with the token.
 
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
 
-use aws_lc_rs::rand::SystemRandom;
-use aws_lc_rs::signature::{RSA_PKCS1_SHA256, RsaKeyPair};
-use base64::Engine as _;
-use base64::engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD};
 use futures_util::future::BoxFuture;
+use google_cloud_auth::credentials::idtoken::{self, IDTokenCredentials};
+use google_cloud_auth::credentials::{
+    AccessTokenCredentials, Builder as AdcBuilder, Credentials, external_account, impersonated,
+    service_account, user_account,
+};
 use reqwest::header::HeaderName;
 use secrecy::{ExposeSecret, SecretString};
-use serde::Deserialize;
-use serde_json::json;
+use serde_json::Value;
 
-use super::common::{
-    TokenHeaders, instant_from_unix, parse_oauth_token, parse_timestamp, send_token_request,
-};
+use super::common::{Secondary, TokenHeaders};
 use super::m2m::ClientCredentials;
 use super::token::{CachedTokenSource, Token, TokenSource};
-use super::{CredentialsProvider, CredentialsStrategy};
+use super::{CredentialsProvider, CredentialsStrategy, reject_group_role};
 use crate::config::Config;
 use crate::error::{Error, Result};
 
-const NAME: &str = "oauth-m2m-gcp";
 const GCP_SA_ACCESS_TOKEN: &str = "x-databricks-gcp-sa-access-token";
-const SCOPES: &[&str] = &[
+const SCOPES: [&str; 2] = [
     "https://www.googleapis.com/auth/cloud-platform",
     "https://www.googleapis.com/auth/compute",
 ];
-const GOOGLE_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
-const IAM_CREDENTIALS: &str = "https://iamcredentials.googleapis.com";
+
+fn auth(name: &str, message: impl Into<String>) -> Error {
+    Error::Auth {
+        auth_type: name.into(),
+        message: message.into(),
+    }
+}
+
+fn google_err(name: &str, e: impl std::fmt::Display) -> Error {
+    auth(name, e.to_string())
+}
+
+/// A path to a JSON file, or the JSON itself (Go: `readCredentials`).
+fn read_credentials(name: &str, value: &str) -> Result<Value> {
+    let text = std::fs::read_to_string(value).unwrap_or_else(|_| value.to_owned());
+    serde_json::from_str(&text).map_err(|e| {
+        auth(
+            name,
+            format!("could not read GoogleCredentials. Make sure the file exists, or the JSON content is valid: {e}"),
+        )
+    })
+}
+
+fn kind(json: &Value) -> &str {
+    json.get("type").and_then(Value::as_str).unwrap_or_default()
+}
+
+/// Access tokens (cloud-platform + compute scopes) from a credentials file.
+fn access_from_json(name: &str, json: Value) -> Result<AccessTokenCredentials> {
+    let built = match kind(&json) {
+        "service_account" => service_account::Builder::new(json)
+            .with_access_specifier(service_account::AccessSpecifier::from_scopes(SCOPES))
+            .build_access_token_credentials(),
+        "authorized_user" => user_account::Builder::new(json)
+            .with_scopes(SCOPES)
+            .build_access_token_credentials(),
+        "external_account" => external_account::Builder::new(json)
+            .with_scopes(SCOPES)
+            .build_access_token_credentials(),
+        "impersonated_service_account" => impersonated::Builder::new(json)
+            .with_scopes(SCOPES)
+            .build_access_token_credentials(),
+        other => {
+            return Err(auth(
+                name,
+                format!("unsupported Google credentials type {other:?}"),
+            ));
+        }
+    };
+    built.map_err(|e| {
+        google_err(
+            name,
+            format!("could not obtain OAuth2 token from JSON: {e}"),
+        )
+    })
+}
+
+/// Application Default Credentials (`GOOGLE_APPLICATION_CREDENTIALS`,
+/// gcloud's file, then the metadata server).
+fn adc(name: &str) -> Result<Credentials> {
+    AdcBuilder::default()
+        .with_scopes(SCOPES)
+        .build()
+        .map_err(|e| google_err(name, format!("{e}. {ADC_HINT}")))
+}
+
+/// Access tokens for `service_account`, impersonated from ADC.
+fn impersonated_access(name: &str, service_account: &str) -> Result<AccessTokenCredentials> {
+    impersonated::Builder::from_source_credentials(adc(name)?)
+        .with_target_principal(service_account)
+        .with_scopes(SCOPES)
+        .build_access_token_credentials()
+        .map_err(|e| {
+            google_err(
+                name,
+                format!("could not create GCP SA access token source: {e}"),
+            )
+        })
+}
+
+/// `…/serviceAccounts/{email}:generateAccessToken` → `email`.
+fn impersonated_email(url: &str) -> Option<&str> {
+    let (_, rest) = url.split_once("/serviceAccounts/")?;
+    rest.split_once(':')
+        .map(|(email, _)| email)
+        .filter(|e| !e.is_empty())
+}
+
+/// ID tokens for `audience` from a credentials file. Go's `idtoken`
+/// supports service accounts, impersonated service accounts and external
+/// accounts that impersonate a service account; user credentials have no
+/// ID token for an arbitrary audience.
+fn id_tokens_from_json(name: &str, audience: &str, mut json: Value) -> Result<IDTokenCredentials> {
+    let built = match kind(&json) {
+        "service_account" => idtoken::service_account::Builder::new(audience, json).build(),
+        "impersonated_service_account" => idtoken::impersonated::Builder::new(audience, json)
+            .with_include_email()
+            .build(),
+        "external_account" => {
+            let url = json
+                .get("service_account_impersonation_url")
+                .and_then(Value::as_str)
+                .map(str::to_owned);
+            let email = url.as_deref().and_then(impersonated_email).map(str::to_owned).ok_or_else(|| {
+                auth(
+                    name,
+                    "ID tokens from external_account credentials need service_account_impersonation_url",
+                )
+            })?;
+            // The federated identity itself asks IAM for the SA's ID token.
+            if let Some(o) = json.as_object_mut() {
+                o.remove("service_account_impersonation_url");
+            }
+            let source = external_account::Builder::new(json)
+                .with_scopes(SCOPES)
+                .build()
+                .map_err(|e| google_err(name, e))?;
+            idtoken::impersonated::Builder::from_source_credentials(audience, email, source)
+                .with_include_email()
+                .build()
+        }
+        other => {
+            return Err(auth(
+                name,
+                format!("Google credentials of type {other:?} cannot mint ID tokens"),
+            ));
+        }
+    };
+    built.map_err(|e| google_err(name, format!("could not obtain OIDC token from JSON: {e}")))
+}
+
+/// Google access tokens (cached and refreshed by google-cloud-auth).
+struct GoogleAccess {
+    name: &'static str,
+    creds: AccessTokenCredentials,
+}
+
+impl TokenSource for GoogleAccess {
+    fn token(&self) -> BoxFuture<'_, Result<Token>> {
+        Box::pin(async move {
+            let t = self
+                .creds
+                .access_token()
+                .await
+                .map_err(|e| google_err(self.name, e))?;
+            Ok(Token {
+                access_token: SecretString::from(t.token),
+                token_type: "Bearer".into(),
+                expiry: None,
+            })
+        })
+    }
+}
+
+/// Google ID tokens (cached and refreshed by google-cloud-auth).
+struct GoogleId {
+    name: &'static str,
+    creds: IDTokenCredentials,
+}
+
+impl TokenSource for GoogleId {
+    fn token(&self) -> BoxFuture<'_, Result<Token>> {
+        Box::pin(async move {
+            let t = self
+                .creds
+                .id_token()
+                .await
+                .map_err(|e| google_err(self.name, e))?;
+            Ok(Token {
+                access_token: SecretString::from(t),
+                token_type: "Bearer".into(),
+                expiry: None,
+            })
+        })
+    }
+}
+
+fn gcp_header(source: impl TokenSource + 'static, optional: bool) -> Secondary {
+    Secondary {
+        header: HeaderName::from_static(GCP_SA_ACCESS_TOKEN),
+        source: Arc::new(source),
+        optional,
+    }
+}
+
+fn provider(
+    primary: impl TokenSource + 'static,
+    secondary: Option<Secondary>,
+) -> Arc<dyn CredentialsProvider> {
+    Arc::new(TokenHeaders {
+        primary: Arc::new(primary),
+        secondary,
+        fixed: Vec::new(),
+    })
+}
+
+const ADC_HINT: &str = "Running 'gcloud auth application-default login' may help";
+
+// ------------------------------------------------------------ oauth-m2m-gcp
+
+const M2M_GCP: &str = "oauth-m2m-gcp";
 
 /// Databricks M2M identity plus Google access-token passthrough. Select it
 /// with `auth_type = "oauth-m2m-gcp"`: it combines the `oauth` and
@@ -49,16 +251,9 @@ const IAM_CREDENTIALS: &str = "https://iamcredentials.googleapis.com";
 #[derive(Debug, Clone, Copy, Default)]
 pub struct GcpM2mCredentials;
 
-fn auth(message: impl Into<String>) -> Error {
-    Error::Auth {
-        auth_type: NAME.into(),
-        message: message.into(),
-    }
-}
-
 impl CredentialsStrategy for GcpM2mCredentials {
     fn name(&self) -> &'static str {
-        NAME
+        M2M_GCP
     }
 
     fn configure<'a>(
@@ -67,535 +262,424 @@ impl CredentialsStrategy for GcpM2mCredentials {
         http: &'a reqwest::Client,
     ) -> BoxFuture<'a, Result<Option<Arc<dyn CredentialsProvider>>>> {
         Box::pin(async move {
+            let creds = cfg.attr("google_credentials");
+            let sa = cfg.attr("google_service_account");
+            let has_secret = cfg
+                .client_secret
+                .as_ref()
+                .is_some_and(|s| !s.expose_secret().is_empty());
             if !cfg.is_gcp()
-                || (cfg.attr("google_credentials").is_none()
-                    && cfg.attr("google_service_account").is_none())
-            {
-                return Ok(None);
-            }
-            if cfg.client_id.as_deref().is_none_or(str::is_empty)
-                || cfg
-                    .client_secret
-                    .as_ref()
-                    .is_none_or(|s| s.expose_secret().is_empty())
+                || (creds.is_none() && sa.is_none())
+                || cfg.client_id.as_deref().is_none_or(str::is_empty)
+                || !has_secret
             {
                 return Ok(None);
             }
             // Local checks first, so bad Google credentials fail before any
-            // network call.
-            let google = google_access_tokens(cfg, http)?;
-            let Some(primary) = ClientCredentials::from_config(cfg, http, NAME).await? else {
+            // network call. The Google header is required: this mode exists
+            // to send it.
+            let google = match creds {
+                Some(c) => access_from_json(M2M_GCP, read_credentials(M2M_GCP, &c)?)?,
+                None => impersonated_access(M2M_GCP, &sa.unwrap_or_default())?,
+            };
+            let primary = ClientCredentials::from_config(cfg, http, M2M_GCP).await?;
+            let primary = primary.map(|p| CachedTokenSource::new(p, false));
+            tracing::info!("using Databricks OAuth (M2M) with GCP SA access token passthrough");
+            let google = GoogleAccess {
+                name: M2M_GCP,
+                creds: google,
+            };
+            Ok(primary.map(|p| provider(p, Some(gcp_header(google, false)))))
+        })
+    }
+}
+
+// ------------------------------------------------------- google-credentials
+
+const CREDENTIALS: &str = "google-credentials";
+
+/// A Google credentials file (`google_credentials`, a path or inline
+/// JSON): an ID token for the workspace plus an access token.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct GoogleCredentials;
+
+impl CredentialsStrategy for GoogleCredentials {
+    fn name(&self) -> &'static str {
+        CREDENTIALS
+    }
+
+    fn configure<'a>(
+        &'a self,
+        cfg: &'a Config,
+        _http: &'a reqwest::Client,
+    ) -> BoxFuture<'a, Result<Option<Arc<dyn CredentialsProvider>>>> {
+        Box::pin(async move {
+            reject_group_role(cfg, CREDENTIALS)?;
+            let Some(value) = cfg.attr("google_credentials").filter(|_| cfg.is_gcp()) else {
                 return Ok(None);
             };
-            tracing::info!(
-                "using Databricks OAuth (M2M) with GCP service account access token passthrough"
-            );
-            // Google tokens are fetched on demand, as Go does (no
-            // background refresh). The Google header is required: this mode
-            // exists to send it.
-            Ok(Some(Arc::new(TokenHeaders {
-                primary: CachedTokenSource::new(primary, false),
-                secondary: Some((
-                    HeaderName::from_static(GCP_SA_ACCESS_TOKEN),
-                    CachedTokenSource::new(BoxedSource(google), false),
-                )),
-                fixed: Vec::new(),
-            }) as Arc<dyn CredentialsProvider>))
-        })
-    }
-}
-
-struct BoxedSource(Box<dyn TokenSource>);
-
-impl TokenSource for BoxedSource {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
-        self.0.token()
-    }
-}
-
-/// Go: `googleAccessTokenSource`. Prefers `google_credentials`.
-fn google_access_tokens(cfg: &Config, http: &reqwest::Client) -> Result<Box<dyn TokenSource>> {
-    if let Some(creds) = cfg.attr("google_credentials") {
-        let json = read_credentials(&creds);
-        return from_json(&json, http).map_err(|e| {
-            auth(format!(
-                "could not read GoogleCredentials. Make sure the file exists, or the JSON content is valid: {e}"
-            ))
-        });
-    }
-    let target = cfg.attr("google_service_account").ok_or_else(|| {
-        auth("oauth-m2m-gcp requires google_credentials or google_service_account to be set")
-    })?;
-    let base = application_default(cfg, http)
-        .map_err(|e| auth(format!("could not create GCP SA access token source: {e}")))?;
-    Ok(Box::new(Impersonated {
-        http: http.clone(),
-        base,
-        target,
-        endpoint: IAM_CREDENTIALS.to_owned(),
-    }))
-}
-
-/// A path to a JSON file, or the JSON itself (Go: `readCredentials`).
-fn read_credentials(value: &str) -> String {
-    std::fs::read_to_string(value).unwrap_or_else(|_| value.to_owned())
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-enum CredentialsFile {
-    ServiceAccount {
-        client_email: String,
-        private_key: String,
-        #[serde(default)]
-        private_key_id: String,
-        #[serde(default)]
-        token_uri: Option<String>,
-    },
-    AuthorizedUser {
-        client_id: String,
-        client_secret: String,
-        refresh_token: String,
-        #[serde(default)]
-        token_uri: Option<String>,
-    },
-}
-
-fn from_json(json: &str, http: &reqwest::Client) -> Result<Box<dyn TokenSource>> {
-    let kind = serde_json::from_str::<serde_json::Value>(json)
-        .ok()
-        .and_then(|v| v.get("type").and_then(|t| t.as_str()).map(str::to_owned))
-        .unwrap_or_default();
-    let file: CredentialsFile = serde_json::from_str(json).map_err(|e| {
-        if matches!(kind.as_str(), "service_account" | "authorized_user") {
-            Error::json("Google credentials", e)
-        } else {
-            Error::Config(format!(
-                "Google credentials of type {kind:?} are not supported; use a service_account or authorized_user file"
-            ))
-        }
-    })?;
-    Ok(match file {
-        CredentialsFile::ServiceAccount {
-            client_email,
-            private_key,
-            private_key_id,
-            token_uri,
-        } => Box::new(ServiceAccountKey {
-            http: http.clone(),
-            email: client_email,
-            key: parse_pem_key(&private_key)?,
-            key_id: private_key_id,
-            token_uri: token_uri.unwrap_or_else(|| GOOGLE_TOKEN_URL.to_owned()),
-        }),
-        CredentialsFile::AuthorizedUser {
-            client_id,
-            client_secret,
-            refresh_token,
-            token_uri,
-        } => Box::new(AuthorizedUser {
-            http: http.clone(),
-            client_id,
-            client_secret: SecretString::from(client_secret),
-            refresh_token: SecretString::from(refresh_token),
-            token_uri: token_uri.unwrap_or_else(|| GOOGLE_TOKEN_URL.to_owned()),
-        }),
-    })
-}
-
-fn parse_pem_key(pem: &str) -> Result<RsaKeyPair> {
-    let b64: String = pem
-        .lines()
-        .map(str::trim)
-        .filter(|l| !l.starts_with("-----"))
-        .collect();
-    let der = STANDARD
-        .decode(b64)
-        .map_err(|e| Error::Config(format!("private_key is not valid PEM: {e}")))?;
-    RsaKeyPair::from_pkcs8(&der)
-        .map_err(|e| Error::Config(format!("private_key is not a PKCS#8 RSA key: {e}")))
-}
-
-fn now_unix() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX))
-}
-
-/// A service-account key: a self-signed JWT exchanged for an access token
-/// (RFC 7523).
-struct ServiceAccountKey {
-    http: reqwest::Client,
-    email: String,
-    key: RsaKeyPair,
-    key_id: String,
-    token_uri: String,
-}
-
-impl ServiceAccountKey {
-    fn assertion(&self) -> Result<String> {
-        let iat = now_unix();
-        let header = json!({"alg": "RS256", "typ": "JWT", "kid": self.key_id});
-        let claims = json!({
-            "iss": self.email,
-            "scope": SCOPES.join(" "),
-            "aud": self.token_uri,
-            "iat": iat,
-            "exp": iat + 3600,
-        });
-        let signing_input = format!(
-            "{}.{}",
-            URL_SAFE_NO_PAD.encode(header.to_string()),
-            URL_SAFE_NO_PAD.encode(claims.to_string())
-        );
-        let mut sig = vec![0; self.key.public_modulus_len()];
-        self.key
-            .sign(
-                &RSA_PKCS1_SHA256,
-                &SystemRandom::new(),
-                signing_input.as_bytes(),
-                &mut sig,
-            )
-            .map_err(|_| Error::Config("failed to sign the service-account JWT".into()))?;
-        Ok(format!("{signing_input}.{}", URL_SAFE_NO_PAD.encode(sig)))
-    }
-}
-
-impl TokenSource for ServiceAccountKey {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
-        Box::pin(async move {
-            let assertion = self.assertion()?;
-            let body = send_token_request(&self.token_uri, || {
-                self.http.post(&self.token_uri).form(&[
-                    ("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"),
-                    ("assertion", assertion.as_str()),
-                ])
-            })
-            .await?;
-            parse_oauth_token(&body)
-        })
-    }
-}
-
-/// `gcloud auth application-default login` credentials: a refresh token.
-struct AuthorizedUser {
-    http: reqwest::Client,
-    client_id: String,
-    client_secret: SecretString,
-    refresh_token: SecretString,
-    token_uri: String,
-}
-
-impl TokenSource for AuthorizedUser {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
-        Box::pin(async move {
-            let body = send_token_request(&self.token_uri, || {
-                self.http.post(&self.token_uri).form(&[
-                    ("grant_type", "refresh_token"),
-                    ("client_id", self.client_id.as_str()),
-                    ("client_secret", self.client_secret.expose_secret()),
-                    ("refresh_token", self.refresh_token.expose_secret()),
-                ])
-            })
-            .await?;
-            parse_oauth_token(&body)
-        })
-    }
-}
-
-/// The GCE / GKE metadata server's default service account.
-struct Metadata {
-    http: reqwest::Client,
-    url: String,
-}
-
-/// Off GCE the metadata host doesn't resolve; fail fast rather than
-/// retrying for a minute (Go checks `metadata.OnGCE()` first).
-const METADATA_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(3);
-
-impl TokenSource for Metadata {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
-        Box::pin(async move {
-            let not_gce = |e: &dyn std::fmt::Display| {
-                auth(format!(
-                    "no Google credentials: GOOGLE_APPLICATION_CREDENTIALS and the gcloud default credentials file are missing, and the GCE metadata server did not answer ({e})"
-                ))
+            let host = cfg.host.clone().unwrap_or_default();
+            let json = read_credentials(CREDENTIALS, &value)?;
+            let id = id_tokens_from_json(CREDENTIALS, &host, json.clone())?;
+            let access = access_from_json(CREDENTIALS, json)?;
+            tracing::info!("using Google credentials");
+            let id = GoogleId {
+                name: CREDENTIALS,
+                creds: id,
             };
-            let probe = self
-                .http
-                .get(&self.url)
-                .header("metadata-flavor", "Google")
-                .timeout(METADATA_TIMEOUT)
-                .send()
-                .await;
-            if let Err(e) = probe
-                && (e.is_connect() || e.is_timeout())
-            {
-                return Err(not_gce(&e));
-            }
-            let body = send_token_request(&self.url, || {
-                self.http
-                    .get(&self.url)
-                    .header("metadata-flavor", "Google")
-                    .timeout(METADATA_TIMEOUT)
-            })
-            .await?;
-            parse_oauth_token(&body)
+            let access = GoogleAccess {
+                name: CREDENTIALS,
+                creds: access,
+            };
+            Ok(Some(provider(id, Some(gcp_header(access, true)))))
         })
     }
 }
 
-/// Application Default Credentials: `GOOGLE_APPLICATION_CREDENTIALS`, then
-/// gcloud's well-known file, then the metadata server.
-fn application_default(cfg: &Config, http: &reqwest::Client) -> Result<Box<dyn TokenSource>> {
-    if let Some(path) = cfg.getenv("GOOGLE_APPLICATION_CREDENTIALS") {
-        let json = std::fs::read_to_string(&path)
-            .map_err(|e| Error::Config(format!("read {path:?}: {e}")))?;
-        return from_json(&json, http);
+// ---------------------------------------------------------------- google-id
+
+const GOOGLE_ID: &str = "google-id";
+
+/// Impersonate `google_service_account` with Application Default
+/// Credentials: its ID token for the workspace, plus its access token.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct GoogleIdCredentials;
+
+impl CredentialsStrategy for GoogleIdCredentials {
+    fn name(&self) -> &'static str {
+        GOOGLE_ID
     }
-    let dir = cfg.getenv("CLOUDSDK_CONFIG").or_else(|| {
-        if cfg!(windows) {
-            cfg.getenv("APPDATA").map(|a| format!("{a}\\gcloud"))
-        } else {
-            cfg.getenv("HOME").map(|h| format!("{h}/.config/gcloud"))
-        }
-    });
-    if let Some(json) = dir
-        .map(|d| std::path::Path::new(&d).join("application_default_credentials.json"))
-        .and_then(|p| std::fs::read_to_string(p).ok())
-    {
-        return from_json(&json, http);
-    }
-    let host = cfg
-        .getenv("GCE_METADATA_HOST")
-        .unwrap_or_else(|| "metadata.google.internal".to_owned());
-    let mut url = reqwest::Url::parse(&format!(
-        "http://{host}/computeMetadata/v1/instance/service-accounts/default/token"
-    ))
-    .map_err(|e| Error::Config(format!("invalid GCE_METADATA_HOST: {e}")))?;
-    url.query_pairs_mut()
-        .append_pair("scopes", &SCOPES.join(","));
-    Ok(Box::new(Metadata {
-        http: http.clone(),
-        url: url.into(),
-    }))
-}
 
-/// IAM Credentials `generateAccessToken` for `target`, authenticated as
-/// the ADC identity.
-struct Impersonated {
-    http: reqwest::Client,
-    base: Box<dyn TokenSource>,
-    target: String,
-    endpoint: String,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct GeneratedToken {
-    access_token: String,
-    expire_time: String,
-}
-
-impl TokenSource for Impersonated {
-    fn token(&self) -> BoxFuture<'_, Result<Token>> {
+    fn configure<'a>(
+        &'a self,
+        cfg: &'a Config,
+        _http: &'a reqwest::Client,
+    ) -> BoxFuture<'a, Result<Option<Arc<dyn CredentialsProvider>>>> {
         Box::pin(async move {
-            let base = self.base.token().await?;
-            let url = format!(
-                "{}/v1/projects/-/serviceAccounts/{}:generateAccessToken",
-                self.endpoint,
-                url::form_urlencoded::byte_serialize(self.target.as_bytes()).collect::<String>()
-            );
-            let body = send_token_request(&url, || {
-                self.http
-                    .post(&url)
-                    .bearer_auth(base.secret())
-                    .json(&json!({"scope": SCOPES, "lifetime": "3600s"}))
-            })
-            .await?;
-            let t: GeneratedToken =
-                serde_json::from_slice(&body).map_err(|e| Error::json("generateAccessToken", e))?;
-            let expiry = parse_timestamp(&t.expire_time)
-                .ok_or_else(|| auth(format!("cannot parse expireTime {:?}", t.expire_time)))?;
-            Ok(Token {
-                access_token: SecretString::from(t.access_token),
-                token_type: "Bearer".into(),
-                expiry: Some(instant_from_unix(expiry)),
-            })
+            reject_group_role(cfg, GOOGLE_ID)?;
+            let Some(sa) = cfg.attr("google_service_account").filter(|_| cfg.is_gcp()) else {
+                return Ok(None);
+            };
+            let host = cfg.host.clone().unwrap_or_default();
+            let id = idtoken::impersonated::Builder::from_source_credentials(
+                &host,
+                &sa,
+                adc(GOOGLE_ID)?,
+            )
+            .with_include_email()
+            .build()
+            .map_err(|e| {
+                google_err(
+                    GOOGLE_ID,
+                    format!("could not obtain OIDC token. {e} {ADC_HINT}"),
+                )
+            })?;
+            // Go continues without the access-token header if it can't be
+            // set up.
+            let secondary = impersonated_access(GOOGLE_ID, &sa)
+                .inspect_err(|e| tracing::warn!("{e}; proceeding without SA token"))
+                .ok()
+                .map(|creds| {
+                    gcp_header(
+                        GoogleAccess {
+                            name: GOOGLE_ID,
+                            creds,
+                        },
+                        true,
+                    )
+                });
+            tracing::info!("using Google Default Application Credentials");
+            Ok(Some(provider(
+                GoogleId {
+                    name: GOOGLE_ID,
+                    creds: id,
+                },
+                secondary,
+            )))
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use aws_lc_rs::encoding::AsDer;
+    use aws_lc_rs::encoding::{AsDer, Pkcs8V1Der};
     use aws_lc_rs::rsa::{KeyPair, KeySize};
     use aws_lc_rs::signature::{KeyPair as _, RSA_PKCS1_2048_8192_SHA256, UnparsedPublicKey};
-    use wiremock::matchers::{body_json, body_string_contains, header, method, path, query_param};
+    use base64::Engine as _;
+    use base64::engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD};
+    use serde_json::json;
+    use wiremock::matchers::{body_string_contains, header, method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use super::*;
 
-    /// A throwaway key generated per test run (no key material in git).
-    fn test_key() -> (String, KeyPair) {
+    /// A service-account key generated per run (no key material in git).
+    fn service_account_key() -> (Value, KeyPair) {
         let kp = KeyPair::generate(KeySize::Rsa2048).unwrap();
-        let der = AsDer::<aws_lc_rs::encoding::Pkcs8V1Der>::as_der(&kp).unwrap();
-        let b64 = STANDARD.encode(der.as_ref());
-        let pem = format!("-----BEGIN PRIVATE KEY-----\n{b64}\n-----END PRIVATE KEY-----\n");
-        (pem, kp)
+        let der = AsDer::<Pkcs8V1Der>::as_der(&kp).unwrap();
+        let pem = format!(
+            "-----BEGIN PRIVATE KEY-----\n{}\n-----END PRIVATE KEY-----\n",
+            STANDARD.encode(der.as_ref())
+        );
+        let key = json!({
+            "type": "service_account",
+            "client_email": "sa@p.iam.gserviceaccount.com",
+            "private_key_id": "kid-1",
+            "private_key": pem,
+            "project_id": "p",
+        });
+        (key, kp)
     }
 
     #[tokio::test]
-    async fn service_account_key_signs_a_verifiable_jwt() {
-        let server = MockServer::start().await;
-        Mock::given(method("POST"))
-            .and(path("/token"))
-            .and(body_string_contains(
-                "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer",
-            ))
-            .respond_with(
-                ResponseTemplate::new(200)
-                    .set_body_json(json!({"access_token": "ya29", "expires_in": 3599})),
-            )
-            .expect(1)
-            .mount(&server)
-            .await;
-        let (pem, kp) = test_key();
-        let json = json!({
-            "type": "service_account",
-            "client_email": "sa@p.iam.gserviceaccount.com",
-            "private_key": pem,
-            "private_key_id": "kid-1",
-            "token_uri": format!("{}/token", server.uri()),
-        })
-        .to_string();
-        let t = from_json(&json, &reqwest::Client::new())
-            .unwrap()
-            .token()
-            .await
-            .unwrap();
-        assert_eq!(t.secret(), "ya29");
-
-        let req = &server.received_requests().await.unwrap()[0];
-        let form: std::collections::HashMap<String, String> =
-            url::form_urlencoded::parse(&req.body)
-                .into_owned()
-                .collect();
-        let jwt = &form["assertion"];
+    async fn service_account_access_tokens_are_signed_scoped_jwts() {
+        let (key, kp) = service_account_key();
+        let creds = access_from_json("t", key).unwrap();
+        let jwt = GoogleAccess { name: "t", creds }.token().await.unwrap();
+        let jwt = jwt.secret();
         let (input, sig) = jwt.rsplit_once('.').unwrap();
         UnparsedPublicKey::new(&RSA_PKCS1_2048_8192_SHA256, kp.public_key().as_ref())
             .verify(input.as_bytes(), &URL_SAFE_NO_PAD.decode(sig).unwrap())
             .unwrap();
-        let claims: serde_json::Value = serde_json::from_slice(
+        let claims: Value = serde_json::from_slice(
             &URL_SAFE_NO_PAD
                 .decode(input.split('.').nth(1).unwrap())
                 .unwrap(),
         )
         .unwrap();
         assert_eq!(claims["iss"], "sa@p.iam.gserviceaccount.com");
-        assert_eq!(claims["aud"], format!("{}/token", server.uri()));
         assert!(claims["scope"].as_str().unwrap().contains("cloud-platform"));
+
+        // The same key yields an ID-token source for the workspace.
+        let (key, _) = service_account_key();
+        assert!(id_tokens_from_json("t", "https://x.gcp.databricks.com", key).is_ok());
     }
 
-    #[tokio::test]
-    async fn authorized_user_refreshes_and_impersonation_uses_it() {
-        let server = MockServer::start().await;
-        Mock::given(method("POST"))
-            .and(path("/token"))
-            .and(body_string_contains("grant_type=refresh_token"))
-            .and(body_string_contains("refresh_token=rt"))
-            .respond_with(
-                ResponseTemplate::new(200)
-                    .set_body_json(json!({"access_token": "user", "expires_in": 3599})),
-            )
-            .mount(&server)
-            .await;
-        Mock::given(method("POST"))
-            .and(path("/v1/projects/-/serviceAccounts/target%40p.iam.gserviceaccount.com:generateAccessToken"))
-            .and(header("authorization", "Bearer user"))
-            .and(body_json(json!({"scope": SCOPES, "lifetime": "3600s"})))
-            .respond_with(ResponseTemplate::new(200).set_body_json(
-                json!({"accessToken": "impersonated", "expireTime": "2099-01-01T00:00:00Z"}),
-            ))
-            .expect(1)
-            .mount(&server)
-            .await;
-        let json = json!({
-            "type": "authorized_user", "client_id": "c", "client_secret": "s",
-            "refresh_token": "rt", "token_uri": format!("{}/token", server.uri()),
+    fn external_account(token_url: &str, source: &Value) -> Value {
+        json!({
+            "type": "external_account",
+            "audience": "//iam.googleapis.com/projects/1/locations/global/workloadIdentityPools/p/providers/pr",
+            "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+            "token_url": token_url,
+            "credential_source": source,
         })
-        .to_string();
-        let http = reqwest::Client::new();
-        let imp = Impersonated {
-            http: http.clone(),
-            base: from_json(&json, &http).unwrap(),
-            target: "target@p.iam.gserviceaccount.com".into(),
-            endpoint: server.uri(),
-        };
-        assert_eq!(imp.token().await.unwrap().secret(), "impersonated");
+    }
+
+    async fn mount_sts(server: &MockServer, subject: &str) {
+        Mock::given(method("POST"))
+            .and(path("/sts"))
+            .and(body_string_contains(subject))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+                "access_token": "federated",
+                "issued_token_type": "urn:ietf:params:oauth:token-type:access_token",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+            })))
+            .expect(1)
+            .mount(server)
+            .await;
     }
 
     #[tokio::test]
-    async fn metadata_server_is_the_last_resort() {
+    async fn external_account_from_a_file() {
+        let server = MockServer::start().await;
+        mount_sts(&server, "file-jwt").await;
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("oidc");
+        std::fs::write(&file, "file-jwt").unwrap();
+        let json = external_account(
+            &format!("{}/sts", server.uri()),
+            &json!({"file": file.to_string_lossy()}),
+        );
+        let creds = access_from_json("t", json).unwrap();
+        let t = GoogleAccess { name: "t", creds }.token().await.unwrap();
+        assert_eq!(t.secret(), "federated");
+    }
+
+    #[tokio::test]
+    async fn external_account_from_a_url_with_json_format() {
         let server = MockServer::start().await;
         Mock::given(method("GET"))
-            .and(path(
-                "/computeMetadata/v1/instance/service-accounts/default/token",
-            ))
-            .and(header("metadata-flavor", "Google"))
-            .and(query_param("scopes", SCOPES.join(",")))
-            .respond_with(
-                ResponseTemplate::new(200)
-                    .set_body_json(json!({"access_token": "gce", "expires_in": 100})),
-            )
+            .and(path("/subject"))
+            .and(header("x-flavor", "test"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!({"jwt": "url-jwt"})))
             .mount(&server)
             .await;
-        let host = server.uri().trim_start_matches("http://").to_owned();
-        let cfg = Config::default()
-            .resolve_with(
-                move |k| (k == "GCE_METADATA_HOST").then(|| host.clone()),
-                None,
-            )
-            .await
-            .unwrap();
-        let t = application_default(&cfg, &reqwest::Client::new())
-            .unwrap()
-            .token()
-            .await
-            .unwrap();
-        assert_eq!(t.secret(), "gce");
+        mount_sts(&server, "url-jwt").await;
+        let json = external_account(
+            &format!("{}/sts", server.uri()),
+            &json!({
+                "url": format!("{}/subject", server.uri()),
+                "headers": {"x-flavor": "test"},
+                "format": {"type": "json", "subject_token_field_name": "jwt"},
+            }),
+        );
+        let creds = access_from_json("t", json).unwrap();
+        let t = GoogleAccess { name: "t", creds }.token().await.unwrap();
+        assert_eq!(t.secret(), "federated");
     }
 
     #[tokio::test]
-    async fn metadata_server_absent_fails_fast() {
-        // A port nothing listens on: connection refused, no retries.
-        let m = Metadata {
-            http: reqwest::Client::new(),
-            url: "http://127.0.0.1:9/token".into(),
-        };
-        let started = std::time::Instant::now();
-        let e = m.token().await.unwrap_err();
+    async fn id_token_sources_by_credential_type() {
+        let aud = "https://x.gcp.databricks.com";
+        let ext = external_account(
+            "https://sts.googleapis.com/v1/token",
+            &json!({"file": "/f"}),
+        );
+        let e = id_tokens_from_json("t", aud, ext.clone()).err().unwrap();
         assert!(
-            e.to_string().contains("GCE metadata server did not answer"),
+            e.to_string().contains("service_account_impersonation_url"),
             "{e}"
         );
-        assert!(started.elapsed() < std::time::Duration::from_secs(10));
+        let mut with_sa = ext;
+        with_sa["service_account_impersonation_url"] = json!(
+            "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/sa@p.iam.gserviceaccount.com:generateAccessToken"
+        );
+        assert!(id_tokens_from_json("t", aud, with_sa).is_ok());
+        let e = id_tokens_from_json("t", aud, json!({"type": "authorized_user"}))
+            .err()
+            .unwrap();
+        assert!(e.to_string().contains("cannot mint ID tokens"), "{e}");
+        assert_eq!(
+            impersonated_email(
+                "https://x/v1/projects/-/serviceAccounts/a@b.com:generateAccessToken"
+            ),
+            Some("a@b.com")
+        );
+        assert_eq!(impersonated_email("https://x/serviceAccounts/:x"), None);
+        assert_eq!(impersonated_email("nothing"), None);
     }
 
     #[test]
-    fn credentials_errors() {
+    fn credentials_are_read_from_a_path_or_inline() {
+        let dir = tempfile::tempdir().unwrap();
+        let f = dir.path().join("creds.json");
+        std::fs::write(&f, r#"{"type":"authorized_user"}"#).unwrap();
+        assert_eq!(
+            kind(&read_credentials("t", &f.to_string_lossy()).unwrap()),
+            "authorized_user"
+        );
+        assert_eq!(
+            kind(&read_credentials("t", r#"{"type":"x"}"#).unwrap()),
+            "x"
+        );
+        assert!(read_credentials("t", "{").is_err());
+        let e = access_from_json("t", json!({"type": "service_account"}))
+            .err()
+            .unwrap();
+        assert!(
+            e.to_string().contains("could not obtain OAuth2 token"),
+            "{e}"
+        );
+    }
+
+    async fn gcp_config(host: &str, attrs: &[(&str, &str)]) -> Config {
+        let mut c = Config::with_host(host);
+        c.host_metadata = Some(crate::config::HostMetadata::default());
+        c.cloud = Some("GCP".into());
+        for (k, v) in attrs {
+            c.set_attribute(k, *v).unwrap();
+        }
+        c.resolve_with(|_| None, None).await.unwrap()
+    }
+
+    #[tokio::test]
+    async fn google_credentials_and_google_id_build_providers() {
         let http = reqwest::Client::new();
-        let err = |j: &str| from_json(j, &http).err().unwrap().to_string();
-        assert!(err(r#"{"type":"external_account"}"#).contains("not supported"));
-        assert!(err(r#"{"type":"service_account"}"#).contains("Google credentials"));
+        let (key, _) = service_account_key();
+        let cfg = gcp_config(
+            "https://x.gcp.databricks.com",
+            &[("google_credentials", &key.to_string())],
+        )
+        .await;
+        let p = GoogleCredentials.configure(&cfg, &http).await.unwrap();
+        assert!(format!("{p:?}").contains(GCP_SA_ACCESS_TOKEN));
+
+        // Not GCP, or nothing to use: not configured.
+        let mut other = cfg.clone();
+        other.cloud = Some("AWS".into());
         assert!(
-            err(r#"{"type":"service_account","client_email":"e","private_key":"!!"}"#)
-                .contains("not valid PEM")
+            GoogleCredentials
+                .configure(&other, &http)
+                .await
+                .unwrap()
+                .is_none()
         );
         assert!(
-            err(r#"{"type":"service_account","client_email":"e","private_key":"AAAA"}"#)
-                .contains("PKCS#8")
+            GoogleIdCredentials
+                .configure(&other, &http)
+                .await
+                .unwrap()
+                .is_none()
         );
-        assert_eq!(read_credentials("{\"inline\":1}"), "{\"inline\":1}");
+
+        // google-id impersonates through ADC (here the metadata server,
+        // which is only contacted when a token is needed).
+        let cfg = gcp_config(
+            "https://x.gcp.databricks.com",
+            &[("google_service_account", "sa@p.iam.gserviceaccount.com")],
+        )
+        .await;
+        let p = GoogleIdCredentials.configure(&cfg, &http).await.unwrap();
+        assert!(p.is_some());
+    }
+
+    #[tokio::test]
+    async fn oauth_m2m_gcp_can_impersonate_a_service_account() {
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/oidc/.well-known/oauth-authorization-server"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+                "token_endpoint": format!("{}/oidc/v1/token", server.uri()),
+            })))
+            .mount(&server)
+            .await;
+        let mut c = Config::with_host(server.uri()).client_credentials("sp", "secret");
+        c.host_metadata = Some(crate::config::HostMetadata::default());
+        c.cloud = Some("GCP".into());
+        c.auth_type = Some(M2M_GCP.into());
+        c.set_attribute("google_service_account", "sa@p.iam.gserviceaccount.com")
+            .unwrap();
+        let cfg = c.resolve_with(|_| None, None).await.unwrap();
+        let p = GcpM2mCredentials
+            .configure(&cfg, &reqwest::Client::new())
+            .await
+            .unwrap();
+        assert!(p.is_some());
+        // Without a client secret it isn't this auth type.
+        let mut no_secret = cfg.clone();
+        no_secret.client_secret = None;
+        assert!(
+            GcpM2mCredentials
+                .configure(&no_secret, &reqwest::Client::new())
+                .await
+                .unwrap()
+                .is_none()
+        );
+    }
+
+    #[tokio::test]
+    async fn id_tokens_come_from_google_cloud_auth() {
+        let server = MockServer::start().await;
+        let claims = URL_SAFE_NO_PAD
+            .encode(json!({"aud": "https://x", "exp": 4_102_444_800_i64}).to_string());
+        let jwt = format!(
+            "{}.{claims}.sig",
+            URL_SAFE_NO_PAD.encode(r#"{"alg":"RS256"}"#)
+        );
+        Mock::given(method("GET"))
+            .and(path(
+                "/computeMetadata/v1/instance/service-accounts/default/identity",
+            ))
+            .and(header("metadata-flavor", "Google"))
+            .respond_with(ResponseTemplate::new(200).set_body_string(jwt.clone()))
+            .mount(&server)
+            .await;
+        let creds = idtoken::mds::Builder::new("https://x")
+            .with_endpoint(server.uri())
+            .build()
+            .unwrap();
+        let t = GoogleId { name: "t", creds }.token().await.unwrap();
+        assert_eq!(t.secret(), jwt);
     }
 }

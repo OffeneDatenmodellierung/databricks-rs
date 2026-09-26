@@ -16,10 +16,18 @@ categories = ["api-bindings", "asynchronous"]
 # 2026-09-25 (house rule). See docs/dependency-policy.md.
 [workspace.dependencies]
 databricks-core = { path = "crates/databricks-core", version = "0.1.0" }
-# Same features rustls enables, so aws-lc builds once.
+async-trait = "0.1.92"
+# Same features rustls enables, so aws-lc builds once (tests only).
 aws-lc-rs = { version = "1.18.1", default-features = false, features = ["aws-lc-sys", "prebuilt-nasm"] }
 base64 = "0.23.1"
 bytes = "1.12.1"
+# Microsoft's official Azure auth crate.
+azure_identity = "1.0.0"
+azure_core = "1.1.0"
+# Google's official auth crate. Its default features install the rustls/aws-lc
+# provider (the same stack reqwest uses here); without them it panics unless the
+# application installs one.
+google-cloud-auth = { version = "1.16.0", features = ["idtoken"] }
 fastrand = "2.5.0"
 futures-core = "0.3.34"
 futures-util = { version = "0.3.34", default-features = false, features = ["std"] }

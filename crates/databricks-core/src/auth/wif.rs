@@ -2,7 +2,8 @@
 //! environment for a Databricks token (RFC 8693).
 //!
 //! Go: `oidcStrategy` + `databricksOIDCTokenSource`. The ID token comes
-//! from GitHub Actions (`github-oidc`), an environment variable
+//! from GitHub Actions (`github-oidc`), Azure DevOps (`azure-devops-oidc`),
+//! an environment variable
 //! (`env-oidc`), a file (`file-oidc`), or, new in Rust, an in-memory
 //! [`IdTokenSource`] set on the config (`mem-oidc`, databricks-sdk-go#1790).
 
@@ -218,6 +219,14 @@ wif_strategy!(
 );
 
 wif_strategy!(
+    /// ID tokens from an Azure DevOps pipeline (`SYSTEM_ACCESSTOKEN` and
+    /// the `SYSTEM_*` job variables).
+    AzureDevOpsOidcCredentials,
+    "azure-devops-oidc",
+    |cfg, http| azure_devops_source(cfg, http)
+);
+
+wif_strategy!(
     /// An ID token from the variable named by `oidc_token_env`
     /// (default `DATABRICKS_OIDC_TOKEN`), read on every exchange.
     EnvOidcCredentials,
@@ -249,11 +258,91 @@ fn github_source(cfg: &Config, http: &reqwest::Client) -> Result<Option<Arc<dyn 
     let token = cfg
         .attr("actions_id_token_request_token")
         .ok_or_else(|| auth(name, "missing ActionsIDTokenRequestToken"))?;
-    Ok(Some(Arc::new(GithubIdTokens {
+    Ok(Some(Arc::new(GithubIdTokens::new(http, url, token))))
+}
+
+fn azure_devops_source(
+    cfg: &Config,
+    http: &reqwest::Client,
+) -> Result<Option<Arc<dyn IdTokenSource>>> {
+    let name = "azure-devops-oidc";
+    let access_token = cfg.getenv("SYSTEM_ACCESSTOKEN").ok_or_else(|| {
+        auth(
+            name,
+            "SYSTEM_ACCESSTOKEN env var not found, if calling from Azure DevOps Pipeline, please set this env var following https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#systemaccesstoken",
+        )
+    })?;
+    let var = |v: &str| {
+        cfg.getenv(v).ok_or_else(|| {
+            auth(
+                name,
+                format!("not calling from Azure DevOps Pipeline: missing env var {v}"),
+            )
+        })
+    };
+    let url = format!(
+        "{}/{}/_apis/distributedtask/hubs/{}/plans/{}/jobs/{}/oidctoken?api-version=7.2-preview.1",
+        var("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")?.trim_end_matches('/'),
+        var("SYSTEM_TEAMPROJECTID")?,
+        var("SYSTEM_HOSTTYPE")?,
+        var("SYSTEM_PLANID")?,
+        var("SYSTEM_JOBID")?,
+    );
+    Ok(Some(Arc::new(AzureDevOpsIdTokens {
         http: http.clone(),
         url,
-        token: SecretString::from(token),
+        token: SecretString::from(access_token),
     })))
+}
+
+/// The pipeline's OIDC token (Go: `azureDevOpsIDTokenSource`).
+/// `AzurePipelinesCredential` in `azure_identity` only returns Entra tokens,
+/// and the Databricks exchange needs the raw OIDC token.
+pub(crate) struct AzureDevOpsIdTokens {
+    http: reqwest::Client,
+    url: String,
+    token: SecretString,
+}
+
+impl fmt::Debug for AzureDevOpsIdTokens {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AzureDevOpsIdTokens")
+            .field("url", &self.url)
+            .finish_non_exhaustive()
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AzureDevOpsIdTokenResponse {
+    #[serde(default)]
+    oidc_token: String,
+}
+
+impl IdTokenSource for AzureDevOpsIdTokens {
+    fn id_token<'a>(&'a self, _audience: &'a str) -> BoxFuture<'a, Result<IdToken>> {
+        Box::pin(async move {
+            let name = "azure-devops-oidc";
+            let body = send_token_request(&self.url, || {
+                self.http
+                    .post(&self.url)
+                    .bearer_auth(self.token.expose_secret())
+            })
+            .await
+            .map_err(|e| {
+                auth(
+                    name,
+                    format!("failed to request ID token from Azure DevOps: {e}"),
+                )
+            })?;
+            let r: AzureDevOpsIdTokenResponse = serde_json::from_slice(&body)
+                .map_err(|e| Error::json("Azure DevOps ID token", e))?;
+            if r.oidc_token.is_empty() {
+                return Err(auth(name, "empty OIDC token received from Azure DevOps"));
+            }
+            Ok(IdToken::new(r.oidc_token))
+        })
+    }
 }
 
 fn env_source(cfg: &Config) -> Result<Option<Arc<dyn IdTokenSource>>> {
@@ -276,10 +365,20 @@ fn file_source(cfg: &Config) -> Result<Option<Arc<dyn IdTokenSource>>> {
     Ok(Some(Arc::new(FileIdTokens { path })))
 }
 
-struct GithubIdTokens {
+pub(crate) struct GithubIdTokens {
     http: reqwest::Client,
     url: String,
     token: SecretString,
+}
+
+impl GithubIdTokens {
+    pub(crate) fn new(http: &reqwest::Client, url: String, token: String) -> Self {
+        Self {
+            http: http.clone(),
+            url,
+            token: SecretString::from(token),
+        }
+    }
 }
 
 impl fmt::Debug for GithubIdTokens {
