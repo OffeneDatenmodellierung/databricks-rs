@@ -1255,7 +1255,13 @@ impl EnvironmentsApi {
     pub async fn create_workspace_base_environment(
         &self,
         request: CreateWorkspaceBaseEnvironmentRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            WorkspaceBaseEnvironment,
+            WorkspaceBaseEnvironmentOperationMetadata,
+        >,
+    > {
         let mut request = request;
         if request.request_id.as_deref().is_none_or(str::is_empty) {
             request.request_id = Some(::community_databricks_core::http::idempotency_token());
@@ -1268,7 +1274,23 @@ impl EnvironmentsApi {
             &request.workspace_base_environment_id,
         )?);
         call = call.json(&request.workspace_base_environment)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Deletes a WorkspaceBaseEnvironment. Deleting a base environment may impact
@@ -1414,14 +1436,36 @@ impl EnvironmentsApi {
     pub async fn refresh_workspace_base_environment(
         &self,
         request: RefreshWorkspaceBaseEnvironmentRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            WorkspaceBaseEnvironment,
+            WorkspaceBaseEnvironmentOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/environments/v1/{}/refresh",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Updates the default WorkspaceBaseEnvironment configuration for the workspace.
@@ -1449,13 +1493,65 @@ impl EnvironmentsApi {
     pub async fn update_workspace_base_environment(
         &self,
         request: UpdateWorkspaceBaseEnvironmentRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            WorkspaceBaseEnvironment,
+            WorkspaceBaseEnvironmentOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/environments/v1/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request.workspace_base_environment)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
+    }
+}
+
+impl ::community_databricks_core::lro::OperationState for Operation {
+    fn name(&self) -> &str {
+        self.name.as_deref().unwrap_or_default()
+    }
+
+    fn is_done(&self) -> bool {
+        self.done.unwrap_or(false)
+    }
+
+    fn failure(&self) -> Option<(String, String)> {
+        self.error.as_ref().map(|e| {
+            (
+                e.error_code
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_default(),
+                e.message.clone().unwrap_or_default(),
+            )
+        })
+    }
+
+    fn response(&self) -> Option<&::serde_json::Value> {
+        self.response.as_ref()
+    }
+
+    fn metadata(&self) -> Option<&::serde_json::Value> {
+        self.metadata.as_ref()
     }
 }

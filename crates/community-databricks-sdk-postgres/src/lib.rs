@@ -9196,7 +9196,9 @@ impl PostgresApi {
     pub async fn create_branch(
         &self,
         request: CreateBranchRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Branch, BranchOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/branches",
             path_param(&request.parent.to_string(), true)
@@ -9205,7 +9207,23 @@ impl PostgresApi {
         call = call.query(query::field("branch_id", &request.branch_id)?);
         call = call.query(query::field("replace_existing", &request.replace_existing)?);
         call = call.json(&request.branch)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateCatalog`.
@@ -9214,12 +9232,30 @@ impl PostgresApi {
     pub async fn create_catalog(
         &self,
         request: CreateCatalogRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Catalog, CatalogOperationMetadata>,
+    > {
         let path = String::from("/api/2.0/postgres/catalogs");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("catalog_id", &request.catalog_id)?);
         call = call.json(&request.catalog)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateCdfConfig`.
@@ -9228,7 +9264,13 @@ impl PostgresApi {
     pub async fn create_cdf_config(
         &self,
         request: CreateCdfConfigRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            CdfConfig,
+            CdfConfigOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/cdf-configs",
             path_param(&request.parent.to_string(), true)
@@ -9236,7 +9278,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("cdf_config_id", &request.cdf_config_id)?);
         call = call.json(&request.cdf_config)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateDataApi`.
@@ -9245,14 +9303,32 @@ impl PostgresApi {
     pub async fn create_data_api(
         &self,
         request: CreateDataApiRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, DataApi, DataApiOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/data-api",
             path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.data_api)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateDatabase`.
@@ -9261,7 +9337,13 @@ impl PostgresApi {
     pub async fn create_database(
         &self,
         request: CreateDatabaseRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            Database,
+            DatabaseOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/databases",
             path_param(&request.parent.to_string(), true)
@@ -9270,7 +9352,23 @@ impl PostgresApi {
         call = call.query(query::field("database_id", &request.database_id)?);
         call = call.query(query::field("replace_existing", &request.replace_existing)?);
         call = call.json(&request.database)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateEndpoint`.
@@ -9279,7 +9377,13 @@ impl PostgresApi {
     pub async fn create_endpoint(
         &self,
         request: CreateEndpointRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            Endpoint,
+            EndpointOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/endpoints",
             path_param(&request.parent.to_string(), true)
@@ -9288,7 +9392,23 @@ impl PostgresApi {
         call = call.query(query::field("endpoint_id", &request.endpoint_id)?);
         call = call.query(query::field("replace_existing", &request.replace_existing)?);
         call = call.json(&request.endpoint)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateProject`.
@@ -9297,12 +9417,30 @@ impl PostgresApi {
     pub async fn create_project(
         &self,
         request: CreateProjectRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Project, ProjectOperationMetadata>,
+    > {
         let path = String::from("/api/2.0/postgres/projects");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("project_id", &request.project_id)?);
         call = call.json(&request.project)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateRole`.
@@ -9311,7 +9449,9 @@ impl PostgresApi {
     pub async fn create_role(
         &self,
         request: CreateRoleRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Role, RoleOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/roles",
             path_param(&request.parent.to_string(), true)
@@ -9320,7 +9460,23 @@ impl PostgresApi {
         call = call.query(query::field("replace_existing", &request.replace_existing)?);
         call = call.query(query::field("role_id", &request.role_id)?);
         call = call.json(&request.role)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateSnapshot`.
@@ -9329,7 +9485,13 @@ impl PostgresApi {
     pub async fn create_snapshot(
         &self,
         request: CreateSnapshotRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            Snapshot,
+            SnapshotOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/snapshots",
             path_param(&request.parent.to_string(), true)
@@ -9337,7 +9499,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("snapshot_id", &request.snapshot_id)?);
         call = call.json(&request.snapshot)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `CreateSyncedTable`.
@@ -9346,12 +9524,34 @@ impl PostgresApi {
     pub async fn create_synced_table(
         &self,
         request: CreateSyncedTableRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            SyncedTable,
+            SyncedTableOperationMetadata,
+        >,
+    > {
         let path = String::from("/api/2.0/postgres/synced_tables");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("synced_table_id", &request.synced_table_id)?);
         call = call.json(&request.synced_table)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteBranch`.
@@ -9360,7 +9560,9 @@ impl PostgresApi {
     pub async fn delete_branch(
         &self,
         request: DeleteBranchRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), BranchOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -9368,7 +9570,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("purge", &request.purge)?);
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteCatalog`.
@@ -9377,14 +9595,32 @@ impl PostgresApi {
     pub async fn delete_catalog(
         &self,
         request: DeleteCatalogRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), CatalogOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteCdfConfig`.
@@ -9393,7 +9629,9 @@ impl PostgresApi {
     pub async fn delete_cdf_config(
         &self,
         request: DeleteCdfConfigRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), CdfConfigOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -9401,7 +9639,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("force", &request.force)?);
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteDataApi`.
@@ -9410,14 +9664,32 @@ impl PostgresApi {
     pub async fn delete_data_api(
         &self,
         request: DeleteDataApiRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), DataApiOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteDatabase`.
@@ -9426,14 +9698,32 @@ impl PostgresApi {
     pub async fn delete_database(
         &self,
         request: DeleteDatabaseRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), DatabaseOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteEndpoint`.
@@ -9442,14 +9732,32 @@ impl PostgresApi {
     pub async fn delete_endpoint(
         &self,
         request: DeleteEndpointRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), EndpointOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteProject`.
@@ -9458,7 +9766,9 @@ impl PostgresApi {
     pub async fn delete_project(
         &self,
         request: DeleteProjectRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), ProjectOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -9466,7 +9776,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::field("purge", &request.purge)?);
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteRole`.
@@ -9475,7 +9801,9 @@ impl PostgresApi {
     pub async fn delete_role(
         &self,
         request: DeleteRoleRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), RoleOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -9486,7 +9814,23 @@ impl PostgresApi {
             &request.reassign_owned_to,
         )?);
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteSnapshot`.
@@ -9495,14 +9839,32 @@ impl PostgresApi {
     pub async fn delete_snapshot(
         &self,
         request: DeleteSnapshotRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), SnapshotOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `DeleteSyncedTable`.
@@ -9511,14 +9873,32 @@ impl PostgresApi {
     pub async fn delete_synced_table(
         &self,
         request: DeleteSyncedTableRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), SyncedTableOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Generate OAuth credentials for a Postgres database.
@@ -10166,14 +10546,32 @@ impl PostgresApi {
     pub async fn undelete_branch(
         &self,
         request: UndeleteBranchRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), BranchOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/undelete",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UndeleteProject`.
@@ -10182,14 +10580,32 @@ impl PostgresApi {
     pub async fn undelete_project(
         &self,
         request: UndeleteProjectRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), ProjectOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}/undelete",
             path_param(&request.name.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateBranch`.
@@ -10198,7 +10614,9 @@ impl PostgresApi {
     pub async fn update_branch(
         &self,
         request: UpdateBranchRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Branch, BranchOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10206,7 +10624,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.branch)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateDataApi`.
@@ -10215,7 +10649,9 @@ impl PostgresApi {
     pub async fn update_data_api(
         &self,
         request: UpdateDataApiRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, DataApi, DataApiOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10223,7 +10659,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.data_api)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateDatabase`.
@@ -10232,7 +10684,13 @@ impl PostgresApi {
     pub async fn update_database(
         &self,
         request: UpdateDatabaseRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            Database,
+            DatabaseOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10240,7 +10698,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.database)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateEndpoint`.
@@ -10249,7 +10723,13 @@ impl PostgresApi {
     pub async fn update_endpoint(
         &self,
         request: UpdateEndpointRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            Endpoint,
+            EndpointOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10257,7 +10737,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.endpoint)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateProject`.
@@ -10266,7 +10762,9 @@ impl PostgresApi {
     pub async fn update_project(
         &self,
         request: UpdateProjectRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Project, ProjectOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10274,7 +10772,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.project)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateRole`.
@@ -10283,7 +10797,9 @@ impl PostgresApi {
     pub async fn update_role(
         &self,
         request: UpdateRoleRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Role, RoleOperationMetadata>,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10291,7 +10807,23 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.role)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// `UpdateSnapshotSchedule`.
@@ -10300,7 +10832,13 @@ impl PostgresApi {
     pub async fn update_snapshot_schedule(
         &self,
         request: UpdateSnapshotScheduleRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            SnapshotSchedule,
+            SnapshotScheduleOperationMetadata,
+        >,
+    > {
         let path = format!(
             "/api/2.0/postgres/{}",
             path_param(&request.name.to_string(), true)
@@ -10308,6 +10846,52 @@ impl PostgresApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.snapshot_schedule)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
+    }
+}
+
+impl ::community_databricks_core::lro::OperationState for Operation {
+    fn name(&self) -> &str {
+        self.name.as_deref().unwrap_or_default()
+    }
+
+    fn is_done(&self) -> bool {
+        self.done.unwrap_or(false)
+    }
+
+    fn failure(&self) -> Option<(String, String)> {
+        self.error.as_ref().map(|e| {
+            (
+                e.error_code
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_default(),
+                e.message.clone().unwrap_or_default(),
+            )
+        })
+    }
+
+    fn response(&self) -> Option<&::serde_json::Value> {
+        self.response.as_ref()
+    }
+
+    fn metadata(&self) -> Option<&::serde_json::Value> {
+        self.metadata.as_ref()
     }
 }

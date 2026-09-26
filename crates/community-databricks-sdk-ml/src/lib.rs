@@ -21225,7 +21225,13 @@ impl FeatureEngineeringApi {
     pub async fn backfill_features(
         &self,
         request: BackfillFeaturesRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            BackfillFeaturesResponse,
+            BackfillOperationMetadata,
+        >,
+    > {
         let mut request = request;
         if request.request_id.as_deref().is_none_or(str::is_empty) {
             request.request_id = Some(::community_databricks_core::http::idempotency_token());
@@ -21233,7 +21239,35 @@ impl FeatureEngineeringApi {
         let path = String::from("/api/2.0/feature-engineering/features:backfill");
         let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = {
+            let this = Clone::clone(self);
+            Some(::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.cancel_operation(CancelOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            }))
+        };
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Batch create materialized features.
@@ -21697,7 +21731,13 @@ impl FeatureEngineeringApi {
     pub async fn purge_feature_entities(
         &self,
         request: PurgeFeatureEntitiesRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<
+            Operation,
+            PurgeFeatureEntitiesResponse,
+            PurgeFeatureEntitiesMetadata,
+        >,
+    > {
         let mut request = request;
         if request.request_id.as_deref().is_none_or(str::is_empty) {
             request.request_id = Some(::community_databricks_core::http::idempotency_token());
@@ -21705,7 +21745,23 @@ impl FeatureEngineeringApi {
         let path = String::from("/api/2.0/feature-engineering/features:purgeFeatureEntities");
         let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Update a Feature.
@@ -23038,5 +23094,35 @@ impl ModelRegistryApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<UpdateWebhookResponse>(call).await
+    }
+}
+
+impl ::community_databricks_core::lro::OperationState for Operation {
+    fn name(&self) -> &str {
+        self.name.as_deref().unwrap_or_default()
+    }
+
+    fn is_done(&self) -> bool {
+        self.done.unwrap_or(false)
+    }
+
+    fn failure(&self) -> Option<(String, String)> {
+        self.error.as_ref().map(|e| {
+            (
+                e.error_code
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_default(),
+                e.message.clone().unwrap_or_default(),
+            )
+        })
+    }
+
+    fn response(&self) -> Option<&::serde_json::Value> {
+        self.response.as_ref()
+    }
+
+    fn metadata(&self) -> Option<&::serde_json::Value> {
+        self.metadata.as_ref()
     }
 }

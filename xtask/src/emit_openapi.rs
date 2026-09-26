@@ -9,6 +9,10 @@
 //! * `x-databricks-wait` — the long-running-operation waiter an operation
 //!   returns: `{waiter, poll, param, from_response, field, status_path,
 //!   message_path, targets, failures, timeout_minutes}`.
+//! * `x-databricks-long-running` — the operation returns an `Operation` to
+//!   poll: `{poll, cancel, result, metadata}` (`poll`/`cancel` name methods
+//!   of the same service, as in Go; `result`/`metadata` are the schemas
+//!   decoded from the operation's `response`/`metadata`).
 //! * `x-databricks-unsupported` — operations the Rust SDK does not generate
 //!   (none at present; binary bodies are generated as `Binary`).
 //! * `x-databricks-workspace-header` — send `X-Databricks-Workspace-Id`.
@@ -382,6 +386,20 @@ fn operation(
                     "timeout_minutes": wb.timeout_minutes,
                 }),
             );
+    }
+    if let Some(l) = &m.lro {
+        let mut x = serde_json::Map::new();
+        x.insert("poll".into(), json!(l.poll));
+        if !l.cancel.is_empty() {
+            x.insert("cancel".into(), json!(l.cancel));
+        }
+        if let Some(r) = &l.result {
+            x.insert("result".into(), type_schema(r, reach));
+        }
+        if let Some(md) = &l.metadata {
+            x.insert("metadata".into(), type_schema(md, reach));
+        }
+        op.insert("x-databricks-long-running".into(), Value::Object(x));
     }
     if !m.unsupported.is_empty() && !m.is_binary() {
         op.insert("x-databricks-unsupported".into(), json!(m.unsupported));

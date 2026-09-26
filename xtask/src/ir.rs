@@ -178,6 +178,9 @@ pub struct Method {
     pub pagination: Option<Pagination>,
     #[serde(default)]
     pub wait: Option<WaitBinding>,
+    /// Go's typed long-running-operation handle, when the call returns one.
+    #[serde(default)]
+    pub lro: Option<Lro>,
     /// Request fields the Go SDK fills in before the call.
     #[serde(default)]
     pub request_init: Option<Vec<FieldInit>>,
@@ -192,6 +195,19 @@ impl Method {
     pub fn is_binary(&self) -> bool {
         self.unsupported.starts_with("binary")
     }
+}
+
+/// A long-running operation (see `codegen/extract-go`): poll with the
+/// service method `poll` until done; decode `result` from `response`.
+#[derive(Debug, Deserialize)]
+pub struct Lro {
+    #[serde(default)]
+    pub result: Option<TypeRef>,
+    #[serde(default)]
+    pub metadata: Option<TypeRef>,
+    pub poll: String,
+    #[serde(default)]
+    pub cancel: String,
 }
 
 /// One request field set before a call (see `codegen/extract-go`).

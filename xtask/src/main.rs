@@ -120,6 +120,13 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
                 &mut unsupported,
             ));
         }
+        let services: Vec<&Service> = by_pkg
+            .get(pkg.as_str())
+            .into_iter()
+            .flatten()
+            .copied()
+            .collect();
+        out.push_str(&emit_service::emit_operation_states(&types, pkg, &services));
         files.insert(dir.join("src/lib.rs"), out);
         files.insert(
             dir.join("Cargo.toml"),

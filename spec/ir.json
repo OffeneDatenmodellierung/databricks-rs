@@ -1806,7 +1806,20 @@
      "body_field": "space",
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "apps",
+       "name": "Space"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "apps",
+       "name": "Space"
+      },
+      "poll": "GetSpaceOperation"
+     }
     },
     {
      "name": "CreateUpdate",
@@ -1913,7 +1926,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "apps",
+       "name": "Space"
+      },
+      "poll": "GetSpaceOperation"
+     }
     },
     {
      "name": "Deploy",
@@ -2456,7 +2477,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "apps",
+       "name": "Space"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "apps",
+       "name": "SpaceUpdate"
+      },
+      "poll": "GetSpaceOperation"
+     }
     }
    ],
    "waiters": [
@@ -8310,6 +8344,19 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironment"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironmentOperationMetadata"
+      },
+      "poll": "GetOperation"
+     },
      "request_init": [
       {
        "field": "request_id",
@@ -8477,7 +8524,20 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironment"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironmentOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateDefaultWorkspaceBaseEnvironment",
@@ -8539,7 +8599,20 @@
      "body_field": "workspace_base_environment",
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironment"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "environments",
+       "name": "WorkspaceBaseEnvironmentOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     }
    ]
   },
@@ -9876,6 +9949,20 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "ml",
+       "name": "BackfillFeaturesResponse"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "ml",
+       "name": "BackfillOperationMetadata"
+      },
+      "poll": "GetOperation",
+      "cancel": "CancelOperation"
+     },
      "request_init": [
       {
        "field": "request_id",
@@ -10387,6 +10474,19 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "ml",
+       "name": "PurgeFeatureEntitiesResponse"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "ml",
+       "name": "PurgeFeatureEntitiesMetadata"
+      },
+      "poll": "GetOperation"
+     },
      "request_init": [
       {
        "field": "request_id",
@@ -18034,7 +18134,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Branch"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "BranchOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateCatalog",
@@ -18063,7 +18176,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Catalog"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "CatalogOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateCdfConfig",
@@ -18099,7 +18225,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "CdfConfig"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "CdfConfigOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateDataApi",
@@ -18129,7 +18268,20 @@
      "body_field": "data_api",
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DataApi"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DataApiOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateDatabase",
@@ -18169,7 +18321,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Database"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DatabaseOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateEndpoint",
@@ -18209,7 +18374,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Endpoint"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "EndpointOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateProject",
@@ -18238,7 +18416,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Project"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "ProjectOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateRole",
@@ -18278,7 +18469,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Role"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "RoleOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateSnapshot",
@@ -18314,7 +18518,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Snapshot"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SnapshotOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "CreateSyncedTable",
@@ -18343,7 +18560,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SyncedTable"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SyncedTableOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteBranch",
@@ -18368,7 +18598,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "BranchOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteCatalog",
@@ -18393,7 +18631,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "CatalogOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteCdfConfig",
@@ -18418,7 +18664,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "CdfConfigOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteDataApi",
@@ -18443,7 +18697,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DataApiOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteDatabase",
@@ -18468,7 +18730,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DatabaseOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteEndpoint",
@@ -18493,7 +18763,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "EndpointOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteProject",
@@ -18518,7 +18796,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "ProjectOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteRole",
@@ -18543,7 +18829,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "RoleOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteSnapshot",
@@ -18568,7 +18862,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SnapshotOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "DeleteSyncedTable",
@@ -18593,7 +18895,15 @@
       "name": "Operation"
      },
      "accept": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SyncedTableOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "GenerateDatabaseCredential",
@@ -19296,7 +19606,15 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "BranchOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UndeleteProject",
@@ -19325,7 +19643,15 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "ProjectOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateBranch",
@@ -19359,7 +19685,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Branch"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "BranchOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateDataApi",
@@ -19393,7 +19732,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DataApi"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DataApiOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateDatabase",
@@ -19427,7 +19779,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Database"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "DatabaseOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateEndpoint",
@@ -19461,7 +19826,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Endpoint"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "EndpointOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateProject",
@@ -19495,7 +19873,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Project"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "ProjectOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateRole",
@@ -19529,7 +19920,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "Role"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "RoleOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     },
     {
      "name": "UpdateSnapshotSchedule",
@@ -19563,7 +19967,20 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "lro": {
+      "result": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SnapshotSchedule"
+      },
+      "metadata": {
+       "kind": "ref",
+       "pkg": "postgres",
+       "name": "SnapshotScheduleOperationMetadata"
+      },
+      "poll": "GetOperation"
+     }
     }
    ]
   },

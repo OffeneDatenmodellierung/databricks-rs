@@ -19,6 +19,7 @@ pub mod binary;
 pub mod config;
 pub mod error;
 pub mod http;
+pub mod lro;
 pub mod paging;
 pub mod query;
 pub mod serde_num;

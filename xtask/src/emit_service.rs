@@ -511,6 +511,11 @@ fn emit_method(
     };
     let mut body = build_call(types, svc, m, true);
     let mut tail = send_expr(types, m, pkg);
+    if let Some(l) = &m.lro {
+        let (lro_ret, lro_tail) = lro_expr(types, svc, m, l, &tail);
+        ret = lro_ret;
+        tail = lro_tail;
+    }
     if let Some(wb) = &m.wait
         && let Some(w) = waiters.get(wb.waiter.as_str())
     {
@@ -535,6 +540,115 @@ fn emit_method(
         out,
         "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::community_databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
     );
+}
+
+/// Return type and body for a call that returns a long-running operation
+/// (Go's `XOperationInterface`): the handle polls `l.poll` by name.
+fn lro_expr(
+    types: &Types<'_>,
+    svc: &Service,
+    m: &Method,
+    l: &crate::ir::Lro,
+    send: &str,
+) -> (String, String) {
+    let pkg = &svc.package;
+    let op = resp_ty(m, pkg);
+    let result = l
+        .result
+        .as_ref()
+        .map_or_else(|| "()".to_owned(), |r| rust_type(r, pkg));
+    let meta = l
+        .metadata
+        .as_ref()
+        .map_or_else(|| "::serde_json::Value".to_owned(), |r| rust_type(r, pkg));
+    let by_name = |method: &str| -> String {
+        let target = svc
+            .methods
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .find(|x| x.name == method)
+            .unwrap_or_else(|| panic!("{}.{}: no method {method}", svc.name, m.name));
+        let req = target.request.as_ref().expect("operation request");
+        let f = find_field(types, req, "name").expect("operation request has `name`");
+        let value = if f.optional { "Some(name)" } else { "name" };
+        let call = format!(
+            "this.{}({} {{ {}: {value}, ..Default::default() }}).await",
+            names::method_ident(method),
+            rust_type(req, pkg),
+            f.ident
+        );
+        let call = if target.response.is_some() && !l.cancel.is_empty() && method == l.cancel {
+            format!("{call}.map(|_| ())")
+        } else {
+            call
+        };
+        format!(
+            "::std::sync::Arc::new(move |name: String| {{\n            let this = Clone::clone(&this);\n            Box::pin(async move {{ {call} }})\n        }})"
+        )
+    };
+    let cancel = if l.cancel.is_empty() {
+        "None".to_owned()
+    } else {
+        format!(
+            "{{\n            let this = Clone::clone(self);\n            Some({})\n        }}",
+            by_name(&l.cancel)
+        )
+    };
+    let ret = format!("::community_databricks_core::lro::LongRunning<{op}, {result}, {meta}>");
+    let tail = format!(
+        "let operation = {send}?;\n        let this = Clone::clone(self);\n        let poll: ::community_databricks_core::lro::PollFn<{op}> = {};\n        let cancel: Option<::community_databricks_core::lro::CancelFn> = {cancel};\n        Ok(::community_databricks_core::lro::LongRunning::new(operation, poll, cancel))",
+        by_name(&l.poll)
+    );
+    (ret, tail)
+}
+
+/// `impl OperationState` for each package type that long-running
+/// operations return (the package's `Operation` message).
+pub fn emit_operation_states(types: &Types<'_>, pkg: &str, services: &[&Service]) -> String {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut out = String::new();
+    for s in services {
+        for m in s.methods.as_deref().unwrap_or_default() {
+            let (Some(_), Some(r)) = (&m.lro, &m.response) else {
+                continue;
+            };
+            if !seen.insert(r.name.clone()) {
+                continue;
+            }
+            for (wire, want) in [
+                ("name", "String"),
+                ("done", "bool"),
+                ("response", "::serde_json::Value"),
+                ("metadata", "::serde_json::Value"),
+            ] {
+                let f = find_field(types, r, wire)
+                    .unwrap_or_else(|| panic!("{pkg}.{}: no `{wire}`", r.name));
+                assert!(
+                    f.optional && f.inner == want,
+                    "{pkg}.{}.{wire}: unexpected shape",
+                    r.name
+                );
+            }
+            let err = find_field(types, r, "error").expect("operation `error`");
+            let err_ty = crate::ir::TypeRef {
+                kind: "ref".into(),
+                pkg: pkg.to_owned(),
+                name: err.inner.clone(),
+                elem: None,
+            };
+            assert!(
+                find_field(types, &err_ty, "error_code").is_some()
+                    && find_field(types, &err_ty, "message").is_some()
+            );
+            let _ = write!(
+                out,
+                "impl ::community_databricks_core::lro::OperationState for {name} {{\n    fn name(&self) -> &str {{\n        self.name.as_deref().unwrap_or_default()\n    }}\n\n    fn is_done(&self) -> bool {{\n        self.done.unwrap_or(false)\n    }}\n\n    fn failure(&self) -> Option<(String, String)> {{\n        self.error.as_ref().map(|e| {{\n            (\n                e.error_code.as_ref().map(ToString::to_string).unwrap_or_default(),\n                e.message.clone().unwrap_or_default(),\n            )\n        }})\n    }}\n\n    fn response(&self) -> Option<&::serde_json::Value> {{\n        self.response.as_ref()\n    }}\n\n    fn metadata(&self) -> Option<&::serde_json::Value> {{\n        self.metadata.as_ref()\n    }}\n}}\n\n",
+                name = r.name
+            );
+        }
+    }
+    out
 }
 
 /// Expression for the waiter parameter from the request or response.
