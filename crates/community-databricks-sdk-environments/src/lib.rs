@@ -1256,8 +1256,12 @@ impl EnvironmentsApi {
         &self,
         request: CreateWorkspaceBaseEnvironmentRequest,
     ) -> ::community_databricks_core::Result<Operation> {
+        let mut request = request;
+        if request.request_id.as_deref().is_none_or(str::is_empty) {
+            request.request_id = Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/environments/v1/workspace-base-environments");
-        let mut call = Call::new(Method::POST, path).workspace();
+        let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.query(query::field("request_id", &request.request_id)?);
         call = call.query(query::field(
             "workspace_base_environment_id",

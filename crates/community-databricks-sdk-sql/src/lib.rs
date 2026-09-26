@@ -15881,6 +15881,8 @@ impl DashboardsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListDashboardsRequest) -> Paged<'static, Dashboard> {
+        let mut request = request;
+        request.page = Some(1);
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -16401,6 +16403,8 @@ impl QueriesLegacyApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListQueriesLegacyRequest) -> Paged<'static, LegacyQuery> {
+        let mut request = request;
+        request.page = Some(1);
         let this = Clone::clone(self);
         paging::paginate(
             request,

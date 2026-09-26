@@ -133,8 +133,26 @@ pub struct Method {
     pub pagination: Option<Pagination>,
     #[serde(default)]
     pub wait: Option<WaitBinding>,
+    /// Request fields the Go SDK fills in before the call.
+    #[serde(default)]
+    pub request_init: Option<Vec<FieldInit>>,
     #[serde(default)]
     pub unsupported: String,
+}
+
+/// One request field set before a call (see `codegen/extract-go`).
+#[derive(Debug, Deserialize)]
+pub struct FieldInit {
+    /// Wire name.
+    pub field: String,
+    /// `always`, or `unset` (only when the caller left it empty).
+    pub when: String,
+    /// Go literal (an integer for every current use).
+    #[serde(default)]
+    pub value: String,
+    /// Fill with a random UUID v4.
+    #[serde(default)]
+    pub uuid: bool,
 }
 
 #[derive(Debug, Deserialize)]

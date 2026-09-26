@@ -7770,6 +7770,11 @@ impl GroupsV2Api {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListGroupsRequest) -> Paged<'static, Group> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -8082,6 +8087,11 @@ impl ServicePrincipalsV2Api {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListServicePrincipalsRequest) -> Paged<'static, ServicePrincipal> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -8294,6 +8304,11 @@ impl UsersV2Api {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListUsersRequest) -> Paged<'static, User> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -8582,6 +8597,11 @@ impl AccountGroupsV2Api {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListAccountGroupsRequest) -> Paged<'static, AccountGroup> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -8764,6 +8784,11 @@ impl AccountServicePrincipalsV2Api {
         &self,
         request: ListAccountServicePrincipalsRequest,
     ) -> Paged<'static, AccountServicePrincipal> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -8960,6 +8985,11 @@ impl AccountUsersV2Api {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListAccountUsersRequest) -> Paged<'static, AccountUser> {
+        let mut request = request;
+        request.start_index = Some(1);
+        if request.count.is_none() {
+            request.count = Some(10000);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,

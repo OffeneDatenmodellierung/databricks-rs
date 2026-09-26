@@ -3358,7 +3358,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -5275,7 +5282,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -6277,7 +6291,14 @@
       "resp_field": "page",
       "req_field": "page",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "page",
+       "when": "always",
+       "value": "1"
+      }
+     ]
     },
     {
      "name": "Restore",
@@ -7170,7 +7191,14 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "request_init": [
+      {
+       "field": "request_id",
+       "when": "unset",
+       "uuid": true
+      }
+     ]
     },
     {
      "name": "GetDatabaseCatalog",
@@ -8281,7 +8309,14 @@
      ],
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "request_init": [
+      {
+       "field": "request_id",
+       "when": "unset",
+       "uuid": true
+      }
+     ]
     },
     {
      "name": "DeleteWorkspaceBaseEnvironment",
@@ -9632,7 +9667,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -9833,7 +9875,14 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "request_init": [
+      {
+       "field": "request_id",
+       "when": "unset",
+       "uuid": true
+      }
+     ]
     },
     {
      "name": "BatchCreateMaterializedFeatures",
@@ -10337,7 +10386,14 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": true
+     "workspace_header": true,
+     "request_init": [
+      {
+       "field": "request_id",
+       "when": "unset",
+       "uuid": true
+      }
+     ]
     },
     {
      "name": "UpdateFeature",
@@ -11068,7 +11124,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -12720,7 +12783,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",
@@ -15441,7 +15516,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Summary",
@@ -20492,7 +20574,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "ListProviderShareAssets",
@@ -20562,7 +20651,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -21300,7 +21396,14 @@
       "resp_field": "page",
       "req_field": "page",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "page",
+       "when": "always",
+       "value": "1"
+      }
+     ]
     },
     {
      "name": "Restore",
@@ -21831,7 +21934,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "RotateToken",
@@ -22894,7 +23004,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -23521,7 +23638,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",
@@ -25427,7 +25556,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "SharePermissions",
@@ -25731,7 +25867,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -26446,7 +26589,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     }
    ]
   },
@@ -26636,7 +26786,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "ListSummaries",
@@ -27399,7 +27556,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",
@@ -29153,7 +29322,14 @@
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
-     }
+     },
+     "request_init": [
+      {
+       "field": "max_results",
+       "when": "unset",
+       "value": "0"
+      }
+     ]
     },
     {
      "name": "Update",
@@ -30787,7 +30963,14 @@
      },
      "accept": "application/json",
      "content_type": "application/json",
-     "workspace_header": false
+     "workspace_header": false,
+     "request_init": [
+      {
+       "field": "request_id",
+       "when": "unset",
+       "uuid": true
+      }
+     ]
     },
     {
      "name": "Delete",
@@ -32276,7 +32459,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",
@@ -35746,7 +35941,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",
@@ -37119,7 +37326,19 @@
       "resp_field": "startIndex",
       "req_field": "startIndex",
       "stop_on_empty": true
-     }
+     },
+     "request_init": [
+      {
+       "field": "startIndex",
+       "when": "always",
+       "value": "1"
+      },
+      {
+       "field": "count",
+       "when": "unset",
+       "value": "10000"
+      }
+     ]
     },
     {
      "name": "Patch",

@@ -135,33 +135,98 @@ fn idempotency_field(types: &Types<'_>, m: &Method) -> Option<crate::model::Fiel
             // real value (e.g. disasterrecovery's target region) must never
             // be overwritten with a random key.
             info.kind == "string"
-                && matches!(info.json.as_str(), "idempotency_token" | "request_id")
+                && matches!(f.name.as_str(), "idempotency_token" | "request_id")
                 && f.doc.to_ascii_lowercase().contains("idempot")
         })
         .map(|(_, info)| info)
 }
 
-/// Statements building `call` for one operation.
+/// Statements that fill request fields before a call (Go's `request.X = …`
+/// preambles: SCIM `startIndex`/`count`, page 1, UC `max_results` sent as 0,
+/// generated request IDs), plus our own idempotency key (#3). Returns the
+/// code and whether the call may be retried as idempotent.
 #[allow(clippy::many_single_char_names)]
-fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
+fn request_init(types: &Types<'_>, m: &Method) -> (String, bool) {
     let mut s = String::new();
-    // An idempotency key makes a POST safe to retry (#3): fill one in when
-    // the caller didn't, and mark the call idempotent.
-    let token = idempotency_field(types, m);
-    if let Some(f) = &token {
-        let fill = if f.optional {
-            format!(
-                "        if request.{0}.as_deref().is_none_or(str::is_empty) {{\n            request.{0} = Some(::community_databricks_core::http::idempotency_token());\n        }}\n",
+    let mut idempotent = false;
+    let Some(r) = &m.request else {
+        return (s, false);
+    };
+    let fill_uuid = |s: &mut String, f: &FieldInfo| {
+        if f.optional {
+            let _ = writeln!(
+                s,
+                "        if request.{0}.as_deref().is_none_or(str::is_empty) {{\n            request.{0} = Some(::community_databricks_core::http::idempotency_token());\n        }}",
                 f.ident
-            )
+            );
         } else {
-            format!(
-                "        if request.{0}.is_empty() {{\n            request.{0} = ::community_databricks_core::http::idempotency_token();\n        }}\n",
+            let _ = writeln!(
+                s,
+                "        if request.{0}.is_empty() {{\n            request.{0} = ::community_databricks_core::http::idempotency_token();\n        }}",
                 f.ident
-            )
-        };
-        s.push_str("        let mut request = request;\n");
-        s.push_str(&fill);
+            );
+        }
+    };
+    let key = idempotency_field(types, m);
+    for init in m.request_init.as_deref().unwrap_or_default() {
+        let f = find_field(types, r, &init.field).expect("request_init field exists");
+        if init.uuid {
+            fill_uuid(&mut s, &f);
+            continue;
+        }
+        let v = &init.value;
+        match (init.when.as_str(), f.optional) {
+            ("always", true) => {
+                let _ = writeln!(s, "        request.{} = Some({v});", f.ident);
+            }
+            ("always", false) => {
+                let _ = writeln!(s, "        request.{} = {v};", f.ident);
+            }
+            (_, true) => {
+                let _ = writeln!(
+                    s,
+                    "        if request.{0}.is_none() {{\n            request.{0} = Some({v});\n        }}",
+                    f.ident
+                );
+            }
+            (_, false) => {
+                // A required field is always sent, so only a zero default
+                // needs filling.
+                let _ = writeln!(
+                    s,
+                    "        if request.{0} == 0 {{\n            request.{0} = {v};\n        }}",
+                    f.ident
+                );
+            }
+        }
+    }
+    if let Some(f) = &key {
+        let covered = m
+            .request_init
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .any(|i| i.uuid && find_field(types, r, &i.field).is_some_and(|x| x.ident == f.ident));
+        if !covered {
+            fill_uuid(&mut s, f);
+        }
+        idempotent = true;
+    }
+    if !s.is_empty() {
+        s.insert_str(0, "        let mut request = request;\n");
+    }
+    (s, idempotent)
+}
+
+/// Statements building `call` for one operation. `init` adds the
+/// [`request_init`] preamble (not for a single page of a paged list, whose
+/// stream applies it once up front).
+#[allow(clippy::many_single_char_names)]
+fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> String {
+    let (preamble, idempotent) = request_init(types, m);
+    let mut s = String::new();
+    if init {
+        s.push_str(&preamble);
     }
     // Path.
     let mut fmt = String::new();
@@ -200,7 +265,7 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
     if m.workspace_header {
         s.push_str(".workspace()");
     }
-    if token.is_some() {
+    if idempotent {
         s.push_str(".idempotent()");
     }
     s.push_str(";\n");
@@ -317,7 +382,7 @@ fn emit_method(
             .collect::<String>()
     );
     let req_param = req_ty(m, pkg).map_or_else(String::new, |t| format!(", request: {t}"));
-    let body_uses_request = build_call(types, svc, m).contains("request");
+    let body_uses_request = build_call(types, svc, m, m.pagination.is_none()).contains("request");
     let req_unused = if m.request.is_some()
         && !body_uses_request
         && m.wait.as_ref().is_none_or(|w| w.from_response)
@@ -336,11 +401,12 @@ fn emit_method(
         let _ = write!(
             out,
             "    /// One page of [`{fname}`](Self::{fname}).\n{path_doc}    pub async fn {page_fn}(&self{req_param}) -> ::community_databricks_core::Result<{resp_t}> {{\n{req_unused}{}        {}\n    }}\n\n",
-            build_call(types, svc, m),
+            build_call(types, svc, m, false),
             send_expr(types, m, pkg)
         );
         // Stream.
         let step = pagination_step(types, m);
+        let init = request_init(types, m).0;
         let (req_in, req_param_all, fetch) = if m.request.is_some() {
             (
                 "request",
@@ -360,7 +426,7 @@ fn emit_method(
         };
         let _ = write!(
             out,
-            "{doc}{path_doc}    ///\n    /// Returns a lazily paginated stream.\n    #[must_use]\n    pub fn {fname}(&self{req_param_all}) -> Paged<'static, {item}> {{\n        let this = Clone::clone(self);\n        paging::paginate(\n            {req_in},\n            {fetch},\n            {step},\n        )\n    }}\n\n"
+            "{doc}{path_doc}    ///\n    /// Returns a lazily paginated stream.\n    #[must_use]\n    pub fn {fname}(&self{req_param_all}) -> Paged<'static, {item}> {{\n{init}        let this = Clone::clone(self);\n        paging::paginate(\n            {req_in},\n            {fetch},\n            {step},\n        )\n    }}\n\n"
         );
         let req_in_all = req_param_all;
         // list_all
@@ -381,7 +447,7 @@ fn emit_method(
     } else {
         "()".to_owned()
     };
-    let mut body = build_call(types, svc, m);
+    let mut body = build_call(types, svc, m, true);
     let mut tail = send_expr(types, m, pkg);
     if let Some(wb) = &m.wait
         && let Some(w) = waiters.get(wb.waiter.as_str())

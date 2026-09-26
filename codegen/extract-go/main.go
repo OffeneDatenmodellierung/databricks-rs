@@ -121,7 +121,21 @@ type Method struct {
 	WorkspaceHeader bool          `json:"workspace_header"`
 	Pagination      *Pagination   `json:"pagination,omitempty"`
 	Wait            *WaitBinding  `json:"wait,omitempty"`
-	Unsupported     string        `json:"unsupported,omitempty"`
+	// Fields the Go method sets on the request before sending it.
+	RequestInit []*FieldInit `json:"request_init,omitempty"`
+	Unsupported string       `json:"unsupported,omitempty"`
+}
+
+// FieldInit is one request field the Go SDK fills in before a call:
+//   - request.StartIndex = 1                       -> always, value 1
+//   - if request.Count == 0 { request.Count = N }  -> unset, value N
+//   - ForceSendFields append "MaxResults"          -> unset, value 0 (sent even when zero)
+//   - if request.RequestId == "" { ...uuid... }    -> unset, uuid
+type FieldInit struct {
+	Field string `json:"field"`           // wire name
+	When  string `json:"when"`            // always | unset
+	Value string `json:"value,omitempty"` // Go literal
+	UUID  bool   `json:"uuid,omitempty"`
 }
 
 type Pagination struct {
@@ -629,6 +643,64 @@ func lastLit(parts []*PathPart) string {
 	return parts[len(parts)-1].Lit
 }
 
+// parseRequestInit reads the top-level statements of a public method that
+// set request fields before the call (see FieldInit).
+func (p *pkgInfo) parseRequestInit(fd *ast.FuncDecl, reqType string) []*FieldInit {
+	var out []*FieldInit
+	wire := func(e ast.Expr) (string, bool) { return p.requestWire(reqType, exprString(e)) }
+	for _, st := range fd.Body.List {
+		switch s := st.(type) {
+		case *ast.AssignStmt:
+			if len(s.Lhs) != 1 || len(s.Rhs) != 1 {
+				continue
+			}
+			lhs := exprString(s.Lhs[0])
+			if lhs == "request.ForceSendFields" {
+				call, ok := s.Rhs[0].(*ast.CallExpr)
+				if !ok || exprString(call.Fun) != "append" {
+					continue
+				}
+				for _, a := range call.Args[1:] {
+					if lit, ok := a.(*ast.BasicLit); ok {
+						goName := strings.Trim(lit.Value, `"`)
+						if w, ok := p.goToWire[reqType][goName]; ok {
+							out = append(out, &FieldInit{Field: w, When: "unset", Value: "0"})
+						}
+					}
+				}
+				continue
+			}
+			if lit, ok := s.Rhs[0].(*ast.BasicLit); ok {
+				if w, ok := wire(s.Lhs[0]); ok {
+					out = append(out, &FieldInit{Field: w, When: "always", Value: lit.Value})
+				}
+			}
+		case *ast.IfStmt:
+			be, ok := s.Cond.(*ast.BinaryExpr)
+			if !ok || be.Op != token.EQL || len(s.Body.List) != 1 {
+				continue
+			}
+			w, ok := wire(be.X)
+			if !ok {
+				continue
+			}
+			as, ok := s.Body.List[0].(*ast.AssignStmt)
+			if !ok || len(as.Rhs) != 1 || exprString(as.Lhs[0]) != exprString(be.X) {
+				continue
+			}
+			switch r := as.Rhs[0].(type) {
+			case *ast.BasicLit:
+				out = append(out, &FieldInit{Field: w, When: "unset", Value: r.Value})
+			case *ast.CallExpr:
+				if strings.HasPrefix(exprString(r.Fun), "uuid.New()") {
+					out = append(out, &FieldInit{Field: w, When: "unset", UUID: true})
+				}
+			}
+		}
+	}
+	return out
+}
+
 // Pagination: public List(ctx, request) listing.Iterator[T] built from
 // internalX + getItems + getNextReq.
 func (p *pkgInfo) parsePagination(fd *ast.FuncDecl, respType string) (*Pagination, string) {
@@ -1110,6 +1182,9 @@ func main() {
 				m.Pagination = pg
 			} else {
 				p.parseOp(m, fd, "")
+			}
+			if m.Request != nil {
+				m.RequestInit = p.parseRequestInit(fd, m.Request.Name)
 			}
 			if m.Verb == "" {
 				warnings = append(warnings, fmt.Sprintf("%s.%s: no Do call (%s)", base, name, m.Unsupported))

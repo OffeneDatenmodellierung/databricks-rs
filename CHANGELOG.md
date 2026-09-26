@@ -15,6 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Each crate has its own version and is released independently.
 
 ### Added
+- Idempotency-safe retries (#3): 5xx and timeouts are retried only for
+  idempotent calls; `Config::retry_non_idempotent` restores Go's behaviour.
+  Idempotency keys (`idempotency_token`, `request_id`) are generated when
+  empty and reused across retries.
+- Private-link validation errors and unfollowed redirects become typed API
+  errors (#4).
+- `AccountClient::get_workspace_client` and `ApiClient::for_workspace` (#5).
+- Hygiene (#6): `Config::attribute` masks secrets (`secret_attribute` for
+  the raw value); host-metadata lookups share one client and retry; a
+  warning is logged when TLS verification is off.
+- Unknown-fields catch-all `other` / `with_other` on every generated type
+  (#11, [ADR-0001](docs/adr/0001-generate-the-sdk-and-keep-unknown-fields.md)).
+- The generator carries Go's request preambles: SCIM lists start at
+  `startIndex=1` with `count=10000`, legacy SQL lists start at page 1,
+  Unity Catalog and Delta Sharing lists send `max_results=0` so the server
+  paginates, and Go's generated `request_id`s are filled in.
+- `tests/contracts.rs`: wiremock contract tests for the endpoints `dbk_tool`
+  uses (#7–#10, #12).
 - `security.yml`: `cargo deny` and `cargo audit` on every change and daily.
 - `publish-new-crates.yml` + `scripts/publish_new_crates.py`: the first
   publication of each crate, in dependency order, waiting out crates.io's

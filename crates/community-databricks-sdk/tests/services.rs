@@ -16,7 +16,7 @@ use community_databricks_sdk::service::provisioning::WorkspaceStatus;
 use community_databricks_sdk::{AccountClient, Config, Error, WorkspaceClient};
 use futures_util::TryStreamExt;
 use serde_json::json;
-use wiremock::matchers::{body_json, method, path, query_param, query_param_is_missing};
+use wiremock::matchers::{body_partial_json, method, path, query_param, query_param_is_missing};
 use wiremock::{Mock, MockServer, Request, ResponseTemplate};
 
 fn cfg(server: &MockServer) -> Config {
@@ -119,7 +119,8 @@ async fn run_now_then_wait_until_terminated() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))
         .and(path("/api/2.2/jobs/run-now"))
-        .and(body_json(json!({
+        // Plus a generated `idempotency_token` (see generated_patterns.rs).
+        .and(body_partial_json(json!({
             "job_id": 42,
             "job_parameters": {"env": "dev"},
             "queue": {"enabled": true}

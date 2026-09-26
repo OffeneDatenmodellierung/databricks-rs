@@ -3913,6 +3913,10 @@ impl DatabaseApi {
         &self,
         request: GenerateDatabaseCredentialRequest,
     ) -> ::community_databricks_core::Result<DatabaseCredential> {
+        let mut request = request;
+        if request.request_id.as_deref().is_none_or(str::is_empty) {
+            request.request_id = Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/2.0/database/credentials");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;

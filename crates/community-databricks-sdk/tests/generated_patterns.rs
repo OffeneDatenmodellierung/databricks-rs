@@ -37,7 +37,7 @@ use community_databricks_sdk::service::tags::{
 };
 use community_databricks_sdk::{AccountClient, Config, WorkspaceClient};
 use serde_json::{Value, json};
-use wiremock::matchers::{body_json, header, method, path, query_param, query_param_is_missing};
+use wiremock::matchers::{body_json, header, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 fn cfg(server: &MockServer) -> Config {
@@ -56,7 +56,9 @@ async fn offset_pagination_scim() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path("/api/2.0/preview/scim/v2/Users"))
-        .and(query_param_is_missing("startIndex"))
+        // As Go: SCIM starts at 1 and defaults `count` to 10000.
+        .and(query_param("startIndex", "1"))
+        .and(query_param("count", "10000"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "Resources": [{"id": "1", "userName": "a@x"}, {"id": "2", "userName": "b@x"}],
             "startIndex": 1, "itemsPerPage": 2, "totalResults": 3
@@ -99,7 +101,7 @@ async fn offset_pagination_without_response_cursor() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path("/api/2.0/preview/scim/v2/Users"))
-        .and(query_param_is_missing("startIndex"))
+        .and(query_param("startIndex", "1"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "Resources": [{"id": "1"}, {"id": "2"}]
         })))
@@ -158,7 +160,7 @@ async fn page_number_pagination() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
         .and(path("/api/2.0/preview/sql/dashboards"))
-        .and(query_param_is_missing("page"))
+        .and(query_param("page", "1"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
             "page": 1, "results": [{"id": "d1"}]
         })))
@@ -527,4 +529,18 @@ async fn account_client_derives_a_workspace_client() {
         .unwrap();
     assert!(clusters.is_empty());
     assert!(a.get_workspace_client(&Workspace::default()).is_err());
+
+    // An Azure workspace carries its ARM resource ID to the derived client.
+    let azure: Workspace = serde_json::from_value(json!({
+        "workspace_id": 42, "workspace_name": "ws",
+        "azure_workspace_info": {"subscription_id": "sub", "resource_group": "rg"},
+    }))
+    .unwrap();
+    let w = a.get_workspace_client(&azure).unwrap();
+    assert_eq!(
+        w.config()
+            .attribute("azure_workspace_resource_id")
+            .as_deref(),
+        Some("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/ws")
+    );
 }

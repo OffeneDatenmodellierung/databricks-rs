@@ -122,6 +122,15 @@ match w.jobs().get_run(req).await {
 
 `ErrorKind` has the same two-level hierarchy as Go's `apierr.Err*`. The details carry `ErrorInfo`, `RequestInfo`, `RetryInfo` and `Help`, and the raw list is kept as well.
 
+## Retries, idempotency and unknown fields
+
+- **Retries.** 429 / `REQUEST_LIMIT_EXCEEDED` and connection failures are retried for every call, honouring `Retry-After`. Timeouts and 5xx are retried only when the call is idempotent: `GET`/`PUT`/`PATCH`/`DELETE`/`HEAD`, or a `POST` that carries an idempotency key. `Config::retry_non_idempotent` opts back in to Go's retry-everything behaviour.
+- **Idempotency keys.** Jobs `run_now`/`submit` (`idempotency_token`), and every call Go fills a `request_id` for, get a UUID v4 when the caller leaves the key empty. The same key is reused on each retry, so the server can deduplicate. `Call::idempotent()` marks a hand-built call the same way.
+- **Unknown fields.** Every generated type has an `other` map ([ADR-0001](docs/adr/0001-generate-the-sdk-and-keep-unknown-fields.md)). Fields this SDK version doesn't model are kept on read and sent back on write, so get → modify → update never drops them. `with_other(name, value)` sends one before the SDK models it: it goes in the JSON body, or the query string for `GET`/`DELETE`.
+- **Private link and redirects.** A redirect to the private-link login page becomes `PermissionDenied` (`PRIVATE_LINK_VALIDATION_ERROR`) with a cloud-specific hint. Any other unfollowed 3xx becomes `UNEXPECTED_REDIRECT` rather than a JSON parse error.
+- **Workspace clients from an account.** `AccountClient::get_workspace_client(&workspace)` derives a `WorkspaceClient` sharing the connection pool and rate limiter; on a unified host it shares the credentials too.
+- **Logging.** `Config::attribute` masks tokens and secrets as `***`; use `Config::secret_attribute` for the value itself.
+
 ## Development
 
 House rules:

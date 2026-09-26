@@ -5350,6 +5350,10 @@ impl ProvidersApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListProvidersRequest) -> Paged<'static, ProviderInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -5437,6 +5441,10 @@ impl ProvidersApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list_shares(&self, request: ListSharesRequest) -> Paged<'static, ProviderShare> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -5827,6 +5835,10 @@ impl RecipientsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListRecipientsRequest) -> Paged<'static, RecipientInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -6010,6 +6022,10 @@ impl SharesApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list_shares(&self, request: SharesListRequest) -> Paged<'static, ShareInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,

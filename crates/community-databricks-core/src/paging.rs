@@ -1,8 +1,15 @@
-//! Token-based pagination as a [`Stream`].
+//! Pagination as a [`Stream`].
 //!
 //! Mirrors Go's `listing.NewIterator`: fetch a page, yield its items, and
-//! request the next page while the response carries a non-empty
-//! `next_page_token`. Pages are fetched lazily as the stream is polled.
+//! let a per-endpoint step move the request on to the next page. Generated
+//! clients use three strategies:
+//!
+//! * **token**: send back `next_page_token` until it is empty;
+//! * **offset** (SCIM): start at `startIndex=1` and advance by the items
+//!   seen, until a page comes back empty;
+//! * **page number** (legacy SQL): start at page 1, until a page is empty.
+//!
+//! Pages are fetched lazily as the stream is polled.
 
 use std::future::Future;
 use std::pin::Pin;

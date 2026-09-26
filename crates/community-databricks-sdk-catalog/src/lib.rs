@@ -32230,6 +32230,10 @@ impl CatalogsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListCatalogsRequest) -> Paged<'static, CatalogInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -32381,6 +32385,10 @@ impl ConnectionsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListConnectionsRequest) -> Paged<'static, ConnectionInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -33058,6 +33066,10 @@ impl ExternalLocationsApi {
         &self,
         request: ListExternalLocationsRequest,
     ) -> Paged<'static, ExternalLocationInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -33379,6 +33391,10 @@ impl FunctionsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListFunctionsRequest) -> Paged<'static, FunctionInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -33787,6 +33803,10 @@ impl MetastoresApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListMetastoresRequest) -> Paged<'static, MetastoreInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -35200,6 +35220,10 @@ impl SchemasApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListSchemasRequest) -> Paged<'static, SchemaInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -35531,6 +35555,10 @@ impl StorageCredentialsApi {
         &self,
         request: ListStorageCredentialsRequest,
     ) -> Paged<'static, StorageCredentialInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -35691,6 +35719,10 @@ impl SystemSchemasApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListSystemSchemasRequest) -> Paged<'static, SystemSchemaInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -35978,6 +36010,10 @@ impl TablesApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn list(&self, request: ListTablesRequest) -> Paged<'static, TableInfo> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
@@ -36542,6 +36578,10 @@ impl WorkspaceBindingsApi {
     /// Returns a lazily paginated stream.
     #[must_use]
     pub fn get_bindings(&self, request: GetBindingsRequest) -> Paged<'static, WorkspaceBinding> {
+        let mut request = request;
+        if request.max_results.is_none() {
+            request.max_results = Some(0);
+        }
         let this = Clone::clone(self);
         paging::paginate(
             request,
