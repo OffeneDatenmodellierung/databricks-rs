@@ -39,6 +39,9 @@ jobs:
           (cd codegen/extract-go && go run . -sdk /tmp/go-sdk -out ../../spec/ir.json)
           cargo xtask codegen
           cargo check -p community-databricks-sdk --features full
+          # Refresh the parity report; new Go surface shows up as errors
+          # here and in the PR's CI until parity.toml or the code covers it.
+          python3 scripts/check_parity.py /tmp/go-sdk || echo "::warning::new databricks-sdk-go surface; see spec/PARITY.md and CI"
       - if: steps.check.outputs.update == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
@@ -50,4 +53,5 @@ jobs:
             Rust service modules from databricks-sdk-go
             ${{ steps.check.outputs.go_sdk_tag }} (OpenAPI `${{ steps.check.outputs.openapi_sha }}`).
 
-            See `spec/GENERATED.md` for the surface summary.
+            See `spec/GENERATED.md` for the surface summary and
+            `spec/PARITY.md` for parity with the Go SDK's hand-written surface.

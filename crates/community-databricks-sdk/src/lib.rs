@@ -143,14 +143,7 @@ impl AccountClient {
             .ok_or_else(|| Error::Config("workspace has no workspace_id".into()))?;
         let deployment = workspace.deployment_name.as_deref().unwrap_or_default();
         let host = self.api.config().workspace_host(deployment);
-        let azure_id = workspace.azure_workspace_info.as_ref().and_then(|a| {
-            Some(format!(
-                "/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Databricks/workspaces/{}",
-                a.subscription_id.as_deref()?,
-                a.resource_group.as_deref()?,
-                workspace.workspace_name.as_deref()?
-            ))
-        });
+        let azure_id = workspace.azure_resource_id();
         let api = self
             .api
             .for_workspace(host.as_deref(), &id.to_string(), azure_id.as_deref())?;

@@ -1,0 +1,66 @@
+# Go SDK surface this SDK covers by hand, plans to cover, or deliberately
+# leaves out. Checked by scripts/check_parity.py (CI), which fails on any
+# Go surface that isn't generated, covered by a rule, or listed here, and
+# on entries that no longer match anything. See spec/PARITY.md.
+#
+# Keys are Go symbols (fnmatch patterns allowed):
+#   [accessors]  "<client>.<Field>"             workspace_client.go / account_client.go
+#   [methods]    "<package>.<Service>.<Method>" api.go interfaces
+#   [helpers]    "<package>.<Type>.<Func>", "<package>.<Func>", "<Client>.<Func>"
+# status = "implemented" (rust = "path#fn"), "gap" (issue = N) or "na" (reason).
+
+[accessors]
+"*.Users" = { status = "gap", issue = 14 }
+"*.Groups" = { status = "gap", issue = 14 }
+"*.ServicePrincipals" = { status = "gap", issue = 14 }
+"workspace.ServingEndpointsDataPlane" = { status = "gap", issue = 16 }
+
+[methods]
+"*.*.*To*Map" = { status = "gap", issue = 17 }
+# List-and-search lookups (positional GetByX shortcuts are covered by rule).
+"*.*.GetBy*" = { status = "gap", issue = 17 }
+"serving.ServingEndpointsDataPlane.Query" = { status = "gap", issue = 16 }
+"bundle.Bundle.*" = { status = "na", reason = "Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated." }
+
+[helpers]
+# Implemented here.
+"jobs.JobsAPI.Get" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#get" }
+"jobs.JobsAPI.GetRun" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#get_run" }
+"jobs.JobsAPI.List" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#list" }
+"jobs.JobsAPI.ListRuns" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#list_runs" }
+"provisioning.Workspace.AzureResourceId" = { status = "implemented", rust = "crates/community-databricks-sdk-provisioning/src/ext.rs#azure_resource_id" }
+"AccountClient.GetWorkspaceClient" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#get_workspace_client" }
+# Go wraps these only to escape `tag_key`; every generated single-segment
+# path parameter is escaped.
+"catalog.EntityTagAssignmentsAPI.*" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#path_param" }
+"tags.*API.*Tag*" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#path_param" }
+
+# Planned.
+"iam.*API.GetBy*" = { status = "gap", issue = 14 }
+"iam.*API.DeleteById" = { status = "gap", issue = 14 }
+"iam.*API.*ToIdMap" = { status = "gap", issue = 14 }
+"WorkspaceClient.CurrentWorkspaceID" = { status = "gap", issue = 14 }
+"serving.NewDataPlaneService" = { status = "gap", issue = 16 }
+"sql.StatementExecutionAPI.ExecuteAndWait" = { status = "gap", issue = 15 }
+"workspace.*" = { status = "gap", issue = 15 }
+"files.DbfsAPI.*" = { status = "gap", issue = 15 }
+"compute.ClustersAPI.*" = { status = "gap", issue = 15 }
+"compute.ClusterDetails.IsRunningOrResizing" = { status = "gap", issue = 15 }
+"compute.ListNodeTypesResponse.Smallest" = { status = "gap", issue = 15 }
+"compute.GetSparkVersionsResponse.Select" = { status = "gap", issue = 15 }
+"compute.LibrariesAPI.*" = { status = "gap", issue = 15 }
+"compute.ClusterLibraryStatuses.*" = { status = "gap", issue = 15 }
+"compute.InstallLibraries.Sort" = { status = "gap", issue = 15 }
+"compute.Library.String" = { status = "gap", issue = 15 }
+"compute.Wait.IsNotInScope" = { status = "gap", issue = 15 }
+"compute.CommandExecutionAPI.Start" = { status = "gap", issue = 15 }
+"compute.CommandExecutorV2.*" = { status = "gap", issue = 15 }
+"compute.CommandsHighLevelAPI.Execute" = { status = "gap", issue = 15 }
+"compute.NewCommandExecutor" = { status = "gap", issue = 15 }
+"compute.Results.*" = { status = "gap", issue = 15 }
+"compute.TrimLeadingWhitespace" = { status = "gap", issue = 15 }
+
+# Not applicable.
+"iam.New*" = { status = "na", reason = "Constructors for Go's API structs; Rust clients come from the WorkspaceClient/AccountClient accessors." }
+"compute.CommandMock.Execute" = { status = "na", reason = "A test double in Go's package; not API surface." }
+"sharing.SharesAPI.List*" = { status = "na", reason = "Deprecated Go aliases of `ListShares`; `list_shares` is generated with the same `max_results` handling." }

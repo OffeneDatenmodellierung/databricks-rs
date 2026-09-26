@@ -22,7 +22,8 @@ THRESHOLD = float(os.environ.get("COVERAGE_THRESHOLD", "85"))
 
 
 def main(report: str) -> int:
-    data = json.load(open(report))
+    with open(report) as f:
+        data = json.load(f)
     rows, failures = [], []
     for f in data["files"]:
         # tarpaulin has emitted the path both as components and as a string.
