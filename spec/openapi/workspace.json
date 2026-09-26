@@ -50201,15 +50201,6 @@
         },
         "type": "object"
       },
-      "sql.TransferOwnershipObjectId": {
-        "properties": {
-          "new_owner": {
-            "description": "Email address for the new owner, who must exist in the workspace.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "sql.TransferOwnershipRequest": {
         "properties": {
           "new_owner": {
@@ -60975,7 +60966,7 @@
         "operationId": "serving_endpoints.http_request",
         "requestBody": {
           "content": {
-            "application/octet-stream": {
+            "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/serving.ExternalFunctionRequest"
               }
@@ -60986,7 +60977,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/serving.HttpRequestResponse"
                 }
@@ -61004,7 +60995,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -63004,7 +62994,6 @@
         ],
         "x-databricks-package": "files",
         "x-databricks-service": "Files",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       },
       "head": {
@@ -63107,7 +63096,6 @@
         ],
         "x-databricks-package": "files",
         "x-databricks-service": "Files",
-        "x-databricks-unsupported": "binary/header field contents",
         "x-databricks-workspace-header": true
       }
     },
@@ -64882,7 +64870,6 @@
         ],
         "x-databricks-package": "dashboards",
         "x-databricks-service": "Genie",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -82655,7 +82642,7 @@
             "name": "object_id",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/sql.TransferOwnershipObjectId"
+              "type": "string"
             }
           }
         ],
@@ -84630,7 +84617,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/serving.ExportMetricsResponse"
                 }
@@ -84648,7 +84635,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -84719,7 +84705,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/serving.GetOpenApiResponse"
                 }
@@ -84737,7 +84723,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },

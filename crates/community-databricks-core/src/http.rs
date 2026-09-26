@@ -20,6 +20,9 @@
 //!   retries every method; set `Config::retry_non_idempotent` for that.
 //! * Redirects are followed; a final 3xx, or the private-link login page
 //!   (`/login.html?error=private-link-validation-error`), is an error (#5).
+//! * Binary bodies ([`Binary`]): an upload may be buffered (replayed on
+//!   retry) or streamed (sent once, never retried); a binary response is
+//!   returned as a stream once the status is known to be a success.
 //! * `X-Databricks-Workspace-Id` is sent when `workspace_id` is configured
 //!   (Go adds it per operation; every workspace-level operation does so).
 
@@ -27,10 +30,9 @@ use std::fmt::Write as _;
 use std::sync::Arc;
 use std::time::Duration;
 
-use bytes::Bytes;
 pub use reqwest::Method;
-use reqwest::StatusCode;
 use reqwest::header::{ACCEPT, CONTENT_TYPE, HeaderMap, HeaderValue, RETRY_AFTER, USER_AGENT};
+use reqwest::{RequestBuilder, StatusCode};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use tokio::sync::{Mutex, OnceCell};
@@ -38,6 +40,7 @@ use tokio::time::Instant;
 use url::Url;
 
 use crate::auth::{CredentialsProvider, DefaultCredentials};
+pub use crate::binary::{Binary, ByteStream, Bytes};
 use crate::config::{Config, DEFAULT_RATE_LIMIT};
 use crate::error::{ApiError, Error, ErrorKind, Result};
 use crate::{query, useragent};
@@ -289,7 +292,7 @@ impl ApiClient {
         let mut call = Call::new(method, path.to_owned()).workspace();
         call.query = query.to_vec();
         call.body = body;
-        Ok(self.run(call).await?.0)
+        Ok(self.run(call, false).await?.into_bytes().0)
     }
 
     /// Send a [`Call`] built by generated service code and decode the
@@ -305,8 +308,21 @@ impl ApiClient {
         &self,
         call: Call,
     ) -> Result<(R, HeaderMap)> {
-        let (bytes, headers) = self.run(call).await?;
+        let (bytes, headers) = self.run(call, false).await?.into_bytes();
         Ok((decode(&bytes)?, headers))
+    }
+
+    /// Send a [`Call`] whose response body is binary (file downloads,
+    /// exports). Errors are decoded as usual; on success the body is
+    /// returned unread, as a stream, with the response headers.
+    pub async fn send_binary(&self, call: Call) -> Result<(Binary, HeaderMap)> {
+        match self.run(call, true).await? {
+            Done::Bytes(bytes, headers) => Ok((Binary::from(bytes), headers)),
+            Done::Stream(resp) => {
+                let headers = resp.headers().clone();
+                Ok((Binary::from_stream(resp.bytes_stream()), headers))
+            }
+        }
     }
 
     /// The configured account ID, required by account-level paths.
@@ -319,17 +335,26 @@ impl ApiClient {
             .ok_or_else(|| Error::Config("account_id is required for account-level APIs".into()))
     }
 
-    async fn run(&self, call: Call) -> Result<(Bytes, HeaderMap)> {
+    async fn run(&self, call: Call, stream: bool) -> Result<Done> {
         let Call {
             method,
             path,
             query,
             body,
+            binary,
+            accept,
             workspace_header,
             idempotent,
         } = call;
         let path = path.as_str();
         let replayable = idempotent || self.inner.cfg.retry_non_idempotent;
+        // A streamed upload is consumed by the first attempt.
+        let resendable = binary.as_ref().is_none_or(|b| !b.is_stream());
+        let body = match (body, binary) {
+            (_, Some(b)) => Some(Payload::Binary(b)),
+            (Some(json), None) => Some(Payload::Json(Bytes::from(json))),
+            (None, None) => None,
+        };
         let mut url = self
             .inner
             .base
@@ -346,18 +371,24 @@ impl ApiClient {
             attempt += 1;
             self.inner.limiter.acquire().await;
             let outcome = self
-                .attempt(
-                    &method,
-                    &url,
-                    body.as_deref(),
-                    provider.as_ref(),
-                    &user_agent,
+                .attempt(&Attempt {
+                    method: &method,
+                    url: &url,
+                    body: body.as_ref(),
+                    accept,
+                    stream,
+                    provider: provider.as_ref(),
+                    user_agent: &user_agent,
                     workspace_header,
-                )
+                })
                 .await;
             let (err, hint) = match outcome {
                 Ok(done) => return Ok(done),
                 Err(Failure::Fatal(e)) => return Err(e),
+                Err(Failure::Retriable(e, ..)) if !resendable => {
+                    tracing::warn!(%method, path, "not retrying a request with a streamed body: {e}");
+                    return Err(e);
+                }
                 Err(Failure::Retriable(e, hint, Replay::Safe)) => (e, hint),
                 Err(Failure::Retriable(e, hint, Replay::IfIdempotent)) if replayable => (e, hint),
                 Err(Failure::Retriable(e, _, Replay::IfIdempotent)) => {
@@ -379,30 +410,37 @@ impl ApiClient {
         }
     }
 
-    async fn attempt(
-        &self,
-        method: &Method,
-        url: &Url,
-        body: Option<&[u8]>,
-        provider: &dyn CredentialsProvider,
-        user_agent: &str,
-        workspace_header: bool,
-    ) -> std::result::Result<(Bytes, HeaderMap), Failure> {
+    /// Build one attempt's request: headers, body, custom headers, auth.
+    async fn request(&self, a: &Attempt<'_>) -> std::result::Result<RequestBuilder, Failure> {
         let mut req = self
             .inner
             .http
-            .request(method.clone(), url.clone())
-            .header(ACCEPT, HeaderValue::from_static("application/json"))
-            .header(USER_AGENT, user_agent);
-        if let Some(b) = body {
-            req = req
-                .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-                .body(b.to_vec());
+            .request(a.method.clone(), a.url.clone())
+            .header(
+                ACCEPT,
+                HeaderValue::from_static(a.accept.unwrap_or("application/json")),
+            )
+            .header(USER_AGENT, a.user_agent);
+        match a.body {
+            Some(Payload::Json(b)) => {
+                req = req
+                    .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+                    .body(b.clone());
+            }
+            Some(Payload::Binary(b)) => {
+                req = req
+                    .header(
+                        CONTENT_TYPE,
+                        HeaderValue::from_static("application/octet-stream"),
+                    )
+                    .body(b.to_request_body().map_err(Failure::Fatal)?);
+            }
+            None => {}
         }
-        if let Some(ws) = self.workspace_header().filter(|_| workspace_header) {
+        if let Some(ws) = self.workspace_header().filter(|_| a.workspace_header) {
             req = req.header("X-Databricks-Workspace-Id", ws);
         }
-        let auth = provider.headers().await.map_err(Failure::Fatal)?;
+        let auth = a.provider.headers().await.map_err(Failure::Fatal)?;
         for (k, v) in &self.inner.cfg.headers {
             let reserved = [
                 "authorization",
@@ -412,7 +450,7 @@ impl ApiClient {
                 "x-databricks-workspace-id",
             ];
             if reserved.iter().any(|r| k.eq_ignore_ascii_case(r))
-                || auth.iter().any(|(a, _)| a.as_str().eq_ignore_ascii_case(k))
+                || auth.iter().any(|(h, _)| h.as_str().eq_ignore_ascii_case(k))
             {
                 tracing::debug!(header = %k, "ignoring custom header that the SDK manages");
                 continue;
@@ -422,6 +460,12 @@ impl ApiClient {
         for (k, v) in auth {
             req = req.header(k, v);
         }
+        Ok(req)
+    }
+
+    async fn attempt(&self, a: &Attempt<'_>) -> std::result::Result<Done, Failure> {
+        let (method, url, stream) = (a.method, a.url, a.stream);
+        let req = self.request(a).await?;
         let resp = match req.send().await {
             Ok(r) => r,
             // The connection was never made, so nothing was sent.
@@ -445,6 +489,9 @@ impl ApiClient {
         } else {
             tracing::debug!(%method, path = url.path(), %status, "response");
         }
+        if stream && status.is_success() {
+            return Ok(Done::Stream(resp));
+        }
         let bytes = match resp.bytes().await {
             Ok(b) => b,
             Err(e) if e.is_timeout() => {
@@ -453,7 +500,7 @@ impl ApiClient {
             Err(e) => return Err(Failure::Fatal(e.into())),
         };
         if status.is_success() {
-            return Ok((bytes, headers));
+            return Ok(Done::Bytes(bytes, headers));
         }
         if status.is_redirection() {
             // Redirects are followed, so one that reaches here wasn't
@@ -513,6 +560,11 @@ pub struct Call {
     pub query: Vec<(String, String)>,
     /// JSON body, if any.
     pub body: Option<Vec<u8>>,
+    /// Binary body (sent as `application/octet-stream`); takes precedence
+    /// over `body`.
+    pub binary: Option<Binary>,
+    /// `Accept` header; `application/json` when unset.
+    pub accept: Option<&'static str>,
     /// Send `X-Databricks-Workspace-Id` when configured (workspace-level
     /// operations only, as in Go).
     pub workspace_header: bool,
@@ -531,6 +583,8 @@ impl Call {
             path,
             query: Vec::new(),
             body: None,
+            binary: None,
+            accept: None,
             workspace_header: false,
             idempotent,
         }
@@ -556,6 +610,20 @@ impl Call {
     #[must_use]
     pub fn query(mut self, pairs: Vec<(String, String)>) -> Self {
         self.query.extend(pairs);
+        self
+    }
+
+    /// Set the `Accept` header (for binary or plain-text responses).
+    #[must_use]
+    pub fn accept(mut self, accept: &'static str) -> Self {
+        self.accept = Some(accept);
+        self
+    }
+
+    /// Set a binary body, sent as `application/octet-stream`.
+    #[must_use]
+    pub fn binary(mut self, body: Binary) -> Self {
+        self.binary = Some(body);
         self
     }
 
@@ -621,6 +689,40 @@ pub fn path_param(value: &str, multi_segment: bool) -> String {
         value.split('/').map(escape).collect::<Vec<_>>().join("/")
     } else {
         escape(value)
+    }
+}
+
+/// The inputs to one request attempt.
+struct Attempt<'a> {
+    method: &'a Method,
+    url: &'a Url,
+    body: Option<&'a Payload>,
+    accept: Option<&'static str>,
+    stream: bool,
+    provider: &'a dyn CredentialsProvider,
+    user_agent: &'a str,
+    workspace_header: bool,
+}
+
+enum Payload {
+    Json(Bytes),
+    Binary(Binary),
+}
+
+/// A successful response: read into memory, or (for binary responses)
+/// left unread.
+enum Done {
+    Bytes(Bytes, HeaderMap),
+    Stream(reqwest::Response),
+}
+
+impl Done {
+    fn into_bytes(self) -> (Bytes, HeaderMap) {
+        match self {
+            Self::Bytes(b, h) => (b, h),
+            // Only `send_binary` asks for a stream.
+            Self::Stream(_) => unreachable!("stream requested by send_binary only"),
+        }
     }
 }
 

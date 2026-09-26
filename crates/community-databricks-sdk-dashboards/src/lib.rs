@@ -728,7 +728,7 @@ impl DownloadMessageAttachmentVisualizationRequest {
 pub struct DownloadMessageAttachmentVisualizationResponse {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
     /// request (in the JSON body, or the query string for GET/DELETE).
@@ -743,7 +743,7 @@ pub struct DownloadMessageAttachmentVisualizationResponse {
 impl DownloadMessageAttachmentVisualizationResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -763,7 +763,10 @@ impl DownloadMessageAttachmentVisualizationResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -7238,6 +7241,33 @@ impl GenieApi {
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())
+    }
+
+    /// Download a rendered image of a message visualization attachment. The response
+    /// body is the raw PNG image, not a JSON payload. This is only available if the
+    /// attachment is a visualization and the message status is `COMPLETED`. This
+    /// endpoint is not supported for Private Link workspaces.
+    ///
+    /// `GET /api/2.0/genie/{name}/download-visualization`
+    pub async fn download_message_attachment_visualization(
+        &self,
+        request: DownloadMessageAttachmentVisualizationRequest,
+    ) -> ::community_databricks_core::Result<DownloadMessageAttachmentVisualizationResponse> {
+        let path = format!(
+            "/api/2.0/genie/{}/download-visualization",
+            path_param(&request.name.to_string(), true)
+        );
+        let mut call = Call::new(Method::GET, path)
+            .workspace()
+            .accept("application/octet-stream");
+        call = call.query(query::to_pairs(&request.other)?);
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = DownloadMessageAttachmentVisualizationResponse::default();
+            resp.contents = body;
+            let _ = headers;
+            Ok(resp)
+        }
     }
 
     /// Execute the SQL for a message query attachment. Use this API when the query

@@ -41,6 +41,10 @@ pub enum Error {
     #[error("transport: {0}")]
     Transport(#[from] reqwest::Error),
 
+    /// A streamed request or response body failed part-way.
+    #[error("body stream: {0}")]
+    Body(Box<dyn std::error::Error + Send + Sync>),
+
     /// A request or response body could not be (de)serialised.
     #[error("json ({context}): {source}")]
     Json {

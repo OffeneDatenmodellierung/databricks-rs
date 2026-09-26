@@ -1511,7 +1511,7 @@ impl DownloadRequest {
 pub struct DownloadResponse {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
     /// request (in the JSON body, or the query string for GET/DELETE).
@@ -1526,7 +1526,7 @@ pub struct DownloadResponse {
 impl DownloadResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -1546,7 +1546,10 @@ impl DownloadResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -3231,6 +3234,43 @@ impl BillableUsageApi {
     #[must_use]
     pub fn new(api: ApiClient) -> Self {
         Self { api }
+    }
+
+    /// Returns billable usage logs in CSV format for the specified account and date
+    /// range. For the data schema, see:
+    ///
+    /// - AWS: [CSV file schema]. - GCP: [CSV file schema].
+    ///
+    /// Note that this method might take multiple minutes to complete.
+    ///
+    /// **Warning**: Depending on the queried date range, the number of workspaces in
+    /// the account, the size of the response and the internet speed of the caller,
+    /// this API may hit a timeout after a few minutes. If you experience this, try
+    /// to mitigate by calling the API with narrower date ranges.
+    ///
+    /// [CSV file schema]: https://docs.gcp.databricks.com/administration-guide/account-settings/usage-analysis.html#csv-file-schema
+    ///
+    /// `GET /api/2.0/accounts/{account_id}/usage/download`
+    pub async fn download(
+        &self,
+        request: DownloadRequest,
+    ) -> ::community_databricks_core::Result<DownloadResponse> {
+        let path = format!(
+            "/api/2.0/accounts/{}/usage/download",
+            path_param(self.api.account_id()?, false)
+        );
+        let mut call = Call::new(Method::GET, path).accept("text/plain");
+        call = call.query(query::field("end_month", &request.end_month)?);
+        call = call.query(query::field("personal_data", &request.personal_data)?);
+        call = call.query(query::field("start_month", &request.start_month)?);
+        call = call.query(query::to_pairs(&request.other)?);
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = DownloadResponse::default();
+            resp.contents = body;
+            let _ = headers;
+            Ok(resp)
+        }
     }
 }
 

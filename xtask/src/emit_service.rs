@@ -90,7 +90,7 @@ pub fn emit(
             ));
             continue;
         }
-        if !m.unsupported.is_empty() {
+        if !m.unsupported.is_empty() && !m.is_binary() {
             unsupported.push(format!(
                 "{}.{}.{}: {}",
                 pkg, svc.name, m.name, m.unsupported
@@ -103,7 +103,7 @@ pub fn emit(
         if let Some(renamed) = overrides.get(&key) {
             match renamed.strip_prefix("page:") {
                 Some(base) if m.pagination.is_some() => {
-                    fname = base.to_owned();
+                    base.clone_into(&mut fname);
                     page_only = true;
                 }
                 _ => fname.clone_from(renamed),
@@ -278,6 +278,9 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
     if idempotent {
         s.push_str(".idempotent()");
     }
+    if !m.accept.is_empty() && m.accept != "application/json" {
+        let _ = write!(s, ".accept({:?})", m.accept);
+    }
     s.push_str(";\n");
     let _ = svc;
     let body_verb = matches!(verb, "POST" | "PUT" | "PATCH");
@@ -316,7 +319,15 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
                 s.push_str("        call = call.json(&request)?;\n");
             } else {
                 let f = find_field(types, r, &m.body_field).expect("body field");
-                let _ = writeln!(s, "        call = call.json(&request.{})?;", f.ident);
+                if f.kind == "binary" {
+                    let _ = writeln!(
+                        s,
+                        "        call = call.binary(request.{}.clone());",
+                        f.ident
+                    );
+                } else {
+                    let _ = writeln!(s, "        call = call.json(&request.{})?;", f.ident);
+                }
             }
         }
     }
@@ -324,10 +335,47 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
     s.replace("MUT_call", if mutated { "mut call" } else { "call" })
 }
 
+/// A response with a binary body: the body streams into its binary field,
+/// and any header-located fields are read from the response headers.
+fn binary_send_expr(types: &Types<'_>, r: &TypeRef, m: &Method, pkg: &str) -> Option<String> {
+    let t = types.get(r)?;
+    let infos = crate::model::field_infos(types, &r.pkg, t);
+    let fields = t.fields.as_deref().unwrap_or_default();
+    let body = infos.iter().find(|i| i.kind == "binary")?;
+    let mut s = format!(
+        "{{\n            let (body, headers) = self.api.send_binary(call).await?;\n            let mut resp = {}::default();\n            resp.{} = body;\n",
+        resp_ty(m, pkg),
+        body.ident
+    );
+    for (f, i) in fields.iter().zip(&infos) {
+        if f.location != "header" {
+            continue;
+        }
+        let value = format!(
+            "::community_databricks_core::http::header(&headers, {:?})",
+            f.name
+        );
+        let value = if i.optional {
+            value
+        } else {
+            format!("{value}.unwrap_or_default()")
+        };
+        let _ = writeln!(s, "            resp.{} = {value};", i.ident);
+    }
+    if !fields.iter().any(|f| f.location == "header") {
+        s.push_str("            let _ = headers;\n");
+    }
+    s.push_str("            Ok(resp)\n        }");
+    Some(s)
+}
+
 fn send_expr(types: &Types<'_>, m: &Method, pkg: &str) -> String {
     let Some(r) = &m.response else {
         return "self.api.send::<::serde::de::IgnoredAny>(call).await.map(|_| ())".to_owned();
     };
+    if let Some(expr) = binary_send_expr(types, r, m, pkg) {
+        return expr;
+    }
     // Fields carried in response headers (e.g. Files API HEAD metadata).
     let header_fields: Vec<(String, FieldInfo)> = types
         .get(r)

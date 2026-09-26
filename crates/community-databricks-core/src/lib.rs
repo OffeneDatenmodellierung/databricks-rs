@@ -15,6 +15,7 @@
 //! * [`wait`]: long-running-operation polling.
 
 pub mod auth;
+pub mod binary;
 pub mod config;
 pub mod error;
 pub mod http;

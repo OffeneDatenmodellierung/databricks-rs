@@ -4,18 +4,10 @@ Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
 Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a34f301`).
 
-- 39 packages, 191 services, 1268 operations (1260 generated), 3550 types.
+- 39 packages, 191 services, 1268 operations (1268 generated), 3550 types.
 
 ## Not generated (binary or streaming payloads)
 
-- `billing.BillableUsage.Download: binary response`
-- `dashboards.Genie.DownloadMessageAttachmentVisualization: binary response`
-- `files.Files.Download: binary response`
-- `files.Files.Upload: binary/header field contents`
-- `serving.ServingEndpoints.ExportMetrics: binary response`
-- `serving.ServingEndpoints.GetOpenApi: binary response`
-- `serving.ServingEndpoints.HttpRequest: binary response`
-- `sql.DbsqlPermissions.TransferOwnership: struct-typed path parameter`
 
 ## OpenAPI path collisions (moved to `x-databricks-shared-path-operations`)
 

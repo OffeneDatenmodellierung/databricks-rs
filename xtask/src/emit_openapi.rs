@@ -9,8 +9,8 @@
 //! * `x-databricks-wait` — the long-running-operation waiter an operation
 //!   returns: `{waiter, poll, param, from_response, field, status_path,
 //!   message_path, targets, failures, timeout_minutes}`.
-//! * `x-databricks-unsupported` — operations with binary/streaming payloads
-//!   the Rust SDK does not generate yet.
+//! * `x-databricks-unsupported` — operations the Rust SDK does not generate
+//!   (none at present; binary bodies are generated as `Binary`).
 //! * `x-databricks-workspace-header` — send `X-Databricks-Workspace-Id`.
 //! * `x-databricks-package` / `x-databricks-service` — Go SDK grouping.
 //! * `x-databricks-resource-name` — the operation's path was expanded from a
@@ -290,7 +290,9 @@ fn operation(
                 field(types, Some(r), &m.body_field)
                     .map_or_else(|| json!({}), |f| type_schema(&f.ty, reach))
             };
-            let ct = if m.unsupported.contains("content-type") || m.unsupported.contains("binary") {
+            let binary_body = !m.body_field.is_empty()
+                && field(types, Some(r), &m.body_field).is_some_and(|f| f.ty.kind == "binary");
+            let ct = if binary_body || m.unsupported.contains("content-type") {
                 "application/octet-stream"
             } else {
                 "application/json"
@@ -306,7 +308,11 @@ fn operation(
     }
     let ok = match &m.response {
         Some(r) => {
-            let ct = if m.unsupported.contains("binary") || m.unsupported.contains("accept") {
+            // The Accept header Go sends: application/octet-stream for file
+            // downloads, text/plain for metrics and exports.
+            let ct = if !m.accept.is_empty() && m.accept != "application/json" {
+                m.accept.as_str()
+            } else if m.unsupported.contains("accept") {
                 "application/octet-stream"
             } else {
                 "application/json"
@@ -377,7 +383,7 @@ fn operation(
                 }),
             );
     }
-    if !m.unsupported.is_empty() {
+    if !m.unsupported.is_empty() && !m.is_binary() {
         op.insert("x-databricks-unsupported".into(), json!(m.unsupported));
     }
     Value::Object(op)

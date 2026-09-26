@@ -13165,7 +13165,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/billing.DownloadResponse"
                 }
@@ -13182,8 +13182,7 @@
           "BillableUsage"
         ],
         "x-databricks-package": "billing",
-        "x-databricks-service": "BillableUsage",
-        "x-databricks-unsupported": "binary response"
+        "x-databricks-service": "BillableUsage"
       }
     },
     "/api/2.0/accounts/{account_id}/vpc-endpoints": {
