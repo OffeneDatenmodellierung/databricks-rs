@@ -28,7 +28,9 @@ pub struct App {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -79,7 +81,9 @@ pub struct CreateExampleRequest {
     pub parent: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -134,7 +138,9 @@ pub struct CreateSupervisorAgentRequest {
     pub supervisor_agent: SupervisorAgent,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -189,7 +195,9 @@ pub struct CreateToolRequest {
     pub tool_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -242,7 +250,9 @@ pub struct DeleteExampleRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -290,7 +300,9 @@ pub struct DeleteSupervisorAgentRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -338,7 +350,9 @@ pub struct DeleteToolRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -396,7 +410,9 @@ pub struct Example {
     pub question: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -466,7 +482,9 @@ pub struct GenieSpace {
     pub id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -514,7 +532,9 @@ pub struct GetExampleRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -561,7 +581,9 @@ pub struct GetSupervisorAgentPermissionLevelsRequest {
     pub supervisor_agent_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -608,7 +630,9 @@ pub struct GetSupervisorAgentPermissionLevelsResponse {
     pub permission_levels: Vec<SupervisorAgentPermissionsDescription>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -649,7 +673,9 @@ pub struct GetSupervisorAgentPermissionsRequest {
     pub supervisor_agent_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -697,7 +723,9 @@ pub struct GetSupervisorAgentRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -745,7 +773,9 @@ pub struct GetToolRequest {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -795,7 +825,9 @@ pub struct KnowledgeAssistant {
     pub serving_endpoint_name: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -860,7 +892,9 @@ pub struct ListExamplesRequest {
     pub parent: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -924,7 +958,9 @@ pub struct ListExamplesResponse {
     pub next_page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -976,7 +1012,9 @@ pub struct ListSupervisorAgentsRequest {
     pub page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1025,7 +1063,9 @@ pub struct ListSupervisorAgentsResponse {
     pub supervisor_agents: Vec<SupervisorAgent>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1077,7 +1117,9 @@ pub struct ListToolsRequest {
     pub parent: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1141,7 +1183,9 @@ pub struct ListToolsResponse {
     pub tools: Vec<Tool>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1214,7 +1258,9 @@ pub struct SupervisorAgent {
     pub supervisor_agent_id: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1333,7 +1379,9 @@ pub struct SupervisorAgentAccessControlRequest {
     pub user_name: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1407,7 +1455,9 @@ pub struct SupervisorAgentAccessControlResponse {
     pub user_name: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1482,7 +1532,9 @@ pub struct SupervisorAgentPermission {
     pub permission_level: Option<SupervisorAgentPermissionLevel>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1553,7 +1605,9 @@ pub struct SupervisorAgentPermissions {
     pub object_type: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1611,7 +1665,9 @@ pub struct SupervisorAgentPermissionsDescription {
     pub permission_level: Option<SupervisorAgentPermissionLevel>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1662,7 +1718,9 @@ pub struct SupervisorAgentPermissionsRequest {
     pub supervisor_agent_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1757,7 +1815,9 @@ pub struct Tool {
     pub volume: Option<Volume>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1874,7 +1934,9 @@ pub struct UcConnection {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1921,7 +1983,9 @@ pub struct UcFunction {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1976,7 +2040,9 @@ pub struct UpdateExampleRequest {
     pub update_mask: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2035,7 +2101,9 @@ pub struct UpdateSupervisorAgentRequest {
     pub update_mask: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2094,7 +2162,9 @@ pub struct UpdateToolRequest {
     pub update_mask: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2146,7 +2216,9 @@ pub struct Volume {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2209,6 +2281,7 @@ impl SupervisorAgentsApi {
             path_param(&request.parent.to_string(), true)
         );
         let mut call = Call::new(Method::POST, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.example)?;
         self.api.send::<Example>(call).await
     }
@@ -2222,6 +2295,7 @@ impl SupervisorAgentsApi {
     ) -> ::community_databricks_core::Result<SupervisorAgent> {
         let path = String::from("/api/2.1/supervisor-agents");
         let mut call = Call::new(Method::POST, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.supervisor_agent)?;
         self.api.send::<SupervisorAgent>(call).await
     }
@@ -2246,6 +2320,7 @@ impl SupervisorAgentsApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::field("tool_id", &request.tool_id)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tool)?;
         self.api.send::<Tool>(call).await
     }
@@ -2553,6 +2628,7 @@ impl SupervisorAgentsApi {
         let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.example)?;
         self.api.send::<Example>(call).await
     }
@@ -2585,6 +2661,7 @@ impl SupervisorAgentsApi {
         let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.supervisor_agent)?;
         self.api.send::<SupervisorAgent>(call).await
     }
@@ -2601,6 +2678,7 @@ impl SupervisorAgentsApi {
         let path = format!("/api/2.1/{}", path_param(&request.name.to_string(), true));
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tool)?;
         self.api.send::<Tool>(call).await
     }

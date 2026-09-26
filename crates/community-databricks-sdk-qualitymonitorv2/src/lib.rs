@@ -34,7 +34,9 @@ pub struct AnomalyDetectionConfig {
     pub latest_run_status: Option<AnomalyDetectionRunStatus>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -108,7 +110,9 @@ pub struct CreateQualityMonitorRequest {
     pub quality_monitor: QualityMonitor,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -158,7 +162,9 @@ pub struct DeleteQualityMonitorRequest {
     pub object_type: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -216,7 +222,9 @@ pub struct GetQualityMonitorRequest {
     pub object_type: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -274,7 +282,9 @@ pub struct ListQualityMonitorRequest {
     pub page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -322,7 +332,9 @@ pub struct ListQualityMonitorResponse {
     pub quality_monitors: Vec<QualityMonitor>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -374,7 +386,9 @@ pub struct PercentNullValidityCheck {
     pub upper_bound: Option<f64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -428,7 +442,9 @@ pub struct QualityMonitor {
     pub validity_check_configurations: Vec<ValidityCheckConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -517,7 +533,9 @@ pub struct RangeValidityCheck {
     pub upper_bound: Option<f64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -569,7 +587,9 @@ pub struct UniquenessValidityCheck {
     pub column_names: Vec<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -613,7 +633,9 @@ pub struct UpdateQualityMonitorRequest {
     pub quality_monitor: QualityMonitor,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -674,7 +696,9 @@ pub struct ValidityCheckConfiguration {
     pub uniqueness_validity_check: Option<UniquenessValidityCheck>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -755,6 +779,7 @@ impl QualityMonitorV2Api {
     ) -> ::community_databricks_core::Result<QualityMonitor> {
         let path = String::from("/api/2.0/quality-monitors");
         let mut call = Call::new(Method::POST, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.quality_monitor)?;
         self.api.send::<QualityMonitor>(call).await
     }
@@ -865,6 +890,7 @@ impl QualityMonitorV2Api {
             path_param(&request.object_id.to_string(), false)
         );
         let mut call = Call::new(Method::PUT, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.quality_monitor)?;
         self.api.send::<QualityMonitor>(call).await
     }

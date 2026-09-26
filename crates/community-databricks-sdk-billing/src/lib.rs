@@ -34,7 +34,9 @@ pub struct ActionConfiguration {
     pub target: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -124,7 +126,9 @@ pub struct AlertConfiguration {
     pub trigger_type: Option<AlertConfigurationTriggerType>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -282,7 +286,9 @@ pub struct BudgetConfiguration {
     pub update_time: Option<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -374,7 +380,9 @@ pub struct BudgetConfigurationFilter {
     pub workspace_id: Option<BudgetConfigurationFilterWorkspaceIdClause>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -425,7 +433,9 @@ pub struct BudgetConfigurationFilterClause {
     pub values: Vec<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -481,7 +491,9 @@ pub struct BudgetConfigurationFilterTagClause {
     pub value: Option<BudgetConfigurationFilterClause>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -533,7 +545,9 @@ pub struct BudgetConfigurationFilterWorkspaceIdClause {
     pub values: Vec<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -597,7 +611,9 @@ pub struct BudgetPolicy {
     pub policy_name: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -684,7 +700,9 @@ pub struct CreateBillingUsageDashboardRequest {
     pub workspace_id: Option<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -736,7 +754,9 @@ pub struct CreateBillingUsageDashboardResponse {
     pub dashboard_id: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -791,7 +811,9 @@ pub struct CreateBudgetConfigurationBudget {
     pub resource_type: Option<BudgetResourceType>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -863,7 +885,9 @@ pub struct CreateBudgetConfigurationBudgetActionConfigurations {
     pub target: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -933,7 +957,9 @@ pub struct CreateBudgetConfigurationBudgetAlertConfigurations {
     pub trigger_type: Option<AlertConfigurationTriggerType>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1016,7 +1042,9 @@ pub struct CreateBudgetConfigurationRequest {
     pub budget: CreateBudgetConfigurationBudget,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1063,7 +1091,9 @@ pub struct CreateBudgetConfigurationResponse {
     pub budget: Option<BudgetConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1108,7 +1138,9 @@ pub struct CreateBudgetPolicyRequest {
     pub request_id: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1228,7 +1260,9 @@ pub struct CreateLogDeliveryConfigurationParams {
     pub workspace_ids_filter: Vec<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1322,7 +1356,9 @@ pub struct DeleteBudgetConfigurationRequest {
     pub budget_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1369,7 +1405,9 @@ pub struct DeleteBudgetPolicyRequest {
     pub policy_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1452,7 +1490,9 @@ pub struct DownloadRequest {
     pub start_month: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1514,7 +1554,9 @@ pub struct DownloadResponse {
     pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1579,7 +1621,9 @@ pub struct Filter {
     pub policy_name: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1637,7 +1681,9 @@ pub struct GetBillingUsageDashboardRequest {
     pub workspace_id: Option<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1685,7 +1731,9 @@ pub struct GetBillingUsageDashboardResponse {
     pub dashboard_url: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1730,7 +1778,9 @@ pub struct GetBudgetConfigurationRequest {
     pub budget_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1777,7 +1827,9 @@ pub struct GetBudgetConfigurationResponse {
     pub budget: Option<BudgetConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1815,7 +1867,9 @@ pub struct GetBudgetPolicyRequest {
     pub policy_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1862,7 +1916,9 @@ pub struct GetLogDeliveryConfigurationResponse {
     pub log_delivery_configuration: Option<LogDeliveryConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1903,7 +1959,9 @@ pub struct GetLogDeliveryRequest {
     pub log_delivery_configuration_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1948,7 +2006,9 @@ impl GetLogDeliveryRequest {
 pub struct LimitConfig {
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -1981,7 +2041,9 @@ pub struct ListBudgetConfigurationsRequest {
     pub page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2023,7 +2085,9 @@ pub struct ListBudgetConfigurationsResponse {
     pub next_page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2085,7 +2149,9 @@ pub struct ListBudgetPoliciesRequest {
     pub sort_spec: Option<SortSpec>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2152,7 +2218,9 @@ pub struct ListBudgetPoliciesResponse {
     pub previous_page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2215,7 +2283,9 @@ pub struct ListLogDeliveryRequest {
     pub storage_configuration_id: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2387,7 +2457,9 @@ pub struct LogDeliveryConfiguration {
     pub workspace_ids_filter: Vec<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2536,7 +2608,9 @@ pub struct LogDeliveryStatus {
     pub status: DeliveryStatus,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2634,7 +2708,9 @@ pub struct PrincipalOverride {
     pub principal_id: Option<i64>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2682,7 +2758,9 @@ pub struct SortSpec {
     pub field: Option<SortSpecField>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2755,7 +2833,9 @@ pub struct UpdateBudgetConfigurationBudget {
     pub resource_type: Option<BudgetResourceType>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2832,7 +2912,9 @@ pub struct UpdateBudgetConfigurationRequest {
     pub budget_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2890,7 +2972,9 @@ pub struct UpdateBudgetConfigurationResponse {
     pub budget: Option<BudgetConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -2938,7 +3022,9 @@ pub struct UpdateBudgetPolicyRequest {
     pub policy_id: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -3007,7 +3093,9 @@ pub struct UpdateLogDeliveryConfigurationStatusRequest {
     pub status: LogDeliveryConfigStatus,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -3085,7 +3173,9 @@ pub struct WrappedCreateLogDeliveryConfiguration {
     pub log_delivery_configuration: CreateLogDeliveryConfigurationParams,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -3137,7 +3227,9 @@ pub struct WrappedLogDeliveryConfiguration {
     pub log_delivery_configuration: Option<LogDeliveryConfiguration>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -3182,7 +3274,9 @@ pub struct WrappedLogDeliveryConfigurations {
     pub next_page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -3412,6 +3506,7 @@ impl BudgetPolicyApi {
         );
         let mut call = Call::new(Method::PATCH, path);
         call = call.query(query::field("limit_config", &request.limit_config)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.policy)?;
         self.api.send::<BudgetPolicy>(call).await
     }

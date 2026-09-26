@@ -68,7 +68,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 ## What's generated
 
 - 39 packages, 191 services (38 account-level), 1,268 operations and 3,550 types.
-- **1,260 operations are generated in Rust.** The other 8 are listed in `spec/GENERATED.md`:
+- **1,260 operations are generated in Rust.** The other 8 were listed in `spec/GENERATED.md` (superseded: milestone 3 generates all 1,268; see the CHANGELOG):
   - 7 binary or streaming operations, such as the Files API upload and download.
   - 1 legacy DBSQL call whose path parameter is a struct.
 - All 1,268 operations are in the OpenAPI documents: 207 account and 1,061 workspace.

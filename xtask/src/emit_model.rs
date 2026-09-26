@@ -72,7 +72,7 @@ fn emit_enum(out: &mut String, t: &TypeDef) {
 /// Every struct keeps the fields this SDK version doesn't model, so a
 /// value read from the API and sent back (read-modify-write) doesn't drop
 /// them, and a caller can send a field before the SDK knows it (#11).
-const OTHER_FIELD: &str = "    /// Fields not modelled by this SDK version. Kept when read, so a\n    /// read-modify-write round trip never drops them, and sent with a\n    /// request (in the JSON body, or the query string for GET/DELETE).\n    #[serde(flatten, default, skip_serializing_if = \"::std::collections::BTreeMap::is_empty\")]\n    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,\n";
+const OTHER_FIELD: &str = "    /// Fields not modelled by this SDK version. Kept when read, so a\n    /// read-modify-write round trip never drops them, and sent with a\n    /// request: in the JSON body, or in the query string for GET/DELETE\n    /// and for requests whose body is a single field (that field's own\n    /// `other` carries unknown body fields).\n    #[serde(flatten, default, skip_serializing_if = \"::std::collections::BTreeMap::is_empty\")]\n    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,\n";
 
 const OTHER_SETTER: &str = "    /// Set a field this SDK version doesn't model (see `other`).\n    #[must_use]\n    pub fn with_other(mut self, name: impl Into<String>, value: impl Into<::serde_json::Value>) -> Self {\n        self.other.insert(name.into(), value.into());\n        self\n    }\n\n";
 

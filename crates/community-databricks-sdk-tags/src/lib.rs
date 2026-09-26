@@ -28,7 +28,9 @@ pub struct CreateTagAssignmentRequest {
     pub tag_assignment: TagAssignment,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -75,7 +77,9 @@ pub struct CreateTagPolicyRequest {
     pub tag_policy: TagPolicy,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -131,7 +135,9 @@ pub struct DeleteTagAssignmentRequest {
     pub tag_key: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -183,7 +189,9 @@ pub struct DeleteTagPolicyRequest {
     pub tag_key: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -239,7 +247,9 @@ pub struct GetTagAssignmentRequest {
     pub tag_key: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -291,7 +301,9 @@ pub struct GetTagPolicyRequest {
     pub tag_key: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -350,7 +362,9 @@ pub struct ListTagAssignmentsRequest {
     pub page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -422,7 +436,9 @@ pub struct ListTagAssignmentsResponse {
     pub tag_assignments: Vec<TagAssignment>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -473,7 +489,9 @@ pub struct ListTagPoliciesRequest {
     pub page_token: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -521,7 +539,9 @@ pub struct ListTagPoliciesResponse {
     pub tag_policies: Vec<TagPolicy>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -578,7 +598,9 @@ pub struct TagAssignment {
     pub tag_value: Option<String>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -652,7 +674,9 @@ pub struct TagPolicy {
     pub values: Vec<Value>,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -759,7 +783,9 @@ pub struct UpdateTagAssignmentRequest {
     pub update_mask: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -841,7 +867,9 @@ pub struct UpdateTagPolicyRequest {
     pub update_mask: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -893,7 +921,9 @@ pub struct Value {
     pub name: String,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
-    /// request (in the JSON body, or the query string for GET/DELETE).
+    /// request: in the JSON body, or in the query string for GET/DELETE
+    /// and for requests whose body is a single field (that field's own
+    /// `other` carries unknown body fields).
     #[serde(
         flatten,
         default,
@@ -964,6 +994,7 @@ impl TagPoliciesApi {
     ) -> ::community_databricks_core::Result<TagPolicy> {
         let path = String::from("/api/2.1/tag-policies");
         let mut call = Call::new(Method::POST, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tag_policy)?;
         self.api.send::<TagPolicy>(call).await
     }
@@ -1083,6 +1114,7 @@ impl TagPoliciesApi {
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tag_policy)?;
         self.api.send::<TagPolicy>(call).await
     }
@@ -1110,6 +1142,7 @@ impl WorkspaceEntityTagAssignmentsApi {
     ) -> ::community_databricks_core::Result<TagAssignment> {
         let path = String::from("/api/2.0/entity-tag-assignments");
         let mut call = Call::new(Method::POST, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tag_assignment)?;
         self.api.send::<TagAssignment>(call).await
     }
@@ -1223,6 +1256,7 @@ impl WorkspaceEntityTagAssignmentsApi {
         );
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
+        call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.tag_assignment)?;
         self.api.send::<TagAssignment>(call).await
     }

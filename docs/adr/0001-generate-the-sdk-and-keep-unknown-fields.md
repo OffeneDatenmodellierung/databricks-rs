@@ -7,7 +7,7 @@ architectural-significance: HIGH
 domain: databricks-rs
 decision-makers: ["Mark Olliver, maintainer"]
 superseded-by:
-version: "1.0"
+version: "1.1"
 last-modified: 2026-09-26
 ---
 
@@ -18,7 +18,7 @@ last-modified: 2026-09-26
 | **State** | Accepted |
 | **Architectural Significance** | HIGH |
 | **Domain** | databricks-rs |
-| **Document version** | 1.0 |
+| **Document version** | 1.1 |
 
 ## Reference
 
@@ -65,7 +65,7 @@ Option 2: generate everything, with an `other` catch-all on every generated type
   - The whole API surface, regenerated weekly by `upstream.yml`.
   - One set of pattern tests covers 1,268 operations.
   - `other` makes read-modify-write lossless.
-  - Callers can send a field before the SDK models it: it goes in the JSON body, or the query string for GET/DELETE.
+  - Callers can send a field before the SDK models it: it goes in the JSON body, or in the query string for GET/DELETE and for requests whose body is a single field (whose own `other` carries unknown body fields).
 - Cons:
   - `#[serde(flatten)]` buffers each object during deserialisation, which is slower than a plain struct.
   - Every struct gains a field and a `with_other` setter.
@@ -89,3 +89,4 @@ Option 2: generate everything, with an `other` catch-all on every generated type
 | Version | Date | Notes |
 |---------|------|-------|
 | 1.0 | 2026-09-26 | Accepted. Supersedes #11 decisions 1–3; adopts decision 4. |
+| 1.1 | 2026-09-26 | Where a request's `other` is sent when the body is a single field (Copilot review on PR #13). |

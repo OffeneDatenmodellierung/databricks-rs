@@ -4,7 +4,7 @@ A community-maintained, unofficial Rust SDK for the Databricks **Account** and *
 
 Every crate is published with a `community-` prefix (`community-databricks-sdk`, `community-databricks-core`, `community-databricks-sdk-<package>`). That makes clear these are not Databricks-published crates, and leaves the `databricks-*` names free, so Databricks could adopt the crates one at a time without a name collision.
 
-> **Status: milestone 2.** The whole Account and Workspace surface is generated: 39 packages, 191 services, 1,260 operations and 3,550 types. Nothing has been run against a live workspace yet. See [docs/milestone-2.md](docs/milestone-2.md).
+> **Status: milestone 3.** The whole Account and Workspace surface is generated: 39 packages, 191 services, all 1,268 operations and 3,550 types, with parity against databricks-sdk-go tracked in [spec/PARITY.md](spec/PARITY.md). Nothing has been run against a live workspace yet. See [docs/milestone-2.md](docs/milestone-2.md).
 
 Behaviour tracks **databricks-sdk-go v0.182.0**, released 2026-09-21. The same env vars and `~/.databrickscfg` profiles, the same auth precedence, the same retry rules, the same error codes and the same user-agent format apply in both SDKs.
 
@@ -126,7 +126,7 @@ match w.jobs().get_run(req).await {
 
 - **Retries.** 429 / `REQUEST_LIMIT_EXCEEDED` and connection failures are retried for every call, honouring `Retry-After`. Timeouts and 5xx are retried only when the call is idempotent: `GET`/`PUT`/`PATCH`/`DELETE`/`HEAD`, or a `POST` that carries an idempotency key. `Config::retry_non_idempotent` opts back in to Go's retry-everything behaviour.
 - **Idempotency keys.** Jobs `run_now`/`submit` (`idempotency_token`), and every call Go fills a `request_id` for, get a UUID v4 when the caller leaves the key empty. The same key is reused on each retry, so the server can deduplicate. `Call::idempotent()` marks a hand-built call the same way.
-- **Unknown fields.** Every generated type has an `other` map ([ADR-0001](docs/adr/0001-generate-the-sdk-and-keep-unknown-fields.md)). Fields this SDK version doesn't model are kept on read and sent back on write, so get → modify → update never drops them. `with_other(name, value)` sends one before the SDK models it: it goes in the JSON body, or the query string for `GET`/`DELETE`.
+- **Unknown fields.** Every generated type has an `other` map ([ADR-0001](docs/adr/0001-generate-the-sdk-and-keep-unknown-fields.md)). Fields this SDK version doesn't model are kept on read and sent back on write, so get → modify → update never drops them. `with_other(name, value)` sends one before the SDK models it: it goes in the JSON body, or in the query string for `GET`/`DELETE` and for requests whose body is a single field (set unknown body fields on that field's own `other`).
 - **Private link and redirects.** A redirect to the private-link login page becomes `PermissionDenied` (`PRIVATE_LINK_VALIDATION_ERROR`) with a cloud-specific hint. Any other unfollowed 3xx becomes `UNEXPECTED_REDIRECT` rather than a JSON parse error.
 - **Workspace clients from an account.** `AccountClient::get_workspace_client(&workspace)` derives a `WorkspaceClient` sharing the connection pool and rate limiter; on a unified host it shares the credentials too.
 - **Logging.** `Config::attribute` masks tokens and secrets as `***`; use `Config::secret_attribute` for the value itself.

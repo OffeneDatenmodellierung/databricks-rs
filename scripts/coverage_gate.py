@@ -21,6 +21,21 @@ import sys
 THRESHOLD = float(os.environ.get("COVERAGE_THRESHOLD", "85"))
 
 
+GENERATED = "// Code generated"
+
+
+def is_generated(f: dict, parts: list[str]) -> bool:
+    """tarpaulin includes each file's source as `content`; if a version
+    omits it, read the first line from disk instead."""
+    if "content" in f:
+        return f["content"].startswith(GENERATED)
+    try:
+        with open(os.path.join(*parts)) as src:
+            return src.readline().startswith(GENERATED)
+    except (OSError, TypeError):
+        return False
+
+
 def main(report: str) -> int:
     with open(report) as f:
         data = json.load(f)
@@ -34,7 +49,7 @@ def main(report: str) -> int:
         path = "/".join(parts[anchor:]) if anchor is not None else "/".join(parts)
         if not path.startswith("crates/") or "/src/" not in path or not f["coverable"]:
             continue
-        if f.get("content", "").startswith("// Code generated"):
+        if is_generated(f, parts):
             continue
         pct = 100.0 * f["covered"] / f["coverable"]
         rows.append((path, f["covered"], f["coverable"], pct))

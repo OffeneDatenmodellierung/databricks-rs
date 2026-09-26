@@ -310,8 +310,11 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
                 f.ident
             );
         }
-        if !body_verb {
-            // Fields the SDK doesn't model yet go in the query string.
+        if !body_verb || !m.body_field.is_empty() {
+            // Fields the SDK doesn't model yet go in the query string when
+            // the request isn't itself the body: GET/DELETE, and requests
+            // whose body is one field (that field's own `other` carries
+            // unknown body fields).
             s.push_str("        call = call.query(query::to_pairs(&request.other)?);\n");
         }
         if body_verb {

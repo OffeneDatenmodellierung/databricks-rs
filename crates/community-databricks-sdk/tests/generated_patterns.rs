@@ -211,6 +211,38 @@ async fn explicit_query_field_mask_and_sub_field_body() {
 }
 
 #[tokio::test]
+async fn unmodelled_fields_of_a_single_field_body_request() {
+    // The request's own `other` sits beside its path and query fields, so
+    // it goes in the query string; the body field's `other` goes in the
+    // body.
+    let server = MockServer::start().await;
+    Mock::given(method("PATCH"))
+        .and(path("/api/2.1/unity-catalog/mcp-services/svc"))
+        .and(query_param("update_mask", "comment"))
+        .and(query_param("dry_run", "true"))
+        .and(body_json(json!({"comment": "hi", "future_body_field": 1})))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"name": "mcp-services/svc"})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let req = UpdateMcpServiceRequest::default()
+        .with_name("mcp-services/svc")
+        .with_update_mask("comment")
+        .with_other("dry_run", true)
+        .with_mcp_service(
+            McpService::default()
+                .with_comment("hi")
+                .with_other("future_body_field", 1),
+        );
+    workspace(&server)
+        .await
+        .ai_gateway()
+        .update_mcp_service(req)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
 async fn multi_segment_path_is_escaped_per_segment() {
     let server = MockServer::start().await;
     Mock::given(method("HEAD"))
