@@ -10,9 +10,9 @@
 # status = "implemented" (rust = "path#fn"), "gap" (issue = N) or "na" (reason).
 
 [accessors]
-"*.Users" = { status = "gap", issue = 14 }
-"*.Groups" = { status = "gap", issue = 14 }
-"*.ServicePrincipals" = { status = "gap", issue = 14 }
+"*.Users" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#users" }
+"*.Groups" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#groups" }
+"*.ServicePrincipals" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#service_principals" }
 "workspace.ServingEndpointsDataPlane" = { status = "gap", issue = 16 }
 
 [methods]
@@ -33,10 +33,14 @@
 "tags.*API.*Tag*" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#path_param" }
 
 # Planned.
-"iam.*API.GetBy*" = { status = "gap", issue = 14 }
-"iam.*API.DeleteById" = { status = "gap", issue = 14 }
-"iam.*API.*ToIdMap" = { status = "gap", issue = 14 }
-"WorkspaceClient.CurrentWorkspaceID" = { status = "gap", issue = 14 }
+"iam.*API.GetById" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_id" }
+"iam.*API.GetByUserName" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_user_name" }
+"iam.*API.GetByDisplayName" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_display_name" }
+"iam.*API.DeleteById" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#delete_by_id" }
+"iam.*API.UserUserNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#user_user_name_to_id_map" }
+"iam.*API.GroupDisplayNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#group_display_name_to_id_map" }
+"iam.*API.ServicePrincipalDisplayNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#service_principal_display_name_to_id_map" }
+"WorkspaceClient.CurrentWorkspaceID" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#current_workspace_id" }
 "serving.NewDataPlaneService" = { status = "gap", issue = 16 }
 "sql.StatementExecutionAPI.ExecuteAndWait" = { status = "gap", issue = 15 }
 "workspace.*" = { status = "gap", issue = 15 }

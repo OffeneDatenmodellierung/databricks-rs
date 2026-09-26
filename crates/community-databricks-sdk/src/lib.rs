@@ -24,7 +24,10 @@
 mod accessors;
 pub mod service;
 
+use std::sync::{Arc, OnceLock};
+
 use community_databricks_core::auth::DefaultCredentials;
+use community_databricks_core::http::{Call, Method};
 pub use community_databricks_core::{
     self as core, ApiClient, ApiError, Config, Error, ErrorKind, Result,
 };
@@ -33,6 +36,7 @@ pub use community_databricks_core::{
 #[derive(Debug, Clone)]
 pub struct WorkspaceClient {
     api: ApiClient,
+    workspace_id: Arc<OnceLock<i64>>,
 }
 
 impl WorkspaceClient {
@@ -56,7 +60,10 @@ impl WorkspaceClient {
     /// Wrap an existing [`ApiClient`].
     #[must_use]
     pub fn from_api_client(api: ApiClient) -> Self {
-        Self { api }
+        Self {
+            api,
+            workspace_id: Arc::default(),
+        }
     }
 
     /// The underlying client, for calling endpoints the SDK doesn't cover.
@@ -69,6 +76,51 @@ impl WorkspaceClient {
     #[must_use]
     pub fn config(&self) -> &Config {
         self.api.config()
+    }
+
+    /// The numeric ID of the workspace this client talks to (Go:
+    /// `WorkspaceClient.CurrentWorkspaceID`), from the `X-Databricks-Org-Id`
+    /// header of `GET /api/2.0/preview/scim/v2/Me`. Cached after the first
+    /// call, including by clones of this client.
+    pub async fn current_workspace_id(&self) -> Result<i64> {
+        if let Some(id) = self.workspace_id.get() {
+            return Ok(*id);
+        }
+        let call = Call::new(Method::GET, "/api/2.0/preview/scim/v2/Me".to_owned())
+            .workspace()
+            .query(vec![("excludedAttributes".into(), "entitlements".into())]);
+        let (_, headers) = self
+            .api
+            .send_with_headers::<serde::de::IgnoredAny>(call)
+            .await?;
+        let id: i64 = community_databricks_core::http::header(&headers, "x-databricks-org-id")
+            .ok_or_else(|| {
+                Error::Config("the response had no numeric X-Databricks-Org-Id header".into())
+            })?;
+        Ok(*self.workspace_id.get_or_init(|| id))
+    }
+
+    /// Workspace users (Go: `w.Users`, the v1 facade over the same SCIM
+    /// endpoints as [`users_v2`](Self::users_v2), which this returns).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn users(&self) -> service::iam::UsersV2Api {
+        self.users_v2()
+    }
+
+    /// Workspace groups (Go: `w.Groups`); see [`users`](Self::users).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn groups(&self) -> service::iam::GroupsV2Api {
+        self.groups_v2()
+    }
+
+    /// Workspace service principals (Go: `w.ServicePrincipals`); see
+    /// [`users`](Self::users).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn service_principals(&self) -> service::iam::ServicePrincipalsV2Api {
+        self.service_principals_v2()
     }
 }
 
@@ -154,5 +206,28 @@ impl AccountClient {
     #[must_use]
     pub fn account_id(&self) -> &str {
         &self.account_id
+    }
+
+    /// Account users (Go: `a.Users`, the v1 facade over the same SCIM
+    /// endpoints as [`users_v2`](Self::users_v2), which this returns).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn users(&self) -> service::iam::AccountUsersV2Api {
+        self.users_v2()
+    }
+
+    /// Account groups (Go: `a.Groups`); see [`users`](Self::users).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn groups(&self) -> service::iam::AccountGroupsV2Api {
+        self.groups_v2()
+    }
+
+    /// Account service principals (Go: `a.ServicePrincipals`); see
+    /// [`users`](Self::users).
+    #[cfg(feature = "iam")]
+    #[must_use]
+    pub fn service_principals(&self) -> service::iam::AccountServicePrincipalsV2Api {
+        self.service_principals_v2()
     }
 }

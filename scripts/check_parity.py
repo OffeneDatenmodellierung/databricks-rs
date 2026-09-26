@@ -175,7 +175,9 @@ def validate(key: str, e: dict, root: Path) -> list[str]:
         rust = e.get("rust", "")
         path, _, fn = rust.partition("#")
         f = root / path
-        if not fn or not f.exists() or not re.search(rf"\bfn {re.escape(fn)}\b", f.read_text()):
+        # `fn name`, or `= name` as an argument to a macro that defines it.
+        pattern = rf"\bfn {re.escape(fn)}\b|=\s*{re.escape(fn)}\b"
+        if not fn or not f.exists() or not re.search(pattern, f.read_text()):
             return [f"{key}: implemented, but `fn {fn}` not found in {path or '(no rust path)'}"]
         return []
     if status == "gap":

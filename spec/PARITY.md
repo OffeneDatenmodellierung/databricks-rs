@@ -26,10 +26,6 @@ change `codegen/parity.toml` or the code, then re-run.
 
 | Go | Issue |
 |---|---|
-| `WorkspaceClient.CurrentWorkspaceID` | #14 |
-| `*.Groups` (2) | #14 |
-| `*.ServicePrincipals` (2) | #14 |
-| `*.Users` (2) | #14 |
 | `compute.ClusterDetails.IsRunningOrResizing` | #15 |
 | `compute.ClusterLibraryStatuses.*` (2) | #15 |
 | `compute.ClustersAPI.*` (4) | #15 |
@@ -46,9 +42,6 @@ change `codegen/parity.toml` or the code, then re-run.
 | `compute.TrimLeadingWhitespace` | #15 |
 | `compute.Wait.IsNotInScope` | #15 |
 | `files.DbfsAPI.*` (4) | #15 |
-| `iam.*API.DeleteById` (6) | #14 |
-| `iam.*API.GetBy*` (12) | #14 |
-| `iam.*API.*ToIdMap` (6) | #14 |
 | `serving.NewDataPlaneService` | #16 |
 | `serving.ServingEndpointsDataPlane.Query` | #16 |
 | `sql.StatementExecutionAPI.ExecuteAndWait` | #15 |
@@ -60,7 +53,18 @@ change `codegen/parity.toml` or the code, then re-run.
 | Go | Rust |
 |---|---|
 | `AccountClient.GetWorkspaceClient` | `crates/community-databricks-sdk/src/lib.rs#get_workspace_client` |
+| `WorkspaceClient.CurrentWorkspaceID` | `crates/community-databricks-sdk/src/lib.rs#current_workspace_id` |
+| `*.Groups` (2) | `crates/community-databricks-sdk/src/lib.rs#groups` |
+| `*.ServicePrincipals` (2) | `crates/community-databricks-sdk/src/lib.rs#service_principals` |
+| `*.Users` (2) | `crates/community-databricks-sdk/src/lib.rs#users` |
 | `catalog.EntityTagAssignmentsAPI.*` (3) | `crates/community-databricks-core/src/http.rs#path_param` |
+| `iam.*API.DeleteById` (6) | `crates/community-databricks-sdk-iam/src/ext.rs#delete_by_id` |
+| `iam.*API.GetByDisplayName` (4) | `crates/community-databricks-sdk-iam/src/ext.rs#get_by_display_name` |
+| `iam.*API.GetById` (6) | `crates/community-databricks-sdk-iam/src/ext.rs#get_by_id` |
+| `iam.*API.GroupDisplayNameToIdMap` (2) | `crates/community-databricks-sdk-iam/src/ext.rs#group_display_name_to_id_map` |
+| `iam.*API.ServicePrincipalDisplayNameToIdMap` (2) | `crates/community-databricks-sdk-iam/src/ext.rs#service_principal_display_name_to_id_map` |
+| `iam.*API.GetByUserName` (2) | `crates/community-databricks-sdk-iam/src/ext.rs#get_by_user_name` |
+| `iam.*API.UserUserNameToIdMap` (2) | `crates/community-databricks-sdk-iam/src/ext.rs#user_user_name_to_id_map` |
 | `jobs.JobsAPI.Get` | `crates/community-databricks-sdk-jobs/src/ext.rs#get` |
 | `jobs.JobsAPI.GetRun` | `crates/community-databricks-sdk-jobs/src/ext.rs#get_run` |
 | `jobs.JobsAPI.List` | `crates/community-databricks-sdk-jobs/src/ext.rs#list` |
