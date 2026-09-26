@@ -85,4 +85,4 @@
   - Add a `codegen` crate: spec → IR (services, methods, entities, pagination, waiters, path style) → Rust.
   - Run it through `cargo xtask codegen`.
   - Commit the output.
-- **Replace the hand-written services** with generated compute, jobs and Unity Catalog, and check that the tests in `crates/databricks-sdk/tests/services.rs` still pass unchanged. They are the contract.
+- **Replace the hand-written services** with generated compute, jobs and Unity Catalog, and check that the tests in `crates/community-databricks-sdk/tests/services.rs` still pass unchanged. They are the contract.

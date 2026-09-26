@@ -1,18 +1,33 @@
+# Every crate is versioned independently: release-plz bumps a crate only when
+# it changed (or a dependency it re-exports did), and updates the version in
+# the root `[workspace.dependencies]` so dependents pick it up.
 [workspace]
 changelog_update = true
-git_release_enable = true
 semver_check = true
+# One tag per crate and version, e.g. `community-databricks-sdk-jobs-v0.2.0`.
+git_tag_name = "{{ package }}-v{{ version }}"
+# GitHub releases only for the two crates people depend on directly (below);
+# the 39 generated service crates would otherwise flood the releases page.
+git_release_enable = false
 # Dependency bumps go through the 48-hour rule (scripts/check_dep_age.py),
 # not release-plz.
 dependencies_update = false
+# The very first publish of each crate goes through
+# .github/workflows/publish-new-crates.yml, which waits out crates.io's
+# new-crate rate limit; the release job below is skipped until then.
 
 [changelog]
 protect_breaking_commits = true
 
 [[package]]
-name = "databricks-core"
-git_tag_name = "databricks-core-v{{ version }}"
+name = "community-databricks-core"
+git_release_enable = true
 
 [[package]]
-name = "databricks-sdk"
-git_tag_name = "v{{ version }}"
+name = "community-databricks-sdk"
+git_release_enable = true
+
+[[package]]
+name = "xtask"
+publish = false
+release = false

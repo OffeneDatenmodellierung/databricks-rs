@@ -287,6 +287,450 @@ dependencies = [
 ]
 
 [[package]]
+name = "community-databricks-core"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "aws-lc-rs",
+ "azure_core",
+ "azure_identity",
+ "base64 0.23.1",
+ "bytes",
+ "fastrand",
+ "futures-core",
+ "futures-util",
+ "google-cloud-auth",
+ "httpdate",
+ "pretty_assertions",
+ "regex",
+ "reqwest",
+ "rust-ini",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "url",
+ "wiremock",
+]
+
+[[package]]
+name = "community-databricks-sdk"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-agentbricks",
+ "community-databricks-sdk-aifunctions",
+ "community-databricks-sdk-aisearch",
+ "community-databricks-sdk-apps",
+ "community-databricks-sdk-billing",
+ "community-databricks-sdk-bundledeployments",
+ "community-databricks-sdk-catalog",
+ "community-databricks-sdk-cleanrooms",
+ "community-databricks-sdk-compute",
+ "community-databricks-sdk-dashboards",
+ "community-databricks-sdk-database",
+ "community-databricks-sdk-dataclassification",
+ "community-databricks-sdk-dataquality",
+ "community-databricks-sdk-disasterrecovery",
+ "community-databricks-sdk-domains",
+ "community-databricks-sdk-environments",
+ "community-databricks-sdk-files",
+ "community-databricks-sdk-iam",
+ "community-databricks-sdk-iamv2",
+ "community-databricks-sdk-jobs",
+ "community-databricks-sdk-knowledgeassistants",
+ "community-databricks-sdk-marketplace",
+ "community-databricks-sdk-ml",
+ "community-databricks-sdk-networking",
+ "community-databricks-sdk-oauth2",
+ "community-databricks-sdk-pipelines",
+ "community-databricks-sdk-postgres",
+ "community-databricks-sdk-provisioning",
+ "community-databricks-sdk-qualitymonitorv2",
+ "community-databricks-sdk-sandbox",
+ "community-databricks-sdk-serving",
+ "community-databricks-sdk-settings",
+ "community-databricks-sdk-settingsv2",
+ "community-databricks-sdk-sharing",
+ "community-databricks-sdk-sql",
+ "community-databricks-sdk-supervisoragents",
+ "community-databricks-sdk-tags",
+ "community-databricks-sdk-vectorsearch",
+ "community-databricks-sdk-workspace",
+ "futures-util",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing-subscriber",
+ "wiremock",
+]
+
+[[package]]
+name = "community-databricks-sdk-agentbricks"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-aifunctions"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-aisearch"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-apps"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-billing"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-compute",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-bundledeployments"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-catalog"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-cleanrooms"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-catalog",
+ "community-databricks-sdk-jobs",
+ "community-databricks-sdk-settings",
+ "community-databricks-sdk-sharing",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-compute"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-dashboards"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-sql",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-database"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-dataclassification"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-dataquality"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-disasterrecovery"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-domains"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-environments"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-files"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-iam"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-iamv2"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-jobs"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-compute",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-knowledgeassistants"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-marketplace"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-ml"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-networking"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-oauth2"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-pipelines"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-compute",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-postgres"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-provisioning"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-qualitymonitorv2"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-sandbox"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-serving"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-settings"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-iam",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-settingsv2"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-sharing"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "community-databricks-sdk-catalog",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-sql"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-supervisoragents"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-tags"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-vectorsearch"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-workspace"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "compression-codecs"
 version = "0.4.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -429,450 +873,6 @@ dependencies = [
  "darling_core",
  "quote",
  "syn 3.0.6",
-]
-
-[[package]]
-name = "databricks-core"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "aws-lc-rs",
- "azure_core",
- "azure_identity",
- "base64 0.23.1",
- "bytes",
- "fastrand",
- "futures-core",
- "futures-util",
- "google-cloud-auth",
- "httpdate",
- "pretty_assertions",
- "regex",
- "reqwest",
- "rust-ini",
- "secrecy",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror",
- "tokio",
- "tracing",
- "url",
- "wiremock",
-]
-
-[[package]]
-name = "databricks-sdk"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-agentbricks",
- "databricks-sdk-aifunctions",
- "databricks-sdk-aisearch",
- "databricks-sdk-apps",
- "databricks-sdk-billing",
- "databricks-sdk-bundledeployments",
- "databricks-sdk-catalog",
- "databricks-sdk-cleanrooms",
- "databricks-sdk-compute",
- "databricks-sdk-dashboards",
- "databricks-sdk-database",
- "databricks-sdk-dataclassification",
- "databricks-sdk-dataquality",
- "databricks-sdk-disasterrecovery",
- "databricks-sdk-domains",
- "databricks-sdk-environments",
- "databricks-sdk-files",
- "databricks-sdk-iam",
- "databricks-sdk-iamv2",
- "databricks-sdk-jobs",
- "databricks-sdk-knowledgeassistants",
- "databricks-sdk-marketplace",
- "databricks-sdk-ml",
- "databricks-sdk-networking",
- "databricks-sdk-oauth2",
- "databricks-sdk-pipelines",
- "databricks-sdk-postgres",
- "databricks-sdk-provisioning",
- "databricks-sdk-qualitymonitorv2",
- "databricks-sdk-sandbox",
- "databricks-sdk-serving",
- "databricks-sdk-settings",
- "databricks-sdk-settingsv2",
- "databricks-sdk-sharing",
- "databricks-sdk-sql",
- "databricks-sdk-supervisoragents",
- "databricks-sdk-tags",
- "databricks-sdk-vectorsearch",
- "databricks-sdk-workspace",
- "futures-util",
- "pretty_assertions",
- "serde",
- "serde_json",
- "tokio",
- "tracing-subscriber",
- "wiremock",
-]
-
-[[package]]
-name = "databricks-sdk-agentbricks"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-aifunctions"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-aisearch"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-apps"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-billing"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-compute",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-bundledeployments"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-catalog"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-cleanrooms"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-catalog",
- "databricks-sdk-jobs",
- "databricks-sdk-settings",
- "databricks-sdk-sharing",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-compute"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-dashboards"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-sql",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-database"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-dataclassification"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-dataquality"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-disasterrecovery"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-domains"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-environments"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-files"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-iam"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-iamv2"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-jobs"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-compute",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-knowledgeassistants"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-marketplace"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-ml"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-networking"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-oauth2"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-pipelines"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-compute",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-postgres"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-provisioning"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-qualitymonitorv2"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-sandbox"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-serving"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-settings"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-iam",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-settingsv2"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-sharing"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "databricks-sdk-catalog",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-sql"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-supervisoragents"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-tags"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-vectorsearch"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "databricks-sdk-workspace"
-version = "0.1.0"
-dependencies = [
- "databricks-core",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -6,15 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- All crates are renamed with a `community-` prefix (`community-databricks-core`,
+  `community-databricks-sdk`, `community-databricks-sdk-<package>`); import
+  paths become `community_databricks_sdk::…`. This makes clear that the
+  crates are community-maintained, and keeps the `databricks-*` names free
+  for Databricks.
+- Each crate has its own version and is released independently.
+
+### Added
+- `security.yml`: `cargo deny` and `cargo audit` on every change and daily.
+- `publish-new-crates.yml` + `scripts/publish_new_crates.py`: the first
+  publication of each crate, in dependency order, waiting out crates.io's
+  new-crate rate limit.
+- CI checks that every crate packages for crates.io.
+
 ### Added
 - Milestone 2: code generation. `codegen/extract-go` extracts `spec/ir.json`
   from databricks-sdk-go v0.182.0; `cargo xtask codegen` emits one
-  `databricks-sdk-<package>` crate per package (39) covering 1,260
+  `community-databricks-sdk-<package>` crate per package (39) covering 1,260
   operations, plus OpenAPI 3.1 documents `spec/openapi/{account,workspace}.json`.
 - Weekly upstream-spec workflow and `scripts/check_upstream.py`.
 - Fixes from a review of databricks-sdk-go issues and PRs (`docs/upstream-review.md`):
   - Integer fields accept numeric strings (Go #1808), and float fields accept
-    `"NaN"`/`"Infinity"` (Go #1498), via `databricks_core::serde_num`.
+    `"NaN"`/`"Infinity"` (Go #1498), via `community_databricks_core::serde_num`.
   - Path parameters are escaped by segment type: `/` becomes `%2F` in
     single-segment values, and resource names keep `/` (Go #1811, #1765).
   - `Config::headers` / `Config::header` for custom request headers (Go #1846).
@@ -34,10 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - Request types use `Default` + `with_*` setters (and `new(..)` for one or
   two required fields) instead of `bon` builders.
-- `databricks-sdk` service modules are re-exports of the generated crates.
+- `community-databricks-sdk` service modules are re-exports of the generated crates.
 
-- Milestone 1 runtime (`databricks-core`): unified config (env, `~/.databrickscfg`,
+- Milestone 1 runtime (`community-databricks-core`): unified config (env, `~/.databrickscfg`,
   host metadata), PAT and OAuth M2M auth with async token refresh, retrying
   rate-limited HTTP client, typed API errors, pagination streams, waiters.
-- Spike services (`databricks-sdk`): `clusters.list`, `jobs.run_now` / `get_run`
+- Spike services (`community-databricks-sdk`): `clusters.list`, `jobs.run_now` / `get_run`
   / wait, account `workspaces.list`.

@@ -38,7 +38,7 @@ jobs:
             https://github.com/databricks/databricks-sdk-go /tmp/go-sdk
           (cd codegen/extract-go && go run . -sdk /tmp/go-sdk -out ../../spec/ir.json)
           cargo xtask codegen
-          cargo check -p databricks-sdk --features full
+          cargo check -p community-databricks-sdk --features full
       - if: steps.check.outputs.update == 'true'
         uses: peter-evans/create-pull-request@v7
         with:

@@ -51,8 +51,8 @@ jobs:
       - run: cargo test --workspace --all-features --locked
       - name: Feature subsets compile
         run: |
-          cargo check -p databricks-sdk --no-default-features --locked
-          cargo check -p databricks-sdk --no-default-features --features jobs --locked
+          cargo check -p community-databricks-sdk --no-default-features --locked
+          cargo check -p community-databricks-sdk --no-default-features --features jobs --locked
 
   codegen:
     name: generated code, IR and OpenAPI are current
@@ -104,7 +104,7 @@ jobs:
         with:
           tool: cargo-tarpaulin
       - run: >
-          cargo tarpaulin -p databricks-core -p databricks-sdk --all-features
+          cargo tarpaulin -p community-databricks-core -p community-databricks-sdk --all-features
           --engine ptrace --out Json --out Xml
           --output-dir target/coverage
           --exclude-files 'crates/*/examples/*'
@@ -114,11 +114,22 @@ jobs:
       - name: Per-file coverage gate (85%)
         run: python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json
 
-  deny:
+  # cargo deny and cargo audit run in security.yml (also daily).
+
+  package:
+    name: crates package for crates.io
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Every crate packages (metadata, readme, licence, size)
+        run: cargo publish --workspace --dry-run --no-verify --locked
+      - name: Release scripts
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
 
   dependency-age:
     if: github.event_name == 'pull_request'

@@ -27,8 +27,8 @@ Pinned: **databricks-sdk-go v0.182.0**, OpenAPI `4648d66f`. The databricks CLI v
 ## Pipeline
 
 ```
-databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(cargo xtask codegen)──▶ crates/databricks-sdk-<package>/src/lib.rs ×39
-                                                                                     ├─▶ crates/databricks-sdk/src/{service/mod.rs, accessors.rs} + Cargo.toml features
+databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(cargo xtask codegen)──▶ crates/community-databricks-sdk-<package>/src/lib.rs ×39
+                                                                                     ├─▶ crates/community-databricks-sdk/src/{service/mod.rs, accessors.rs} + Cargo.toml features
                                                                                      ├─▶ spec/openapi/{account,workspace}.json
                                                                                      └─▶ spec/GENERATED.md
 ```
@@ -40,7 +40,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 ## Decisions
 
 1. **One crate per package.** The first attempt put all 208k generated lines in one crate. A debug build ran for more than 25 minutes and used about 6 GB of RAM on a 2-core machine before I stopped it. As 39 crates, the `compute` crate builds in 9 seconds and the whole workspace with every feature builds in 1 minute 20 seconds.
-   - `databricks-sdk` becomes an umbrella: each feature enables one crate and re-exports it as `databricks_sdk::service::<package>`.
+   - `community-databricks-sdk` becomes an umbrella: each feature enables one crate and re-exports it as `community_databricks_sdk::service::<package>`.
    - Dependencies between packages (for example jobs → compute) are ordinary crate dependencies, and the graph has no cycles.
    - This matches aws-sdk-rust. The cost is publishing 41 crates, which release-plz handles.
 2. **Setters, not `bon` builders.** Every struct derives `Default` and gets `with_<field>(impl Into<T>)`. A struct with one or two required fields also gets `new(..)`. Three or more required fields would make `new` an easy-to-misorder positional list, so those go through `Default` plus setters.
@@ -60,8 +60,8 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
    - Wire names that aren't snake case (SCIM `startIndex`) are renamed with `#[serde(rename)]`.
    - Types that refer to themselves, directly or through a cycle, are `Box`ed. Tarjan's algorithm finds the cycles.
 4. **Enums** use `open_enum!` with `Unknown(String)`. `Default` returns an empty `Unknown`, which a required enum field gets when the server omits it.
-5. **Waiters** are generated types, `Wait<Name><R>`, with `.timeout()`, `.on_progress()` and `.wait()`, plus a `wait_<name>()` method on the service. State checking is shared code in `databricks_core::wait::check_state`, which follows the JSON status path the same way Go's switch does.
-6. **Hand-written overrides** live in `codegen/overrides.json`. There is one: `jobs.Jobs.GetRun` is generated as `get_run_page`, and `crates/databricks-sdk-jobs/src/ext.rs` supplies `get_run`, which merges pages as Go does. A package crate includes `src/ext.rs` when that file exists.
+5. **Waiters** are generated types, `Wait<Name><R>`, with `.timeout()`, `.on_progress()` and `.wait()`, plus a `wait_<name>()` method on the service. State checking is shared code in `community_databricks_core::wait::check_state`, which follows the JSON status path the same way Go's switch does.
+6. **Hand-written overrides** live in `codegen/overrides.json`. There is one: `jobs.Jobs.GetRun` is generated as `get_run_page`, and `crates/community-databricks-sdk-jobs/src/ext.rs` supplies `get_run`, which merges pages as Go does. A package crate includes `src/ext.rs` when that file exists.
 7. **Generated code is not linted.** Generated crates `#![allow(clippy::all, clippy::pedantic)]` and the rustdoc HTML and link lints (Go docs contain `<catalog>` and `[Go.Links]`). Go's indented and fenced blocks become ```` ```text ```` so they never run as doctests. Hand-written code stays under the house lint rules.
 8. **OpenAPI 3.1.** Pagination, waiters, the workspace header, multi-segment parameters and unsupported operations are kept as `x-databricks-*` extensions. Some operations share a verb and a `{name}` path, e.g. every `GET /api/2.0/postgres/{name}`. Those paths are expanded using the resource-name `Format:` given in the field docs (`projects/{project_id}/branches/{branch_id}`). Four collisions have no documented format; they are kept under `x-databricks-shared-path-operations` so no operation is lost. Both documents pass `openapi-spec-validator`.
 
@@ -98,7 +98,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 
 - The `bon` builders are gone; use `new(..)` or `Default` plus `with_*`.
 - Response structs no longer have an `other` map. Unknown fields are ignored, and every known field is typed.
-- Integer fields are `i64` throughout. Go's `int` is 64-bit, so an `i32` could fail to deserialise large values. They also accept numeric strings, and float fields accept `"NaN"`/`"Infinity"` (`databricks_core::serde_num`).
+- Integer fields are `i64` throughout. Go's `int` is 64-bit, so an `i32` could fail to deserialise large values. They also accept numeric strings, and float fields accept `"NaN"`/`"Infinity"` (`community_databricks_core::serde_num`).
 - `AccountClient::workspaces()` and the other accessors are generated. Account IDs are read from the config on each call.
 
 ## Upstream review
@@ -114,7 +114,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 ## Open items
 
 1. **Ask Databricks for the spec** through the PAB. An OpenAPI → IR front end would replace the Go extractor; the emitters stay the same.
-2. **Binary operations**: Files upload and download, and the few octet-stream and text endpoints. These need streaming bodies in `databricks-core`.
+2. **Binary operations**: Files upload and download, and the few octet-stream and text endpoints. These need streaming bodies in `community-databricks-core`.
 3. **Port the Go `ext_*` helpers**, such as `clusters.SelectSparkVersion`, `SelectNodeType` and the SCIM v1 dedupe iterators.
 4. **Live test**, still carried over from milestone 1: run the examples against a real workspace and account.
-5. **Publishing**: release-plz config for 41 crates, and reserving the `databricks-sdk-*` names on crates.io.
+5. **Publishing**: run the *Publish new crates* workflow once to create the 41 crates. All the names were free on crates.io on 2026-09-26. release-plz is set up for independent per-crate versions.

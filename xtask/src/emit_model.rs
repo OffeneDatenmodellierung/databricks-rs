@@ -41,7 +41,7 @@ fn emit_enum(out: &mut String, t: &TypeDef) {
         let _ = writeln!(out, "pub type {} = String;", t.name);
         return;
     }
-    out.push_str("::databricks_core::open_enum! {\n");
+    out.push_str("::community_databricks_core::open_enum! {\n");
     out.push_str(&docs::render_or(
         &t.doc,
         &format!("`{}` values.", t.name),
@@ -164,7 +164,7 @@ fn serde_attr(i: &FieldInfo) -> String {
     };
     if let Some(f) = de.filter(|_| !i.boxed) {
         parts.push(format!(
-            "deserialize_with = \"::databricks_core::serde_num::{f}\""
+            "deserialize_with = \"::community_databricks_core::serde_num::{f}\""
         ));
     }
     if i.ident.trim_start_matches("r#") != i.json {

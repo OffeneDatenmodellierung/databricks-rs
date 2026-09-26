@@ -123,14 +123,14 @@ fn find_cycles(ir: &Ir) -> BTreeSet<(String, String, String)> {
     out
 }
 
-/// Crate name for a package (`databricks-sdk-compute`).
+/// Crate name for a package (`community-databricks-sdk-compute`).
 pub fn crate_name(pkg: &str) -> String {
-    format!("databricks-sdk-{pkg}")
+    format!("community-databricks-sdk-{pkg}")
 }
 
-/// Crate identifier for a package (`databricks_sdk_compute`).
+/// Crate identifier for a package (`community_databricks_sdk_compute`).
 pub fn crate_ident(pkg: &str) -> String {
-    format!("databricks_sdk_{pkg}")
+    format!("community_databricks_sdk_{pkg}")
 }
 
 /// Rust type for a reference, relative to `from_pkg`.

@@ -230,7 +230,7 @@ fn send_expr(types: &Types<'_>, m: &Method, pkg: &str) -> String {
         resp_ty(m, pkg)
     );
     for (name, f) in header_fields {
-        let value = format!("::databricks_core::http::header(&headers, {name:?})");
+        let value = format!("::community_databricks_core::http::header(&headers, {name:?})");
         let value = if f.optional {
             value
         } else {
@@ -289,7 +289,7 @@ fn emit_method(
         let page_fn = format!("{fname}_page");
         let _ = write!(
             out,
-            "    /// One page of [`{fname}`](Self::{fname}).\n{path_doc}    pub async fn {page_fn}(&self{req_param}) -> ::databricks_core::Result<{resp_t}> {{\n{req_unused}{}        {}\n    }}\n\n",
+            "    /// One page of [`{fname}`](Self::{fname}).\n{path_doc}    pub async fn {page_fn}(&self{req_param}) -> ::community_databricks_core::Result<{resp_t}> {{\n{req_unused}{}        {}\n    }}\n\n",
             build_call(types, svc, m),
             send_expr(types, m, pkg)
         );
@@ -325,7 +325,7 @@ fn emit_method(
         };
         let _ = write!(
             out,
-            "    /// Every page of [`{fname}`](Self::{fname}), collected.\n    pub async fn {fname}_all(&self{req_in_all}) -> ::databricks_core::Result<Vec<{item}>> {{\n        paging::collect({call_all}).await\n    }}\n\n"
+            "    /// Every page of [`{fname}`](Self::{fname}), collected.\n    pub async fn {fname}_all(&self{req_in_all}) -> ::community_databricks_core::Result<Vec<{item}>> {{\n        paging::collect({call_all}).await\n    }}\n\n"
         );
         return;
     }
@@ -359,7 +359,7 @@ fn emit_method(
     }
     let _ = write!(
         out,
-        "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
+        "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::community_databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
     );
 }
 
@@ -488,7 +488,7 @@ fn emit_waiter_fn(out: &mut String, types: &Types<'_>, svc: &Service, w: &Waiter
     let targets = w.targets.join(" or ");
     let _ = write!(
         out,
-        "    /// Repeatedly calls [`{poll}`](Self::{poll}) until the result reaches {targets}.\n    pub async fn wait_{wname}(\n        &self,\n        {pname}: {ptype},\n        timeout: ::std::time::Duration,\n        on_progress: Option<wait::Progress<{result}>>,\n    ) -> ::databricks_core::Result<{result}> {{\n        let param: {pt} = {pname}{conv};\n        let callback = ::std::sync::Mutex::new(on_progress);\n        let callback = &callback;\n        wait::poll(timeout, || {{\n            let fut = self.{poll}({req_t}::default().{setter}(param.clone()));\n            async move {{\n                let value = fut.await?;\n                if let Some(cb) = callback\n                    .lock()\n                    .unwrap_or_else(::std::sync::PoisonError::into_inner)\n                    .as_mut()\n                {{\n                    cb(&value);\n                }}\n                wait::check_state(value, {states})\n            }}\n        }})\n        .await\n    }}\n\n",
+        "    /// Repeatedly calls [`{poll}`](Self::{poll}) until the result reaches {targets}.\n    pub async fn wait_{wname}(\n        &self,\n        {pname}: {ptype},\n        timeout: ::std::time::Duration,\n        on_progress: Option<wait::Progress<{result}>>,\n    ) -> ::community_databricks_core::Result<{result}> {{\n        let param: {pt} = {pname}{conv};\n        let callback = ::std::sync::Mutex::new(on_progress);\n        let callback = &callback;\n        wait::poll(timeout, || {{\n            let fut = self.{poll}({req_t}::default().{setter}(param.clone()));\n            async move {{\n                let value = fut.await?;\n                if let Some(cb) = callback\n                    .lock()\n                    .unwrap_or_else(::std::sync::PoisonError::into_inner)\n                    .as_mut()\n                {{\n                    cb(&value);\n                }}\n                wait::check_state(value, {states})\n            }}\n        }})\n        .await\n    }}\n\n",
         wname = names::snake(&w.name),
         pt = waiter_param_type(&w.param_type).1,
         setter = pf.setter,
@@ -506,7 +506,7 @@ fn emit_waiter_struct(out: &mut String, _types: &Types<'_>, svc: &Service, w: &W
     let targets = w.targets.join(" or ");
     let _ = write!(
         out,
-        "/// Returned by operations that start a long-running change; waits until\n/// the result reaches {targets}.\npub struct {name}<R> {{\n    api: {api},\n    /// The ID being waited on.\n    pub {pname}: {pt},\n    /// The operation's immediate response.\n    pub response: R,\n    timeout: ::std::time::Duration,\n    on_progress: Option<wait::Progress<{result}>>,\n}}\n\nimpl<R: ::std::fmt::Debug> ::std::fmt::Debug for {name}<R> {{\n    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {{\n        f.debug_struct({name:?})\n            .field({pn:?}, &self.{pname})\n            .field(\"response\", &self.response)\n            .field(\"timeout\", &self.timeout)\n            .finish_non_exhaustive()\n    }}\n}}\n\nimpl<R> {name}<R> {{\n    /// Override the default timeout.\n    #[must_use]\n    pub fn timeout(mut self, timeout: ::std::time::Duration) -> Self {{\n        self.timeout = timeout;\n        self\n    }}\n\n    /// Called with the polled value on every poll.\n    #[must_use]\n    pub fn on_progress(mut self, f: impl FnMut(&{result}) + Send + 'static) -> Self {{\n        self.on_progress = Some(Box::new(f));\n        self\n    }}\n\n    /// Wait until the result reaches {targets}.\n    pub async fn wait(self) -> ::databricks_core::Result<{result}> {{\n        self.api\n            .wait_{wname}(self.{pname}, self.timeout, self.on_progress)\n            .await\n    }}\n}}\n\n",
+        "/// Returned by operations that start a long-running change; waits until\n/// the result reaches {targets}.\npub struct {name}<R> {{\n    api: {api},\n    /// The ID being waited on.\n    pub {pname}: {pt},\n    /// The operation's immediate response.\n    pub response: R,\n    timeout: ::std::time::Duration,\n    on_progress: Option<wait::Progress<{result}>>,\n}}\n\nimpl<R: ::std::fmt::Debug> ::std::fmt::Debug for {name}<R> {{\n    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {{\n        f.debug_struct({name:?})\n            .field({pn:?}, &self.{pname})\n            .field(\"response\", &self.response)\n            .field(\"timeout\", &self.timeout)\n            .finish_non_exhaustive()\n    }}\n}}\n\nimpl<R> {name}<R> {{\n    /// Override the default timeout.\n    #[must_use]\n    pub fn timeout(mut self, timeout: ::std::time::Duration) -> Self {{\n        self.timeout = timeout;\n        self\n    }}\n\n    /// Called with the polled value on every poll.\n    #[must_use]\n    pub fn on_progress(mut self, f: impl FnMut(&{result}) + Send + 'static) -> Self {{\n        self.on_progress = Some(Box::new(f));\n        self\n    }}\n\n    /// Wait until the result reaches {targets}.\n    pub async fn wait(self) -> ::community_databricks_core::Result<{result}> {{\n        self.api\n            .wait_{wname}(self.{pname}, self.timeout, self.on_progress)\n            .await\n    }}\n}}\n\n",
         pn = pname.trim_start_matches("r#"),
         wname = names::snake(&w.name),
     );

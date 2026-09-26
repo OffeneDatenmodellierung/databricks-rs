@@ -1,4 +1,4 @@
-//! `cargo xtask codegen` — generate `databricks-sdk` service modules from
+//! `cargo xtask codegen` — generate `community-databricks-sdk` service modules from
 //! `spec/ir.json`.
 //!
 //! `cargo xtask codegen --check` fails if the committed output is stale.
@@ -71,7 +71,7 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
     }
 
     let types = model::Types::new(&ir);
-    let sdk = root.join("crates/databricks-sdk");
+    let sdk = root.join("crates/community-databricks-sdk");
     let mut files: BTreeMap<PathBuf, String> = BTreeMap::new();
     let mut unsupported = Vec::new();
     let header = format!(
@@ -85,7 +85,7 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
         by_pkg.entry(s.package.as_str()).or_default().push(s);
     }
     let deps = package_deps(&ir);
-    let version = workspace_version(root)?;
+    let mut versions: BTreeMap<String, String> = BTreeMap::new();
     for (pkg, p) in &ir.packages {
         let dir = root.join("crates").join(model::crate_name(pkg));
         let has_ext = dir.join("src/ext.rs").exists();
@@ -93,7 +93,7 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
         out.push_str(&header);
         let _ = writeln!(
             out,
-            "\n//! Databricks `{pkg}` API: models and services.\n//!\n//! Generated from databricks-sdk-go {}; use it through the\n//! [`databricks-sdk`](https://docs.rs/databricks-sdk) clients\n//! (`databricks_sdk::service::{pkg}`).\n\n#![allow(\n    clippy::all,\n    clippy::pedantic,\n    rustdoc::broken_intra_doc_links,\n    rustdoc::invalid_html_tags,\n    rustdoc::bare_urls,\n    unused_imports\n)]\n\nuse databricks_core::http::{{Call, Method, path_param}};\nuse databricks_core::paging::{{self, Paged}};\nuse databricks_core::{{ApiClient, query, wait}};\n",
+            "\n//! Databricks `{pkg}` API: models and services.\n//!\n//! Generated from databricks-sdk-go {}; use it through the\n//! [`community-databricks-sdk`](https://docs.rs/community-databricks-sdk) clients\n//! (`community_databricks_sdk::service::{pkg}`).\n\n#![allow(\n    clippy::all,\n    clippy::pedantic,\n    rustdoc::broken_intra_doc_links,\n    rustdoc::invalid_html_tags,\n    rustdoc::bare_urls,\n    unused_imports\n)]\n\nuse community_databricks_core::http::{{Call, Method, path_param}};\nuse community_databricks_core::paging::{{self, Paged}};\nuse community_databricks_core::{{ApiClient, query, wait}};\n",
             ir.source.go_sdk_version
         );
         if has_ext {
@@ -117,13 +117,14 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
         files.insert(dir.join("src/lib.rs"), out);
         files.insert(
             dir.join("Cargo.toml"),
-            package_manifest(pkg, &deps[pkg.as_str()], &version),
+            package_manifest(pkg, &deps[pkg.as_str()], &crate_version(&dir)),
         );
+        versions.insert(model::crate_name(pkg), crate_version(&dir));
     }
 
     // Umbrella: service re-exports, accessors, features and optional deps.
     let mut m = header.clone();
-    m.push_str("\n//! Service packages, each a separate `databricks-sdk-<package>` crate\n//! enabled by the feature of the same name.\n\n");
+    m.push_str("\n//! Service packages, each a separate `community-databricks-sdk-<package>` crate\n//! enabled by the feature of the same name.\n\n");
     for pkg in ir.packages.keys() {
         let _ = writeln!(
             m,
@@ -135,7 +136,10 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
     files.insert(sdk.join("src/accessors.rs"), accessors(&ir, &header));
     let cargo_path = sdk.join("Cargo.toml");
     let cargo = std::fs::read_to_string(&cargo_path).map_err(|e| e.to_string())?;
-    files.insert(cargo_path, umbrella_manifest(&ir, &cargo, &version)?);
+    files.insert(cargo_path, umbrella_manifest(&ir, &cargo)?);
+    let root_manifest = root.join("Cargo.toml");
+    let root_toml = std::fs::read_to_string(&root_manifest).map_err(|e| e.to_string())?;
+    files.insert(root_manifest, workspace_manifest(&root_toml, &versions)?);
 
     // OpenAPI documents.
     let specs = emit_openapi::emit(&ir, &types);
@@ -308,39 +312,59 @@ fn package_deps(ir: &Ir) -> BTreeMap<&str, BTreeSet<&str>> {
     deps
 }
 
-/// `[workspace.package] version`, so path dependencies track release-plz
-/// bumps.
-fn workspace_version(root: &Path) -> Result<String, String> {
-    let toml = std::fs::read_to_string(root.join("Cargo.toml")).map_err(|e| e.to_string())?;
-    let section = toml
-        .split("[workspace.package]")
-        .nth(1)
-        .ok_or("Cargo.toml has no [workspace.package]")?;
-    section
+/// A generated crate's current version, so codegen never undoes a
+/// release-plz bump. New crates start at 0.1.0.
+fn crate_version(dir: &Path) -> String {
+    std::fs::read_to_string(dir.join("Cargo.toml"))
+        .ok()
+        .and_then(|toml| manifest_version(&toml))
+        .unwrap_or_else(|| "0.1.0".to_owned())
+}
+
+/// `version = "…"` from a manifest's `[package]` table.
+fn manifest_version(toml: &str) -> Option<String> {
+    toml.split("[package]")
+        .nth(1)?
         .lines()
         .take_while(|l| !l.starts_with('['))
         .find_map(|l| {
-            let l = l.trim();
-            l.strip_prefix("version")
-                .map(str::trim_start)
-                .and_then(|r| r.strip_prefix('='))
-                .map(|r| r.trim().trim_matches('"').to_owned())
+            let rest = l.trim().strip_prefix("version")?.trim_start();
+            let v = rest.strip_prefix('=')?.trim().trim_matches('"');
+            (!v.is_empty()).then(|| v.to_owned())
         })
-        .ok_or_else(|| "no version in [workspace.package]".to_owned())
+}
+
+/// Replace the text between `# BEGIN GENERATED {name}` and
+/// `# END GENERATED {name}` in `src`.
+fn replace_block(src: &str, file: &str, name: &str, body: &str) -> Result<String, String> {
+    let begin = format!("# BEGIN GENERATED {name}");
+    let end = format!("# END GENERATED {name}");
+    let (Some(b), Some(e)) = (src.find(&begin), src.find(&end)) else {
+        return Err(format!("{file} lacks `{begin}`/`{end}`"));
+    };
+    Ok(format!("{}{begin}\n{body}{}", &src[..b], &src[e..]))
+}
+
+/// The generated crates in the root `[workspace.dependencies]`, each with
+/// its own version (release-plz bumps these alongside the crate).
+fn workspace_manifest(root: &str, versions: &BTreeMap<String, String>) -> Result<String, String> {
+    let mut body = String::new();
+    for (name, v) in versions {
+        let _ = writeln!(
+            body,
+            "{name} = {{ path = \"crates/{name}\", version = \"{v}\" }}"
+        );
+    }
+    replace_block(root, "Cargo.toml", "WORKSPACE CRATES", &body)
 }
 
 fn package_manifest(pkg: &str, deps: &BTreeSet<&str>, version: &str) -> String {
     let mut out = format!(
-        "{GENERATED_MANIFEST}\n\n[package]\nname = {:?}\ndescription = \"Databricks `{pkg}` API models and services (generated; use via databricks-sdk)\"\nreadme = \"../../README.md\"\nversion.workspace = true\nedition.workspace = true\nrust-version.workspace = true\nlicense.workspace = true\nrepository.workspace = true\nauthors.workspace = true\nkeywords.workspace = true\ncategories.workspace = true\n\n[dependencies]\ndatabricks-core.workspace = true\nserde.workspace = true\nserde_json.workspace = true\n",
+        "{GENERATED_MANIFEST}\n\n[package]\nname = {:?}\ndescription = \"Databricks `{pkg}` API models and services (community-maintained, generated; use via community-databricks-sdk)\"\nreadme = \"../../README.md\"\nversion = \"{version}\"\nedition.workspace = true\nrust-version.workspace = true\nlicense.workspace = true\nrepository.workspace = true\nauthors.workspace = true\nkeywords.workspace = true\ncategories.workspace = true\n\n[dependencies]\ncommunity-databricks-core.workspace = true\nserde.workspace = true\nserde_json.workspace = true\n",
         model::crate_name(pkg)
     );
     for d in deps {
-        let _ = writeln!(
-            out,
-            "{} = {{ path = \"../{}\", version = \"{version}\" }}",
-            model::crate_name(d),
-            model::crate_name(d)
-        );
+        let _ = writeln!(out, "{}.workspace = true", model::crate_name(d));
     }
     out.push_str("\n[lints]\nworkspace = true\n");
     out
@@ -348,17 +372,8 @@ fn package_manifest(pkg: &str, deps: &BTreeSet<&str>, version: &str) -> String {
 
 /// Replace the generated feature and dependency blocks in the umbrella
 /// Cargo.toml.
-fn umbrella_manifest(ir: &Ir, cargo: &str, version: &str) -> Result<String, String> {
-    fn replace(src: &str, name: &str, body: &str) -> Result<String, String> {
-        let begin = format!("# BEGIN GENERATED {name}");
-        let end = format!("# END GENERATED {name}");
-        let (Some(b), Some(e)) = (src.find(&begin), src.find(&end)) else {
-            return Err(format!(
-                "crates/databricks-sdk/Cargo.toml lacks `{begin}`/`{end}`"
-            ));
-        };
-        Ok(format!("{}{begin}\n{body}{}", &src[..b], &src[e..]))
-    }
+fn umbrella_manifest(ir: &Ir, cargo: &str) -> Result<String, String> {
+    let file = "crates/community-databricks-sdk/Cargo.toml";
     let mut features = String::new();
     let defaults: Vec<String> = DEFAULT_FEATURES.iter().map(|f| format!("{f:?}")).collect();
     let _ = writeln!(features, "default = [{}]", defaults.join(", "));
@@ -369,13 +384,12 @@ fn umbrella_manifest(ir: &Ir, cargo: &str, version: &str) -> Result<String, Stri
         let _ = writeln!(features, "{pkg} = [\"dep:{}\"]", model::crate_name(pkg));
         let _ = writeln!(
             deps,
-            "{} = {{ path = \"../{}\", version = \"{version}\", optional = true }}",
-            model::crate_name(pkg),
+            "{} = {{ workspace = true, optional = true }}",
             model::crate_name(pkg)
         );
     }
-    let cargo = replace(cargo, "FEATURES", &features)?;
-    replace(&cargo, "DEPENDENCIES", &deps)
+    let cargo = replace_block(cargo, file, "FEATURES", &features)?;
+    replace_block(&cargo, file, "DEPENDENCIES", &deps)
 }
 
 fn rustfmt(src: &str) -> Result<String, String> {
@@ -404,4 +418,50 @@ fn rustfmt(src: &str) -> Result<String, String> {
         ));
     }
     String::from_utf8(out.stdout).map_err(|e| e.to_string())
+}
+
+#[cfg(test)]
+mod manifest_tests {
+    use super::*;
+
+    #[test]
+    fn versions_are_read_from_the_package_table() {
+        let toml =
+            "[package]\nname = \"x\"\nversion = \"1.4.2\"\n\n[dependencies]\nversion = \"9\"\n";
+        assert_eq!(manifest_version(toml).as_deref(), Some("1.4.2"));
+        assert_eq!(
+            manifest_version("[package]\nversion.workspace = true\n"),
+            None
+        );
+        assert_eq!(manifest_version("[workspace]\n"), None);
+        assert_eq!(crate_version(Path::new("/no/such/crate")), "0.1.0");
+    }
+
+    #[test]
+    fn workspace_block_lists_each_crate_with_its_version() {
+        let root = "[workspace.dependencies]\n# BEGIN GENERATED WORKSPACE CRATES\nold = 1\n# END GENERATED WORKSPACE CRATES\nserde = \"1\"\n";
+        let versions = BTreeMap::from([
+            ("community-databricks-sdk-a".to_owned(), "0.3.0".to_owned()),
+            ("community-databricks-sdk-b".to_owned(), "1.0.0".to_owned()),
+        ]);
+        let out = workspace_manifest(root, &versions).unwrap();
+        assert!(out.contains("community-databricks-sdk-a = { path = \"crates/community-databricks-sdk-a\", version = \"0.3.0\" }"));
+        assert!(out.contains("version = \"1.0.0\""));
+        assert!(!out.contains("old = 1"));
+        assert!(out.ends_with("# END GENERATED WORKSPACE CRATES\nserde = \"1\"\n"));
+        assert!(
+            workspace_manifest("[workspace]\n", &versions)
+                .unwrap_err()
+                .contains("lacks")
+        );
+    }
+
+    #[test]
+    fn package_manifests_use_workspace_dependencies() {
+        let m = package_manifest("jobs", &BTreeSet::from(["compute"]), "0.4.0");
+        assert!(m.contains("name = \"community-databricks-sdk-jobs\""));
+        assert!(m.contains("version = \"0.4.0\""));
+        assert!(m.contains("community-databricks-sdk-compute.workspace = true"));
+        assert!(m.starts_with(GENERATED_MANIFEST));
+    }
 }

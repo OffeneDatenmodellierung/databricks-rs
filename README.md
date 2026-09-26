@@ -1,6 +1,8 @@
 # databricks-rs
 
-An unofficial Rust SDK for the Databricks **Account** and **Workspace** REST APIs. It behaves like the official SDKs and uses the same configuration.
+A community-maintained, unofficial Rust SDK for the Databricks **Account** and **Workspace** REST APIs. It behaves like the official SDKs and uses the same configuration.
+
+Every crate is published with a `community-` prefix (`community-databricks-sdk`, `community-databricks-core`, `community-databricks-sdk-<package>`). That makes clear these are not Databricks-published crates, and leaves the `databricks-*` names free, so Databricks could adopt the crates one at a time without a name collision.
 
 > **Status: milestone 2.** The whole Account and Workspace surface is generated: 39 packages, 191 services, 1,260 operations and 3,550 types. Nothing has been run against a live workspace yet. See [docs/milestone-2.md](docs/milestone-2.md).
 
@@ -10,9 +12,9 @@ Behaviour tracks **databricks-sdk-go v0.182.0**, released 2026-09-21. The same e
 
 | Crate | What |
 |---|---|
-| `databricks-core` | Runtime: config resolution, auth (PAT, OAuth M2M), HTTP client (retries, rate limit, user agent), typed errors, pagination streams, LRO waiters. |
-| `databricks-sdk` | `WorkspaceClient` / `AccountClient`. Each service package is a feature that re-exports its crate as `databricks_sdk::service::<package>`. `default` is `catalog`, `compute`, `jobs` and `provisioning`; `full` is everything. |
-| `databricks-sdk-<package>` ×39 | Generated models and services, one crate per Go SDK package. `compute`, `jobs` and `catalog` are examples. Split into crates so that you only compile what you enable. |
+| `community-databricks-core` | Runtime: config resolution, auth (every Go auth type except `basic` and `metadata-service`), HTTP client (retries, rate limit, user agent), typed errors, pagination streams, LRO waiters. |
+| `community-databricks-sdk` | `WorkspaceClient` / `AccountClient`. Each service package is a feature that re-exports its crate as `community_databricks_sdk::service::<package>`. `default` is `catalog`, `compute`, `jobs` and `provisioning`; `full` is everything. |
+| `community-databricks-sdk-<package>` ×39 | Generated models and services, one crate per Go SDK package. `compute`, `jobs` and `catalog` are examples. Split into crates so that you only compile what you enable. |
 | `xtask` | `cargo xtask codegen`: `spec/ir.json` → the generated crates and `spec/openapi/*.json`. |
 
 ## OpenAPI specs
@@ -25,19 +27,19 @@ A weekly workflow regenerates everything when a new upstream spec ships. See [sp
 
 ```toml
 [dependencies]
-databricks-sdk = "0.1"
+community-databricks-sdk = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 futures-util = "0.3"
 ```
 
 ```rust
-use databricks_sdk::WorkspaceClient;
-use databricks_sdk::service::compute::{ListClustersFilterBy, ListClustersRequest, State};
-use databricks_sdk::service::jobs::RunNow;
+use community_databricks_sdk::WorkspaceClient;
+use community_databricks_sdk::service::compute::{ListClustersFilterBy, ListClustersRequest, State};
+use community_databricks_sdk::service::jobs::RunNow;
 use futures_util::TryStreamExt;
 
 #[tokio::main]
-async fn main() -> databricks_sdk::Result<()> {
+async fn main() -> community_databricks_sdk::Result<()> {
     // DATABRICKS_HOST + DATABRICKS_TOKEN, or DATABRICKS_CLIENT_ID/SECRET,
     // or a ~/.databrickscfg profile (DATABRICKS_CONFIG_PROFILE).
     let w = WorkspaceClient::from_env().await?;
@@ -63,11 +65,11 @@ async fn main() -> databricks_sdk::Result<()> {
 For account-level APIs:
 
 ```rust
-let a = databricks_sdk::AccountClient::from_env().await?; // needs DATABRICKS_ACCOUNT_ID
+let a = community_databricks_sdk::AccountClient::from_env().await?; // needs DATABRICKS_ACCOUNT_ID
 for ws in a.workspaces().list().await? { println!("{:?} {:?}", ws.workspace_id, ws.workspace_name); }
 ```
 
-Runnable examples are in `crates/databricks-sdk/examples/` (`list_clusters`, `run_job`, `list_workspaces`).
+Runnable examples are in `crates/community-databricks-sdk/examples/` (`list_clusters`, `run_job`, `list_workspaces`).
 
 Request types are built with `Default` plus `with_<field>` setters. Types with one or two required fields also get `new(..)`. Every struct is `#[non_exhaustive]`, so new API fields are not breaking changes, and every enum has an `Unknown(String)` variant, so new server values are not breaking either.
 
@@ -113,7 +115,7 @@ Go's `basic` and `metadata-service` are deliberately not ported (`auth::UNSUPPOR
 ```rust
 match w.jobs().get_run(req).await {
     Err(e) if e.is_missing() => { /* 404 / RESOURCE_DOES_NOT_EXIST / Go's overrides */ }
-    Err(e) if e.is(databricks_sdk::ErrorKind::PermissionDenied) => { /* 403 */ }
+    Err(e) if e.is(community_databricks_sdk::ErrorKind::PermissionDenied) => { /* 403 */ }
     other => { /* ... */ }
 }
 ```
@@ -129,13 +131,36 @@ House rules:
 - Edition 2024, MSRV 1.94.
 - Dual MIT/Apache-2.0 licence.
 - Per-file coverage must stay at or above 85%.
-- Releases are cut by `release-plz`.
+- `cargo deny` and `cargo audit` run on every change and daily (`.github/workflows/security.yml`).
+
+### Versions and releases
+
+Each crate has its own version and is released on its own:
+- a generated service crate is bumped only when its package changes;
+- `community-databricks-sdk` and `community-databricks-core` follow their own changes.
+
+`release-plz` opens a release PR after each merge to `main`. It bumps the changed crates and updates the matching entries in the root `[workspace.dependencies]`, which is how the crates depend on each other. It also writes each crate's changelog and tags it `<crate>-v<version>`. `cargo xtask codegen` keeps whatever version a crate already has, so regenerating never undoes a release.
+
+crates.io rate-limits the creation of new crates. The first publication of each crate (the initial release, or a new service package from an upstream update) therefore goes through the **Publish new crates** workflow. It runs `scripts/publish_new_crates.py`, which:
+- publishes in dependency order;
+- skips versions already on crates.io;
+- when crates.io answers "try again after …", sleeps until that time;
+- re-dispatches itself before the six-hour job limit.
+
+The release-plz publish step is skipped, with a warning, until every crate exists.
+
+```sh
+python3 scripts/publish_new_crates.py --check     # which crates are not on crates.io yet
+python3 scripts/publish_new_crates.py --dry-run   # the publish order
+```
 
 ```sh
 cargo xtask codegen            # regenerate after changing spec/ir.json, codegen/overrides.json or xtask
 cargo test --workspace --all-features
 cargo clippy --workspace --all-targets
 cargo deny check
+cargo audit
+cargo publish --workspace --dry-run --no-verify
 cargo tarpaulin --workspace --out Json --output-dir target/coverage \
   --exclude-files 'crates/*/examples/*' --exclude-files 'crates/*/build.rs' --exclude-files 'crates/*/tests/*'
 python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json

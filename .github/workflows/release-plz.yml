@@ -27,7 +27,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-  # Publishes to crates.io and tags when the release PR is merged.
+  # Publishes to crates.io and tags when the release PR is merged. Crates
+  # that were never published go through publish-new-crates.yml first, which
+  # waits out crates.io's new-crate rate limit; until then this job skips.
   release:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +37,20 @@ jobs:
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
-      - uses: release-plz/action@v0.5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Every crate already exists on crates.io
+        id: bootstrapped
+        run: |
+          if python3 scripts/publish_new_crates.py --check; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Some crates have never been published; run the 'Publish new crates' workflow."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.bootstrapped.outputs.ok == 'true'
+        uses: release-plz/action@v0.5
         with:
           command: release
         env:
