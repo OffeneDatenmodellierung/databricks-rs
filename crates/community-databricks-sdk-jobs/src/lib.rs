@@ -18090,6 +18090,43 @@ impl JobsApi {
         self.api.send::<JobPermissions>(call).await
     }
 
+    /// Map each [`BaseJob`]'s `settings.name` to its `job_id`, listing them all first
+    /// (Go: `JobsAPI.BaseJobSettingsNameToJobIdMap`). A duplicate `settings.name` is an error.
+    pub async fn base_job_settings_name_to_job_id_map(
+        &self,
+        request: ListJobsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "settings.name",
+            |v: &BaseJob| {
+                v.settings
+                    .as_ref()
+                    .and_then(|x| x.name.as_ref())
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &BaseJob| v.job_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`BaseJob`] whose `settings.name` is `name`, listing them all first
+    /// (Go: `JobsAPI.GetBySettingsName`). None, or more than one, is an error.
+    pub async fn get_by_settings_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<BaseJob> {
+        let items = self.list_all(ListJobsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "BaseJob", name, |v: &BaseJob| {
+            v.settings
+                .as_ref()
+                .and_then(|x| x.name.as_ref())
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
+    }
+
     /// Repeatedly calls [`get_run`](Self::get_run) until the result reaches TERMINATED or SKIPPED.
     pub async fn wait_get_run_job_terminated_or_skipped(
         &self,

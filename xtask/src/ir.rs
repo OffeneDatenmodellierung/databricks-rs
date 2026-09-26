@@ -134,6 +134,20 @@ pub struct Service {
     pub methods: Option<Vec<Method>>,
     #[serde(default)]
     pub waiters: Option<Vec<Waiter>>,
+    /// Go's generated name lookups (see `codegen/extract-go`).
+    #[serde(default)]
+    pub lookups: Option<Vec<Lookup>>,
+}
+
+/// `XNameToIdMap` (kind `map`) or list-based `GetByX` (kind `get`).
+#[derive(Debug, Deserialize)]
+pub struct Lookup {
+    pub name: String,
+    pub kind: String,
+    pub list: String,
+    pub key: Vec<String>,
+    #[serde(default)]
+    pub value: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]

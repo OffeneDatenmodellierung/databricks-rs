@@ -4406,6 +4406,45 @@ impl CredentialsApi {
         let call = Call::new(Method::GET, path);
         self.api.send::<Vec<Credential>>(call).await
     }
+
+    /// Map each [`Credential`]'s `credentials_name` to its `credentials_id`, listing them all first
+    /// (Go: `CredentialsAPI.CredentialCredentialsNameToCredentialsIdMap`). A duplicate `credentials_name` is an error.
+    pub async fn credential_credentials_name_to_credentials_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "credentials_name",
+            |v: &Credential| {
+                v.credentials_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &Credential| {
+                v.credentials_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// The single [`Credential`] whose `credentials_name` is `name`, listing them all first
+    /// (Go: `CredentialsAPI.GetByCredentialsName`). None, or more than one, is an error.
+    pub async fn get_by_credentials_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<Credential> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(items, "Credential", name, |v: &Credential| {
+            v.credentials_name
+                .as_ref()
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
+    }
 }
 
 /// These APIs manage encryption key configurations for this workspace
@@ -4625,6 +4664,40 @@ impl NetworksApi {
         let call = Call::new(Method::GET, path);
         self.api.send::<Vec<Network>>(call).await
     }
+
+    /// The single [`Network`] whose `network_name` is `name`, listing them all first
+    /// (Go: `NetworksAPI.GetByNetworkName`). None, or more than one, is an error.
+    pub async fn get_by_network_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<Network> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(items, "Network", name, |v: &Network| {
+            v.network_name
+                .as_ref()
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
+    }
+
+    /// Map each [`Network`]'s `network_name` to its `network_id`, listing them all first
+    /// (Go: `NetworksAPI.NetworkNetworkNameToNetworkIdMap`). A duplicate `network_name` is an error.
+    pub async fn network_network_name_to_network_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "network_name",
+            |v: &Network| {
+                v.network_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &Network| v.network_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// These APIs manage private access settings for this account.
@@ -4736,6 +4809,50 @@ impl PrivateAccessApi {
         call = call.json(&request.customer_facing_private_access_settings)?;
         self.api.send::<PrivateAccessSettings>(call).await
     }
+
+    /// The single [`PrivateAccessSettings`] whose `private_access_settings_name` is `name`, listing them all first
+    /// (Go: `PrivateAccessAPI.GetByPrivateAccessSettingsName`). None, or more than one, is an error.
+    pub async fn get_by_private_access_settings_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<PrivateAccessSettings> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "PrivateAccessSettings",
+            name,
+            |v: &PrivateAccessSettings| {
+                v.private_access_settings_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`PrivateAccessSettings`]'s `private_access_settings_name` to its `private_access_settings_id`, listing them all first
+    /// (Go: `PrivateAccessAPI.PrivateAccessSettingsPrivateAccessSettingsNameToPrivateAccessSettingsIdMap`). A duplicate `private_access_settings_name` is an error.
+    pub async fn private_access_settings_private_access_settings_name_to_private_access_settings_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "private_access_settings_name",
+            |v: &PrivateAccessSettings| {
+                v.private_access_settings_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &PrivateAccessSettings| {
+                v.private_access_settings_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
 }
 
 /// These APIs manage storage configurations for this workspace. A root
@@ -4817,6 +4934,50 @@ impl StorageApi {
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<Vec<StorageConfiguration>>(call).await
+    }
+
+    /// The single [`StorageConfiguration`] whose `storage_configuration_name` is `name`, listing them all first
+    /// (Go: `StorageAPI.GetByStorageConfigurationName`). None, or more than one, is an error.
+    pub async fn get_by_storage_configuration_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<StorageConfiguration> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "StorageConfiguration",
+            name,
+            |v: &StorageConfiguration| {
+                v.storage_configuration_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`StorageConfiguration`]'s `storage_configuration_name` to its `storage_configuration_id`, listing them all first
+    /// (Go: `StorageAPI.StorageConfigurationStorageConfigurationNameToStorageConfigurationIdMap`). A duplicate `storage_configuration_name` is an error.
+    pub async fn storage_configuration_storage_configuration_name_to_storage_configuration_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "storage_configuration_name",
+            |v: &StorageConfiguration| {
+                v.storage_configuration_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &StorageConfiguration| {
+                v.storage_configuration_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
     }
 }
 
@@ -4911,6 +5072,50 @@ impl VpcEndpointsApi {
         );
         let call = Call::new(Method::GET, path);
         self.api.send::<Vec<VpcEndpoint>>(call).await
+    }
+
+    /// The single [`VpcEndpoint`] whose `vpc_endpoint_name` is `name`, listing them all first
+    /// (Go: `VpcEndpointsAPI.GetByVpcEndpointName`). None, or more than one, is an error.
+    pub async fn get_by_vpc_endpoint_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<VpcEndpoint> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "VpcEndpoint",
+            name,
+            |v: &VpcEndpoint| {
+                v.vpc_endpoint_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`VpcEndpoint`]'s `vpc_endpoint_name` to its `vpc_endpoint_id`, listing them all first
+    /// (Go: `VpcEndpointsAPI.VpcEndpointVpcEndpointNameToVpcEndpointIdMap`). A duplicate `vpc_endpoint_name` is an error.
+    pub async fn vpc_endpoint_vpc_endpoint_name_to_vpc_endpoint_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "vpc_endpoint_name",
+            |v: &VpcEndpoint| {
+                v.vpc_endpoint_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &VpcEndpoint| {
+                v.vpc_endpoint_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
     }
 }
 
@@ -5073,6 +5278,45 @@ impl WorkspacesApi {
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
         })
+    }
+
+    /// The single [`Workspace`] whose `workspace_name` is `name`, listing them all first
+    /// (Go: `WorkspacesAPI.GetByWorkspaceName`). None, or more than one, is an error.
+    pub async fn get_by_workspace_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<Workspace> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::single(items, "Workspace", name, |v: &Workspace| {
+            v.workspace_name
+                .as_ref()
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
+    }
+
+    /// Map each [`Workspace`]'s `workspace_name` to its `workspace_id`, listing them all first
+    /// (Go: `WorkspacesAPI.WorkspaceWorkspaceNameToWorkspaceIdMap`). A duplicate `workspace_name` is an error.
+    pub async fn workspace_workspace_name_to_workspace_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "workspace_name",
+            |v: &Workspace| {
+                v.workspace_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &Workspace| {
+                v.workspace_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
     }
 
     /// Repeatedly calls [`get`](Self::get) until the result reaches RUNNING.

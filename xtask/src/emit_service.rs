@@ -111,6 +111,9 @@ pub fn emit(
         }
         emit_method(&mut out, types, svc, m, &fname, page_only, &waiters);
     }
+    for l in svc.lookups.as_deref().unwrap_or_default() {
+        emit_lookup(&mut out, types, svc, l, overrides);
+    }
     for w in waiters.values() {
         emit_waiter_fn(&mut out, types, svc, w);
         emit_waiter_struct(&mut waiter_structs, types, svc, w);
@@ -543,6 +546,129 @@ fn emit_method(
         out,
         "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::community_databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
     );
+}
+
+/// An owned `String`/value expression for the wire path `path` on item `v`
+/// (Go reads the zero value when a field on the way is unset).
+fn path_expr(
+    types: &Types<'_>,
+    item: &TypeRef,
+    path: &[String],
+    to_string: bool,
+) -> (String, String) {
+    let mut expr = "v".to_owned();
+    let mut optional = false;
+    let mut ty = item.clone();
+    let last = path.len() - 1;
+    for (i, wire) in path.iter().enumerate() {
+        let f = find_field(types, &ty, wire).unwrap_or_else(|| panic!("{}: no `{wire}`", ty.name));
+        let id = &f.ident;
+        if i < last {
+            let field = types
+                .fields(&ty)
+                .iter()
+                .find(|x| &x.name == wire)
+                .expect("field");
+            expr = match (optional, f.optional) {
+                (false, false) => format!("{expr}.{id}"),
+                (false, true) => format!("{expr}.{id}.as_ref()"),
+                (true, false) => format!("{expr}.map(|x| &x.{id})"),
+                (true, true) => format!("{expr}.and_then(|x| x.{id}.as_ref())"),
+            };
+            optional |= f.optional;
+            ty = field.ty.clone();
+            continue;
+        }
+        let conv = if to_string && f.kind != "string" {
+            "to_string()"
+        } else {
+            "clone()"
+        };
+        let (value, is_opt) = match (optional, f.optional) {
+            (false, false) => (format!("{expr}.{id}.{conv}"), false),
+            (false, true) => (format!("{expr}.{id}.as_ref().map(|x| x.{conv})"), true),
+            (true, false) => (format!("{expr}.map(|x| x.{id}.{conv})"), true),
+            (true, true) => (
+                format!("{expr}.and_then(|x| x.{id}.as_ref()).map(|x| x.{conv})"),
+                true,
+            ),
+        };
+        let value = if is_opt {
+            format!("{value}.unwrap_or_default()")
+        } else {
+            value
+        };
+        let inner = if to_string {
+            "String".to_owned()
+        } else {
+            f.inner.clone()
+        };
+        return (value, inner);
+    }
+    unreachable!("empty lookup path")
+}
+
+/// Go's generated `XNameToIdMap` / list-based `GetByX` for one service.
+fn emit_lookup(
+    out: &mut String,
+    types: &Types<'_>,
+    svc: &Service,
+    l: &crate::ir::Lookup,
+    overrides: &Overrides,
+) {
+    let pkg = &svc.package;
+    let m = svc
+        .methods
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .find(|x| x.name == l.list)
+        .unwrap_or_else(|| panic!("{}.{}: no list method {}", svc.name, l.name, l.list));
+    let key = format!("{pkg}.{}.{}", svc.name, m.name);
+    let base = overrides.get(&key).map_or_else(
+        || names::method_ident(&m.name),
+        |o| o.strip_prefix("page:").unwrap_or(o).to_owned(),
+    );
+    let (list_fn, item) = match (&m.pagination, &m.response) {
+        (Some(pg), _) => (format!("{base}_all"), pg.item_type.clone()),
+        (None, Some(r)) if r.kind == "list" => {
+            (base, r.elem.as_deref().expect("list elem").clone())
+        }
+        _ => panic!("{}.{}: {} is not a list", svc.name, l.name, l.list),
+    };
+    let item_ty = rust_type(&item, pkg);
+    let req_t = req_ty(m, pkg);
+    let (key_expr, _) = path_expr(types, &item, &l.key, true);
+    let fname = names::method_ident(&l.name);
+    let go = format!("{}API.{}", svc.name, l.name);
+    if l.kind == "map" {
+        let (value_expr, v_ty) = path_expr(types, &item, &l.value, false);
+        let (param, call) = match &req_t {
+            Some(t) => (
+                format!(", request: {t}"),
+                format!("self.{list_fn}(request)"),
+            ),
+            None => (String::new(), format!("self.{list_fn}()")),
+        };
+        let _ = write!(
+            out,
+            "    /// Map each [`{item_ty}`]'s `{key}` to its `{val}`, listing them all first\n    /// (Go: `{go}`). A duplicate `{key}` is an error.\n    pub async fn {fname}(&self{param}) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, {v_ty}>> {{\n        let items = {call}.await?;\n        ::community_databricks_core::lookup::unique_map(&items, {field:?}, |v: &{item_ty}| {key_expr}, |v: &{item_ty}| {value_expr})\n    }}\n\n",
+            key = l.key.join("."),
+            val = l.value.join("."),
+            field = l.key.join("."),
+        );
+    } else {
+        let call = match &req_t {
+            Some(t) => format!("self.{list_fn}({t}::default())"),
+            None => format!("self.{list_fn}()"),
+        };
+        let _ = write!(
+            out,
+            "    /// The single [`{item_ty}`] whose `{key}` is `name`, listing them all first\n    /// (Go: `{go}`). None, or more than one, is an error.\n    pub async fn {fname}(&self, name: &str) -> ::community_databricks_core::Result<{item_ty}> {{\n        let items = {call}.await?;\n        ::community_databricks_core::lookup::single(items, {what:?}, name, |v: &{item_ty}| {key_expr})\n    }}\n\n",
+            key = l.key.join("."),
+            what = item.name,
+        );
+    }
 }
 
 /// Return type and body for a call that returns a long-running operation

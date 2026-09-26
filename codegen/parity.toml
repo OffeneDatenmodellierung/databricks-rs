@@ -16,9 +16,6 @@
 "workspace.ServingEndpointsDataPlane" = { status = "gap", issue = 16 }
 
 [methods]
-"*.*.*To*Map" = { status = "gap", issue = 17 }
-# List-and-search lookups (positional GetByX shortcuts are covered by rule).
-"*.*.GetBy*" = { status = "gap", issue = 17 }
 "serving.ServingEndpointsDataPlane.Query" = { status = "gap", issue = 16 }
 "bundle.Bundle.*" = { status = "na", reason = "Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated." }
 

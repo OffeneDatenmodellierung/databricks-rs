@@ -15,10 +15,11 @@ change `codegen/parity.toml` or the code, then re-run.
 
 | Go method kind | Here | Count |
 |---|---|---|
+| lookup | generated name lookup (`…_map`, `get_by_…`) | 73 |
 | wait | generated waiter (`wait_…`) | 21 |
 | and_wait | the call returns a waiter (`.await?` on it) | 40 |
 | all | generated `…_all` | 189 |
-| by | request constructor (`…Request::new(…)`) | 303 |
+| by | request constructor (`…Request::new(…)`) | 294 |
 | sub_accessor | top-level accessor | 23 |
 
 ## Gaps
@@ -29,8 +30,6 @@ change `codegen/parity.toml` or the code, then re-run.
 | `*.Groups` (2) | #14 |
 | `*.ServicePrincipals` (2) | #14 |
 | `*.Users` (2) | #14 |
-| `*.*.GetBy*` (26) | #17 |
-| `*.*.*To*Map` (38) | #17 |
 | `compute.ClusterDetails.IsRunningOrResizing` | #15 |
 | `compute.ClusterLibraryStatuses.*` (2) | #15 |
 | `compute.ClustersAPI.*` (4) | #15 |

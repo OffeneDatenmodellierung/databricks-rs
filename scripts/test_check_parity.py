@@ -111,6 +111,21 @@ class Parity(unittest.TestCase):
         self.assertEqual(check_parity.main([str(self.go), "--root", str(self.root)]), 0)
         self.assertTrue((self.root / "spec/PARITY.md").exists())
 
+    def test_generated_lookups_are_covered(self):
+        doc = ir(lro=True)
+        doc["services"][0]["lookups"] = [
+            {"name": "GetBySettingsName", "kind": "get", "list": "List", "key": ["settings", "name"]},
+            {"name": "BaseJobSettingsNameToJobIdMap", "kind": "map", "list": "List",
+             "key": ["settings", "name"], "value": ["job_id"]},
+        ]
+        parity = PARITY.replace('"*.*.*To*Map" = { status = "gap", issue = 17 }\n', "").replace(
+            '"*.*.GetBy*" = { status = "gap", issue = 17 }\n', "")
+        self.write(doc, parity)
+        r = self.run_check()
+        self.assertEqual(r.errors, [])
+        self.assertEqual(sorted(r.covered["lookup"]),
+                         ["jobs.Jobs.BaseJobSettingsNameToJobIdMap", "jobs.Jobs.GetBySettingsName"])
+
     def test_unlisted_surface_and_stale_entries_fail(self):
         parity = PARITY.replace('"jobs.Helper" = { status = "na", reason = "test" }\n', "")
         parity += '"jobs.Gone" = { status = "na", reason = "x" }\n'

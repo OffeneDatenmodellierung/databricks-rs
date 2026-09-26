@@ -15521,6 +15521,35 @@ impl IpAccessListsApi {
             .await
             .map(|_| ())
     }
+
+    /// The single [`IpAccessListInfo`] whose `label` is `name`, listing them all first
+    /// (Go: `IpAccessListsAPI.GetByLabel`). None, or more than one, is an error.
+    pub async fn get_by_label(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<IpAccessListInfo> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "IpAccessListInfo",
+            name,
+            |v: &IpAccessListInfo| v.label.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`IpAccessListInfo`]'s `label` to its `list_id`, listing them all first
+    /// (Go: `IpAccessListsAPI.IpAccessListInfoLabelToListIdMap`). A duplicate `label` is an error.
+    pub async fn ip_access_list_info_label_to_list_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "label",
+            |v: &IpAccessListInfo| v.label.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &IpAccessListInfo| v.list_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// The notification destinations API lets you programmatically manage a
@@ -16929,6 +16958,33 @@ impl TokenManagementApi {
         call = call.json(&request)?;
         self.api.send::<TokenInfo>(call).await
     }
+
+    /// The single [`TokenInfo`] whose `comment` is `name`, listing them all first
+    /// (Go: `TokenManagementAPI.GetByComment`). None, or more than one, is an error.
+    pub async fn get_by_comment(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<TokenInfo> {
+        let items = self.list_all(ListTokenManagementRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "TokenInfo", name, |v: &TokenInfo| {
+            v.comment.as_ref().map(|x| x.clone()).unwrap_or_default()
+        })
+    }
+
+    /// Map each [`TokenInfo`]'s `comment` to its `token_id`, listing them all first
+    /// (Go: `TokenManagementAPI.TokenInfoCommentToTokenIdMap`). A duplicate `comment` is an error.
+    pub async fn token_info_comment_to_token_id_map(
+        &self,
+        request: ListTokenManagementRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "comment",
+            |v: &TokenInfo| v.comment.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &TokenInfo| v.token_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// The Token API allows you to create, list, and revoke tokens that can be
@@ -17031,6 +17087,35 @@ impl TokensApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<UpdateTokenResponse>(call).await
+    }
+
+    /// The single [`PublicTokenInfo`] whose `comment` is `name`, listing them all first
+    /// (Go: `TokensAPI.GetByComment`). None, or more than one, is an error.
+    pub async fn get_by_comment(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<PublicTokenInfo> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "PublicTokenInfo",
+            name,
+            |v: &PublicTokenInfo| v.comment.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`PublicTokenInfo`]'s `comment` to its `token_id`, listing them all first
+    /// (Go: `TokensAPI.PublicTokenInfoCommentToTokenIdMap`). A duplicate `comment` is an error.
+    pub async fn public_token_info_comment_to_token_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "comment",
+            |v: &PublicTokenInfo| v.comment.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &PublicTokenInfo| v.token_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 
@@ -17279,6 +17364,35 @@ impl AccountIpAccessListsApi {
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())
+    }
+
+    /// The single [`IpAccessListInfo`] whose `label` is `name`, listing them all first
+    /// (Go: `AccountIpAccessListsAPI.GetByLabel`). None, or more than one, is an error.
+    pub async fn get_by_label(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<IpAccessListInfo> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "IpAccessListInfo",
+            name,
+            |v: &IpAccessListInfo| v.label.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`IpAccessListInfo`]'s `label` to its `list_id`, listing them all first
+    /// (Go: `AccountIpAccessListsAPI.IpAccessListInfoLabelToListIdMap`). A duplicate `label` is an error.
+    pub async fn ip_access_list_info_label_to_list_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "label",
+            |v: &IpAccessListInfo| v.label.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &IpAccessListInfo| v.list_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 

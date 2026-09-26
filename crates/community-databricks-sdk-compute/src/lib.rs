@@ -16775,6 +16775,30 @@ impl ClusterPoliciesApi {
         call = call.json(&request)?;
         self.api.send::<ClusterPolicyPermissions>(call).await
     }
+
+    /// The single [`Policy`] whose `name` is `name`, listing them all first
+    /// (Go: `ClusterPoliciesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(&self, name: &str) -> ::community_databricks_core::Result<Policy> {
+        let items = self.list_all(ListClusterPoliciesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "Policy", name, |v: &Policy| {
+            v.name.as_ref().map(|x| x.clone()).unwrap_or_default()
+        })
+    }
+
+    /// Map each [`Policy`]'s `name` to its `policy_id`, listing them all first
+    /// (Go: `ClusterPoliciesAPI.PolicyNameToPolicyIdMap`). A duplicate `name` is an error.
+    pub async fn policy_name_to_policy_id_map(
+        &self,
+        request: ListClusterPoliciesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &Policy| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &Policy| v.policy_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// The Clusters API allows you to create, start, edit, list, terminate, and
@@ -17323,6 +17347,46 @@ impl ClustersApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<ClusterPermissions>(call).await
+    }
+
+    /// Map each [`ClusterDetails`]'s `cluster_name` to its `cluster_id`, listing them all first
+    /// (Go: `ClustersAPI.ClusterDetailsClusterNameToClusterIdMap`). A duplicate `cluster_name` is an error.
+    pub async fn cluster_details_cluster_name_to_cluster_id_map(
+        &self,
+        request: ListClustersRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "cluster_name",
+            |v: &ClusterDetails| {
+                v.cluster_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &ClusterDetails| v.cluster_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`ClusterDetails`] whose `cluster_name` is `name`, listing them all first
+    /// (Go: `ClustersAPI.GetByClusterName`). None, or more than one, is an error.
+    pub async fn get_by_cluster_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ClusterDetails> {
+        let items = self.list_all(ListClustersRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ClusterDetails",
+            name,
+            |v: &ClusterDetails| {
+                v.cluster_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
     }
 
     /// Repeatedly calls [`get`](Self::get) until the result reaches RUNNING.
@@ -18022,6 +18086,37 @@ impl GlobalInitScriptsApi {
             .await
             .map(|_| ())
     }
+
+    /// The single [`GlobalInitScriptDetails`] whose `name` is `name`, listing them all first
+    /// (Go: `GlobalInitScriptsAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<GlobalInitScriptDetails> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "GlobalInitScriptDetails",
+            name,
+            |v: &GlobalInitScriptDetails| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`GlobalInitScriptDetails`]'s `name` to its `script_id`, listing them all first
+    /// (Go: `GlobalInitScriptsAPI.GlobalInitScriptDetailsNameToScriptIdMap`). A duplicate `name` is an error.
+    pub async fn global_init_script_details_name_to_script_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &GlobalInitScriptDetails| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &GlobalInitScriptDetails| {
+                v.script_id.as_ref().map(|x| x.clone()).unwrap_or_default()
+            },
+        )
+    }
 }
 
 /// Instance Pools API are used to create, edit, delete and list instance
@@ -18213,6 +18308,50 @@ impl InstancePoolsApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<InstancePoolPermissions>(call).await
+    }
+
+    /// The single [`InstancePoolAndStats`] whose `instance_pool_name` is `name`, listing them all first
+    /// (Go: `InstancePoolsAPI.GetByInstancePoolName`). None, or more than one, is an error.
+    pub async fn get_by_instance_pool_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<InstancePoolAndStats> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "InstancePoolAndStats",
+            name,
+            |v: &InstancePoolAndStats| {
+                v.instance_pool_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`InstancePoolAndStats`]'s `instance_pool_name` to its `instance_pool_id`, listing them all first
+    /// (Go: `InstancePoolsAPI.InstancePoolAndStatsInstancePoolNameToInstancePoolIdMap`). A duplicate `instance_pool_name` is an error.
+    pub async fn instance_pool_and_stats_instance_pool_name_to_instance_pool_id_map(
+        &self,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all().await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "instance_pool_name",
+            |v: &InstancePoolAndStats| {
+                v.instance_pool_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &InstancePoolAndStats| {
+                v.instance_pool_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
     }
 }
 

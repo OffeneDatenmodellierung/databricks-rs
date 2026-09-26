@@ -3887,6 +3887,48 @@ impl LogDeliveryApi {
             .await
             .map(|_| ())
     }
+
+    /// The single [`LogDeliveryConfiguration`] whose `config_name` is `name`, listing them all first
+    /// (Go: `LogDeliveryAPI.GetByConfigName`). None, or more than one, is an error.
+    pub async fn get_by_config_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<LogDeliveryConfiguration> {
+        let items = self.list_all(ListLogDeliveryRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "LogDeliveryConfiguration",
+            name,
+            |v: &LogDeliveryConfiguration| {
+                v.config_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`LogDeliveryConfiguration`]'s `config_name` to its `config_id`, listing them all first
+    /// (Go: `LogDeliveryAPI.LogDeliveryConfigurationConfigNameToConfigIdMap`). A duplicate `config_name` is an error.
+    pub async fn log_delivery_configuration_config_name_to_config_id_map(
+        &self,
+        request: ListLogDeliveryRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "config_name",
+            |v: &LogDeliveryConfiguration| {
+                v.config_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &LogDeliveryConfiguration| {
+                v.config_id.as_ref().map(|x| x.clone()).unwrap_or_default()
+            },
+        )
+    }
 }
 
 /// These APIs manage usage dashboards for this account. Usage dashboards

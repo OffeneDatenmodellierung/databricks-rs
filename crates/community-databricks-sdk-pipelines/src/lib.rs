@@ -11081,6 +11081,43 @@ impl PipelinesApi {
         self.api.send::<PipelinePermissions>(call).await
     }
 
+    /// The single [`PipelineStateInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `PipelinesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<PipelineStateInfo> {
+        let items = self
+            .list_pipelines_all(ListPipelinesRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "PipelineStateInfo",
+            name,
+            |v: &PipelineStateInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`PipelineStateInfo`]'s `name` to its `pipeline_id`, listing them all first
+    /// (Go: `PipelinesAPI.PipelineStateInfoNameToPipelineIdMap`). A duplicate `name` is an error.
+    pub async fn pipeline_state_info_name_to_pipeline_id_map(
+        &self,
+        request: ListPipelinesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_pipelines_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &PipelineStateInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &PipelineStateInfo| {
+                v.pipeline_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
     /// Repeatedly calls [`get`](Self::get) until the result reaches IDLE.
     pub async fn wait_get_pipeline_idle(
         &self,

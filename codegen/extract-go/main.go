@@ -91,6 +91,20 @@ type Service struct {
 	Doc      string    `json:"doc,omitempty"`
 	Methods  []*Method `json:"methods"`
 	Waiters  []*Waiter `json:"waiters,omitempty"`
+	// Go's generated name lookups (`XNameToIdMap`, list-based `GetByX`).
+	Lookups []*Lookup `json:"lookups,omitempty"`
+}
+
+// Lookup is a generated Go helper that lists everything with `List` and
+// either maps `Key` to `Value` (kind "map", duplicates are an error) or
+// returns the single item whose `Key` equals a name (kind "get"). Key and
+// Value are wire paths on the listed item type.
+type Lookup struct {
+	Name  string   `json:"name"`
+	Kind  string   `json:"kind"`
+	List  string   `json:"list"`
+	Key   []string `json:"key"`
+	Value []string `json:"value,omitempty"`
 }
 
 type PathPart struct {
@@ -855,6 +869,78 @@ func (p *pkgInfo) parseLro(fd *ast.FuncDecl, api *apiInfo) *Lro {
 	return l
 }
 
+// parseLookups reads Go's generated name lookups on `<base>API`: bodies
+// that call `a.<List>[All](ctx, …)` and build `mapping` (a name map) or
+// `tmp` (list-based GetBy).
+func (p *pkgInfo) parseLookups(base string, api *apiInfo, methods []*Method, warnings *[]string) []*Lookup {
+	var out []*Lookup
+	for _, key := range sortedKeys(api.methods) {
+		if !strings.HasPrefix(key, base+"API.") {
+			continue
+		}
+		fd := api.methods[key]
+		var list string
+		var keyPath, valPath []string
+		kind := ""
+		ast.Inspect(fd.Body, func(n ast.Node) bool {
+			switch s := n.(type) {
+			case *ast.CallExpr:
+				if fn := exprString(s.Fun); strings.HasPrefix(fn, "a.") && list == "" {
+					list = strings.TrimSuffix(strings.TrimPrefix(fn, "a."), "All")
+				}
+			case *ast.AssignStmt:
+				if len(s.Lhs) != 1 || len(s.Rhs) != 1 {
+					return true
+				}
+				lhs, rhs := exprString(s.Lhs[0]), exprString(s.Rhs[0])
+				isMap := false
+				if cl, ok := s.Rhs[0].(*ast.CompositeLit); ok {
+					_, isMap = cl.Type.(*ast.MapType)
+				}
+				switch {
+				case lhs == "mapping" && isMap:
+					kind = "map"
+				case lhs == "tmp" && isMap:
+					kind = "get"
+				case lhs == "key" && strings.HasPrefix(rhs, "v."):
+					keyPath = strings.Split(strings.TrimPrefix(rhs, "v."), ".")
+				case lhs == "mapping[key]" && strings.HasPrefix(rhs, "v."):
+					valPath = strings.Split(strings.TrimPrefix(rhs, "v."), ".")
+				}
+			}
+			return true
+		})
+		if kind == "" {
+			continue
+		}
+		name := fd.Name.Name
+		var item string
+		for _, m := range methods {
+			if m.Name != list {
+				continue
+			}
+			switch {
+			case m.Pagination != nil && m.Pagination.ItemType != nil:
+				item = m.Pagination.ItemType.Name
+			case m.Response != nil && m.Response.Kind == "list" && m.Response.Elem != nil:
+				item = m.Response.Elem.Name
+			}
+		}
+		wireKey, ok1 := p.goPathToWire(item, keyPath)
+		wireVal, ok2 := p.goPathToWire(item, valPath)
+		if item == "" || !ok1 || (kind == "map" && !ok2) {
+			*warnings = append(*warnings, fmt.Sprintf("%s.%s: unresolved lookup", base, name))
+			continue
+		}
+		l := &Lookup{Name: name, Kind: kind, List: list, Key: wireKey}
+		if kind == "map" {
+			l.Value = wireVal
+		}
+		out = append(out, l)
+	}
+	return out
+}
+
 // ---------------------------------------------------------------- api.go
 
 type apiInfo struct {
@@ -1269,6 +1355,7 @@ func main() {
 			}
 			svc.Methods = append(svc.Methods, m)
 		}
+		svc.Lookups = p.parseLookups(base, api, svc.Methods, &warnings)
 		for _, key := range sortedKeys(api.waiters) {
 			if !strings.HasPrefix(key, base+"API.") {
 				continue
