@@ -146,7 +146,7 @@ async fn upload_sends_multipart_with_inferred_language() {
             "^multipart/form-data; boundary=[0-9a-f-]{36}$",
         ))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
-        .expect(2)
+        .expect(3)
         .mount(&server)
         .await;
     let ws = workspace(&server).await.workspace();
@@ -180,9 +180,20 @@ async fn upload_sends_multipart_with_inferred_language() {
         "{second}"
     );
     assert!(!second.contains("name=\"language\""), "{second}");
-    // An explicit language is kept when the extension doesn't say.
-    let opts = UploadOptions::default().language(Language::Scala);
-    assert_eq!(opts.language, Some(Language::Scala));
+    // An explicit language wins over the extension (Go would send PYTHON).
+    ws.upload(
+        "/Users/a/odd.py",
+        "x",
+        UploadOptions::default().language(Language::Scala),
+    )
+    .await
+    .unwrap();
+    let reqs = server.received_requests().await.unwrap();
+    let third = String::from_utf8_lossy(&reqs[2].body);
+    assert!(
+        third.contains("name=\"language\"\r\n\r\nSCALA\r\n"),
+        "{third}"
+    );
 }
 
 #[tokio::test]

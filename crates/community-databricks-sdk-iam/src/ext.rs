@@ -21,12 +21,18 @@ use crate::{
     UsersV2Api,
 };
 
+/// A SCIM filter string literal: quoted, with `\` and `"` escaped.
+fn scim_string(value: &str) -> String {
+    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+}
+
 /// `get_by_id`, `delete_by_id`, `<map>` and `<get_by>` for one SCIM service.
 macro_rules! scim_helpers {
     (
         $api:ty, $item:ty, $what:literal,
         get = $get:ty, delete = $delete:ty, list = $list:ty,
-        key = $key:ident, map = $map:ident, get_by = $get_by:ident, go = $go:literal
+        key = $key:ident, attr = $attr:literal, map = $map:ident, get_by = $get_by:ident,
+        go = $go:literal
     ) => {
         impl $api {
             #[doc = concat!("Get a ", $what, " by ID (Go: `", $go, ".GetById`).")]
@@ -55,12 +61,16 @@ macro_rules! scim_helpers {
             }
 
             #[doc = concat!(
-                "The single ", $what, " whose `", stringify!($key), "` is `name`, listing them \
-                 all first (Go: `", $go, ".", stringify!($get_by), "`). None, or more than \
-                 one, is an error."
+                "The single ", $what, " whose `", stringify!($key), "` is `name` (Go: `", $go,
+                ".", stringify!($get_by), "`), found with a SCIM `", $attr, " eq` filter. \
+                 None, or more than one, is an error."
             )]
             pub async fn $get_by(&self, name: &str) -> Result<$item> {
-                let items = self.list_all(<$list>::default()).await?;
+                // Go lists everything; a SCIM filter asks the server for the
+                // candidates, and the exact comparison below keeps Go's
+                // result (SCIM `eq` may ignore case).
+                let filter = format!("{} eq {}", $attr, scim_string(name));
+                let items = self.list_all(<$list>::default().with_filter(filter)).await?;
                 lookup::single(items, stringify!($item), name, |v: &$item| {
                     v.$key.clone().unwrap_or_default()
                 })
@@ -77,6 +87,7 @@ scim_helpers!(
     delete = DeleteUserRequest,
     list = ListUsersRequest,
     key = user_name,
+    attr = "userName",
     map = user_user_name_to_id_map,
     get_by = get_by_user_name,
     go = "UsersAPI"
@@ -89,6 +100,7 @@ scim_helpers!(
     delete = DeleteGroupRequest,
     list = ListGroupsRequest,
     key = display_name,
+    attr = "displayName",
     map = group_display_name_to_id_map,
     get_by = get_by_display_name,
     go = "GroupsAPI"
@@ -101,6 +113,7 @@ scim_helpers!(
     delete = DeleteServicePrincipalRequest,
     list = ListServicePrincipalsRequest,
     key = display_name,
+    attr = "displayName",
     map = service_principal_display_name_to_id_map,
     get_by = get_by_display_name,
     go = "ServicePrincipalsAPI"
@@ -113,6 +126,7 @@ scim_helpers!(
     delete = DeleteAccountUserRequest,
     list = ListAccountUsersRequest,
     key = user_name,
+    attr = "userName",
     map = user_user_name_to_id_map,
     get_by = get_by_user_name,
     go = "AccountUsersAPI"
@@ -125,6 +139,7 @@ scim_helpers!(
     delete = DeleteAccountGroupRequest,
     list = ListAccountGroupsRequest,
     key = display_name,
+    attr = "displayName",
     map = group_display_name_to_id_map,
     get_by = get_by_display_name,
     go = "AccountGroupsAPI"
@@ -137,6 +152,7 @@ scim_helpers!(
     delete = DeleteAccountServicePrincipalRequest,
     list = ListAccountServicePrincipalsRequest,
     key = display_name,
+    attr = "displayName",
     map = service_principal_display_name_to_id_map,
     get_by = get_by_display_name,
     go = "AccountServicePrincipalsAPI"

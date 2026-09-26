@@ -579,14 +579,25 @@ fn library_strings_sort_and_scope() {
             {"library": {"pypi": {"package": "z"}}, "status": "INSTALLED"},
             {"library": {"pypi": {"package": "y"}}, "status": "PENDING"},
             {"library": {"pypi": {"package": "x"}}, "status": "FAILED", "messages": ["boom", "bang"]},
-            {"library": {"jar": "/all.jar"}, "status": "INSTALLED", "is_library_for_all_clusters": true},
-            {"status": "INSTALLED"}
+            {"library": {"jar": "/all.jar"}, "status": "INSTALLED", "is_library_for_all_clusters": true}
         ]
     }))
     .unwrap();
     let list = statuses.to_library_list();
     let names: Vec<_> = list.libraries.iter().map(ToString::to_string).collect();
     assert_eq!(names, ["jar:/all.jar", "pypi:x", "pypi:y", "pypi:z"]);
+
+    // A status without a library (Go panics) is an error.
+    let odd: ClusterLibraryStatuses = serde_json::from_value(json!({
+        "library_statuses": [{"status": "INSTALLED"}]
+    }))
+    .unwrap();
+    assert!(odd.to_library_list().libraries.is_empty());
+    let e = odd.is_retry_needed(&LibraryWait::default()).unwrap_err();
+    assert!(
+        e.to_string().contains("library status without a library"),
+        "{e}"
+    );
 
     let all = LibraryWait::default();
     assert!(!all.is_not_in_scope(&pypi("q")));

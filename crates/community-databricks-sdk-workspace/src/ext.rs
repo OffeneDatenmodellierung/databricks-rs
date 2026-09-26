@@ -19,8 +19,9 @@ use crate::{
 pub struct UploadOptions {
     /// Replace an existing object.
     pub overwrite: bool,
-    /// Notebook language. With format `SOURCE` (or none) it is inferred
-    /// from the extension (`.py`, `.sql`, `.scala`, `.R`), as in Go.
+    /// Notebook language. When unset, and the format is `SOURCE` or unset,
+    /// it is inferred from the extension (`.py`, `.sql`, `.scala`, `.R`).
+    /// Go infers even when a language is given; an explicit one wins here.
     pub language: Option<Language>,
     /// Import format; the server's default when unset.
     pub format: Option<ImportFormat>,
@@ -109,6 +110,9 @@ impl WorkspaceApi {
             .format
             .as_ref()
             .is_none_or(|f| *f == ImportFormat::Source)
+            // Go infers even over an explicit language; here the caller's
+            // choice wins.
+            && options.language.is_none()
         {
             for (suffix, language) in [
                 (".py", Language::Python),

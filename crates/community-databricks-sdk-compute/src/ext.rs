@@ -36,7 +36,9 @@ pub const LIBRARIES_WAIT_TIMEOUT: Duration = Duration::from_mins(30);
 /// What [`ListNodeTypesResponse::smallest`] looks for (Go:
 /// `compute.NodeTypeRequest`). Zero and `false` mean "no requirement",
 /// except `graviton` and `fleet`, which must match exactly, and GPUs:
-/// with `min_gpus` 0 only GPU-less nodes qualify.
+/// with `min_gpus` 0 only GPU-less nodes qualify. As in Go, a node type
+/// reporting 0 cores is only excluded by a per-core requirement (where Go
+/// would divide by zero).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct NodeTypeRequest {
     /// Unused by the selection (kept for parity with Go).
@@ -490,7 +492,8 @@ impl ClusterLibraryStatuses {
     /// Whether to keep waiting (Go: `ClusterLibraryStatuses.IsRetryNeeded`):
     /// `Ok(Some(progress))` while libraries in scope are pending,
     /// `Ok(None)` when all are ready, and an error listing failed ones
-    /// (unless `w.is_refresh`).
+    /// (unless `w.is_refresh`). A status without a library (where Go
+    /// panics) is an error.
     pub fn is_retry_needed(&self, w: &LibraryWait) -> Result<Option<String>> {
         let (mut pending, mut ready) = (0, 0);
         let mut errors = Vec::new();
@@ -498,7 +501,13 @@ impl ClusterLibraryStatuses {
             if s.is_library_for_all_clusters.unwrap_or(false) {
                 continue;
             }
-            let Some(lib) = &s.library else { continue };
+            // Go dereferences the library and panics without one.
+            let Some(lib) = &s.library else {
+                return Err(Error::OperationFailed(format!(
+                    "library status without a library: {:?}",
+                    s.status
+                )));
+            };
             if w.is_not_in_scope(lib) {
                 continue;
             }

@@ -186,6 +186,48 @@ async fn account_and_workspace_groups_by_display_name() {
 }
 
 #[tokio::test]
+async fn get_by_name_sends_an_escaped_scim_filter() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Users"))
+        .and(query_param("filter", r#"userName eq "o\"brien@x""#))
+        .and(query_param("startIndex", "1"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!({"Resources": [
+                // SCIM `eq` may ignore case; only the exact match counts.
+                {"id": "1", "userName": "O\"Brien@x"},
+                {"id": "2", "userName": "o\"brien@x"}
+            ]})),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Users"))
+        .and(query_param("startIndex", "3"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"Resources": []})))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/preview/scim/v2/Groups"))
+        .and(query_param("filter", r#"displayName eq "a\\b""#))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"Resources": []})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let w = workspace(&server).await;
+    let u = w.users().get_by_user_name("o\"brien@x").await.unwrap();
+    assert_eq!(u.id.as_deref(), Some("2"));
+    assert!(
+        w.groups()
+            .get_by_display_name("a\\b")
+            .await
+            .unwrap_err()
+            .is_missing()
+    );
+}
+
+#[tokio::test]
 async fn current_workspace_id_reads_the_org_id_header_once() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))
