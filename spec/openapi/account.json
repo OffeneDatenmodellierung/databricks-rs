@@ -3750,12 +3750,12 @@
         "properties": {
           "absolute_session_lifetime_in_minutes": {
             "description": "Absolute OAuth session TTL in minutes. Effective only when the single-use\nrefresh token feature is enabled. This is the absolute TTL of all refresh\ntokens issued in one OAuth session. When a new refresh token is issued\nduring refresh token rotation, it will inherit the same absolute TTL as\nthe old refresh token. In other words, this represents the maximum amount\nof time a user can stay logged in without re-authenticating.",
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           },
           "access_token_ttl_in_minutes": {
             "description": "access token time to live in minutes",
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           },
           "enable_single_use_refresh_tokens": {
@@ -3764,7 +3764,7 @@
           },
           "refresh_token_ttl_in_minutes": {
             "description": "Refresh token time to live in minutes. When single-use refresh tokens are\nenabled, this represents the TTL of an individual refresh token. If the\nrefresh token is used before it expires, a new one is issued with a\nrenewed individual TTL.",
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           }
         },
@@ -5895,7 +5895,7 @@
         "properties": {
           "address_count": {
             "description": "Total number of IP or CIDR values.",
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           },
           "created_at": {
@@ -6759,11 +6759,11 @@
       "settingsv2.ClusterAutoRestartMessageMaintenanceWindowWindowStartTime": {
         "properties": {
           "hours": {
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           },
           "minutes": {
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           }
         },
@@ -6793,7 +6793,7 @@
       "settingsv2.IntegerMessage": {
         "properties": {
           "value": {
-            "format": "int32",
+            "format": "int64",
             "type": "integer"
           }
         },
@@ -7582,7 +7582,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -9839,7 +9839,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -10077,7 +10077,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -10315,7 +10315,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -11493,7 +11493,7 @@
             "name": "count",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -11539,7 +11539,7 @@
             "name": "startIndex",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           }
@@ -11691,7 +11691,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -11867,7 +11867,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -14380,7 +14380,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -14696,7 +14696,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -14932,7 +14932,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -14998,7 +14998,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -15313,7 +15313,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -15696,7 +15696,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -16009,7 +16009,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -16489,7 +16489,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -16995,7 +16995,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -17167,7 +17167,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -17655,7 +17655,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -17784,7 +17784,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },
@@ -17979,7 +17979,7 @@
             "name": "page_size",
             "required": false,
             "schema": {
-              "format": "int32",
+              "format": "int64",
               "type": "integer"
             }
           },

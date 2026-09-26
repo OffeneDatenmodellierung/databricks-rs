@@ -62,8 +62,9 @@ fn type_schema(r: &TypeRef, reach: &mut BTreeSet<(String, String)>) -> Value {
     match r.kind.as_str() {
         "string" => json!({"type": "string"}),
         "bool" => json!({"type": "boolean"}),
-        "int" => json!({"type": "integer", "format": "int32"}),
-        "int64" => json!({"type": "integer", "format": "int64"}),
+        // Go's `int` doesn't record the spec's width; the Rust models use
+        // i64 for it, so the documents promise no narrower range than that.
+        "int" | "int64" => json!({"type": "integer", "format": "int64"}),
         "float64" => json!({"type": "number", "format": "double"}),
         "timestamp" => json!({"type": "string", "format": "date-time"}),
         "duration" => json!({"type": "string", "format": "google-duration", "example": "3.5s"}),

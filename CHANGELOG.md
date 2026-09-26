@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `.operation()` or `.into_operation()` for the raw message.
 - `jobs().get()` now returns the merged job; the old single-page call is
   `get_page()`.
+- OpenAPI documents type every integer as `int64` (previously Go `int`
+  fields were `int32`), matching the Rust models' `i64`.
 
 ### Changed
 - All crates are renamed with a `community-` prefix (`community-databricks-core`,
