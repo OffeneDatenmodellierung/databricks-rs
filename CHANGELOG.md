@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (milestone 3: Go parity)
+- Binary request and response bodies (`core::http::Binary`,
+  `ApiClient::send_binary`): Files download/upload, BillableUsage download,
+  Genie visualization download, and Serving `export_metrics`,
+  `get_open_api` and `http_request` are generated. Every extracted
+  operation is now generated (1,268).
+- Long-running operations: 37 calls return `core::lro::LongRunning`
+  handles (`wait`, `metadata`, `done`, `cancel`), as Go's
+  `…OperationInterface` wrappers do.
+- Jobs `get`, `list` and `list_runs` follow task pages, and `expand_tasks`
+  completes truncated entries, as in Go; the single-page calls are
+  `get_page`, `list_page` and `list_runs_page`.
+- `Workspace::azure_resource_id`.
+- `codegen/ir_patches.json` for upstream spec defects; it fixes the
+  `sql` `TransferOwnership` path, which Go builds from a struct.
+- `scripts/check_parity.py`, `codegen/parity.toml` and `spec/PARITY.md`:
+  a CI check of surface parity with databricks-sdk-go. The remaining
+  gaps are tracked in #14–#17.
+
+### Changed
+- `postgres`, `apps`, `environments` and `ml` operation-returning calls
+  return `LongRunning<Operation, T, M>` instead of `Operation`; use
+  `.operation()` or `.into_operation()` for the raw message.
+- `jobs().get()` now returns the merged job; the old single-page call is
+  `get_page()`.
+
 ### Changed
 - All crates are renamed with a `community-` prefix (`community-databricks-core`,
   `community-databricks-sdk`, `community-databricks-sdk-<package>`); import

@@ -11,7 +11,8 @@ This directory rebuilds the spec from the Go SDK. The Go SDK is generated code, 
 | `ir.json` | The intermediate representation, extracted from databricks-sdk-go by `codegen/extract-go`. It is the single source for everything below. |
 | `openapi/workspace.json` | OpenAPI 3.1 document for the **workspace-level** APIs. |
 | `openapi/account.json` | OpenAPI 3.1 document for the **account-level** APIs. |
-| `GENERATED.md` | Counts, the operations not generated in Rust (binary payloads), path collisions and skipped services. |
+| `GENERATED.md` | Counts, any operations not generated in Rust (none at present), path collisions and skipped services. |
+| `PARITY.md` | Parity with the Go SDK's surface beyond the spec: its hand-written helpers, convenience methods and client accessors, each generated, covered by rule, implemented by hand, a tracked gap, or not applicable. Written by `scripts/check_parity.py` from `codegen/parity.toml`; CI fails on anything unaccounted for. |
 | `DOCS-CHECK.md` | Spot-check of the specs against the published reference docs. |
 
 `info.version` in each OpenAPI document is the Go SDK version. `info.x-databricks-openapi-sha` is the upstream spec SHA it corresponds to.
@@ -28,7 +29,8 @@ Plain OpenAPI can't describe these Databricks behaviours:
 | `x-databricks-resource-name` | operation | The path was expanded from a resource-name parameter so that OpenAPI paths stay unique. For example, `{name}` becomes `projects/{project_id}/branches/{branch_id}` (`pattern`); clients join the parts back into `param`. |
 | `x-databricks-shared-path-operations` | path item | Operations whose verb and path collide with another and can't be expanded. Each carries `x-databricks-verb`. |
 | `x-databricks-multi-segment` | path parameter | The value is a hierarchical resource name or file path, and may contain `/`. Escape each segment separately and keep the `/` separators. Every other string path parameter is a single segment, so escape `/` as `%2F`. See `docs/upstream-review.md` for how parameters are classified. |
-| `x-databricks-unsupported` | operation | Binary or streaming payload that the Rust SDK does not generate yet. |
+| `x-databricks-long-running` | operation | The operation returns an `Operation` to poll: `poll` (and `cancel`) name the service's methods, as in Go; `result` and `metadata` are the schemas decoded from the operation's `response` and `metadata` once done. |
+| `x-databricks-unsupported` | operation | An operation the Rust SDK does not generate (none at present; binary payloads are generated). |
 | `x-databricks-package`, `x-databricks-service` | operation, tag | The Go SDK package and service name. |
 | `x-enum-descriptions` | enum schema | Description of each value. |
 
@@ -36,6 +38,10 @@ Two conventions to be aware of:
 - Query parameters for nested request objects are flattened to `parent.child`, which is how the SDKs send them.
 - Schemas are named `<package>.<Type>`, for example `compute.ClusterDetails`.
 - `int64` and `double` fields are typed as numbers, but services sometimes send them as strings: `"123"`, or `"NaN"`/`"Infinity"` for floats. Clients should accept both.
+
+## Corrections
+
+`codegen/ir_patches.json` corrects upstream spec defects before generation, for example a path parameter typed as a struct. Each patch must say `why`, and codegen fails if a patch no longer matches `ir.json`, so fixed defects prompt removing the patch.
 
 ## Keeping it current
 
