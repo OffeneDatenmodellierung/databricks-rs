@@ -80,6 +80,40 @@ pub struct HostMetadata {
     pub token_federation_default_oidc_audiences: Vec<String>,
 }
 
+/// Custom request headers (see [`Config::header`]). `Debug` shows only the
+/// header names, since values are often API keys or tracing credentials.
+#[derive(Clone, Default, PartialEq, Eq)]
+pub struct CustomHeaders(pub Vec<(String, String)>);
+
+impl CustomHeaders {
+    /// The headers as `(name, value)` pairs, in the order they were added.
+    pub fn iter(&self) -> std::slice::Iter<'_, (String, String)> {
+        self.0.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a CustomHeaders {
+    type Item = &'a (String, String);
+    type IntoIter = std::slice::Iter<'a, (String, String)>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl From<Vec<(String, String)>> for CustomHeaders {
+    fn from(v: Vec<(String, String)>) -> Self {
+        Self(v)
+    }
+}
+
+impl std::fmt::Debug for CustomHeaders {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_map()
+            .entries(self.0.iter().map(|(k, _)| (k, "***")))
+            .finish()
+    }
+}
+
 /// Attributes without a typed field. `Debug` masks the sensitive ones
 /// (`password`, `google_credentials`, …) like [`Config::debug_string`].
 #[derive(Clone, Default)]
@@ -213,7 +247,7 @@ pub struct Config {
     /// `User-Agent`, `Content-Type`, `Accept`, `X-Databricks-Workspace-Id`
     /// and any header the credentials provider sets) are never overridden;
     /// a custom header with one of those names is ignored.
-    pub headers: Vec<(String, String)>,
+    pub headers: CustomHeaders,
     /// Retry POST requests without an idempotency token after failures the
     /// server may already have acted on (timeouts, 503/504), as Go does.
     /// Off by default because a retried create can duplicate the object.
@@ -283,7 +317,7 @@ impl Config {
     /// Add a header sent on every request. See [`Config::headers`].
     #[must_use]
     pub fn header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
-        self.headers.push((name.into(), value.into()));
+        self.headers.0.push((name.into(), value.into()));
         self
     }
 

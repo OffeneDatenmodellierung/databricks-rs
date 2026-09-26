@@ -25,7 +25,10 @@ def main(report: str) -> int:
     data = json.load(open(report))
     rows, failures = [], []
     for f in data["files"]:
+        # tarpaulin has emitted the path both as components and as a string.
         parts = f["path"]
+        if isinstance(parts, str):
+            parts = [p for p in parts.replace("\\", "/").split("/") if p]
         anchor = next((i for i, p in enumerate(parts) if p in ("crates", "xtask")), None)
         path = "/".join(parts[anchor:]) if anchor is not None else "/".join(parts)
         if not path.startswith("crates/") or "/src/" not in path or not f["coverable"]:

@@ -327,3 +327,11 @@ async fn skip_verify_still_builds_clients() {
     let c = c.resolve_with(|_| None, None).await.unwrap();
     assert!(ApiClient::from_resolved(c, DefaultCredentials::default()).is_ok());
 }
+
+#[test]
+fn debug_hides_custom_header_values() {
+    let cfg = Config::with_host("https://x.cloud.databricks.com").header("X-Api-Key", "s3cret");
+    let dbg = format!("{cfg:?}");
+    assert!(dbg.contains("X-Api-Key"));
+    assert!(!dbg.contains("s3cret"));
+}
