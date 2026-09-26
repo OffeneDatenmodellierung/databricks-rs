@@ -20,6 +20,8 @@ use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
 mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// `AccessControlRequest`.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
 #[non_exhaustive]

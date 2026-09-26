@@ -2011,7 +2011,19 @@
       "waiter": "GetDeploymentAppSucceeded",
       "from_response": false,
       "field": "app_name",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "AppName",
+        "from_response": false,
+        "field": "app_name"
+       },
+       {
+        "key": "DeploymentId",
+        "from_response": true,
+        "field": "deployment_id"
+       }
+      ]
      }
     },
     {
@@ -2598,6 +2610,22 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "appName",
+       "wire": "app_name",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "deploymentId",
+       "wire": "deployment_id",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "apps",
@@ -5095,7 +5123,24 @@
       "waiter": "CommandStatusCommandExecutionCancelled",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "CommandId",
+        "from_response": false,
+        "field": "commandId"
+       },
+       {
+        "key": "ContextId",
+        "from_response": false,
+        "field": "contextId"
+       }
+      ]
      }
     },
     {
@@ -5168,7 +5213,19 @@
       "waiter": "ContextStatusCommandExecutionRunning",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "ContextId",
+        "from_response": true,
+        "field": "id"
+       }
+      ]
      }
     },
     {
@@ -5215,7 +5272,24 @@
       "waiter": "CommandStatusCommandExecutionFinishedOrError",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "CommandId",
+        "from_response": true,
+        "field": "id"
+       },
+       {
+        "key": "ContextId",
+        "from_response": false,
+        "field": "contextId"
+       }
+      ]
      }
     }
    ],
@@ -5227,6 +5301,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "commandId",
+       "wire": "commandId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -5253,6 +5350,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "commandId",
+       "wire": "commandId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -5277,6 +5397,22 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -11460,7 +11596,24 @@
       "waiter": "GetMessageGenieCompleted",
       "from_response": false,
       "field": "conversation_id",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ConversationId",
+        "from_response": false,
+        "field": "conversation_id"
+       },
+       {
+        "key": "MessageId",
+        "from_response": true,
+        "field": "message_id"
+       },
+       {
+        "key": "SpaceId",
+        "from_response": false,
+        "field": "space_id"
+       }
+      ]
      }
     },
     {
@@ -12416,7 +12569,24 @@
       "waiter": "GetMessageGenieCompleted",
       "from_response": true,
       "field": "conversation_id",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ConversationId",
+        "from_response": true,
+        "field": "conversation_id"
+       },
+       {
+        "key": "MessageId",
+        "from_response": true,
+        "field": "message_id"
+       },
+       {
+        "key": "SpaceId",
+        "from_response": false,
+        "field": "space_id"
+       }
+      ]
      }
     },
     {
@@ -12474,6 +12644,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "conversationId",
+       "wire": "conversation_id",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "messageId",
+       "wire": "message_id",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "spaceId",
+       "wire": "space_id",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "dashboards",

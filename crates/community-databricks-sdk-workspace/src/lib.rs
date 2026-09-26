@@ -19,6 +19,9 @@ use community_databricks_core::http::{Call, Method, path_param};
 use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
+mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// An item representing an ACL rule applied to the given principal (user or
 /// group) on the associated scope point.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]

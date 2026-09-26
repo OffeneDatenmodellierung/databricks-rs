@@ -19,6 +19,9 @@ use community_databricks_core::http::{Call, Method, path_param};
 use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
+mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// `AddInstanceProfile`.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
 #[non_exhaustive]
@@ -16884,10 +16887,10 @@ impl ClustersApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<CreateClusterResponse>(call).await?;
-        let param = response.cluster_id.clone().unwrap_or_default();
+        let wait_cluster_id = response.cluster_id.clone().unwrap_or_default();
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -16907,16 +16910,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/delete");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterTerminated {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -16944,16 +16946,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/edit");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17177,16 +17178,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/resize");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17204,16 +17204,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/restart");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17266,16 +17265,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/start");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17316,16 +17314,15 @@ impl ClustersApi {
         let path = String::from("/api/2.1/clusters/update");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone();
+        let wait_cluster_id = request.cluster_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetClusterRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17396,11 +17393,12 @@ impl ClustersApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<ClusterDetails>>,
     ) -> ::community_databricks_core::Result<ClusterDetails> {
-        let param: String = cluster_id.into();
+        let cluster_id_param: String = cluster_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetClusterRequest::default().with_cluster_id(param.clone()));
+            let fut =
+                self.get(GetClusterRequest::default().with_cluster_id(cluster_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17431,11 +17429,12 @@ impl ClustersApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<ClusterDetails>>,
     ) -> ::community_databricks_core::Result<ClusterDetails> {
-        let param: String = cluster_id.into();
+        let cluster_id_param: String = cluster_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetClusterRequest::default().with_cluster_id(param.clone()));
+            let fut =
+                self.get(GetClusterRequest::default().with_cluster_id(cluster_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17577,16 +17576,19 @@ impl CommandExecutionApi {
         let path = String::from("/api/1.2/commands/cancel");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone().unwrap_or_default();
+        let wait_cluster_id = request.cluster_id.clone().unwrap_or_default();
+        let wait_command_id = request.command_id.clone().unwrap_or_default();
+        let wait_context_id = request.context_id.clone().unwrap_or_default();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitCommandStatusCommandExecutionCancelled {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
+            command_id: wait_command_id,
+            context_id: wait_context_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17640,12 +17642,13 @@ impl CommandExecutionApi {
         let path = String::from("/api/1.2/contexts/create");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone().unwrap_or_default();
+        let wait_cluster_id = request.cluster_id.clone().unwrap_or_default();
         let response = self.api.send::<Created>(call).await?;
-        let param = param;
+        let wait_context_id = response.id.clone().unwrap_or_default();
         Ok(WaitContextStatusCommandExecutionRunning {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
+            context_id: wait_context_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17684,12 +17687,15 @@ impl CommandExecutionApi {
         let path = String::from("/api/1.2/commands/execute");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.cluster_id.clone().unwrap_or_default();
+        let wait_cluster_id = request.cluster_id.clone().unwrap_or_default();
+        let wait_context_id = request.context_id.clone().unwrap_or_default();
         let response = self.api.send::<Created>(call).await?;
-        let param = param;
+        let wait_command_id = response.id.clone().unwrap_or_default();
         Ok(WaitCommandStatusCommandExecutionFinishedOrError {
             api: Clone::clone(self),
-            cluster_id: param,
+            cluster_id: wait_cluster_id,
+            command_id: wait_command_id,
+            context_id: wait_context_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17700,15 +17706,23 @@ impl CommandExecutionApi {
     pub async fn wait_command_status_command_execution_cancelled(
         &self,
         cluster_id: impl Into<String>,
+        command_id: impl Into<String>,
+        context_id: impl Into<String>,
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<CommandStatusResponse>>,
     ) -> ::community_databricks_core::Result<CommandStatusResponse> {
-        let param: String = cluster_id.into();
+        let cluster_id_param: String = cluster_id.into();
+        let command_id_param: String = command_id.into();
+        let context_id_param: String = context_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut =
-                self.command_status(CommandStatusRequest::default().with_cluster_id(param.clone()));
+            let fut = self.command_status(
+                CommandStatusRequest::default()
+                    .with_cluster_id(cluster_id_param.clone())
+                    .with_command_id(command_id_param.clone())
+                    .with_context_id(context_id_param.clone()),
+            );
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17736,15 +17750,23 @@ impl CommandExecutionApi {
     pub async fn wait_command_status_command_execution_finished_or_error(
         &self,
         cluster_id: impl Into<String>,
+        command_id: impl Into<String>,
+        context_id: impl Into<String>,
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<CommandStatusResponse>>,
     ) -> ::community_databricks_core::Result<CommandStatusResponse> {
-        let param: String = cluster_id.into();
+        let cluster_id_param: String = cluster_id.into();
+        let command_id_param: String = command_id.into();
+        let context_id_param: String = context_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut =
-                self.command_status(CommandStatusRequest::default().with_cluster_id(param.clone()));
+            let fut = self.command_status(
+                CommandStatusRequest::default()
+                    .with_cluster_id(cluster_id_param.clone())
+                    .with_command_id(command_id_param.clone())
+                    .with_context_id(context_id_param.clone()),
+            );
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17772,15 +17794,20 @@ impl CommandExecutionApi {
     pub async fn wait_context_status_command_execution_running(
         &self,
         cluster_id: impl Into<String>,
+        context_id: impl Into<String>,
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<ContextStatusResponse>>,
     ) -> ::community_databricks_core::Result<ContextStatusResponse> {
-        let param: String = cluster_id.into();
+        let cluster_id_param: String = cluster_id.into();
+        let context_id_param: String = context_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut =
-                self.context_status(ContextStatusRequest::default().with_cluster_id(param.clone()));
+            let fut = self.context_status(
+                ContextStatusRequest::default()
+                    .with_cluster_id(cluster_id_param.clone())
+                    .with_context_id(context_id_param.clone()),
+            );
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17809,8 +17836,12 @@ impl CommandExecutionApi {
 /// the result reaches Cancelled.
 pub struct WaitCommandStatusCommandExecutionCancelled<R> {
     api: CommandExecutionApi,
-    /// The ID being waited on.
+    /// `cluster_id` of what is being waited on.
     pub cluster_id: String,
+    /// `command_id` of what is being waited on.
+    pub command_id: String,
+    /// `context_id` of what is being waited on.
+    pub context_id: String,
     /// The operation's immediate response.
     pub response: R,
     timeout: ::std::time::Duration,
@@ -17821,6 +17852,8 @@ impl<R: ::std::fmt::Debug> ::std::fmt::Debug for WaitCommandStatusCommandExecuti
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.debug_struct("WaitCommandStatusCommandExecutionCancelled")
             .field("cluster_id", &self.cluster_id)
+            .field("command_id", &self.command_id)
+            .field("context_id", &self.context_id)
             .field("response", &self.response)
             .field("timeout", &self.timeout)
             .finish_non_exhaustive()
@@ -17847,6 +17880,8 @@ impl<R> WaitCommandStatusCommandExecutionCancelled<R> {
         self.api
             .wait_command_status_command_execution_cancelled(
                 self.cluster_id,
+                self.command_id,
+                self.context_id,
                 self.timeout,
                 self.on_progress,
             )
@@ -17858,8 +17893,12 @@ impl<R> WaitCommandStatusCommandExecutionCancelled<R> {
 /// the result reaches Finished or Error.
 pub struct WaitCommandStatusCommandExecutionFinishedOrError<R> {
     api: CommandExecutionApi,
-    /// The ID being waited on.
+    /// `cluster_id` of what is being waited on.
     pub cluster_id: String,
+    /// `command_id` of what is being waited on.
+    pub command_id: String,
+    /// `context_id` of what is being waited on.
+    pub context_id: String,
     /// The operation's immediate response.
     pub response: R,
     timeout: ::std::time::Duration,
@@ -17872,6 +17911,8 @@ impl<R: ::std::fmt::Debug> ::std::fmt::Debug
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.debug_struct("WaitCommandStatusCommandExecutionFinishedOrError")
             .field("cluster_id", &self.cluster_id)
+            .field("command_id", &self.command_id)
+            .field("context_id", &self.context_id)
             .field("response", &self.response)
             .field("timeout", &self.timeout)
             .finish_non_exhaustive()
@@ -17898,6 +17939,8 @@ impl<R> WaitCommandStatusCommandExecutionFinishedOrError<R> {
         self.api
             .wait_command_status_command_execution_finished_or_error(
                 self.cluster_id,
+                self.command_id,
+                self.context_id,
                 self.timeout,
                 self.on_progress,
             )
@@ -17909,8 +17952,10 @@ impl<R> WaitCommandStatusCommandExecutionFinishedOrError<R> {
 /// the result reaches Running.
 pub struct WaitContextStatusCommandExecutionRunning<R> {
     api: CommandExecutionApi,
-    /// The ID being waited on.
+    /// `cluster_id` of what is being waited on.
     pub cluster_id: String,
+    /// `context_id` of what is being waited on.
+    pub context_id: String,
     /// The operation's immediate response.
     pub response: R,
     timeout: ::std::time::Duration,
@@ -17921,6 +17966,7 @@ impl<R: ::std::fmt::Debug> ::std::fmt::Debug for WaitContextStatusCommandExecuti
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.debug_struct("WaitContextStatusCommandExecutionRunning")
             .field("cluster_id", &self.cluster_id)
+            .field("context_id", &self.context_id)
             .field("response", &self.response)
             .field("timeout", &self.timeout)
             .finish_non_exhaustive()
@@ -17947,6 +17993,7 @@ impl<R> WaitContextStatusCommandExecutionRunning<R> {
         self.api
             .wait_context_status_command_execution_running(
                 self.cluster_id,
+                self.context_id,
                 self.timeout,
                 self.on_progress,
             )

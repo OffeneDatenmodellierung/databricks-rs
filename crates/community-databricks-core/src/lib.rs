@@ -24,6 +24,7 @@ pub mod lro;
 pub mod paging;
 pub mod query;
 pub mod serde_num;
+pub mod text;
 pub mod useragent;
 pub mod wait;
 

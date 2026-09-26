@@ -11032,16 +11032,15 @@ impl PipelinesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.pipeline_id.clone();
+        let wait_pipeline_id = request.pipeline_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetPipelineIdle {
             api: Clone::clone(self),
-            pipeline_id: param,
+            pipeline_id: wait_pipeline_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -11125,11 +11124,12 @@ impl PipelinesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetPipelineResponse>>,
     ) -> ::community_databricks_core::Result<GetPipelineResponse> {
-        let param: String = pipeline_id.into();
+        let pipeline_id_param: String = pipeline_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetPipelineRequest::default().with_pipeline_id(param.clone()));
+            let fut =
+                self.get(GetPipelineRequest::default().with_pipeline_id(pipeline_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

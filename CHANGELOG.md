@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (milestone 4: Go helpers)
+- Generated name lookups (#17): 38 `…_to_id_map` and 35 list-based
+  `get_by_…` methods, from Go's generated helpers (`core::lookup`).
+- SCIM (#14): `users()`, `groups()` and `service_principals()` on both
+  clients; `get_by_id`, `delete_by_id`, name maps and `get_by_user_name` /
+  `get_by_display_name` on the six V2 services;
+  `WorkspaceClient::current_workspace_id`.
+- Go's convenience helpers (#15):
+  - SQL `execute_and_wait`;
+  - workspace `upload`, `download`, `read_file`, `write_file`,
+    `recursive_list` and the notebook `Import` builders;
+  - the DBFS handle (`open`, `read`, `write`, `write_from`, `close`),
+    `read_file`, `write_file` and `recursive_list`;
+  - compute `select_node_type`, `select_spark_version`,
+    `ensure_cluster_is_running` and `get_or_create_running_cluster`;
+  - libraries `update_and_wait` / `wait`;
+  - command execution (`start`, `CommandExecutor`,
+    `new_command_executor`) and the `Results` accessors.
+- `core::text` (`trim_leading_whitespace`, base64), `core::http::next_chunk`,
+  and `Call::body_with_type` for non-JSON request bodies.
+
+### Fixed
+- Waiters with several parameters (command execution, app deployments,
+  Genie messages) now send every ID when polling. Previously they sent only
+  the first, so polling the command, context or message status failed.
+
 ### Added (milestone 3: Go parity)
 - Binary request and response bodies (`core::http::Binary`,
   `ApiClient::send_binary`): Files download/upload, BillableUsage download,

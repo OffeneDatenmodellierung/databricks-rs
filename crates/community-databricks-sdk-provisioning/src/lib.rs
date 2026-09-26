@@ -20,6 +20,8 @@ use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
 mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// `AwsCredentials`.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
 #[non_exhaustive]
@@ -5189,10 +5191,10 @@ impl WorkspacesApi {
         let mut call = Call::new(Method::POST, path);
         call = call.json(&request)?;
         let response = self.api.send::<Workspace>(call).await?;
-        let param = response.workspace_id.clone().unwrap_or_default();
+        let wait_workspace_id = response.workspace_id.clone().unwrap_or_default();
         Ok(WaitGetWorkspaceRunning {
             api: Clone::clone(self),
-            workspace_id: param,
+            workspace_id: wait_workspace_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -5270,10 +5272,10 @@ impl WorkspacesApi {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.customer_facing_workspace)?;
         let response = self.api.send::<Workspace>(call).await?;
-        let param = response.workspace_id.clone().unwrap_or_default();
+        let wait_workspace_id = response.workspace_id.clone().unwrap_or_default();
         Ok(WaitGetWorkspaceRunning {
             api: Clone::clone(self),
-            workspace_id: param,
+            workspace_id: wait_workspace_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -5326,11 +5328,12 @@ impl WorkspacesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<Workspace>>,
     ) -> ::community_databricks_core::Result<Workspace> {
-        let param: i64 = workspace_id;
+        let workspace_id_param: i64 = workspace_id;
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetWorkspaceRequest::default().with_workspace_id(param.clone()));
+            let fut = self
+                .get(GetWorkspaceRequest::default().with_workspace_id(workspace_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

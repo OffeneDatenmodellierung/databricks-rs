@@ -182,18 +182,38 @@ type WaitBinding struct {
 	FromResponse   bool   `json:"from_response"`
 	Field          string `json:"field"` // wire name
 	TimeoutMinutes int    `json:"timeout_minutes"`
+	// Every waiter parameter's source; the fields above are the first.
+	Args []*WaitArg `json:"args,omitempty"`
+}
+
+// WaitArg binds one waiter parameter (Key, the Go wait-struct field such
+// as `ContextId`) to a request or response field.
+type WaitArg struct {
+	Key          string `json:"key"`
+	FromResponse bool   `json:"from_response"`
+	Field        string `json:"field"`
+}
+
+// WaitParam is one waiter parameter: its Go name and the poll request's
+// wire field it sets.
+type WaitParam struct {
+	Name string   `json:"name"`
+	Wire string   `json:"wire"`
+	Type *TypeRef `json:"type"`
 }
 
 type Waiter struct {
-	Name        string   `json:"name"`
-	PollMethod  string   `json:"poll_method"`
-	Param       string   `json:"param"` // wire name on the poll request
-	ParamType   *TypeRef `json:"param_type"`
-	Result      *TypeRef `json:"result"`
-	StatusPath  []string `json:"status_path"`
-	MessagePath []string `json:"message_path,omitempty"`
-	Targets     []string `json:"targets"`
-	Failures    []string `json:"failures,omitempty"`
+	Name       string   `json:"name"`
+	PollMethod string   `json:"poll_method"`
+	Param      string   `json:"param"` // wire name on the poll request
+	ParamType  *TypeRef `json:"param_type"`
+	// Every parameter in order; Param/ParamType are the first.
+	Params      []*WaitParam `json:"params,omitempty"`
+	Result      *TypeRef     `json:"result"`
+	StatusPath  []string     `json:"status_path"`
+	MessagePath []string     `json:"message_path,omitempty"`
+	Targets     []string     `json:"targets"`
+	Failures    []string     `json:"failures,omitempty"`
 }
 
 // ---------------------------------------------------------------- parsing
@@ -1016,10 +1036,21 @@ func (p *pkgInfo) goPathToWire(typ string, path []string) ([]string, bool) {
 
 func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 	w := &Waiter{Name: strings.TrimPrefix(fd.Name.Name, "Wait")}
-	// Param: second parameter (after ctx).
-	prm := fd.Type.Params.List[1]
-	paramGo := prm.Names[0].Name
-	w.ParamType = typeRef(p.name, prm.Type)
+	// Parameters between ctx and timeout.
+	var params []*WaitParam
+	for _, prm := range fd.Type.Params.List[1:] {
+		for _, n := range prm.Names {
+			if n.Name == "timeout" || n.Name == "callback" {
+				continue
+			}
+			params = append(params, &WaitParam{Name: n.Name, Type: typeRef(p.name, prm.Type)})
+		}
+	}
+	if len(params) == 0 {
+		return nil, fmt.Errorf("%s: no parameters", name)
+	}
+	paramGo := params[0].Name
+	w.ParamType = params[0].Type
 	resultType := ""
 	var respVar string
 	var statusExpr, msgExpr []string
@@ -1037,11 +1068,18 @@ func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 					if cl, ok := call.Args[1].(*ast.CompositeLit); ok {
 						for _, el := range cl.Elts {
 							kv := el.(*ast.KeyValueExpr)
-							if exprString(kv.Value) == paramGo {
-								reqT := exprString(cl.Type)
-								if wire, ok := p.goToWire[reqT][exprString(kv.Key)]; ok {
-									w.Param = wire
+							reqT := exprString(cl.Type)
+							wire, ok := p.goToWire[reqT][exprString(kv.Key)]
+							if !ok {
+								continue
+							}
+							for _, prm := range params {
+								if exprString(kv.Value) == prm.Name {
+									prm.Wire = wire
 								}
+							}
+							if exprString(kv.Value) == paramGo {
+								w.Param = wire
 							}
 						}
 					}
@@ -1122,6 +1160,14 @@ func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 			return true
 		})
 	}
+	if len(params) > 1 {
+		for _, prm := range params {
+			if prm.Wire == "" {
+				return nil, fmt.Errorf("%s: parameter %s not in the poll request", name, prm.Name)
+			}
+		}
+		w.Params = params
+	}
 	return w, nil
 }
 
@@ -1166,27 +1212,37 @@ func (p *pkgInfo) parseTrigger(fd *ast.FuncDecl, reqType, respType string) *Wait
 			}
 			return false
 		}
-		if key == "Response" || key == "Poll" || key == "callback" || b.Field != "" {
+		if key == "Response" || key == "Poll" || key == "callback" {
 			return false
 		}
 		parts := strings.SplitN(exprString(kv.Value), ".", 2)
 		if len(parts) != 2 {
 			return true
 		}
+		var arg *WaitArg
 		switch parts[0] {
 		case respVar:
 			if w, ok := p.goToWire[respType][parts[1]]; ok {
-				b.FromResponse, b.Field = true, w
+				arg = &WaitArg{Key: key, FromResponse: true, Field: w}
 			}
 		case reqVar:
 			if w, ok := p.goToWire[reqType][parts[1]]; ok {
-				b.FromResponse, b.Field = false, w
+				arg = &WaitArg{Key: key, FromResponse: false, Field: w}
 			}
+		}
+		if arg != nil {
+			if b.Field == "" {
+				b.FromResponse, b.Field = arg.FromResponse, arg.Field
+			}
+			b.Args = append(b.Args, arg)
 		}
 		return false
 	})
 	if b.Field == "" {
 		return nil
+	}
+	if len(b.Args) < 2 {
+		b.Args = nil
 	}
 	return b
 }

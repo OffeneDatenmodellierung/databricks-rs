@@ -19,6 +19,9 @@ use community_databricks_core::http::{Call, Method, path_param};
 use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
+mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// `AccessControl`.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
 #[non_exhaustive]
@@ -17450,10 +17453,10 @@ impl WarehousesApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<CreateWarehouseResponse>(call).await?;
-        let param = response.id.clone().unwrap_or_default();
+        let wait_id = response.id.clone().unwrap_or_default();
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17532,16 +17535,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17782,16 +17784,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17811,16 +17812,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseStopped {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17901,11 +17901,11 @@ impl WarehousesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetWarehouseResponse>>,
     ) -> ::community_databricks_core::Result<GetWarehouseResponse> {
-        let param: String = id.into();
+        let id_param: String = id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetWarehouseRequest::default().with_id(param.clone()));
+            let fut = self.get(GetWarehouseRequest::default().with_id(id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17936,11 +17936,11 @@ impl WarehousesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetWarehouseResponse>>,
     ) -> ::community_databricks_core::Result<GetWarehouseResponse> {
-        let param: String = id.into();
+        let id_param: String = id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetWarehouseRequest::default().with_id(param.clone()));
+            let fut = self.get(GetWarehouseRequest::default().with_id(id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

@@ -26,26 +26,8 @@ change `codegen/parity.toml` or the code, then re-run.
 
 | Go | Issue |
 |---|---|
-| `compute.ClusterDetails.IsRunningOrResizing` | #15 |
-| `compute.ClusterLibraryStatuses.*` (2) | #15 |
-| `compute.ClustersAPI.*` (4) | #15 |
-| `compute.CommandExecutionAPI.Start` | #15 |
-| `compute.CommandExecutorV2.*` (2) | #15 |
-| `compute.CommandsHighLevelAPI.Execute` | #15 |
-| `compute.GetSparkVersionsResponse.Select` | #15 |
-| `compute.InstallLibraries.Sort` | #15 |
-| `compute.LibrariesAPI.*` (2) | #15 |
-| `compute.Library.String` | #15 |
-| `compute.ListNodeTypesResponse.Smallest` | #15 |
-| `compute.NewCommandExecutor` | #15 |
-| `compute.Results.*` (5) | #15 |
-| `compute.TrimLeadingWhitespace` | #15 |
-| `compute.Wait.IsNotInScope` | #15 |
-| `files.DbfsAPI.*` (4) | #15 |
 | `serving.NewDataPlaneService` | #16 |
 | `serving.ServingEndpointsDataPlane.Query` | #16 |
-| `sql.StatementExecutionAPI.ExecuteAndWait` | #15 |
-| `workspace.*` (12) | #15 |
 | `workspace.ServingEndpointsDataPlane` | #16 |
 
 ## Implemented by hand
@@ -58,6 +40,35 @@ change `codegen/parity.toml` or the code, then re-run.
 | `*.ServicePrincipals` (2) | `crates/community-databricks-sdk/src/lib.rs#service_principals` |
 | `*.Users` (2) | `crates/community-databricks-sdk/src/lib.rs#users` |
 | `catalog.EntityTagAssignmentsAPI.*` (3) | `crates/community-databricks-core/src/http.rs#path_param` |
+| `compute.ClusterDetails.IsRunningOrResizing` | `crates/community-databricks-sdk-compute/src/ext.rs#is_running_or_resizing` |
+| `compute.ClusterLibraryStatuses.IsRetryNeeded` | `crates/community-databricks-sdk-compute/src/ext.rs#is_retry_needed` |
+| `compute.ClusterLibraryStatuses.ToLibraryList` | `crates/community-databricks-sdk-compute/src/ext.rs#to_library_list` |
+| `compute.ClustersAPI.EnsureClusterIsRunning` | `crates/community-databricks-sdk-compute/src/ext.rs#ensure_cluster_is_running` |
+| `compute.ClustersAPI.GetOrCreateRunningCluster` | `crates/community-databricks-sdk-compute/src/ext.rs#get_or_create_running_cluster` |
+| `compute.ClustersAPI.SelectNodeType` | `crates/community-databricks-sdk-compute/src/ext.rs#select_node_type` |
+| `compute.ClustersAPI.SelectSparkVersion` | `crates/community-databricks-sdk-compute/src/ext.rs#select_spark_version` |
+| `compute.CommandExecutionAPI.Start` | `crates/community-databricks-sdk-compute/src/ext.rs#start` |
+| `compute.CommandExecutorV2.Destroy` | `crates/community-databricks-sdk-compute/src/ext.rs#destroy` |
+| `compute.CommandExecutorV2.Execute` | `crates/community-databricks-sdk-compute/src/ext.rs#execute` |
+| `compute.CommandsHighLevelAPI.Execute` | `crates/community-databricks-sdk-compute/src/ext.rs#execute` |
+| `compute.GetSparkVersionsResponse.Select` | `crates/community-databricks-sdk-compute/src/ext.rs#select` |
+| `compute.InstallLibraries.Sort` | `crates/community-databricks-sdk-compute/src/ext.rs#sort` |
+| `compute.LibrariesAPI.UpdateAndWait` | `crates/community-databricks-sdk-compute/src/ext.rs#update_and_wait` |
+| `compute.LibrariesAPI.Wait` | `crates/community-databricks-sdk-compute/src/ext.rs#wait` |
+| `compute.Library.String` | `crates/community-databricks-sdk-compute/src/ext.rs#fmt` |
+| `compute.ListNodeTypesResponse.Smallest` | `crates/community-databricks-sdk-compute/src/ext.rs#smallest` |
+| `compute.NewCommandExecutor` | `crates/community-databricks-sdk-compute/src/ext.rs#new_command_executor` |
+| `compute.Results.Err` | `crates/community-databricks-sdk-compute/src/ext.rs#err` |
+| `compute.Results.Error` | `crates/community-databricks-sdk-compute/src/ext.rs#error` |
+| `compute.Results.Failed` | `crates/community-databricks-sdk-compute/src/ext.rs#failed` |
+| `compute.Results.Scan` | `crates/community-databricks-sdk-compute/src/ext.rs#scan` |
+| `compute.Results.Text` | `crates/community-databricks-sdk-compute/src/ext.rs#text` |
+| `compute.TrimLeadingWhitespace` | `crates/community-databricks-core/src/text.rs#trim_leading_whitespace` |
+| `compute.Wait.IsNotInScope` | `crates/community-databricks-sdk-compute/src/ext.rs#is_not_in_scope` |
+| `files.DbfsAPI.Open` | `crates/community-databricks-sdk-files/src/ext.rs#open` |
+| `files.DbfsAPI.ReadFile` | `crates/community-databricks-sdk-files/src/ext.rs#read_file` |
+| `files.DbfsAPI.RecursiveList` | `crates/community-databricks-sdk-files/src/ext.rs#recursive_list` |
+| `files.DbfsAPI.WriteFile` | `crates/community-databricks-sdk-files/src/ext.rs#write_file` |
 | `iam.*API.DeleteById` (6) | `crates/community-databricks-sdk-iam/src/ext.rs#delete_by_id` |
 | `iam.*API.GetByDisplayName` (4) | `crates/community-databricks-sdk-iam/src/ext.rs#get_by_display_name` |
 | `iam.*API.GetById` (6) | `crates/community-databricks-sdk-iam/src/ext.rs#get_by_id` |
@@ -70,7 +81,20 @@ change `codegen/parity.toml` or the code, then re-run.
 | `jobs.JobsAPI.List` | `crates/community-databricks-sdk-jobs/src/ext.rs#list` |
 | `jobs.JobsAPI.ListRuns` | `crates/community-databricks-sdk-jobs/src/ext.rs#list_runs` |
 | `provisioning.Workspace.AzureResourceId` | `crates/community-databricks-sdk-provisioning/src/ext.rs#azure_resource_id` |
+| `sql.StatementExecutionAPI.ExecuteAndWait` | `crates/community-databricks-sdk-sql/src/ext.rs#execute_and_wait` |
 | `tags.*API.*Tag*` (6) | `crates/community-databricks-core/src/http.rs#path_param` |
+| `workspace.DownloadFormat` | `crates/community-databricks-sdk-workspace/src/ext.rs#format` |
+| `workspace.ExportResponse.Bytes` | `crates/community-databricks-sdk-workspace/src/ext.rs#bytes` |
+| `workspace.PythonNotebookOverwrite` | `crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite` |
+| `workspace.PythonNotebookOverwriteReader` | `crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite_bytes` |
+| `workspace.UploadFormat` | `crates/community-databricks-sdk-workspace/src/ext.rs#format` |
+| `workspace.UploadLanguage` | `crates/community-databricks-sdk-workspace/src/ext.rs#language` |
+| `workspace.UploadOverwrite` | `crates/community-databricks-sdk-workspace/src/ext.rs#overwrite` |
+| `workspace.WorkspaceAPI.Download` | `crates/community-databricks-sdk-workspace/src/ext.rs#download` |
+| `workspace.WorkspaceAPI.ReadFile` | `crates/community-databricks-sdk-workspace/src/ext.rs#read_file` |
+| `workspace.WorkspaceAPI.RecursiveList` | `crates/community-databricks-sdk-workspace/src/ext.rs#recursive_list` |
+| `workspace.WorkspaceAPI.Upload` | `crates/community-databricks-sdk-workspace/src/ext.rs#upload` |
+| `workspace.WorkspaceAPI.WriteFile` | `crates/community-databricks-sdk-workspace/src/ext.rs#write_file` |
 
 ## Not applicable
 
