@@ -1,9 +1,9 @@
 [workspace]
 resolver = "3"
-members = ["crates/databricks-core", "crates/databricks-sdk"]
+members = ["crates/*", "xtask"]
 
+# Each crate has its own `version` (release-plz bumps them independently).
 [workspace.package]
-version = "0.1.0"
 edition = "2024"
 rust-version = "1.94"
 license = "MIT OR Apache-2.0"
@@ -13,17 +13,69 @@ keywords = ["databricks", "sdk", "api", "lakehouse"]
 categories = ["api-bindings", "asynchronous"]
 
 # Versions: newest non-yanked release published more than 48h before
-# 2026-09-25 (house rule). See docs/dependency-policy.md.
+# 2026-09-25 (house rule). See the "Dependency policy" section of README.md.
 [workspace.dependencies]
-databricks-core = { path = "crates/databricks-core", version = "0.1.0" }
-bon = "3.10.1"
+community-databricks-core = { path = "crates/community-databricks-core", version = "0.1.0" }
+# The generated service crates, one per package (`cargo xtask codegen`).
+# BEGIN GENERATED WORKSPACE CRATES
+community-databricks-sdk-agentbricks = { path = "crates/community-databricks-sdk-agentbricks", version = "0.1.0" }
+community-databricks-sdk-aifunctions = { path = "crates/community-databricks-sdk-aifunctions", version = "0.1.0" }
+community-databricks-sdk-aisearch = { path = "crates/community-databricks-sdk-aisearch", version = "0.1.0" }
+community-databricks-sdk-apps = { path = "crates/community-databricks-sdk-apps", version = "0.1.0" }
+community-databricks-sdk-billing = { path = "crates/community-databricks-sdk-billing", version = "0.1.0" }
+community-databricks-sdk-bundledeployments = { path = "crates/community-databricks-sdk-bundledeployments", version = "0.1.0" }
+community-databricks-sdk-catalog = { path = "crates/community-databricks-sdk-catalog", version = "0.1.0" }
+community-databricks-sdk-cleanrooms = { path = "crates/community-databricks-sdk-cleanrooms", version = "0.1.0" }
+community-databricks-sdk-compute = { path = "crates/community-databricks-sdk-compute", version = "0.1.0" }
+community-databricks-sdk-dashboards = { path = "crates/community-databricks-sdk-dashboards", version = "0.1.0" }
+community-databricks-sdk-database = { path = "crates/community-databricks-sdk-database", version = "0.1.0" }
+community-databricks-sdk-dataclassification = { path = "crates/community-databricks-sdk-dataclassification", version = "0.1.0" }
+community-databricks-sdk-dataquality = { path = "crates/community-databricks-sdk-dataquality", version = "0.1.0" }
+community-databricks-sdk-disasterrecovery = { path = "crates/community-databricks-sdk-disasterrecovery", version = "0.1.0" }
+community-databricks-sdk-domains = { path = "crates/community-databricks-sdk-domains", version = "0.1.0" }
+community-databricks-sdk-environments = { path = "crates/community-databricks-sdk-environments", version = "0.1.0" }
+community-databricks-sdk-files = { path = "crates/community-databricks-sdk-files", version = "0.1.0" }
+community-databricks-sdk-iam = { path = "crates/community-databricks-sdk-iam", version = "0.1.0" }
+community-databricks-sdk-iamv2 = { path = "crates/community-databricks-sdk-iamv2", version = "0.1.0" }
+community-databricks-sdk-jobs = { path = "crates/community-databricks-sdk-jobs", version = "0.1.0" }
+community-databricks-sdk-knowledgeassistants = { path = "crates/community-databricks-sdk-knowledgeassistants", version = "0.1.0" }
+community-databricks-sdk-marketplace = { path = "crates/community-databricks-sdk-marketplace", version = "0.1.0" }
+community-databricks-sdk-ml = { path = "crates/community-databricks-sdk-ml", version = "0.1.0" }
+community-databricks-sdk-networking = { path = "crates/community-databricks-sdk-networking", version = "0.1.0" }
+community-databricks-sdk-oauth2 = { path = "crates/community-databricks-sdk-oauth2", version = "0.1.0" }
+community-databricks-sdk-pipelines = { path = "crates/community-databricks-sdk-pipelines", version = "0.1.0" }
+community-databricks-sdk-postgres = { path = "crates/community-databricks-sdk-postgres", version = "0.1.0" }
+community-databricks-sdk-provisioning = { path = "crates/community-databricks-sdk-provisioning", version = "0.1.0" }
+community-databricks-sdk-qualitymonitorv2 = { path = "crates/community-databricks-sdk-qualitymonitorv2", version = "0.1.0" }
+community-databricks-sdk-sandbox = { path = "crates/community-databricks-sdk-sandbox", version = "0.1.0" }
+community-databricks-sdk-serving = { path = "crates/community-databricks-sdk-serving", version = "0.1.0" }
+community-databricks-sdk-settings = { path = "crates/community-databricks-sdk-settings", version = "0.1.0" }
+community-databricks-sdk-settingsv2 = { path = "crates/community-databricks-sdk-settingsv2", version = "0.1.0" }
+community-databricks-sdk-sharing = { path = "crates/community-databricks-sdk-sharing", version = "0.1.0" }
+community-databricks-sdk-sql = { path = "crates/community-databricks-sdk-sql", version = "0.1.0" }
+community-databricks-sdk-supervisoragents = { path = "crates/community-databricks-sdk-supervisoragents", version = "0.1.0" }
+community-databricks-sdk-tags = { path = "crates/community-databricks-sdk-tags", version = "0.1.0" }
+community-databricks-sdk-vectorsearch = { path = "crates/community-databricks-sdk-vectorsearch", version = "0.1.0" }
+community-databricks-sdk-workspace = { path = "crates/community-databricks-sdk-workspace", version = "0.1.0" }
+# END GENERATED WORKSPACE CRATES
+async-trait = "0.1.92"
+# Same features rustls enables, so aws-lc builds once (tests only).
+aws-lc-rs = { version = "1.18.1", default-features = false, features = ["aws-lc-sys", "prebuilt-nasm"] }
+base64 = "0.23.1"
 bytes = "1.12.1"
+# Microsoft's official Azure auth crate.
+azure_identity = "1.0.0"
+azure_core = "1.1.0"
+# Google's official auth crate. Its default features install the rustls/aws-lc
+# provider (the same stack reqwest uses here); without them it panics unless the
+# application installs one.
+google-cloud-auth = { version = "1.16.0", features = ["idtoken"] }
 fastrand = "2.5.0"
 futures-core = "0.3.34"
 futures-util = { version = "0.3.34", default-features = false, features = ["std"] }
 httpdate = "1.0.3"
 regex = "1.13.1"
-reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json", "form", "http2", "charset", "system-proxy"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "json", "form", "http2", "charset", "system-proxy", "stream"] }
 rust-ini = "0.21.3"
 secrecy = "0.10.3"
 serde = { version = "1.0.229", features = ["derive"] }

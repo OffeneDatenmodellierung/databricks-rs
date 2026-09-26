@@ -1,0 +1,13 @@
+databricks-rs
+Copyright 2026 Mark Olliver
+
+This product includes data derived from databricks-sdk-go
+(https://github.com/databricks/databricks-sdk-go), Copyright Databricks, Inc.,
+licensed under the Apache License, Version 2.0. The following are produced
+from it by codegen/extract-go and `cargo xtask codegen`:
+
+  spec/ir.json, spec/openapi/*.json, spec/GENERATED.md, spec/PARITY.md
+  crates/community-databricks-sdk-*/src/lib.rs and crates/community-databricks-sdk-*/Cargo.toml
+    (the generated models and services; src/ext.rs files are hand-written)
+  crates/community-databricks-sdk/src/accessors.rs and
+    crates/community-databricks-sdk/src/service/mod.rs (re-exports and accessors)

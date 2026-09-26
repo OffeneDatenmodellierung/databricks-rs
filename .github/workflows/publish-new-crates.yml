@@ -1,0 +1,43 @@
+name: Publish new crates
+
+# First publication of crates that are not on crates.io yet (the initial
+# release, or a new service package from an upstream spec update).
+#
+# crates.io limits how fast *new* crates can be created. The script waits
+# until the time crates.io names in its 429 response, and stops before the
+# job's time limit; if crates are left, this workflow dispatches itself
+# again. Already-published versions are skipped, so re-running is safe.
+# After this completes, release-plz handles every later release.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # to re-dispatch this workflow
+
+concurrency:
+  group: publish-new-crates
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Package check
+        run: cargo publish --workspace --dry-run --no-verify --locked
+      - name: Publish, waiting out the new-crate rate limit
+        id: publish
+        run: python3 scripts/publish_new_crates.py --max-minutes 320
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Continue in a fresh run
+        if: steps.publish.outputs.remaining != '0'
+        run: gh workflow run publish-new-crates.yml --ref "$GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}

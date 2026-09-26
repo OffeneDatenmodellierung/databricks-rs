@@ -1,0 +1,45 @@
+[package]
+name = "community-databricks-core"
+description = "Runtime for the community-maintained Databricks Rust SDK: unified config, authentication, HTTP, errors, pagination and waiters"
+readme = "../../README.md"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+azure_core.workspace = true
+azure_identity.workspace = true
+bytes.workspace = true
+google-cloud-auth.workspace = true
+fastrand.workspace = true
+futures-core.workspace = true
+futures-util.workspace = true
+httpdate.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+rust-ini.workspace = true
+secrecy.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["fs", "process"] }
+tracing.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+aws-lc-rs.workspace = true
+base64.workspace = true
+futures-util.workspace = true
+pretty_assertions.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "test-util"] }
+wiremock.workspace = true
+
+[lints]
+workspace = true

@@ -51,8 +51,42 @@ jobs:
       - run: cargo test --workspace --all-features --locked
       - name: Feature subsets compile
         run: |
-          cargo check -p databricks-sdk --no-default-features --locked
-          cargo check -p databricks-sdk --no-default-features --features jobs --locked
+          cargo check -p community-databricks-sdk --no-default-features --locked
+          cargo check -p community-databricks-sdk --no-default-features --features jobs --locked
+
+  codegen:
+    name: generated code, IR and OpenAPI are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p xtask --locked
+      - run: cargo xtask codegen --check
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: IR matches the pinned databricks-sdk-go release
+        run: |
+          tag=$(python3 -c "import json;print(json.load(open('spec/ir.json'))['source']['go_sdk_version'])")
+          git clone --depth 1 --branch "$tag" https://github.com/databricks/databricks-sdk-go /tmp/go-sdk
+          cd codegen/extract-go && go vet ./... && go run . -sdk /tmp/go-sdk -out /tmp/ir.json
+          diff -q /tmp/ir.json ../../spec/ir.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: OpenAPI documents are valid 3.1
+        run: |
+          pip install openapi-spec-validator
+          python3 scripts/validate_openapi.py
+          python3 spec/docs-check/compare.py
+          git diff --exit-code -- spec/DOCS-CHECK.md
+      - name: Surface parity with databricks-sdk-go
+        run: |
+          python3 scripts/check_parity.py /tmp/go-sdk
+          git diff --exit-code -- spec/PARITY.md
 
   docs:
     runs-on: ubuntu-latest
@@ -74,19 +108,32 @@ jobs:
         with:
           tool: cargo-tarpaulin
       - run: >
-          cargo tarpaulin --workspace --engine ptrace --out Json --out Xml
+          cargo tarpaulin -p community-databricks-core -p community-databricks-sdk --all-features
+          --engine ptrace --out Json --out Xml
           --output-dir target/coverage
           --exclude-files 'crates/*/examples/*'
           --exclude-files 'crates/*/build.rs'
           --exclude-files 'crates/*/tests/*'
+          --exclude-files 'xtask/*'
       - name: Per-file coverage gate (85%)
         run: python3 scripts/coverage_gate.py target/coverage/tarpaulin-report.json
 
-  deny:
+  # cargo deny and cargo audit run in security.yml (also daily).
+
+  package:
+    name: crates package for crates.io
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Every crate packages (metadata, readme, licence, size)
+        run: cargo publish --workspace --dry-run --no-verify --locked
+      - name: Release scripts
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
 
   dependency-age:
     if: github.event_name == 'pull_request'
