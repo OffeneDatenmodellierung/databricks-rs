@@ -6092,10 +6092,10 @@ impl AppsApi {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.app)?;
         let response = self.api.send::<App>(call).await?;
-        let param = response.name.clone();
+        let wait_name = response.name.clone();
         Ok(WaitGetAppActive {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -6149,12 +6149,11 @@ impl AppsApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.app_name.clone();
+        let wait_app_name = request.app_name.clone();
         let response = self.api.send::<AppUpdate>(call).await?;
-        let param = param;
         Ok(WaitGetUpdateAppSucceeded {
             api: Clone::clone(self),
-            app_name: param,
+            app_name: wait_app_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -6244,12 +6243,13 @@ impl AppsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.app_deployment)?;
-        let param = request.app_name.clone();
+        let wait_app_name = request.app_name.clone();
         let response = self.api.send::<AppDeployment>(call).await?;
-        let param = param;
+        let wait_deployment_id = response.deployment_id.clone().unwrap_or_default();
         Ok(WaitGetDeploymentAppSucceeded {
             api: Clone::clone(self),
-            app_name: param,
+            app_name: wait_app_name,
+            deployment_id: wait_deployment_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -6551,10 +6551,10 @@ impl AppsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<App>(call).await?;
-        let param = response.name.clone();
+        let wait_name = response.name.clone();
         Ok(WaitGetAppActive {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -6575,10 +6575,10 @@ impl AppsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<App>(call).await?;
-        let param = response.name.clone();
+        let wait_name = response.name.clone();
         Ok(WaitGetAppStopped {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -6678,11 +6678,11 @@ impl AppsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<App>>,
     ) -> ::community_databricks_core::Result<App> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetAppRequest::default().with_name(param.clone()));
+            let fut = self.get(GetAppRequest::default().with_name(name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -6713,11 +6713,11 @@ impl AppsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<App>>,
     ) -> ::community_databricks_core::Result<App> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetAppRequest::default().with_name(param.clone()));
+            let fut = self.get(GetAppRequest::default().with_name(name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -6745,15 +6745,20 @@ impl AppsApi {
     pub async fn wait_get_deployment_app_succeeded(
         &self,
         app_name: impl Into<String>,
+        deployment_id: impl Into<String>,
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<AppDeployment>>,
     ) -> ::community_databricks_core::Result<AppDeployment> {
-        let param: String = app_name.into();
+        let app_name_param: String = app_name.into();
+        let deployment_id_param: String = deployment_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self
-                .get_deployment(GetAppDeploymentRequest::default().with_app_name(param.clone()));
+            let fut = self.get_deployment(
+                GetAppDeploymentRequest::default()
+                    .with_app_name(app_name_param.clone())
+                    .with_deployment_id(deployment_id_param.clone()),
+            );
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -6784,11 +6789,12 @@ impl AppsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<AppUpdate>>,
     ) -> ::community_databricks_core::Result<AppUpdate> {
-        let param: String = app_name.into();
+        let app_name_param: String = app_name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get_update(GetAppUpdateRequest::default().with_app_name(param.clone()));
+            let fut = self
+                .get_update(GetAppUpdateRequest::default().with_app_name(app_name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -6907,8 +6913,10 @@ impl<R> WaitGetAppStopped<R> {
 /// the result reaches SUCCEEDED.
 pub struct WaitGetDeploymentAppSucceeded<R> {
     api: AppsApi,
-    /// The ID being waited on.
+    /// `app_name` of what is being waited on.
     pub app_name: String,
+    /// `deployment_id` of what is being waited on.
+    pub deployment_id: String,
     /// The operation's immediate response.
     pub response: R,
     timeout: ::std::time::Duration,
@@ -6919,6 +6927,7 @@ impl<R: ::std::fmt::Debug> ::std::fmt::Debug for WaitGetDeploymentAppSucceeded<R
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.debug_struct("WaitGetDeploymentAppSucceeded")
             .field("app_name", &self.app_name)
+            .field("deployment_id", &self.deployment_id)
             .field("response", &self.response)
             .field("timeout", &self.timeout)
             .finish_non_exhaustive()
@@ -6943,7 +6952,12 @@ impl<R> WaitGetDeploymentAppSucceeded<R> {
     /// Wait until the result reaches SUCCEEDED.
     pub async fn wait(self) -> ::community_databricks_core::Result<AppDeployment> {
         self.api
-            .wait_get_deployment_app_succeeded(self.app_name, self.timeout, self.on_progress)
+            .wait_get_deployment_app_succeeded(
+                self.app_name,
+                self.deployment_id,
+                self.timeout,
+                self.on_progress,
+            )
             .await
     }
 }

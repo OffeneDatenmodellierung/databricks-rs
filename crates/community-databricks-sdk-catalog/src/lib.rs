@@ -33233,6 +33233,21 @@ impl ConnectionsApi {
         call = call.json(&request)?;
         self.api.send::<ConnectionInfo>(call).await
     }
+
+    /// Map each [`ConnectionInfo`]'s `name` to its `full_name`, listing them all first
+    /// (Go: `ConnectionsAPI.ConnectionInfoNameToFullNameMap`). A duplicate `name` is an error.
+    pub async fn connection_info_name_to_full_name_map(
+        &self,
+        request: ListConnectionsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &ConnectionInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &ConnectionInfo| v.full_name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// A credential represents an authentication and authorization mechanism for
@@ -34252,6 +34267,21 @@ impl FunctionsApi {
         call = call.json(&request)?;
         self.api.send::<FunctionInfo>(call).await
     }
+
+    /// Map each [`FunctionInfo`]'s `name` to its `full_name`, listing them all first
+    /// (Go: `FunctionsAPI.FunctionInfoNameToFullNameMap`). A duplicate `name` is an error.
+    pub async fn function_info_name_to_full_name_map(
+        &self,
+        request: ListFunctionsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &FunctionInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &FunctionInfo| v.full_name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// In Unity Catalog, data is secure by default. Initially, users have no
@@ -34929,10 +34959,10 @@ impl OnlineTablesApi {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.table)?;
         let response = self.api.send::<OnlineTable>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetOnlineTableActive {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -34983,11 +35013,11 @@ impl OnlineTablesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<OnlineTable>>,
     ) -> ::community_databricks_core::Result<OnlineTable> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetOnlineTableRequest::default().with_name(param.clone()));
+            let fut = self.get(GetOnlineTableRequest::default().with_name(name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -35735,6 +35765,38 @@ impl RegisteredModelsApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<RegisteredModelInfo>(call).await
+    }
+
+    /// The single [`RegisteredModelInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `RegisteredModelsAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<RegisteredModelInfo> {
+        let items = self
+            .list_all(ListRegisteredModelsRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "RegisteredModelInfo",
+            name,
+            |v: &RegisteredModelInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`RegisteredModelInfo`]'s `name` to its `full_name`, listing them all first
+    /// (Go: `RegisteredModelsAPI.RegisteredModelInfoNameToFullNameMap`). A duplicate `name` is an error.
+    pub async fn registered_model_info_name_to_full_name_map(
+        &self,
+        request: ListRegisteredModelsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &RegisteredModelInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &RegisteredModelInfo| v.full_name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 
@@ -37302,6 +37364,30 @@ impl VolumesApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<VolumeInfo>(call).await
+    }
+
+    /// The single [`VolumeInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `VolumesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(&self, name: &str) -> ::community_databricks_core::Result<VolumeInfo> {
+        let items = self.list_all(ListVolumesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "VolumeInfo", name, |v: &VolumeInfo| {
+            v.name.as_ref().map(|x| x.clone()).unwrap_or_default()
+        })
+    }
+
+    /// Map each [`VolumeInfo`]'s `name` to its `volume_id`, listing them all first
+    /// (Go: `VolumesAPI.VolumeInfoNameToVolumeIdMap`). A duplicate `name` is an error.
+    pub async fn volume_info_name_to_volume_id_map(
+        &self,
+        request: ListVolumesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &VolumeInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &VolumeInfo| v.volume_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 

@@ -40,7 +40,7 @@ use tokio::time::Instant;
 use url::Url;
 
 use crate::auth::{CredentialsProvider, DefaultCredentials};
-pub use crate::binary::{Binary, ByteStream, Bytes};
+pub use crate::binary::{Binary, ByteStream, Bytes, next_chunk};
 use crate::config::{Config, DEFAULT_RATE_LIMIT};
 use crate::error::{ApiError, Error, ErrorKind, Result};
 use crate::{query, useragent};
@@ -342,6 +342,7 @@ impl ApiClient {
             query,
             body,
             binary,
+            content_type,
             accept,
             workspace_header,
             idempotent,
@@ -351,7 +352,10 @@ impl ApiClient {
         // A streamed upload is consumed by the first attempt.
         let resendable = binary.as_ref().is_none_or(|b| !b.is_stream());
         let body = match (body, binary) {
-            (_, Some(b)) => Some(Payload::Binary(b)),
+            (_, Some(b)) => Some(Payload::Binary(
+                b,
+                content_type.unwrap_or_else(|| "application/octet-stream".to_owned()),
+            )),
             (Some(json), None) => Some(Payload::Json(Bytes::from(json))),
             (None, None) => None,
         };
@@ -427,12 +431,12 @@ impl ApiClient {
                     .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
                     .body(b.clone());
             }
-            Some(Payload::Binary(b)) => {
+            Some(Payload::Binary(b, content_type)) => {
+                let ct = HeaderValue::from_str(content_type).map_err(|e| {
+                    Failure::Fatal(Error::Config(format!("invalid content type: {e}")))
+                })?;
                 req = req
-                    .header(
-                        CONTENT_TYPE,
-                        HeaderValue::from_static("application/octet-stream"),
-                    )
+                    .header(CONTENT_TYPE, ct)
                     .body(b.to_request_body().map_err(Failure::Fatal)?);
             }
             None => {}
@@ -560,9 +564,11 @@ pub struct Call {
     pub query: Vec<(String, String)>,
     /// JSON body, if any.
     pub body: Option<Vec<u8>>,
-    /// Binary body (sent as `application/octet-stream`); takes precedence
-    /// over `body`.
+    /// Binary body; takes precedence over `body`.
     pub binary: Option<Binary>,
+    /// `Content-Type` of the binary body; `application/octet-stream` when
+    /// unset.
+    pub content_type: Option<String>,
     /// `Accept` header; `application/json` when unset.
     pub accept: Option<&'static str>,
     /// Send `X-Databricks-Workspace-Id` when configured (workspace-level
@@ -584,6 +590,7 @@ impl Call {
             query: Vec::new(),
             body: None,
             binary: None,
+            content_type: None,
             accept: None,
             workspace_header: false,
             idempotent,
@@ -624,6 +631,15 @@ impl Call {
     #[must_use]
     pub fn binary(mut self, body: Binary) -> Self {
         self.binary = Some(body);
+        self
+    }
+
+    /// Set a binary body with its own content type (for example
+    /// `multipart/form-data; boundary=…`).
+    #[must_use]
+    pub fn body_with_type(mut self, body: Binary, content_type: impl Into<String>) -> Self {
+        self.binary = Some(body);
+        self.content_type = Some(content_type.into());
         self
     }
 
@@ -706,7 +722,7 @@ struct Attempt<'a> {
 
 enum Payload {
     Json(Bytes),
-    Binary(Binary),
+    Binary(Binary, String),
 }
 
 /// A successful response: read into memory, or (for binary responses)

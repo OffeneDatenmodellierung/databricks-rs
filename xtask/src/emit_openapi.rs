@@ -8,7 +8,8 @@
 //!   with `kind` one of `token`, `offset`, `page`, `single`.
 //! * `x-databricks-wait` — the long-running-operation waiter an operation
 //!   returns: `{waiter, poll, param, from_response, field, status_path,
-//!   message_path, targets, failures, timeout_minutes}`.
+//!   message_path, targets, failures, timeout_minutes}`, plus `params`
+//!   (`[{param, from_response, field}]`) for waiters with several.
 //! * `x-databricks-long-running` — the operation returns an `Operation` to
 //!   poll: `{poll, cancel, result, metadata}` (`poll`/`cancel` name methods
 //!   of the same service, as in Go; `result`/`metadata` are the schemas
@@ -393,6 +394,20 @@ fn operation(
                     "timeout_minutes": wb.timeout_minutes,
                 }),
             );
+        // Waiters with several parameters: each poll-request field and
+        // where its value comes from.
+        if let (Some(ps), Some(args), Some(Value::Object(x))) =
+            (&w.params, &wb.args, op.get_mut("x-databricks-wait"))
+        {
+            let bound: Vec<Value> = ps
+                .iter()
+                .filter_map(|p| {
+                    let a = args.iter().find(|a| a.key.eq_ignore_ascii_case(&p.name))?;
+                    Some(json!({"param": p.wire, "from_response": a.from_response, "field": a.field}))
+                })
+                .collect();
+            x.insert("params".into(), Value::Array(bound));
+        }
     }
     if let Some(l) = &m.lro {
         let mut x = serde_json::Map::new();

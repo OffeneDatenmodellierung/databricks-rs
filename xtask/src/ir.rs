@@ -134,6 +134,20 @@ pub struct Service {
     pub methods: Option<Vec<Method>>,
     #[serde(default)]
     pub waiters: Option<Vec<Waiter>>,
+    /// Go's generated name lookups (see `codegen/extract-go`).
+    #[serde(default)]
+    pub lookups: Option<Vec<Lookup>>,
+}
+
+/// `XNameToIdMap` (kind `map`) or list-based `GetByX` (kind `get`).
+#[derive(Debug, Deserialize)]
+pub struct Lookup {
+    pub name: String,
+    pub kind: String,
+    pub list: String,
+    pub key: Vec<String>,
+    #[serde(default)]
+    pub value: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -186,6 +200,24 @@ pub struct Method {
     pub request_init: Option<Vec<FieldInit>>,
     #[serde(default)]
     pub unsupported: String,
+}
+
+impl Waiter {
+    /// The parameters in order, as `(rust name, poll-request wire, type)`.
+    /// A single-parameter waiter keeps its historical wire-based name.
+    pub fn param_list(&self) -> Vec<(String, String, TypeRef)> {
+        match &self.params {
+            Some(ps) => ps
+                .iter()
+                .map(|p| (crate::names::snake(&p.name), p.wire.clone(), p.ty.clone()))
+                .collect(),
+            None => vec![(
+                crate::names::snake(&self.param),
+                self.param.clone(),
+                self.param_type.clone(),
+            )],
+        }
+    }
 }
 
 impl Method {
@@ -244,6 +276,26 @@ pub struct WaitBinding {
     pub from_response: bool,
     pub field: String,
     pub timeout_minutes: u64,
+    /// Every waiter parameter's source, for waiters with several.
+    #[serde(default)]
+    pub args: Option<Vec<WaitArg>>,
+}
+
+/// One waiter parameter's source: `key` is the Go wait-struct field.
+#[derive(Debug, Deserialize)]
+pub struct WaitArg {
+    pub key: String,
+    pub from_response: bool,
+    pub field: String,
+}
+
+/// One waiter parameter: Go name, poll-request wire field, type.
+#[derive(Debug, Clone, Deserialize)]
+pub struct WaitParam {
+    pub name: String,
+    pub wire: String,
+    #[serde(rename = "type")]
+    pub ty: TypeRef,
 }
 
 #[derive(Debug, Deserialize)]
@@ -252,6 +304,9 @@ pub struct Waiter {
     pub poll_method: String,
     pub param: String,
     pub param_type: TypeRef,
+    /// Every parameter, for waiters with several.
+    #[serde(default)]
+    pub params: Option<Vec<WaitParam>>,
     pub result: TypeRef,
     pub status_path: Vec<String>,
     #[serde(default)]

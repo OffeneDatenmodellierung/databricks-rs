@@ -3832,10 +3832,10 @@ impl DatabaseApi {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.database_instance)?;
         let response = self.api.send::<DatabaseInstance>(call).await?;
-        let param = response.name.clone();
+        let wait_name = response.name.clone();
         Ok(WaitGetDatabaseInstanceDatabaseAvailable {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -4391,12 +4391,12 @@ impl DatabaseApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<DatabaseInstance>>,
     ) -> ::community_databricks_core::Result<DatabaseInstance> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
             let fut = self.get_database_instance(
-                GetDatabaseInstanceRequest::default().with_name(param.clone()),
+                GetDatabaseInstanceRequest::default().with_name(name_param.clone()),
             );
             async move {
                 let value = fut.await?;

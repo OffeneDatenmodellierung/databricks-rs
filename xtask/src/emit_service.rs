@@ -111,6 +111,9 @@ pub fn emit(
         }
         emit_method(&mut out, types, svc, m, &fname, page_only, &waiters);
     }
+    for l in svc.lookups.as_deref().unwrap_or_default() {
+        emit_lookup(&mut out, types, svc, l, overrides);
+    }
     for w in waiters.values() {
         emit_waiter_fn(&mut out, types, svc, w);
         emit_waiter_struct(&mut waiter_structs, types, svc, w);
@@ -447,8 +450,11 @@ fn emit_method(
     let body_uses_request = build_call(types, svc, m, m.pagination.is_none()).contains("request");
     let req_unused = if m.request.is_some()
         && !body_uses_request
-        && m.wait.as_ref().is_none_or(|w| w.from_response)
-    {
+        && m.wait.as_ref().is_none_or(|w| {
+            w.args
+                .as_ref()
+                .map_or(w.from_response, |a| a.iter().all(|x| x.from_response))
+        }) {
         "        let _ = request;\n"
     } else {
         ""
@@ -523,19 +529,34 @@ fn emit_method(
         && let Some(w) = waiters.get(wb.waiter.as_str())
     {
         let wname = format!("Wait{}", w.name);
-        let param_expr = binding_expr(types, m, wb);
-        if !wb.from_response {
-            let _ = writeln!(body, "        let param = {param_expr};");
-        }
         ret = format!("{wname}<{ret}>");
-        let param = if wb.from_response {
-            param_expr
-        } else {
-            "param".to_owned()
-        };
+        // Request-derived values are read before the request is sent (it
+        // moves into the call); response-derived ones after.
+        let mut after = String::new();
+        let mut inits = String::new();
+        for (i, (pname, _, _)) in w.param_list().iter().enumerate() {
+            let (from_response, field) = match &wb.args {
+                Some(args) => {
+                    let go = w.params.as_ref().expect("params")[i].name.as_str();
+                    let a = args
+                        .iter()
+                        .find(|a| a.key.eq_ignore_ascii_case(go))
+                        .unwrap_or_else(|| panic!("{}: no binding for {go}", m.name));
+                    (a.from_response, a.field.as_str())
+                }
+                None => (wb.from_response, wb.field.as_str()),
+            };
+            let expr = binding_expr(types, m, from_response, field);
+            let var = format!("wait_{pname}");
+            if from_response {
+                let _ = write!(after, "\n        let {var} = {expr};");
+            } else {
+                let _ = writeln!(body, "        let {var} = {expr};");
+            }
+            let _ = write!(inits, "\n            {}: {var},", names::ident(pname));
+        }
         tail = format!(
-            "let response = {tail}?;\n        let param = {param};\n        Ok({wname} {{\n            api: Clone::clone(self),\n            {pf}: param,\n            response,\n            timeout: ::std::time::Duration::from_secs({secs}),\n            on_progress: None,\n        }})",
-            pf = names::ident(&names::snake(&w.param)),
+            "let response = {tail}?;{after}\n        Ok({wname} {{\n            api: Clone::clone(self),{inits}\n            response,\n            timeout: ::std::time::Duration::from_secs({secs}),\n            on_progress: None,\n        }})",
             secs = wb.timeout_minutes * 60
         );
     }
@@ -543,6 +564,129 @@ fn emit_method(
         out,
         "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::community_databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
     );
+}
+
+/// An owned `String`/value expression for the wire path `path` on item `v`
+/// (Go reads the zero value when a field on the way is unset).
+fn path_expr(
+    types: &Types<'_>,
+    item: &TypeRef,
+    path: &[String],
+    to_string: bool,
+) -> (String, String) {
+    let mut expr = "v".to_owned();
+    let mut optional = false;
+    let mut ty = item.clone();
+    let last = path.len() - 1;
+    for (i, wire) in path.iter().enumerate() {
+        let f = find_field(types, &ty, wire).unwrap_or_else(|| panic!("{}: no `{wire}`", ty.name));
+        let id = &f.ident;
+        if i < last {
+            let field = types
+                .fields(&ty)
+                .iter()
+                .find(|x| &x.name == wire)
+                .expect("field");
+            expr = match (optional, f.optional) {
+                (false, false) => format!("{expr}.{id}"),
+                (false, true) => format!("{expr}.{id}.as_ref()"),
+                (true, false) => format!("{expr}.map(|x| &x.{id})"),
+                (true, true) => format!("{expr}.and_then(|x| x.{id}.as_ref())"),
+            };
+            optional |= f.optional;
+            ty = field.ty.clone();
+            continue;
+        }
+        let conv = if to_string && f.kind != "string" {
+            "to_string()"
+        } else {
+            "clone()"
+        };
+        let (value, is_opt) = match (optional, f.optional) {
+            (false, false) => (format!("{expr}.{id}.{conv}"), false),
+            (false, true) => (format!("{expr}.{id}.as_ref().map(|x| x.{conv})"), true),
+            (true, false) => (format!("{expr}.map(|x| x.{id}.{conv})"), true),
+            (true, true) => (
+                format!("{expr}.and_then(|x| x.{id}.as_ref()).map(|x| x.{conv})"),
+                true,
+            ),
+        };
+        let value = if is_opt {
+            format!("{value}.unwrap_or_default()")
+        } else {
+            value
+        };
+        let inner = if to_string {
+            "String".to_owned()
+        } else {
+            f.inner.clone()
+        };
+        return (value, inner);
+    }
+    unreachable!("empty lookup path")
+}
+
+/// Go's generated `XNameToIdMap` / list-based `GetByX` for one service.
+fn emit_lookup(
+    out: &mut String,
+    types: &Types<'_>,
+    svc: &Service,
+    l: &crate::ir::Lookup,
+    overrides: &Overrides,
+) {
+    let pkg = &svc.package;
+    let m = svc
+        .methods
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .find(|x| x.name == l.list)
+        .unwrap_or_else(|| panic!("{}.{}: no list method {}", svc.name, l.name, l.list));
+    let key = format!("{pkg}.{}.{}", svc.name, m.name);
+    let base = overrides.get(&key).map_or_else(
+        || names::method_ident(&m.name),
+        |o| o.strip_prefix("page:").unwrap_or(o).to_owned(),
+    );
+    let (list_fn, item) = match (&m.pagination, &m.response) {
+        (Some(pg), _) => (format!("{base}_all"), pg.item_type.clone()),
+        (None, Some(r)) if r.kind == "list" => {
+            (base, r.elem.as_deref().expect("list elem").clone())
+        }
+        _ => panic!("{}.{}: {} is not a list", svc.name, l.name, l.list),
+    };
+    let item_ty = rust_type(&item, pkg);
+    let req_t = req_ty(m, pkg);
+    let (key_expr, _) = path_expr(types, &item, &l.key, true);
+    let fname = names::method_ident(&l.name);
+    let go = format!("{}API.{}", svc.name, l.name);
+    if l.kind == "map" {
+        let (value_expr, v_ty) = path_expr(types, &item, &l.value, false);
+        let (param, call) = match &req_t {
+            Some(t) => (
+                format!(", request: {t}"),
+                format!("self.{list_fn}(request)"),
+            ),
+            None => (String::new(), format!("self.{list_fn}()")),
+        };
+        let _ = write!(
+            out,
+            "    /// Map each [`{item_ty}`]'s `{key}` to its `{val}`, listing them all first\n    /// (Go: `{go}`). A duplicate `{key}` is an error.\n    pub async fn {fname}(&self{param}) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, {v_ty}>> {{\n        let items = {call}.await?;\n        ::community_databricks_core::lookup::unique_map(&items, {field:?}, |v: &{item_ty}| {key_expr}, |v: &{item_ty}| {value_expr})\n    }}\n\n",
+            key = l.key.join("."),
+            val = l.value.join("."),
+            field = l.key.join("."),
+        );
+    } else {
+        let call = match &req_t {
+            Some(t) => format!("self.{list_fn}({t}::default())"),
+            None => format!("self.{list_fn}()"),
+        };
+        let _ = write!(
+            out,
+            "    /// The single [`{item_ty}`] whose `{key}` is `name`, listing them all first\n    /// (Go: `{go}`). None, or more than one, is an error.\n    pub async fn {fname}(&self, name: &str) -> ::community_databricks_core::Result<{item_ty}> {{\n        let items = {call}.await?;\n        ::community_databricks_core::lookup::single(items, {what:?}, name, |v: &{item_ty}| {key_expr})\n    }}\n\n",
+            key = l.key.join("."),
+            what = item.name,
+        );
+    }
 }
 
 /// Return type and body for a call that returns a long-running operation
@@ -655,14 +799,14 @@ pub fn emit_operation_states(types: &Types<'_>, pkg: &str, services: &[&Service]
 }
 
 /// Expression for the waiter parameter from the request or response.
-fn binding_expr(types: &Types<'_>, m: &Method, wb: &crate::ir::WaitBinding) -> String {
-    let (src, owner) = if wb.from_response {
+fn binding_expr(types: &Types<'_>, m: &Method, from_response: bool, field: &str) -> String {
+    let (src, owner) = if from_response {
         ("response", m.response.as_ref())
     } else {
         ("request", m.request.as_ref())
     };
     let f = owner
-        .and_then(|r| find_field(types, r, &wb.field))
+        .and_then(|r| find_field(types, r, field))
         .expect("wait binding field");
     let access = format!("{src}.{}", f.ident);
     if f.optional && !f.collection {
@@ -762,8 +906,6 @@ fn states_const(w: &Waiter) -> String {
 fn emit_waiter_fn(out: &mut String, types: &Types<'_>, svc: &Service, w: &Waiter) {
     let pkg = &svc.package;
     let result = rust_type(&w.result, pkg);
-    let (ptype, _) = waiter_param_type(&w.param_type);
-    let pname = names::ident(&names::snake(&w.param));
     let poll = names::method_ident(&w.poll_method);
     let poll_m = svc
         .methods
@@ -774,15 +916,23 @@ fn emit_waiter_fn(out: &mut String, types: &Types<'_>, svc: &Service, w: &Waiter
         .expect("poll method");
     let req = poll_m.request.as_ref().expect("poll request");
     let req_t = rust_type(req, pkg);
-    let pf = find_field(types, req, &w.param).expect("poll param field");
-    let conv = if ptype == "i64" { "" } else { ".into()" };
+    let mut sig = String::new();
+    let mut lets = String::new();
+    let mut setters = String::new();
+    for (name, wire, ty) in w.param_list() {
+        let (ptype, pt) = waiter_param_type(&ty);
+        let ident = names::ident(&name);
+        let conv = if ptype == "i64" { "" } else { ".into()" };
+        let pf = find_field(types, req, &wire).expect("poll param field");
+        let _ = writeln!(sig, "        {ident}: {ptype},");
+        let _ = writeln!(lets, "        let {name}_param: {pt} = {ident}{conv};");
+        let _ = write!(setters, ".{}({name}_param.clone())", pf.setter);
+    }
     let targets = w.targets.join(" or ");
     let _ = write!(
         out,
-        "    /// Repeatedly calls [`{poll}`](Self::{poll}) until the result reaches {targets}.\n    pub async fn wait_{wname}(\n        &self,\n        {pname}: {ptype},\n        timeout: ::std::time::Duration,\n        on_progress: Option<wait::Progress<{result}>>,\n    ) -> ::community_databricks_core::Result<{result}> {{\n        let param: {pt} = {pname}{conv};\n        let callback = ::std::sync::Mutex::new(on_progress);\n        let callback = &callback;\n        wait::poll(timeout, || {{\n            let fut = self.{poll}({req_t}::default().{setter}(param.clone()));\n            async move {{\n                let value = fut.await?;\n                if let Some(cb) = callback\n                    .lock()\n                    .unwrap_or_else(::std::sync::PoisonError::into_inner)\n                    .as_mut()\n                {{\n                    cb(&value);\n                }}\n                wait::check_state(value, {states})\n            }}\n        }})\n        .await\n    }}\n\n",
+        "    /// Repeatedly calls [`{poll}`](Self::{poll}) until the result reaches {targets}.\n    pub async fn wait_{wname}(\n        &self,\n{sig}        timeout: ::std::time::Duration,\n        on_progress: Option<wait::Progress<{result}>>,\n    ) -> ::community_databricks_core::Result<{result}> {{\n{lets}        let callback = ::std::sync::Mutex::new(on_progress);\n        let callback = &callback;\n        wait::poll(timeout, || {{\n            let fut = self.{poll}({req_t}::default(){setters});\n            async move {{\n                let value = fut.await?;\n                if let Some(cb) = callback\n                    .lock()\n                    .unwrap_or_else(::std::sync::PoisonError::into_inner)\n                    .as_mut()\n                {{\n                    cb(&value);\n                }}\n                wait::check_state(value, {states})\n            }}\n        }})\n        .await\n    }}\n\n",
         wname = names::snake(&w.name),
-        pt = waiter_param_type(&w.param_type).1,
-        setter = pf.setter,
         states = states_const(w),
     );
 }
@@ -792,13 +942,33 @@ fn emit_waiter_struct(out: &mut String, _types: &Types<'_>, svc: &Service, w: &W
     let result = rust_type(&w.result, pkg);
     let name = format!("Wait{}", w.name);
     let api = struct_name(svc);
-    let pname = names::ident(&names::snake(&w.param));
-    let (_, pt) = waiter_param_type(&w.param_type);
+    let params = w.param_list();
+    let mut fields = String::new();
+    let mut debug = String::new();
+    let mut args = String::new();
+    for (i, (pname, _, ty)) in params.iter().enumerate() {
+        let (_, pt) = waiter_param_type(ty);
+        let ident = names::ident(pname);
+        let doc = if params.len() == 1 {
+            "The ID being waited on.".to_owned()
+        } else {
+            format!("`{pname}` of what is being waited on.")
+        };
+        let _ = write!(fields, "    /// {doc}\n    pub {ident}: {pt},\n");
+        let _ = writeln!(
+            debug,
+            "            .field({:?}, &self.{ident})",
+            ident.trim_start_matches("r#")
+        );
+        if i > 0 {
+            args.push_str(", ");
+        }
+        let _ = write!(args, "self.{ident}");
+    }
     let targets = w.targets.join(" or ");
     let _ = write!(
         out,
-        "/// Returned by operations that start a long-running change; waits until\n/// the result reaches {targets}.\npub struct {name}<R> {{\n    api: {api},\n    /// The ID being waited on.\n    pub {pname}: {pt},\n    /// The operation's immediate response.\n    pub response: R,\n    timeout: ::std::time::Duration,\n    on_progress: Option<wait::Progress<{result}>>,\n}}\n\nimpl<R: ::std::fmt::Debug> ::std::fmt::Debug for {name}<R> {{\n    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {{\n        f.debug_struct({name:?})\n            .field({pn:?}, &self.{pname})\n            .field(\"response\", &self.response)\n            .field(\"timeout\", &self.timeout)\n            .finish_non_exhaustive()\n    }}\n}}\n\nimpl<R> {name}<R> {{\n    /// Override the default timeout.\n    #[must_use]\n    pub fn timeout(mut self, timeout: ::std::time::Duration) -> Self {{\n        self.timeout = timeout;\n        self\n    }}\n\n    /// Called with the polled value on every poll.\n    #[must_use]\n    pub fn on_progress(mut self, f: impl FnMut(&{result}) + Send + 'static) -> Self {{\n        self.on_progress = Some(Box::new(f));\n        self\n    }}\n\n    /// Wait until the result reaches {targets}.\n    pub async fn wait(self) -> ::community_databricks_core::Result<{result}> {{\n        self.api\n            .wait_{wname}(self.{pname}, self.timeout, self.on_progress)\n            .await\n    }}\n}}\n\n",
-        pn = pname.trim_start_matches("r#"),
+        "/// Returned by operations that start a long-running change; waits until\n/// the result reaches {targets}.\npub struct {name}<R> {{\n    api: {api},\n{fields}    /// The operation's immediate response.\n    pub response: R,\n    timeout: ::std::time::Duration,\n    on_progress: Option<wait::Progress<{result}>>,\n}}\n\nimpl<R: ::std::fmt::Debug> ::std::fmt::Debug for {name}<R> {{\n    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {{\n        f.debug_struct({name:?})\n{debug}            .field(\"response\", &self.response)\n            .field(\"timeout\", &self.timeout)\n            .finish_non_exhaustive()\n    }}\n}}\n\nimpl<R> {name}<R> {{\n    /// Override the default timeout.\n    #[must_use]\n    pub fn timeout(mut self, timeout: ::std::time::Duration) -> Self {{\n        self.timeout = timeout;\n        self\n    }}\n\n    /// Called with the polled value on every poll.\n    #[must_use]\n    pub fn on_progress(mut self, f: impl FnMut(&{result}) + Send + 'static) -> Self {{\n        self.on_progress = Some(Box::new(f));\n        self\n    }}\n\n    /// Wait until the result reaches {targets}.\n    pub async fn wait(self) -> ::community_databricks_core::Result<{result}> {{\n        self.api\n            .wait_{wname}({args}, self.timeout, self.on_progress)\n            .await\n    }}\n}}\n\n",
         wname = names::snake(&w.name),
     );
 }

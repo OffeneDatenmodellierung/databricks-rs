@@ -143,6 +143,30 @@ match w.jobs().get_run(req).await {
 - **Jobs.** `jobs().get()` and `get_run()` follow task pages past 100 and merge them. `list()`/`list_runs()` with `expand_tasks` complete truncated entries, as Go does. The single-page calls are `get_page`, `get_run_page`, `list_page` and `list_runs_page`.
 - **Parity.** [`spec/PARITY.md`](spec/PARITY.md) lists what the Go SDK offers beyond the generated API and how this SDK covers each part.
 
+## Helpers ported from the Go SDK
+
+The hand-written helpers from databricks-sdk-go are available on the generated services. [`spec/PARITY.md`](spec/PARITY.md) lists each one.
+
+- **Name lookups.** Services with a list call have Go's generated lookups:
+  - `…_to_id_map` builds a name → ID map, and a duplicate name is an error;
+  - `get_by_…` returns the single item with a name. None is a not-found error (`is_missing()`); several is an error.
+
+  For example: `clusters().get_by_cluster_name("etl")`, `jobs().get_by_settings_name(…)`, and `users().get_by_user_name(…)` / `groups().get_by_display_name(…)` on both clients.
+- **Accounts and identity.** `users()`, `groups()` and `service_principals()` return the SCIM V2 services, and add `get_by_id`/`delete_by_id`. `WorkspaceClient::current_workspace_id()` returns the numeric workspace ID.
+- **SQL.** `statement_execution().execute_and_wait(request)` runs a statement and polls until it succeeds, with a 20-minute timeout. A failed, canceled or closed statement is an error.
+- **Workspace files.**
+  - `workspace().upload(path, content, UploadOptions)` imports a file or notebook; the language is inferred from `.py`, `.sql`, `.scala` or `.R`.
+  - `write_file`, `download` (streamed), `read_file` and `recursive_list` cover the rest.
+  - `Import::python_notebook_overwrite` builds a notebook import, and `ExportResponse::bytes` decodes an export.
+- **DBFS.** `dbfs().open(path, FileMode::READ)` returns a handle that reads and writes in 1 MiB blocks; `write_from` streams a `Binary` in. `read_file`, `write_file` and `recursive_list` cover whole files and folders.
+- **Compute.**
+  - `clusters()`:
+    - `select_node_type` / `select_spark_version` choose with Go's rules;
+    - `ensure_cluster_is_running` starts the cluster or waits for it, retrying for up to 20 minutes;
+    - `get_or_create_running_cluster` reuses or creates a small auto-terminating cluster.
+  - `libraries().update_and_wait(…)` installs and uninstalls, then waits, and removes failed libraries afterwards.
+  - `command_execution().start(cluster, language)` returns a `CommandExecutor` with `execute` and `destroy`. `compute::new_command_executor(api)` runs one-shot commands and returns failures as error `Results`.
+
 ## Development
 
 House rules:

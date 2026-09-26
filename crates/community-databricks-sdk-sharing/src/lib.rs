@@ -5617,6 +5617,26 @@ impl ProvidersApi {
         call = call.json(&request)?;
         self.api.send::<ProviderInfo>(call).await
     }
+
+    /// Map each [`ProviderInfo`]'s `name` to its `metastore_id`, listing them all first
+    /// (Go: `ProvidersAPI.ProviderInfoNameToMetastoreIdMap`). A duplicate `name` is an error.
+    pub async fn provider_info_name_to_metastore_id_map(
+        &self,
+        request: ListProvidersRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &ProviderInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &ProviderInfo| {
+                v.metastore_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
 }
 
 /// The Recipient Activation API is only applicable in the open sharing model

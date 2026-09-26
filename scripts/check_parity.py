@@ -43,6 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 RULES = {
+    "lookup": "generated name lookup (`…_map`, `get_by_…`)",
     "wait": "generated waiter (`wait_…`)",
     "and_wait": "the call returns a waiter (`.await?` on it)",
     "all": "generated `…_all`",
@@ -174,7 +175,9 @@ def validate(key: str, e: dict, root: Path) -> list[str]:
         rust = e.get("rust", "")
         path, _, fn = rust.partition("#")
         f = root / path
-        if not fn or not f.exists() or not re.search(rf"\bfn {re.escape(fn)}\b", f.read_text()):
+        # `fn name`, or `= name` as an argument to a macro that defines it.
+        pattern = rf"\bfn {re.escape(fn)}\b|=\s*{re.escape(fn)}\b"
+        if not fn or not f.exists() or not re.search(pattern, f.read_text()):
             return [f"{key}: implemented, but `fn {fn}` not found in {path or '(no rust path)'}"]
         return []
     if status == "gap":
@@ -218,6 +221,7 @@ def check(go: Path, root: Path) -> Report:
 
     # Service methods.
     ir_methods = {(s["package"], s["name"]): {m["name"] for m in s.get("methods") or []} for s in ir["services"]}
+    ir_lookups = {(s["package"], s["name"]): {l["name"] for l in s.get("lookups") or []} for s in ir["services"]}
     generated = sum(len(v) for v in ir_methods.values())
     unsupported = [
         f"{s['package']}.{s['name']}.{m['name']}"
@@ -236,7 +240,10 @@ def check(go: Path, root: Path) -> Report:
                 continue
             n += 1
             sym = f"{pkg}.{svc}.{name}"
-            rule = None if sym in lookups else classify(name, line, have)
+            if name in ir_lookups.get((pkg, svc), set()):
+                rule = "lookup"
+            else:
+                rule = None if sym in lookups else classify(name, line, have)
             if rule:
                 r.cover(rule, sym)
             elif not listed("methods", methods_t, sym):
