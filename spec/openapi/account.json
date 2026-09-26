@@ -478,10 +478,6 @@
         ],
         "type": "string"
       },
-      "billing.DownloadResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "billing.GetBillingUsageDashboardResponse": {
         "properties": {
           "dashboard_id": {
@@ -13165,9 +13161,10 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/billing.DownloadResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -13182,8 +13179,7 @@
           "BillableUsage"
         ],
         "x-databricks-package": "billing",
-        "x-databricks-service": "BillableUsage",
-        "x-databricks-unsupported": "binary response"
+        "x-databricks-service": "BillableUsage"
       }
     },
     "/api/2.0/accounts/{account_id}/vpc-endpoints": {

@@ -13364,7 +13364,7 @@ pub struct TransferOwnershipRequest {
     pub new_owner: Option<String>,
     /// The ID of the object on which to change ownership.
     #[serde(skip)]
-    pub object_id: TransferOwnershipObjectId,
+    pub object_id: String,
     /// The type of object on which to change ownership.
     #[serde(skip)]
     pub object_type: OwnableObjectType,
@@ -13382,10 +13382,7 @@ pub struct TransferOwnershipRequest {
 impl TransferOwnershipRequest {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(
-        object_id: impl Into<TransferOwnershipObjectId>,
-        object_type: impl Into<OwnableObjectType>,
-    ) -> Self {
+    pub fn new(object_id: impl Into<String>, object_type: impl Into<OwnableObjectType>) -> Self {
         Self {
             object_id: object_id.into(),
             object_type: object_type.into(),
@@ -13413,7 +13410,7 @@ impl TransferOwnershipRequest {
 
     /// Set `object_id`.
     #[must_use]
-    pub fn with_object_id(mut self, value: impl Into<TransferOwnershipObjectId>) -> Self {
+    pub fn with_object_id(mut self, value: impl Into<String>) -> Self {
         self.object_id = value.into();
         self
     }
@@ -16075,6 +16072,30 @@ impl DbsqlPermissionsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         self.api.send::<SetResponse>(call).await
+    }
+
+    /// Transfers ownership of a dashboard, query, or alert to an active user.
+    /// Requires an admin API key.
+    ///
+    /// **Warning**: This API is deprecated. For queries and alerts, please use
+    /// :method:queries/update and :method:alerts/update respectively instead. [Learn
+    /// more]
+    ///
+    /// [Learn more]: https://docs.databricks.com/en/sql/dbsql-api-latest.html
+    ///
+    /// `POST /api/2.0/preview/sql/permissions/{object_type}/{object_id}/transfer`
+    pub async fn transfer_ownership(
+        &self,
+        request: TransferOwnershipRequest,
+    ) -> ::community_databricks_core::Result<Success> {
+        let path = format!(
+            "/api/2.0/preview/sql/permissions/{}/{}/transfer",
+            path_param(&request.object_type.to_string(), false),
+            path_param(&request.object_id.to_string(), false)
+        );
+        let mut call = Call::new(Method::POST, path).workspace();
+        call = call.json(&request)?;
+        self.api.send::<Success>(call).await
     }
 }
 

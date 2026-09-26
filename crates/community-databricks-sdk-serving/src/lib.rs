@@ -2566,7 +2566,7 @@ impl ExportMetricsRequest {
 pub struct ExportMetricsResponse {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
     /// request (in the JSON body, or the query string for GET/DELETE).
@@ -2581,7 +2581,7 @@ pub struct ExportMetricsResponse {
 impl ExportMetricsResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -2601,7 +2601,10 @@ impl ExportMetricsResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -3155,7 +3158,7 @@ impl GetOpenApiRequest {
 pub struct GetOpenApiResponse {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
     /// request (in the JSON body, or the query string for GET/DELETE).
@@ -3170,7 +3173,7 @@ pub struct GetOpenApiResponse {
 impl GetOpenApiResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -3190,7 +3193,10 @@ impl GetOpenApiResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -3484,7 +3490,7 @@ impl GoogleCloudVertexAiConfig {
 pub struct HttpRequestResponse {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// Fields not modelled by this SDK version. Kept when read, so a
     /// read-modify-write round trip never drops them, and sent with a
     /// request (in the JSON body, or the query string for GET/DELETE).
@@ -3499,7 +3505,7 @@ pub struct HttpRequestResponse {
 impl HttpRequestResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -3519,7 +3525,10 @@ impl HttpRequestResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -7822,6 +7831,31 @@ impl ServingEndpointsApi {
             .map(|_| ())
     }
 
+    /// Retrieves the metrics associated with the provided serving endpoint in either
+    /// Prometheus or OpenMetrics exposition format.
+    ///
+    /// `GET /api/2.0/serving-endpoints/{name}/metrics`
+    pub async fn export_metrics(
+        &self,
+        request: ExportMetricsRequest,
+    ) -> ::community_databricks_core::Result<ExportMetricsResponse> {
+        let path = format!(
+            "/api/2.0/serving-endpoints/{}/metrics",
+            path_param(&request.name.to_string(), false)
+        );
+        let mut call = Call::new(Method::GET, path)
+            .workspace()
+            .accept("text/plain");
+        call = call.query(query::to_pairs(&request.other)?);
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = ExportMetricsResponse::default();
+            resp.contents = body;
+            let _ = headers;
+            Ok(resp)
+        }
+    }
+
     /// Retrieves the details for a single serving endpoint.
     ///
     /// `GET /api/2.0/serving-endpoints/{name}`
@@ -7836,6 +7870,32 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<ServingEndpointDetailed>(call).await
+    }
+
+    /// Get the query schema of the serving endpoint in OpenAPI format. The schema
+    /// contains information for the supported paths, input and output format and
+    /// datatypes.
+    ///
+    /// `GET /api/2.0/serving-endpoints/{name}/openapi`
+    pub async fn get_open_api(
+        &self,
+        request: GetOpenApiRequest,
+    ) -> ::community_databricks_core::Result<GetOpenApiResponse> {
+        let path = format!(
+            "/api/2.0/serving-endpoints/{}/openapi",
+            path_param(&request.name.to_string(), false)
+        );
+        let mut call = Call::new(Method::GET, path)
+            .workspace()
+            .accept("text/plain");
+        call = call.query(query::to_pairs(&request.other)?);
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = GetOpenApiResponse::default();
+            resp.contents = body;
+            let _ = headers;
+            Ok(resp)
+        }
     }
 
     /// Gets the permission levels that a user can have on an object.
@@ -7871,6 +7931,27 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<ServingEndpointPermissions>(call).await
+    }
+
+    /// Make external services call using the credentials stored in UC Connection.
+    ///
+    /// `POST /api/2.0/external-function`
+    pub async fn http_request(
+        &self,
+        request: ExternalFunctionRequest,
+    ) -> ::community_databricks_core::Result<HttpRequestResponse> {
+        let path = String::from("/api/2.0/external-function");
+        let mut call = Call::new(Method::POST, path)
+            .workspace()
+            .accept("text/plain");
+        call = call.json(&request)?;
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = HttpRequestResponse::default();
+            resp.contents = body;
+            let _ = headers;
+            Ok(resp)
+        }
     }
 
     /// One page of [`list`](Self::list).

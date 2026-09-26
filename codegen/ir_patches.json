@@ -1,0 +1,9 @@
+{
+  "_doc": "Corrections applied to spec/ir.json before generation, for upstream spec defects. Each entry says why.",
+  "field_types": {
+    "sql.TransferOwnershipRequest.object_id": {
+      "type": {"kind": "string"},
+      "why": "The upstream spec types this path parameter as the struct TransferOwnershipObjectId ({new_owner}); databricks-sdk-go formats that struct into the URL (\"{alice@example.com}\"). The REST API takes the object's ID string, as documented at docs.databricks.com/api/workspace/dbsqlpermissions/transferownership."
+    }
+  }
+}

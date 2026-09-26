@@ -8,7 +8,10 @@ use crate::ir::{Method, Service, TypeRef, Waiter};
 use crate::model::{FieldInfo, Types, find_field, rust_type};
 use crate::names;
 
-/// Per-method overrides (hand-written wrappers in `src/ext`).
+/// Per-method overrides (hand-written wrappers in `src/ext`), keyed by
+/// `package.Service.Method`. The value renames the generated method, so a
+/// hand-written one can take its name. `page:<name>` on a paginated method
+/// emits only `<name>_page`, leaving the stream and `_all` to `src/ext`.
 pub type Overrides = BTreeMap<String, String>;
 
 pub fn struct_name(s: &Service) -> String {
@@ -87,7 +90,7 @@ pub fn emit(
             ));
             continue;
         }
-        if !m.unsupported.is_empty() {
+        if !m.unsupported.is_empty() && !m.is_binary() {
             unsupported.push(format!(
                 "{}.{}.{}: {}",
                 pkg, svc.name, m.name, m.unsupported
@@ -96,10 +99,17 @@ pub fn emit(
         }
         let key = format!("{}.{}.{}", pkg, svc.name, m.name);
         let mut fname = names::method_ident(&m.name);
+        let mut page_only = false;
         if let Some(renamed) = overrides.get(&key) {
-            fname.clone_from(renamed);
+            match renamed.strip_prefix("page:") {
+                Some(base) if m.pagination.is_some() => {
+                    base.clone_into(&mut fname);
+                    page_only = true;
+                }
+                _ => fname.clone_from(renamed),
+            }
         }
-        emit_method(&mut out, types, svc, m, &fname, &waiters);
+        emit_method(&mut out, types, svc, m, &fname, page_only, &waiters);
     }
     for w in waiters.values() {
         emit_waiter_fn(&mut out, types, svc, w);
@@ -268,6 +278,9 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
     if idempotent {
         s.push_str(".idempotent()");
     }
+    if !m.accept.is_empty() && m.accept != "application/json" {
+        let _ = write!(s, ".accept({:?})", m.accept);
+    }
     s.push_str(";\n");
     let _ = svc;
     let body_verb = matches!(verb, "POST" | "PUT" | "PATCH");
@@ -306,7 +319,15 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
                 s.push_str("        call = call.json(&request)?;\n");
             } else {
                 let f = find_field(types, r, &m.body_field).expect("body field");
-                let _ = writeln!(s, "        call = call.json(&request.{})?;", f.ident);
+                if f.kind == "binary" {
+                    let _ = writeln!(
+                        s,
+                        "        call = call.binary(request.{}.clone());",
+                        f.ident
+                    );
+                } else {
+                    let _ = writeln!(s, "        call = call.json(&request.{})?;", f.ident);
+                }
             }
         }
     }
@@ -314,10 +335,47 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method, init: bool) -> Strin
     s.replace("MUT_call", if mutated { "mut call" } else { "call" })
 }
 
+/// A response with a binary body: the body streams into its binary field,
+/// and any header-located fields are read from the response headers.
+fn binary_send_expr(types: &Types<'_>, r: &TypeRef, m: &Method, pkg: &str) -> Option<String> {
+    let t = types.get(r)?;
+    let infos = crate::model::field_infos(types, &r.pkg, t);
+    let fields = t.fields.as_deref().unwrap_or_default();
+    let body = infos.iter().find(|i| i.kind == "binary")?;
+    let mut s = format!(
+        "{{\n            let (body, headers) = self.api.send_binary(call).await?;\n            let mut resp = {}::default();\n            resp.{} = body;\n",
+        resp_ty(m, pkg),
+        body.ident
+    );
+    for (f, i) in fields.iter().zip(&infos) {
+        if f.location != "header" {
+            continue;
+        }
+        let value = format!(
+            "::community_databricks_core::http::header(&headers, {:?})",
+            f.name
+        );
+        let value = if i.optional {
+            value
+        } else {
+            format!("{value}.unwrap_or_default()")
+        };
+        let _ = writeln!(s, "            resp.{} = {value};", i.ident);
+    }
+    if !fields.iter().any(|f| f.location == "header") {
+        s.push_str("            let _ = headers;\n");
+    }
+    s.push_str("            Ok(resp)\n        }");
+    Some(s)
+}
+
 fn send_expr(types: &Types<'_>, m: &Method, pkg: &str) -> String {
     let Some(r) = &m.response else {
         return "self.api.send::<::serde::de::IgnoredAny>(call).await.map(|_| ())".to_owned();
     };
+    if let Some(expr) = binary_send_expr(types, r, m, pkg) {
+        return expr;
+    }
     // Fields carried in response headers (e.g. Files API HEAD metadata).
     let header_fields: Vec<(String, FieldInfo)> = types
         .get(r)
@@ -359,6 +417,7 @@ fn emit_method(
     svc: &Service,
     m: &Method,
     fname: &str,
+    page_only: bool,
     waiters: &BTreeMap<&str, &Waiter>,
 ) {
     let pkg = &svc.package;
@@ -404,6 +463,9 @@ fn emit_method(
             build_call(types, svc, m, false),
             send_expr(types, m, pkg)
         );
+        if page_only {
+            return;
+        }
         // Stream.
         let step = pagination_step(types, m);
         let init = request_init(types, m).0;
@@ -449,6 +511,11 @@ fn emit_method(
     };
     let mut body = build_call(types, svc, m, true);
     let mut tail = send_expr(types, m, pkg);
+    if let Some(l) = &m.lro {
+        let (lro_ret, lro_tail) = lro_expr(types, svc, m, l, &tail);
+        ret = lro_ret;
+        tail = lro_tail;
+    }
     if let Some(wb) = &m.wait
         && let Some(w) = waiters.get(wb.waiter.as_str())
     {
@@ -473,6 +540,115 @@ fn emit_method(
         out,
         "{doc}{path_doc}    pub async fn {fname}(&self{req_param}) -> ::community_databricks_core::Result<{ret}> {{\n{req_unused}{body}        {tail}\n    }}\n\n"
     );
+}
+
+/// Return type and body for a call that returns a long-running operation
+/// (Go's `XOperationInterface`): the handle polls `l.poll` by name.
+fn lro_expr(
+    types: &Types<'_>,
+    svc: &Service,
+    m: &Method,
+    l: &crate::ir::Lro,
+    send: &str,
+) -> (String, String) {
+    let pkg = &svc.package;
+    let op = resp_ty(m, pkg);
+    let result = l
+        .result
+        .as_ref()
+        .map_or_else(|| "()".to_owned(), |r| rust_type(r, pkg));
+    let meta = l
+        .metadata
+        .as_ref()
+        .map_or_else(|| "::serde_json::Value".to_owned(), |r| rust_type(r, pkg));
+    let by_name = |method: &str| -> String {
+        let target = svc
+            .methods
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .find(|x| x.name == method)
+            .unwrap_or_else(|| panic!("{}.{}: no method {method}", svc.name, m.name));
+        let req = target.request.as_ref().expect("operation request");
+        let f = find_field(types, req, "name").expect("operation request has `name`");
+        let value = if f.optional { "Some(name)" } else { "name" };
+        let call = format!(
+            "this.{}({} {{ {}: {value}, ..Default::default() }}).await",
+            names::method_ident(method),
+            rust_type(req, pkg),
+            f.ident
+        );
+        let call = if target.response.is_some() && !l.cancel.is_empty() && method == l.cancel {
+            format!("{call}.map(|_| ())")
+        } else {
+            call
+        };
+        format!(
+            "::std::sync::Arc::new(move |name: String| {{\n            let this = Clone::clone(&this);\n            Box::pin(async move {{ {call} }})\n        }})"
+        )
+    };
+    let cancel = if l.cancel.is_empty() {
+        "None".to_owned()
+    } else {
+        format!(
+            "{{\n            let this = Clone::clone(self);\n            Some({})\n        }}",
+            by_name(&l.cancel)
+        )
+    };
+    let ret = format!("::community_databricks_core::lro::LongRunning<{op}, {result}, {meta}>");
+    let tail = format!(
+        "let operation = {send}?;\n        let this = Clone::clone(self);\n        let poll: ::community_databricks_core::lro::PollFn<{op}> = {};\n        let cancel: Option<::community_databricks_core::lro::CancelFn> = {cancel};\n        Ok(::community_databricks_core::lro::LongRunning::new(operation, poll, cancel))",
+        by_name(&l.poll)
+    );
+    (ret, tail)
+}
+
+/// `impl OperationState` for each package type that long-running
+/// operations return (the package's `Operation` message).
+pub fn emit_operation_states(types: &Types<'_>, pkg: &str, services: &[&Service]) -> String {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut out = String::new();
+    for s in services {
+        for m in s.methods.as_deref().unwrap_or_default() {
+            let (Some(_), Some(r)) = (&m.lro, &m.response) else {
+                continue;
+            };
+            if !seen.insert(r.name.clone()) {
+                continue;
+            }
+            for (wire, want) in [
+                ("name", "String"),
+                ("done", "bool"),
+                ("response", "::serde_json::Value"),
+                ("metadata", "::serde_json::Value"),
+            ] {
+                let f = find_field(types, r, wire)
+                    .unwrap_or_else(|| panic!("{pkg}.{}: no `{wire}`", r.name));
+                assert!(
+                    f.optional && f.inner == want,
+                    "{pkg}.{}.{wire}: unexpected shape",
+                    r.name
+                );
+            }
+            let err = find_field(types, r, "error").expect("operation `error`");
+            let err_ty = crate::ir::TypeRef {
+                kind: "ref".into(),
+                pkg: pkg.to_owned(),
+                name: err.inner.clone(),
+                elem: None,
+            };
+            assert!(
+                find_field(types, &err_ty, "error_code").is_some()
+                    && find_field(types, &err_ty, "message").is_some()
+            );
+            let _ = write!(
+                out,
+                "impl ::community_databricks_core::lro::OperationState for {name} {{\n    fn name(&self) -> &str {{\n        self.name.as_deref().unwrap_or_default()\n    }}\n\n    fn is_done(&self) -> bool {{\n        self.done.unwrap_or(false)\n    }}\n\n    fn failure(&self) -> Option<(String, String)> {{\n        self.error.as_ref().map(|e| {{\n            (\n                e.error_code.as_ref().map(ToString::to_string).unwrap_or_default(),\n                e.message.clone().unwrap_or_default(),\n            )\n        }})\n    }}\n\n    fn response(&self) -> Option<&::serde_json::Value> {{\n        self.response.as_ref()\n    }}\n\n    fn metadata(&self) -> Option<&::serde_json::Value> {{\n        self.metadata.as_ref()\n    }}\n}}\n\n",
+                name = r.name
+            );
+        }
+    }
+    out
 }
 
 /// Expression for the waiter parameter from the request or response.

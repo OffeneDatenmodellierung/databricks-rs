@@ -24,6 +24,48 @@ pub struct Source {
     pub openapi_sha: String,
 }
 
+/// `codegen/ir_patches.json`: corrections for upstream spec defects.
+#[derive(Debug, Deserialize)]
+pub struct Patches {
+    /// `package.Type.field` → replacement type.
+    #[serde(default)]
+    pub field_types: BTreeMap<String, FieldTypePatch>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FieldTypePatch {
+    #[serde(rename = "type")]
+    pub ty: TypeRef,
+    /// Why the patch exists (required, so every patch is explained).
+    pub why: String,
+}
+
+impl Ir {
+    /// Apply `patches`; a patch that no longer matches is an error, so a
+    /// fixed upstream spec prompts removing it.
+    pub fn apply(&mut self, patches: &Patches) -> Result<(), String> {
+        for (key, patch) in &patches.field_types {
+            if patch.why.trim().is_empty() {
+                return Err(format!("ir_patches: {key} has no `why`"));
+            }
+            let mut parts = key.splitn(3, '.');
+            let (Some(pkg), Some(ty), Some(field)) = (parts.next(), parts.next(), parts.next())
+            else {
+                return Err(format!("ir_patches: {key} is not package.Type.field"));
+            };
+            let f = self
+                .packages
+                .get_mut(pkg)
+                .and_then(|p| p.types.iter_mut().find(|t| t.name == ty))
+                .and_then(|t| t.fields.as_mut())
+                .and_then(|fs| fs.iter_mut().find(|f| f.name == field))
+                .ok_or_else(|| format!("ir_patches: {key} not found in spec/ir.json"))?;
+            f.ty = patch.ty.clone();
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Package {
     pub name: String,
@@ -129,15 +171,43 @@ pub struct Method {
     #[serde(default)]
     pub explicit_query: Option<Vec<QueryParam>>,
     pub workspace_header: bool,
+    /// `Accept` header Go sends (empty for none).
+    #[serde(default)]
+    pub accept: String,
     #[serde(default)]
     pub pagination: Option<Pagination>,
     #[serde(default)]
     pub wait: Option<WaitBinding>,
+    /// Go's typed long-running-operation handle, when the call returns one.
+    #[serde(default)]
+    pub lro: Option<Lro>,
     /// Request fields the Go SDK fills in before the call.
     #[serde(default)]
     pub request_init: Option<Vec<FieldInit>>,
     #[serde(default)]
     pub unsupported: String,
+}
+
+impl Method {
+    /// A binary request or response body, sent or returned as
+    /// `community_databricks_core::http::Binary`. The extractor flags these
+    /// as `unsupported` because Go uses `io.ReadCloser` for them.
+    pub fn is_binary(&self) -> bool {
+        self.unsupported.starts_with("binary")
+    }
+}
+
+/// A long-running operation (see `codegen/extract-go`): poll with the
+/// service method `poll` until done; decode `result` from `response`.
+#[derive(Debug, Deserialize)]
+pub struct Lro {
+    #[serde(default)]
+    pub result: Option<TypeRef>,
+    #[serde(default)]
+    pub metadata: Option<TypeRef>,
+    pub poll: String,
+    #[serde(default)]
+    pub cancel: String,
 }
 
 /// One request field set before a call (see `codegen/extract-go`).
@@ -189,4 +259,48 @@ pub struct Waiter {
     pub targets: Vec<String>,
     #[serde(default)]
     pub failures: Option<Vec<String>>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ir() -> Ir {
+        serde_json::from_value(serde_json::json!({
+            "source": {"go_sdk_version": "v0", "openapi_sha": "x"},
+            "services": [],
+            "packages": {"sql": {"name": "sql", "types": [{
+                "name": "Req", "kind": "struct",
+                "fields": [{"name": "object_id", "type": {"kind": "ref", "pkg": "sql", "name": "Obj"},
+                            "required": true, "location": "path"}]
+            }]}}
+        }))
+        .unwrap()
+    }
+
+    fn patches(key: &str, why: &str) -> Patches {
+        serde_json::from_value(serde_json::json!({
+            "field_types": {key: {"type": {"kind": "string"}, "why": why}}
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn patches_replace_the_field_type() {
+        let mut ir = ir();
+        ir.apply(&patches("sql.Req.object_id", "upstream bug"))
+            .unwrap();
+        let f = &ir.packages["sql"].types[0].fields.as_ref().unwrap()[0];
+        assert_eq!(f.ty.kind, "string");
+    }
+
+    #[test]
+    fn stale_or_unexplained_patches_are_errors() {
+        let e = ir().apply(&patches("sql.Req.gone", "x")).unwrap_err();
+        assert!(e.contains("not found"), "{e}");
+        let e = ir().apply(&patches("sql.Req", "x")).unwrap_err();
+        assert!(e.contains("package.Type.field"), "{e}");
+        let e = ir().apply(&patches("sql.Req.object_id", " ")).unwrap_err();
+        assert!(e.contains("no `why`"), "{e}");
+    }
 }

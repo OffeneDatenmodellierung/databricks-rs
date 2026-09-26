@@ -577,7 +577,7 @@ pub struct DownloadResponse {
     pub content_type: Option<String>,
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// The last modified time of the file in HTTP-date (RFC 7231) format.
     #[serde(skip)]
     pub last_modified: Option<String>,
@@ -595,7 +595,7 @@ pub struct DownloadResponse {
 impl DownloadResponse {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>) -> Self {
+    pub fn new(contents: impl Into<::community_databricks_core::http::Binary>) -> Self {
         Self {
             contents: contents.into(),
             ..Default::default()
@@ -629,7 +629,10 @@ impl DownloadResponse {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -1438,7 +1441,7 @@ impl ReadResponse {
 pub struct UploadRequest {
     /// `contents`
     #[serde(skip)]
-    pub contents: ::serde_json::Value,
+    pub contents: ::community_databricks_core::http::Binary,
     /// The absolute path of the file.
     #[serde(skip)]
     pub file_path: String,
@@ -1460,7 +1463,10 @@ pub struct UploadRequest {
 impl UploadRequest {
     /// A value with the required fields set.
     #[must_use]
-    pub fn new(contents: impl Into<::serde_json::Value>, file_path: impl Into<String>) -> Self {
+    pub fn new(
+        contents: impl Into<::community_databricks_core::http::Binary>,
+        file_path: impl Into<String>,
+    ) -> Self {
         Self {
             contents: contents.into(),
             file_path: file_path.into(),
@@ -1481,7 +1487,10 @@ impl UploadRequest {
 
     /// Set `contents`.
     #[must_use]
-    pub fn with_contents(mut self, value: impl Into<::serde_json::Value>) -> Self {
+    pub fn with_contents(
+        mut self,
+        value: impl Into<::community_databricks_core::http::Binary>,
+    ) -> Self {
         self.contents = value.into();
         self
     }
@@ -1843,6 +1852,36 @@ impl FilesApi {
             .map(|_| ())
     }
 
+    /// Downloads a file. The file contents are the response body. This is a standard
+    /// HTTP file download, not a JSON RPC. It supports the Range and
+    /// If-Unmodified-Since HTTP headers.
+    ///
+    /// `GET /api/2.0/fs/files{file_path}`
+    pub async fn download(
+        &self,
+        request: DownloadRequest,
+    ) -> ::community_databricks_core::Result<DownloadResponse> {
+        let path = format!(
+            "/api/2.0/fs/files{}",
+            path_param(&request.file_path.to_string(), true)
+        );
+        let mut call = Call::new(Method::GET, path)
+            .workspace()
+            .accept("application/octet-stream");
+        call = call.query(query::to_pairs(&request.other)?);
+        {
+            let (body, headers) = self.api.send_binary(call).await?;
+            let mut resp = DownloadResponse::default();
+            resp.contents = body;
+            resp.content_length =
+                ::community_databricks_core::http::header(&headers, "content-length");
+            resp.content_type = ::community_databricks_core::http::header(&headers, "content-type");
+            resp.last_modified =
+                ::community_databricks_core::http::header(&headers, "last-modified");
+            Ok(resp)
+        }
+    }
+
     /// Get the metadata of a directory. The response HTTP headers contain the
     /// metadata. There is no response body.
     ///
@@ -1951,5 +1990,26 @@ impl FilesApi {
         request: ListDirectoryContentsRequest,
     ) -> ::community_databricks_core::Result<Vec<DirectoryEntry>> {
         paging::collect(self.list_directory_contents(request)).await
+    }
+
+    /// Uploads a file of up to 5 GiB. The file contents should be sent as the
+    /// request body as raw bytes (an octet stream); do not encode or otherwise
+    /// modify the bytes before sending. The contents of the resulting file will be
+    /// exactly the bytes sent in the request body. If the request is successful,
+    /// there is no response body.
+    ///
+    /// `PUT /api/2.0/fs/files{file_path}`
+    pub async fn upload(&self, request: UploadRequest) -> ::community_databricks_core::Result<()> {
+        let path = format!(
+            "/api/2.0/fs/files{}",
+            path_param(&request.file_path.to_string(), true)
+        );
+        let mut call = Call::new(Method::PUT, path).workspace();
+        call = call.query(query::field("overwrite", &request.overwrite)?);
+        call = call.binary(request.contents.clone());
+        self.api
+            .send::<::serde::de::IgnoredAny>(call)
+            .await
+            .map(|_| ())
     }
 }

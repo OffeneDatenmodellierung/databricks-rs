@@ -4,18 +4,10 @@ Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
 Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a34f301`).
 
-- 39 packages, 191 services, 1268 operations (1260 generated), 3550 types.
+- 39 packages, 191 services, 1268 operations (1268 generated), 3550 types.
 
 ## Not generated (binary or streaming payloads)
 
-- `billing.BillableUsage.Download: binary response`
-- `dashboards.Genie.DownloadMessageAttachmentVisualization: binary response`
-- `files.Files.Download: binary response`
-- `files.Files.Upload: binary/header field contents`
-- `serving.ServingEndpoints.ExportMetrics: binary response`
-- `serving.ServingEndpoints.GetOpenApi: binary response`
-- `serving.ServingEndpoints.HttpRequest: binary response`
-- `sql.DbsqlPermissions.TransferOwnership: struct-typed path parameter`
 
 ## OpenAPI path collisions (moved to `x-databricks-shared-path-operations`)
 
@@ -36,4 +28,7 @@ Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a3
 
 ## Hand-written overrides
 
+- `jobs.Jobs.Get` is generated as `get_page`; see `src/ext.rs` in the package crate.
 - `jobs.Jobs.GetRun` is generated as `get_run_page`; see `src/ext.rs` in the package crate.
+- `jobs.Jobs.List` is generated as `page:list`; see `src/ext.rs` in the package crate.
+- `jobs.Jobs.ListRuns` is generated as `page:list_runs`; see `src/ext.rs` in the package crate.

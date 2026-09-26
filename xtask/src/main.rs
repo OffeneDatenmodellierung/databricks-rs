@@ -52,10 +52,16 @@ fn root() -> PathBuf {
 }
 
 fn codegen(root: &Path, check: bool) -> Result<(), String> {
-    let ir: Ir = serde_json::from_slice(
+    let mut ir: Ir = serde_json::from_slice(
         &std::fs::read(root.join("spec/ir.json")).map_err(|e| format!("spec/ir.json: {e}"))?,
     )
     .map_err(|e| format!("spec/ir.json: {e}"))?;
+    let patches: ir::Patches = serde_json::from_slice(
+        &std::fs::read(root.join("codegen/ir_patches.json"))
+            .map_err(|e| format!("codegen/ir_patches.json: {e}"))?,
+    )
+    .map_err(|e| format!("codegen/ir_patches.json: {e}"))?;
+    ir.apply(&patches)?;
     let overrides: emit_service::Overrides = serde_json::from_slice(
         &std::fs::read(root.join("codegen/overrides.json"))
             .map_err(|e| format!("codegen/overrides.json: {e}"))?,
@@ -114,6 +120,13 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
                 &mut unsupported,
             ));
         }
+        let services: Vec<&Service> = by_pkg
+            .get(pkg.as_str())
+            .into_iter()
+            .flatten()
+            .copied()
+            .collect();
+        out.push_str(&emit_service::emit_operation_states(&types, pkg, &services));
         files.insert(dir.join("src/lib.rs"), out);
         files.insert(
             dir.join("Cargo.toml"),

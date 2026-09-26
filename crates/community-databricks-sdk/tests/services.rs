@@ -10,7 +10,8 @@ use community_databricks_sdk::service::compute::{
     ListClustersSortByField, State,
 };
 use community_databricks_sdk::service::jobs::{
-    GetRunRequest, QueueSettings, RunLifeCycleState, RunNow, RunResultState,
+    GetJobRequest, GetRunRequest, ListJobsRequest, ListRunsRequest, QueueSettings,
+    RunLifeCycleState, RunNow, RunResultState,
 };
 use community_databricks_sdk::service::provisioning::WorkspaceStatus;
 use community_databricks_sdk::{AccountClient, Config, Error, WorkspaceClient};
@@ -268,6 +269,210 @@ async fn get_run_for_each_merges_iterations_not_tasks() {
         .unwrap();
     assert_eq!(run.iterations.len(), 2);
     assert_eq!(run.tasks.len(), 1);
+}
+
+#[tokio::test]
+async fn get_job_merges_settings_pages_like_go() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/get"))
+        .and(query_param("job_id", "5"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "job_id": 5, "settings": {"name": "big", "tasks": [{"task_key": "a"}],
+            "job_clusters": [{"job_cluster_key": "c1"}], "parameters": [{"name": "p", "default": "1"}],
+            "environments": [{"environment_key": "e1"}]},
+            "next_page_token": "g2"
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/get"))
+        .and(query_param("page_token", "g2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "job_id": 5, "settings": {"tasks": [{"task_key": "b"}],
+            "job_clusters": [{"job_cluster_key": "c2"}]}
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let job = workspace(&server)
+        .await
+        .jobs()
+        .get(GetJobRequest::new(5))
+        .await
+        .unwrap();
+    let settings = job.settings.unwrap();
+    let keys: Vec<_> = settings.tasks.iter().map(|t| t.task_key.as_str()).collect();
+    assert_eq!(keys, ["a", "b"]);
+    assert_eq!(settings.job_clusters.len(), 2);
+    assert_eq!(settings.parameters.len(), 1);
+    assert_eq!(settings.environments.len(), 1);
+    assert_eq!(settings.name.as_deref(), Some("big"));
+    assert!(job.next_page_token.is_none());
+}
+
+#[tokio::test]
+async fn list_jobs_with_expand_tasks_completes_truncated_jobs() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/list"))
+        .and(query_param("expand_tasks", "true"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "jobs": [
+                {"job_id": 1, "settings": {"tasks": [{"task_key": "only"}]}},
+                {"job_id": 2, "has_more": true, "settings": {"name": "big", "tasks": [{"task_key": "t0"}]}}
+            ],
+            "next_page_token": "l2"
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/list"))
+        .and(query_param("page_token", "l2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "jobs": [{"job_id": 3}]
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    // Only the truncated job is fetched in full.
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/get"))
+        .and(query_param("job_id", "2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "job_id": 2, "settings": {"tasks": [{"task_key": "t0"}, {"task_key": "t1"}],
+            "job_clusters": [{"job_cluster_key": "c"}]}
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let jobs = workspace(&server)
+        .await
+        .jobs()
+        .list_all(ListJobsRequest::default().with_expand_tasks(true))
+        .await
+        .unwrap();
+    assert_eq!(jobs.len(), 3);
+    let big = &jobs[1];
+    assert_eq!(big.has_more, Some(false));
+    let s = big.settings.as_ref().unwrap();
+    assert_eq!(s.tasks.len(), 2);
+    assert_eq!(s.job_clusters.len(), 1);
+    // Fields outside the expanded arrays are kept from the list entry.
+    assert_eq!(s.name.as_deref(), Some("big"));
+    assert_eq!(jobs[0].has_more, None);
+}
+
+#[tokio::test]
+async fn list_jobs_without_expand_tasks_never_fetches_jobs() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/list"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "jobs": [{"job_id": 2, "has_more": true}]
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/get"))
+        .respond_with(ResponseTemplate::new(500))
+        .expect(0)
+        .mount(&server)
+        .await;
+    let jobs = workspace(&server)
+        .await
+        .jobs()
+        .list_all(ListJobsRequest::default())
+        .await
+        .unwrap();
+    assert_eq!(jobs[0].has_more, Some(true));
+}
+
+#[tokio::test]
+async fn list_runs_with_expand_tasks_completes_truncated_runs() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/runs/list"))
+        .and(query_param("expand_tasks", "true"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "runs": [
+                {"run_id": 7, "has_more": true, "tasks": [{"task_key": "a"}]},
+                {"run_id": 8, "tasks": [{"task_key": "z"}]}
+            ]
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/runs/get"))
+        .and(query_param("run_id", "7"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "run_id": 7, "tasks": [{"task_key": "a"}], "next_page_token": "r2"
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/runs/get"))
+        .and(query_param("page_token", "r2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "run_id": 7, "tasks": [{"task_key": "b"}], "job_parameters": [{"name": "x"}],
+            "repair_history": [{"id": 1}], "job_clusters": [{"job_cluster_key": "c"}]
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let mut runs = workspace(&server)
+        .await
+        .jobs()
+        .list_runs(ListRunsRequest::default().with_expand_tasks(true));
+    let first = runs.try_next().await.unwrap().unwrap();
+    let keys: Vec<_> = first.tasks.iter().map(|t| t.task_key.as_str()).collect();
+    assert_eq!(keys, ["a", "b"]);
+    assert_eq!(first.has_more, Some(false));
+    assert_eq!(first.job_parameters.len(), 1);
+    assert_eq!(first.repair_history.len(), 1);
+    assert_eq!(first.job_clusters.len(), 1);
+    let second = runs.try_next().await.unwrap().unwrap();
+    assert_eq!(second.tasks.len(), 1);
+    assert!(runs.try_next().await.unwrap().is_none());
+}
+
+#[tokio::test]
+async fn list_runs_all_follows_page_tokens() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/runs/list"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "runs": [{"run_id": 1, "has_more": true}], "next_page_token": "p2"
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.2/jobs/runs/list"))
+        .and(query_param("page_token", "p2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"runs": [{"run_id": 2}]})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let runs = workspace(&server)
+        .await
+        .jobs()
+        .list_runs_all(ListRunsRequest::default())
+        .await
+        .unwrap();
+    let ids: Vec<_> = runs.iter().filter_map(|r| r.run_id).collect();
+    assert_eq!(ids, [1, 2]);
+    // Without expand_tasks a truncated run is left as returned.
+    assert_eq!(runs[0].has_more, Some(true));
 }
 
 #[tokio::test]

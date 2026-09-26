@@ -131,6 +131,18 @@ match w.jobs().get_run(req).await {
 - **Workspace clients from an account.** `AccountClient::get_workspace_client(&workspace)` derives a `WorkspaceClient` sharing the connection pool and rate limiter; on a unified host it shares the credentials too.
 - **Logging.** `Config::attribute` masks tokens and secrets as `***`; use `Config::secret_attribute` for the value itself.
 
+## Binary bodies, long-running operations and Jobs
+
+- **Files and exports.** Binary bodies are `core::http::Binary`: buffered bytes, or a stream.
+  - File downloads, usage CSVs, metrics and OpenAPI exports come back as a stream once the status is known to be a success. Read them with `.bytes().await`, or chunk by chunk with `.into_stream()`.
+  - Uploads take bytes (replayed on retry) or `Binary::from_stream(…)` (sent once and never retried).
+- **Long-running operations.** Calls that start one (Lakebase `postgres`, app spaces, workspace base environments, ML backfills and purges) return a `LongRunning` handle, like Go's `…OperationInterface`.
+  - `.wait().await` polls until done and returns the typed result. It uses Go's backoff (random, from 1s doubling to 60s) and has no timeout unless you add `.with_timeout(…)`.
+  - `.metadata()`, `.done()`, `.name()` and, where the service supports it, `.cancel()` are also available.
+  - A failed operation is an `Error::Api` carrying the operation's error code.
+- **Jobs.** `jobs().get()` and `get_run()` follow task pages past 100 and merge them. `list()`/`list_runs()` with `expand_tasks` complete truncated entries, as Go does. The single-page calls are `get_page`, `get_run_page`, `list_page` and `list_runs_page`.
+- **Parity.** [`spec/PARITY.md`](spec/PARITY.md) lists what the Go SDK offers beyond the generated API and how this SDK covers each part.
+
 ## Development
 
 House rules:

@@ -147,7 +147,8 @@ pub fn rust_type(r: &TypeRef, from_pkg: &str) -> String {
         ),
         "ref" if r.pkg == from_pkg => r.name.clone(),
         "ref" => format!("::{}::{}", crate_ident(&r.pkg), r.name),
-        // any, binary
+        "binary" => "::community_databricks_core::http::Binary".into(),
+        // any
         _ => "::serde_json::Value".into(),
     }
 }
@@ -219,7 +220,8 @@ pub fn field_infos(types: &Types<'_>, pkg: &str, t: &TypeDef) -> Vec<FieldInfo> 
                 setter: format!("with_{base}"),
                 inner: rust_type(&f.ty, pkg),
                 collection,
-                optional: !f.required,
+                // A binary body defaults to empty rather than being optional.
+                optional: !f.required && f.ty.kind != "binary",
                 boxed: types
                     .boxed
                     .contains(&(pkg.to_owned(), t.name.clone(), f.name.clone())),

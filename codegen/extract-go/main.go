@@ -121,6 +121,8 @@ type Method struct {
 	WorkspaceHeader bool          `json:"workspace_header"`
 	Pagination      *Pagination   `json:"pagination,omitempty"`
 	Wait            *WaitBinding  `json:"wait,omitempty"`
+	// Long-running operation handle the Go method returns.
+	Lro *Lro `json:"lro,omitempty"`
 	// Fields the Go method sets on the request before sending it.
 	RequestInit []*FieldInit `json:"request_init,omitempty"`
 	Unsupported string       `json:"unsupported,omitempty"`
@@ -147,6 +149,18 @@ type Pagination struct {
 	ReqField    string   `json:"req_field,omitempty"`
 	StopOnEmpty bool     `json:"stop_on_empty,omitempty"`
 	DedupeKey   string   `json:"dedupe_key,omitempty"`
+}
+
+// Lro describes Go's typed long-running-operation wrapper
+// (`XOperationInterface`): the operation is polled with `Poll` (a method of
+// the same service, taking `{name}`) until done; the result is `Result`
+// decoded from `response` (none for deletes), and `Metadata` from
+// `metadata`. `Cancel` is the service method that cancels it, if any.
+type Lro struct {
+	Result   *TypeRef `json:"result,omitempty"`
+	Metadata *TypeRef `json:"metadata,omitempty"`
+	Poll     string   `json:"poll"`
+	Cancel   string   `json:"cancel,omitempty"`
 }
 
 type WaitBinding struct {
@@ -790,6 +804,57 @@ func (p *pkgInfo) parsePagination(fd *ast.FuncDecl, respType string) (*Paginatio
 	return pg, internal
 }
 
+// parseLro reads the operation wrapper a public API method returns
+// (`(CreateBranchOperationInterface, error)`).
+func (p *pkgInfo) parseLro(fd *ast.FuncDecl, api *apiInfo) *Lro {
+	res := fd.Type.Results.List
+	if len(res) != 2 {
+		return nil
+	}
+	iface := exprString(res[0].Type)
+	if !strings.HasSuffix(iface, "OperationInterface") {
+		return nil
+	}
+	op := strings.TrimSuffix(iface, "Interface")
+	op = strings.ToLower(op[:1]) + op[1:]
+	wait, ok := api.methods[op+".Wait"]
+	if !ok {
+		return nil
+	}
+	implCall := func(f *ast.FuncDecl) string {
+		name := ""
+		ast.Inspect(f.Body, func(n ast.Node) bool {
+			if c, ok := n.(*ast.CallExpr); ok && name == "" {
+				if fn := exprString(c.Fun); strings.HasPrefix(fn, "a.impl.") {
+					name = strings.TrimPrefix(fn, "a.impl.")
+				}
+			}
+			return true
+		})
+		return name
+	}
+	l := &Lro{Poll: implCall(wait)}
+	if r := wait.Type.Results.List; len(r) == 2 {
+		if st, ok := r[0].Type.(*ast.StarExpr); ok {
+			l.Result = typeRef(p.name, st.X)
+		}
+	}
+	if md, ok := api.methods[op+".Metadata"]; ok {
+		if r := md.Type.Results.List; len(r) == 2 {
+			if st, ok := r[0].Type.(*ast.StarExpr); ok {
+				l.Metadata = typeRef(p.name, st.X)
+			}
+		}
+	}
+	if c, ok := api.methods[op+".Cancel"]; ok {
+		l.Cancel = implCall(c)
+	}
+	if l.Poll == "" {
+		return nil
+	}
+	return l
+}
+
 // ---------------------------------------------------------------- api.go
 
 type apiInfo struct {
@@ -1200,6 +1265,7 @@ func main() {
 					respT = m.Response.Name
 				}
 				m.Wait = p.parseTrigger(afd, reqT, respT)
+				m.Lro = p.parseLro(afd, api)
 			}
 			svc.Methods = append(svc.Methods, m)
 		}

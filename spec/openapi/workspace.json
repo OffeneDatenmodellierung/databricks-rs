@@ -2769,6 +2769,54 @@
         ],
         "type": "string"
       },
+      "apps.SpaceUpdate": {
+        "description": "Tracks app space update information.",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "resources": {
+            "items": {
+              "$ref": "#/components/schemas/apps.AppResource"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/apps.SpaceUpdateStatus"
+          },
+          "usage_policy_id": {
+            "type": "string"
+          },
+          "user_api_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "apps.SpaceUpdateState": {
+        "enum": [
+          "FAILED",
+          "IN_PROGRESS",
+          "NOT_UPDATED",
+          "SUCCEEDED"
+        ],
+        "type": "string"
+      },
+      "apps.SpaceUpdateStatus": {
+        "description": "Status of an app space update operation",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/apps.SpaceUpdateState"
+          }
+        },
+        "type": "object"
+      },
       "apps.StartAppRequest": {
         "properties": {},
         "type": "object"
@@ -16738,10 +16786,6 @@
         ],
         "type": "string"
       },
-      "dashboards.DownloadMessageAttachmentVisualizationResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "dashboards.EvaluationStatusType": {
         "enum": [
           "DONE",
@@ -19836,6 +19880,11 @@
         ],
         "type": "string"
       },
+      "environments.WorkspaceBaseEnvironmentOperationMetadata": {
+        "description": "Metadata for the WorkspaceBaseEnvironment long-running operations. This\nmessage tracks the progress of the workspace base environment long-running\nprocess.",
+        "properties": {},
+        "type": "object"
+      },
       "files.AddBlock": {
         "properties": {
           "data": {
@@ -19938,10 +19987,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "files.DownloadResponse": {
-        "properties": {},
         "type": "object"
       },
       "files.FileInfo": {
@@ -29514,6 +29559,46 @@
         ],
         "type": "object"
       },
+      "ml.BackfillFeaturesResponse": {
+        "description": "Result of a completed backfill.",
+        "properties": {},
+        "type": "object"
+      },
+      "ml.BackfillOperationMetadata": {
+        "description": "Progress and configuration for a backfill.",
+        "properties": {
+          "backfill_ranges": {
+            "description": "Output ranges targeted by the backfill.",
+            "items": {
+              "$ref": "#/components/schemas/ml.BackfillRange"
+            },
+            "type": "array"
+          },
+          "feature_full_names": {
+            "description": "Full names of the features targeted by the backfill.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ml.BackfillOperationMetadataState",
+            "description": "Current state of the backfill."
+          }
+        },
+        "type": "object"
+      },
+      "ml.BackfillOperationMetadataState": {
+        "description": "Lifecycle state of a backfill.",
+        "enum": [
+          "CANCELLED",
+          "FAILED",
+          "PENDING",
+          "RUNNING",
+          "SUCCEEDED"
+        ],
+        "type": "string"
+      },
       "ml.BackfillRange": {
         "description": "A time range for a backfill.",
         "properties": {
@@ -32828,6 +32913,52 @@
         },
         "type": "object"
       },
+      "ml.PurgeFeatureEntitiesMetadata": {
+        "description": "Progress and configuration for a feature entity purge.",
+        "properties": {
+          "create_time": {
+            "description": "Time at which the purge operation was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "entities_table": {
+            "description": "Fully qualified name of the Unity Catalog Delta table containing the\nentity keys to purge.",
+            "type": "string"
+          },
+          "entities_table_version": {
+            "description": "Version of the entities table used by the purge.",
+            "type": "string"
+          },
+          "features": {
+            "description": "Fully qualified names of the features targeted by the purge.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "job_id": {
+            "description": "ID of the job that executes this purge.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesMetadataState",
+            "description": "Current state of the purge operation."
+          }
+        },
+        "type": "object"
+      },
+      "ml.PurgeFeatureEntitiesMetadataState": {
+        "description": "Lifecycle state of a feature entity purge.",
+        "enum": [
+          "CANCELLED",
+          "FAILED",
+          "PENDING",
+          "RUNNING",
+          "SUCCEEDED"
+        ],
+        "type": "string"
+      },
       "ml.PurgeFeatureEntitiesRequest": {
         "description": "Request to purge materialized feature values for entities listed in a Unity\nCatalog Delta table.",
         "properties": {
@@ -32852,6 +32983,62 @@
           "features"
         ],
         "type": "object"
+      },
+      "ml.PurgeFeatureEntitiesResponse": {
+        "description": "Result of a completed feature entity purge.",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ml.DatabricksServiceExceptionWithDetailsProto",
+            "description": "Operation-level error, if the purge failed outside an individual feature\ntarget."
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesMetadata",
+            "description": "Metadata about the purge operation."
+          },
+          "results": {
+            "description": "Per-feature purge results.",
+            "items": {
+              "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesResult"
+            },
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesMetadataState",
+            "description": "State of the purge operation."
+          }
+        },
+        "type": "object"
+      },
+      "ml.PurgeFeatureEntitiesResult": {
+        "description": "Result of purging one feature.",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ml.DatabricksServiceExceptionWithDetailsProto",
+            "description": "Error encountered while purging this feature, if any."
+          },
+          "feature": {
+            "description": "Fully qualified name of the feature that was purged.",
+            "type": "string"
+          },
+          "offline_state": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesResultState",
+            "description": "State of the offline purge for this feature."
+          },
+          "online_state": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesResultState",
+            "description": "State of the online purge for this feature."
+          }
+        },
+        "type": "object"
+      },
+      "ml.PurgeFeatureEntitiesResultState": {
+        "description": "Terminal state of a purge for one store type.",
+        "enum": [
+          "FAILED",
+          "NOT_APPLICABLE",
+          "SUCCEEDED"
+        ],
+        "type": "string"
       },
       "ml.RegisteredModelAccessControlRequest": {
         "properties": {
@@ -37996,6 +38183,10 @@
         },
         "type": "object"
       },
+      "postgres.BranchOperationMetadata": {
+        "properties": {},
+        "type": "object"
+      },
       "postgres.BranchSpec": {
         "properties": {
           "expire_time": {
@@ -38190,6 +38381,10 @@
         },
         "type": "object"
       },
+      "postgres.CatalogOperationMetadata": {
+        "properties": {},
+        "type": "object"
+      },
       "postgres.CdfConfig": {
         "description": "A Lakebase CDF configuration (CdfConfig): one per Postgres schema per\ndatabase, replicating that schema's tables into a Unity Catalog schema.\nImmutable once created.",
         "properties": {
@@ -38224,6 +38419,11 @@
           "postgres_schema",
           "schema"
         ],
+        "type": "object"
+      },
+      "postgres.CdfConfigOperationMetadata": {
+        "description": "Metadata for CdfConfig long-running operations. Intentionally empty today;\nfields (e.g. progress) may be added as the operation contract grows.",
+        "properties": {},
         "type": "object"
       },
       "postgres.CdfState": {
@@ -38438,6 +38638,10 @@
         },
         "type": "object"
       },
+      "postgres.DataApiOperationMetadata": {
+        "properties": {},
+        "type": "object"
+      },
       "postgres.Database": {
         "description": "Database represents a Postgres database within a Branch.",
         "properties": {
@@ -38519,6 +38723,10 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "postgres.DatabaseOperationMetadata": {
+        "properties": {},
         "type": "object"
       },
       "postgres.DatabricksServiceExceptionWithDetailsProto": {
@@ -38673,6 +38881,10 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "postgres.EndpointOperationMetadata": {
+        "properties": {},
         "type": "object"
       },
       "postgres.EndpointSettings": {
@@ -39270,6 +39482,10 @@
         },
         "type": "object"
       },
+      "postgres.ProjectOperationMetadata": {
+        "properties": {},
+        "type": "object"
+      },
       "postgres.ProjectSpec": {
         "properties": {
           "budget_policy_id": {
@@ -39501,6 +39717,10 @@
         ],
         "type": "string"
       },
+      "postgres.RoleOperationMetadata": {
+        "properties": {},
+        "type": "object"
+      },
       "postgres.RoleRoleSpec": {
         "properties": {
           "attributes": {
@@ -39618,6 +39838,11 @@
         },
         "type": "object"
       },
+      "postgres.SnapshotOperationMetadata": {
+        "description": "Metadata for the long-running snapshot Create and Delete operations.",
+        "properties": {},
+        "type": "object"
+      },
       "postgres.SnapshotSchedule": {
         "description": "The automatic snapshot cadences for a branch. There is exactly one schedule\nper branch (singleton); it is configured in place, not created or deleted.\n\nName: projects/{project_id}/branches/{branch_id}/snapshot-schedule",
         "properties": {
@@ -39633,6 +39858,11 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "postgres.SnapshotScheduleOperationMetadata": {
+        "description": "Metadata for the long-running snapshot schedule Update operation.",
+        "properties": {},
         "type": "object"
       },
       "postgres.SnapshotSpec": {
@@ -39728,6 +39958,11 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "postgres.SyncedTableOperationMetadata": {
+        "description": "Metadata for SyncedTable long-running operations.",
+        "properties": {},
         "type": "object"
       },
       "postgres.SyncedTablePipelineProgress": {
@@ -41078,10 +41313,6 @@
         },
         "type": "object"
       },
-      "serving.ExportMetricsResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "serving.ExternalFunctionRequest": {
         "description": "Simple Proto message for testing",
         "properties": {
@@ -41253,10 +41484,6 @@
         },
         "type": "object"
       },
-      "serving.GetOpenApiResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "serving.GetServingEndpointPermissionLevelsResponse": {
         "properties": {
           "permission_levels": {
@@ -41292,10 +41519,6 @@
           "project_id",
           "region"
         ],
-        "type": "object"
-      },
-      "serving.HttpRequestResponse": {
-        "properties": {},
         "type": "object"
       },
       "serving.ListEndpointsResponse": {
@@ -50201,15 +50424,6 @@
         },
         "type": "object"
       },
-      "sql.TransferOwnershipObjectId": {
-        "properties": {
-          "new_owner": {
-            "description": "Email address for the new owner, who must exist in the workspace.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "sql.TransferOwnershipRequest": {
         "properties": {
           "new_owner": {
@@ -55245,6 +55459,15 @@
         "tags": [
           "Apps"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/apps.Space"
+          },
+          "poll": "GetSpaceOperation",
+          "result": {
+            "$ref": "#/components/schemas/apps.Space"
+          }
+        },
         "x-databricks-package": "apps",
         "x-databricks-service": "Apps",
         "x-databricks-workspace-header": true
@@ -55282,6 +55505,12 @@
         "tags": [
           "Apps"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/apps.Space"
+          },
+          "poll": "GetSpaceOperation"
+        },
         "x-databricks-package": "apps",
         "x-databricks-service": "Apps",
         "x-databricks-workspace-header": true
@@ -55375,6 +55604,15 @@
         "tags": [
           "Apps"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/apps.SpaceUpdate"
+          },
+          "poll": "GetSpaceOperation",
+          "result": {
+            "$ref": "#/components/schemas/apps.Space"
+          }
+        },
         "x-databricks-package": "apps",
         "x-databricks-service": "Apps",
         "x-databricks-workspace-header": true
@@ -60975,7 +61213,7 @@
         "operationId": "serving_endpoints.http_request",
         "requestBody": {
           "content": {
-            "application/octet-stream": {
+            "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/serving.ExternalFunctionRequest"
               }
@@ -60986,9 +61224,10 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.HttpRequestResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -61004,7 +61243,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -61491,6 +61729,16 @@
         "tags": [
           "FeatureEngineering"
         ],
+        "x-databricks-long-running": {
+          "cancel": "CancelOperation",
+          "metadata": {
+            "$ref": "#/components/schemas/ml.BackfillOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/ml.BackfillFeaturesResponse"
+          }
+        },
         "x-databricks-package": "ml",
         "x-databricks-service": "FeatureEngineering",
         "x-databricks-workspace-header": true
@@ -61527,6 +61775,15 @@
         "tags": [
           "FeatureEngineering"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/ml.PurgeFeatureEntitiesResponse"
+          }
+        },
         "x-databricks-package": "ml",
         "x-databricks-service": "FeatureEngineering",
         "x-databricks-workspace-header": true
@@ -62968,7 +63225,8 @@
             "content": {
               "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/files.DownloadResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -63004,7 +63262,6 @@
         ],
         "x-databricks-package": "files",
         "x-databricks-service": "Files",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       },
       "head": {
@@ -63107,7 +63364,6 @@
         ],
         "x-databricks-package": "files",
         "x-databricks-service": "Files",
-        "x-databricks-unsupported": "binary/header field contents",
         "x-databricks-workspace-header": true
       }
     },
@@ -64866,7 +65122,8 @@
             "content": {
               "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/dashboards.DownloadMessageAttachmentVisualizationResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -64882,7 +65139,6 @@
         ],
         "x-databricks-package": "dashboards",
         "x-databricks-service": "Genie",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -78173,6 +78429,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.CatalogOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Catalog"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -78209,6 +78474,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.CatalogOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78400,6 +78671,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.ProjectOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Project"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -78445,6 +78725,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.ProjectOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78544,6 +78830,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.ProjectOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Project"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78601,6 +78896,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.BranchOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78716,6 +79017,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.BranchOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Branch"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78772,6 +79082,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DatabaseOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78903,6 +79219,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DatabaseOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Database"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -78959,6 +79284,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.EndpointOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79090,6 +79421,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.EndpointOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Endpoint"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79155,6 +79495,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.RoleOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79286,6 +79632,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.RoleOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Role"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79403,6 +79758,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.SnapshotScheduleOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.SnapshotSchedule"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79461,6 +79825,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.BranchOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79509,6 +79879,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.SnapshotOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79607,6 +79983,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.ProjectOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79680,6 +80062,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.CdfConfigOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-resource-name": {
           "param": "name",
@@ -79869,6 +80257,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.SyncedTableOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.SyncedTable"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -79949,6 +80346,12 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DataApiOperationMetadata"
+          },
+          "poll": "GetOperation"
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80044,6 +80447,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DataApiOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.DataApi"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80081,6 +80493,12 @@
           "tags": [
             "Postgres"
           ],
+          "x-databricks-long-running": {
+            "metadata": {
+              "$ref": "#/components/schemas/postgres.SyncedTableOperationMetadata"
+            },
+            "poll": "GetOperation"
+          },
           "x-databricks-package": "postgres",
           "x-databricks-service": "Postgres",
           "x-databricks-verb": "DELETE",
@@ -80260,6 +80678,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.BranchOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Branch"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80380,6 +80807,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.CdfConfigOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.CdfConfig"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80493,6 +80929,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DataApiOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.DataApi"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80622,6 +81067,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.DatabaseOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Database"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80751,6 +81205,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.EndpointOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Endpoint"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -80880,6 +81343,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.RoleOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Role"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -81000,6 +81472,15 @@
         "tags": [
           "Postgres"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/postgres.SnapshotOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/postgres.Snapshot"
+          }
+        },
         "x-databricks-package": "postgres",
         "x-databricks-service": "Postgres",
         "x-databricks-workspace-header": true
@@ -82655,7 +83136,7 @@
             "name": "object_id",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/sql.TransferOwnershipObjectId"
+              "type": "string"
             }
           }
         ],
@@ -84630,9 +85111,10 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.ExportMetricsResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -84648,7 +85130,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -84719,9 +85200,10 @@
         "responses": {
           "200": {
             "content": {
-              "application/octet-stream": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.GetOpenApiResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -84737,7 +85219,6 @@
         ],
         "x-databricks-package": "serving",
         "x-databricks-service": "ServingEndpoints",
-        "x-databricks-unsupported": "binary response",
         "x-databricks-workspace-header": true
       }
     },
@@ -103098,6 +103579,15 @@
         "tags": [
           "Environments"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironmentOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironment"
+          }
+        },
         "x-databricks-package": "environments",
         "x-databricks-service": "Environments",
         "x-databricks-workspace-header": true
@@ -103355,6 +103845,15 @@
           "tags": [
             "Environments"
           ],
+          "x-databricks-long-running": {
+            "metadata": {
+              "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironmentOperationMetadata"
+            },
+            "poll": "GetOperation",
+            "result": {
+              "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironment"
+            }
+          },
           "x-databricks-package": "environments",
           "x-databricks-service": "Environments",
           "x-databricks-verb": "PATCH",
@@ -103405,6 +103904,15 @@
         "tags": [
           "Environments"
         ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironmentOperationMetadata"
+          },
+          "poll": "GetOperation",
+          "result": {
+            "$ref": "#/components/schemas/environments.WorkspaceBaseEnvironment"
+          }
+        },
         "x-databricks-package": "environments",
         "x-databricks-service": "Environments",
         "x-databricks-workspace-header": true

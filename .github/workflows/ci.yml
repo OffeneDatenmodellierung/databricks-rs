@@ -83,6 +83,10 @@ jobs:
           python3 scripts/validate_openapi.py
           python3 spec/docs-check/compare.py
           git diff --exit-code -- spec/DOCS-CHECK.md
+      - name: Surface parity with databricks-sdk-go
+        run: |
+          python3 scripts/check_parity.py /tmp/go-sdk
+          git diff --exit-code -- spec/PARITY.md
 
   docs:
     runs-on: ubuntu-latest

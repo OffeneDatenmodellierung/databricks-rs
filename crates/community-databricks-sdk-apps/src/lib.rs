@@ -5951,11 +5951,29 @@ impl AppsApi {
     pub async fn create_space(
         &self,
         request: CreateSpaceRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Space, Space>,
+    > {
         let path = String::from("/api/2.0/app-spaces");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request.space)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_space_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Creates an app update and starts the update process. The update process is
@@ -6026,14 +6044,32 @@ impl AppsApi {
     pub async fn delete_space(
         &self,
         request: DeleteSpaceRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, (), Space>,
+    > {
         let path = format!(
             "/api/2.0/app-spaces/{}",
             path_param(&request.name.to_string(), false)
         );
         let mut call = Call::new(Method::DELETE, path).workspace();
         call = call.query(query::to_pairs(&request.other)?);
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_space_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Creates an app deployment for the app with the supplied name.
@@ -6445,7 +6481,9 @@ impl AppsApi {
     pub async fn update_space(
         &self,
         request: UpdateSpaceRequest,
-    ) -> ::community_databricks_core::Result<Operation> {
+    ) -> ::community_databricks_core::Result<
+        ::community_databricks_core::lro::LongRunning<Operation, Space, SpaceUpdate>,
+    > {
         let path = format!(
             "/api/2.0/app-spaces/{}",
             path_param(&request.name.to_string(), false)
@@ -6453,7 +6491,23 @@ impl AppsApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.query(query::field("update_mask", &request.update_mask)?);
         call = call.json(&request.space)?;
-        self.api.send::<Operation>(call).await
+        let operation = self.api.send::<Operation>(call).await?;
+        let this = Clone::clone(self);
+        let poll: ::community_databricks_core::lro::PollFn<Operation> =
+            ::std::sync::Arc::new(move |name: String| {
+                let this = Clone::clone(&this);
+                Box::pin(async move {
+                    this.get_space_operation(GetOperationRequest {
+                        name,
+                        ..Default::default()
+                    })
+                    .await
+                })
+            });
+        let cancel: Option<::community_databricks_core::lro::CancelFn> = None;
+        Ok(::community_databricks_core::lro::LongRunning::new(
+            operation, poll, cancel,
+        ))
     }
 
     /// Repeatedly calls [`get`](Self::get) until the result reaches ACTIVE.
@@ -6903,5 +6957,35 @@ impl AppsSettingsApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request.template)?;
         self.api.send::<CustomTemplate>(call).await
+    }
+}
+
+impl ::community_databricks_core::lro::OperationState for Operation {
+    fn name(&self) -> &str {
+        self.name.as_deref().unwrap_or_default()
+    }
+
+    fn is_done(&self) -> bool {
+        self.done.unwrap_or(false)
+    }
+
+    fn failure(&self) -> Option<(String, String)> {
+        self.error.as_ref().map(|e| {
+            (
+                e.error_code
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_default(),
+                e.message.clone().unwrap_or_default(),
+            )
+        })
+    }
+
+    fn response(&self) -> Option<&::serde_json::Value> {
+        self.response.as_ref()
+    }
+
+    fn metadata(&self) -> Option<&::serde_json::Value> {
+        self.metadata.as_ref()
     }
 }
