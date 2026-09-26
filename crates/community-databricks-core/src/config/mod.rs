@@ -27,6 +27,7 @@ use serde::Deserialize;
 use url::Url;
 
 pub use attrs::Source;
+pub(crate) use environment::for_hostname as environment_for_hostname;
 pub use environment::{AzureEnvironment, Cloud, Environment};
 
 use crate::auth::IdTokenSource;
@@ -148,6 +149,8 @@ impl EnvLookup {
 /// [`AccountClient`]: https://docs.rs/community-databricks-sdk
 #[derive(Debug, Clone, Default)]
 #[non_exhaustive]
+// Independent on/off settings mirroring Go's config, not a state machine.
+#[allow(clippy::struct_excessive_bools)]
 pub struct Config {
     /// Workspace or account host, e.g. `https://adb-123.4.azuredatabricks.net`.
     pub host: Option<String>,
@@ -211,6 +214,11 @@ pub struct Config {
     /// and any header the credentials provider sets) are never overridden;
     /// a custom header with one of those names is ignored.
     pub headers: Vec<(String, String)>,
+    /// Retry POST requests without an idempotency token after failures the
+    /// server may already have acted on (timeouts, 503/504), as Go does.
+    /// Off by default because a retried create can duplicate the object.
+    /// Set in code only.
+    pub retry_non_idempotent: bool,
 
     /// Attributes without a typed field (Azure, Google, OIDC, CLI…); read
     /// them with [`Config::attribute`].
@@ -219,6 +227,21 @@ pub struct Config {
     pub(crate) resolved_host_type: Option<HostType>,
     pub(crate) resolved: bool,
     pub(crate) env: EnvLookup,
+}
+
+/// Host-metadata discovery shares one client per TLS mode, so resolving
+/// several configs reuses connections.
+fn metadata_client(skip_verify: bool) -> Result<reqwest::Client> {
+    static VERIFIED: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
+    static UNVERIFIED: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
+    let slot = if skip_verify { &UNVERIFIED } else { &VERIFIED };
+    if let Some(c) = slot.get() {
+        return Ok(c.clone());
+    }
+    let c = reqwest::Client::builder()
+        .danger_accept_invalid_certs(skip_verify)
+        .build()?;
+    Ok(slot.get_or_init(|| c).clone())
 }
 
 impl Config {
@@ -439,30 +462,48 @@ impl Config {
                 "{}/.well-known/oauth-authorization-server",
                 root.trim_end_matches('/')
             ));
+            self.sources.insert("discovery_url", Source::HostMetadata);
         }
     }
 
+    /// `/.well-known/databricks-config`, over one shared connection pool,
+    /// retrying throttling, 5xx and connection errors a few times.
     async fn fetch_host_metadata(&self, host: &str) -> Result<HostMetadata> {
-        let client = reqwest::Client::builder()
-            .timeout(self.http_timeout())
-            .danger_accept_invalid_certs(self.skip_verify)
-            .build()?;
-        let resp = client
-            .get(format!("{host}/.well-known/databricks-config"))
-            .send()
-            .await?;
-        let status = resp.status();
-        let body = resp.bytes().await?;
-        if !status.is_success() {
-            return Err(crate::ApiError::from_response(
-                status.as_u16(),
-                "GET",
-                "/.well-known",
-                &body,
-            )
-            .into());
+        const ATTEMPTS: u32 = 3;
+        if self.skip_verify {
+            tracing::warn!(
+                host,
+                "TLS certificate verification is disabled (skip_verify); use this only for testing"
+            );
         }
-        serde_json::from_slice(&body).map_err(|e| Error::json("host metadata", e))
+        let client = metadata_client(self.skip_verify)?;
+        let url = format!("{host}/.well-known/databricks-config");
+        let mut attempt = 0;
+        loop {
+            attempt += 1;
+            let result = client.get(&url).timeout(self.http_timeout()).send().await;
+            let transient = match &result {
+                Ok(r) => r.status().as_u16() == 429 || r.status().is_server_error(),
+                Err(e) => e.is_connect() || e.is_timeout(),
+            };
+            if transient && attempt < ATTEMPTS {
+                tokio::time::sleep(crate::http::backoff(attempt)).await;
+                continue;
+            }
+            let resp = result?;
+            let status = resp.status();
+            let body = resp.bytes().await?;
+            if !status.is_success() {
+                return Err(crate::ApiError::from_response(
+                    status.as_u16(),
+                    "GET",
+                    "/.well-known",
+                    &body,
+                )
+                .into());
+            }
+            return serde_json::from_slice(&body).map_err(|e| Error::json("host metadata", e));
+        }
     }
 
     /// The host type: from metadata if known, else inferred from the host
@@ -572,16 +613,50 @@ impl Config {
         Ok(())
     }
 
-    /// Read any recognised attribute by its config-file name (secrets
-    /// included — do not log the result).
+    /// Read a recognised attribute by its config-file name. Sensitive ones
+    /// (`token`, `client_secret`, `password`, …) come back as `***` so the
+    /// value is safe to log; use [`Config::secret_attribute`] for those.
     #[must_use]
     pub fn attribute(&self, name: &str) -> Option<String> {
-        attrs::find(name).and_then(|a| (a.get)(self))
+        let attr = attrs::find(name)?;
+        let v = (attr.get)(self)?;
+        Some(if attr.sensitive { "***".to_owned() } else { v })
     }
 
-    /// A non-empty attribute value.
+    /// Read a sensitive attribute (or any attribute) as a [`SecretString`],
+    /// which never shows its value in `Debug` output.
+    #[must_use]
+    pub fn secret_attribute(&self, name: &str) -> Option<SecretString> {
+        attrs::find(name)
+            .and_then(|a| (a.get)(self))
+            .map(SecretString::from)
+    }
+
+    /// A non-empty attribute value, secrets included (crate use only).
     pub(crate) fn attr(&self, name: &str) -> Option<String> {
-        self.attribute(name).filter(|v| !v.is_empty())
+        attrs::find(name)
+            .and_then(|a| (a.get)(self))
+            .filter(|v| !v.is_empty())
+    }
+
+    /// Point a copy of an account config at one workspace host (Go:
+    /// `Config.NewWithWorkspaceHost`): account-only settings and anything
+    /// host metadata derived for the account host are dropped.
+    pub(crate) fn for_workspace_host(&mut self, host: &str) {
+        self.host = Some(host.to_owned());
+        self.account_id = None;
+        self.resolved_host_type = Some(HostType::Workspace);
+        for name in ["discovery_url", "audience"] {
+            if matches!(self.sources.get(name), Some(Source::HostMetadata)) {
+                self.sources.remove(name);
+                if name == "discovery_url" {
+                    self.discovery_url = None;
+                } else {
+                    self.other.remove(name);
+                }
+            }
+        }
+        self.other.remove("azure_workspace_resource_id");
     }
 
     /// A boolean attribute (`true`, `1`, `yes`, `on`).
@@ -629,6 +704,22 @@ impl Config {
         self.cloud_override()
             .unwrap_or_else(|| self.environment().cloud)
             == Cloud::Azure
+    }
+
+    /// The URL of the workspace called `deployment_name` next to this
+    /// account host (Go: `workspaceHost`): `https://{deployment}{dns_zone}`
+    /// when the account host is in a known Databricks DNS zone, otherwise
+    /// `None`, meaning the account host itself serves the workspace (a
+    /// unified host).
+    #[must_use]
+    pub fn workspace_host(&self, deployment_name: &str) -> Option<String> {
+        let env = self.environment();
+        let host = self.host.as_deref().unwrap_or_default();
+        let hostname = Url::parse(host).ok()?.host_str()?.to_owned();
+        (!env.dns_zone.is_empty()
+            && hostname.ends_with(env.dns_zone)
+            && !deployment_name.is_empty())
+        .then(|| format!("https://{deployment_name}{}", env.dns_zone))
     }
 
     /// Databricks on Google Cloud.

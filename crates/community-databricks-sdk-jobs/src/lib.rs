@@ -17684,8 +17684,17 @@ impl JobsApi {
         &self,
         request: RunNow,
     ) -> ::community_databricks_core::Result<WaitGetRunJobTerminatedOrSkipped<RunNowResponse>> {
+        let mut request = request;
+        if request
+            .idempotency_token
+            .as_deref()
+            .is_none_or(str::is_empty)
+        {
+            request.idempotency_token =
+                Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/2.2/jobs/run-now");
-        let mut call = Call::new(Method::POST, path).workspace();
+        let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         let response = self.api.send::<RunNowResponse>(call).await?;
         let param = response.run_id.clone().unwrap_or_default();
@@ -17735,8 +17744,17 @@ impl JobsApi {
         request: SubmitRun,
     ) -> ::community_databricks_core::Result<WaitGetRunJobTerminatedOrSkipped<SubmitRunResponse>>
     {
+        let mut request = request;
+        if request
+            .idempotency_token
+            .as_deref()
+            .is_none_or(str::is_empty)
+        {
+            request.idempotency_token =
+                Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/2.2/jobs/runs/submit");
-        let mut call = Call::new(Method::POST, path).workspace();
+        let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         let response = self.api.send::<SubmitRunResponse>(call).await?;
         let param = response.run_id.clone().unwrap_or_default();

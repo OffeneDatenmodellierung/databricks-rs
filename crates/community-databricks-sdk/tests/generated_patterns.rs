@@ -9,6 +9,7 @@
     feature = "compute",
     feature = "files",
     feature = "iam",
+    feature = "jobs",
     feature = "ml",
     feature = "provisioning",
     feature = "sql",
@@ -27,15 +28,16 @@ use community_databricks_sdk::service::compute::{
 };
 use community_databricks_sdk::service::files::{GetDirectoryMetadataRequest, GetMetadataRequest};
 use community_databricks_sdk::service::iam::ListUsersRequest;
+use community_databricks_sdk::service::jobs::RunNow;
 use community_databricks_sdk::service::ml::Metric;
-use community_databricks_sdk::service::provisioning::GetWorkspaceRequest;
+use community_databricks_sdk::service::provisioning::{GetWorkspaceRequest, Workspace};
 use community_databricks_sdk::service::sql::ListDashboardsRequest;
 use community_databricks_sdk::service::tags::{
     GetTagPolicyRequest, ListTagPoliciesRequest, UpdateTagPolicyRequest,
 };
 use community_databricks_sdk::{AccountClient, Config, WorkspaceClient};
-use serde_json::json;
-use wiremock::matchers::{body_json, method, path, query_param, query_param_is_missing};
+use serde_json::{Value, json};
+use wiremock::matchers::{body_json, header, method, path, query_param, query_param_is_missing};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 fn cfg(server: &MockServer) -> Config {
@@ -435,4 +437,94 @@ async fn unmodelled_query_parameters_are_sent() {
         .await
         .unwrap();
     assert_eq!(all.len(), 1);
+}
+
+#[tokio::test]
+async fn run_now_retries_with_the_same_generated_idempotency_token() {
+    // #3: run_now is a POST; the SDK fills in an idempotency token so a
+    // retry after a 503 can't start a second run.
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/api/2.2/jobs/run-now"))
+        .respond_with(
+            ResponseTemplate::new(503)
+                .set_body_json(json!({"error_code": "TEMPORARILY_UNAVAILABLE", "message": "busy"})),
+        )
+        .up_to_n_times(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path("/api/2.2/jobs/run-now"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"run_id": 5})))
+        .mount(&server)
+        .await;
+    let waiter = workspace(&server)
+        .await
+        .jobs()
+        .run_now(RunNow::new(9))
+        .await
+        .unwrap();
+    assert_eq!(waiter.response.run_id, Some(5));
+    let reqs = server.received_requests().await.unwrap();
+    let tokens: Vec<Value> = reqs
+        .iter()
+        .map(|r| serde_json::from_slice::<Value>(&r.body).unwrap()["idempotency_token"].clone())
+        .collect();
+    assert_eq!(tokens.len(), 2);
+    assert_eq!(tokens[0], tokens[1]);
+    assert_eq!(tokens[0].as_str().map(str::len), Some(36));
+
+    // A caller-supplied token is kept.
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/api/2.2/jobs/run-now"))
+        .and(body_json(json!({"job_id": 9, "idempotency_token": "mine"})))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"run_id": 6})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    workspace(&server)
+        .await
+        .jobs()
+        .run_now(RunNow::new(9).with_idempotency_token("mine"))
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn account_client_derives_a_workspace_client() {
+    // #4. The mock is not in a Databricks DNS zone, so it is treated as a
+    // unified host: the workspace client uses the same host and sends the
+    // workspace ID header.
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/accounts/acc/workspaces/42"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "workspace_id": 42, "deployment_name": "dbc-42", "workspace_name": "ws",
+        })))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/clusters/list"))
+        .and(header("x-databricks-workspace-id", "42"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"clusters": []})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let mut c = cfg(&server).account("acc");
+    c.host_metadata = Some(serde_json::from_value(json!({"host_type": "UNIFIED_HOST"})).unwrap());
+    let a = AccountClient::new(c).await.unwrap();
+    let ws = a
+        .workspaces()
+        .get(GetWorkspaceRequest::new(42))
+        .await
+        .unwrap();
+    let w = a.get_workspace_client(&ws).unwrap();
+    let clusters = w
+        .clusters()
+        .list_all(community_databricks_sdk::service::compute::ListClustersRequest::default())
+        .await
+        .unwrap();
+    assert!(clusters.is_empty());
+    assert!(a.get_workspace_client(&Workspace::default()).is_err());
 }

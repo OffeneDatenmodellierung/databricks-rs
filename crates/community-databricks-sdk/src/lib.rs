@@ -117,6 +117,46 @@ impl AccountClient {
         &self.api
     }
 
+    /// A [`WorkspaceClient`] for one of this account's workspaces (Go:
+    /// `AccountClient.GetWorkspaceClient`).
+    ///
+    /// The workspace host comes from the workspace's `deployment_name`
+    /// (`https://{deployment}.cloud.databricks.com` and so on); on a
+    /// unified host the account host itself serves the workspace. The
+    /// workspace client shares this client's connection pool and rate
+    /// limiter, and on a unified host its credentials as well.
+    ///
+    /// ```no_run
+    /// # async fn run(a: community_databricks_sdk::AccountClient) -> community_databricks_sdk::Result<()> {
+    /// use community_databricks_sdk::service::provisioning::GetWorkspaceRequest;
+    /// let ws = a.workspaces().get(GetWorkspaceRequest::new(123)).await?;
+    /// let w = a.get_workspace_client(&ws)?;
+    /// # let _ = w; Ok(()) }
+    /// ```
+    #[cfg(feature = "provisioning")]
+    pub fn get_workspace_client(
+        &self,
+        workspace: &service::provisioning::Workspace,
+    ) -> Result<WorkspaceClient> {
+        let id = workspace
+            .workspace_id
+            .ok_or_else(|| Error::Config("workspace has no workspace_id".into()))?;
+        let deployment = workspace.deployment_name.as_deref().unwrap_or_default();
+        let host = self.api.config().workspace_host(deployment);
+        let azure_id = workspace.azure_workspace_info.as_ref().and_then(|a| {
+            Some(format!(
+                "/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Databricks/workspaces/{}",
+                a.subscription_id.as_deref()?,
+                a.resource_group.as_deref()?,
+                workspace.workspace_name.as_deref()?
+            ))
+        });
+        let api = self
+            .api
+            .for_workspace(host.as_deref(), &id.to_string(), azure_id.as_deref())?;
+        Ok(WorkspaceClient::from_api_client(api))
+    }
+
     /// The account ID requests are made against.
     #[must_use]
     pub fn account_id(&self) -> &str {

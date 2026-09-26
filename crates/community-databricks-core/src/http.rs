@@ -11,6 +11,15 @@
 //!   503, 504, known transient messages, and connection/timeout errors.
 //! * **Difference from Go:** `Retry-After` is honoured on API calls (Go only
 //!   does so for token requests). The wait is `max(backoff, Retry-After)`.
+//! * **Difference from Go — idempotency-safe writes (#3):** a failure the
+//!   server may already have acted on (a timeout, 502/503/504, a transient
+//!   error message) is retried only when the call is idempotent: GET, HEAD,
+//!   PUT, DELETE, PATCH, or a POST that carries an idempotency token.
+//!   Throttling (429 / `REQUEST_LIMIT_EXCEEDED`) and connection failures
+//!   are retried for every method, as the request was never processed. Go
+//!   retries every method; set `Config::retry_non_idempotent` for that.
+//! * Redirects are followed; a final 3xx, or the private-link login page
+//!   (`/login.html?error=private-link-validation-error`), is an error (#5).
 //! * `X-Databricks-Workspace-Id` is sent when `workspace_id` is configured
 //!   (Go adds it per operation; every workspace-level operation does so).
 
@@ -82,9 +91,9 @@ struct Inner {
     cfg: Config,
     base: Url,
     http: reqwest::Client,
-    credentials: DefaultCredentials,
+    credentials: Arc<DefaultCredentials>,
     auth: OnceCell<(&'static str, Arc<dyn CredentialsProvider>)>,
-    limiter: RateLimiter,
+    limiter: Arc<RateLimiter>,
 }
 
 /// Authenticated, retrying, rate-limited client for one host.
@@ -135,6 +144,12 @@ impl ApiClient {
             .filter(|h| !h.is_empty())
             .ok_or_else(|| cfg.wrap(Error::Config("no host configured".into())))?;
         let base = Url::parse(&host).map_err(|e| Error::Config(format!("invalid host: {e}")))?;
+        if cfg.skip_verify {
+            tracing::warn!(
+                host,
+                "TLS certificate verification is disabled (skip_verify); use this only for testing"
+            );
+        }
         let http = reqwest::Client::builder()
             .timeout(cfg.http_timeout())
             .danger_accept_invalid_certs(cfg.skip_verify)
@@ -149,9 +164,55 @@ impl ApiClient {
                 cfg,
                 base,
                 http,
-                credentials,
+                credentials: Arc::new(credentials),
                 auth: OnceCell::new(),
-                limiter,
+                limiter: Arc::new(limiter),
+            }),
+        })
+    }
+
+    /// A client for one workspace, derived from this account-level client
+    /// (Go: `AccountClient.GetWorkspaceClient`).
+    ///
+    /// `host` is the workspace URL, or `None` on a unified host, where the
+    /// account host also serves workspace APIs. The derived client shares
+    /// this client's connection pool and rate limiter. On a unified host
+    /// it also shares the credentials, so nothing is re-authenticated;
+    /// on a separate workspace host the same credential settings are used,
+    /// but tokens are requested for the workspace, because account tokens
+    /// aren't valid there.
+    pub fn for_workspace(
+        &self,
+        host: Option<&str>,
+        workspace_id: &str,
+        azure_resource_id: Option<&str>,
+    ) -> Result<Self> {
+        let parent = &self.inner;
+        let mut cfg = parent.cfg.clone();
+        let same_host = host.is_none_or(|h| Some(h) == parent.cfg.host.as_deref());
+        let auth = OnceCell::new();
+        let base = if same_host {
+            if let Some(shared) = parent.auth.get() {
+                auth.set(shared.clone()).ok();
+            }
+            parent.base.clone()
+        } else {
+            let host = host.unwrap_or_default();
+            cfg.for_workspace_host(host);
+            Url::parse(host).map_err(|e| Error::Config(format!("invalid host: {e}")))?
+        };
+        cfg.workspace_id = Some(workspace_id.to_owned()).filter(|w| !w.is_empty());
+        if let Some(id) = azure_resource_id.filter(|id| !id.is_empty()) {
+            cfg.set_attribute("azure_workspace_resource_id", id)?;
+        }
+        Ok(Self {
+            inner: Arc::new(Inner {
+                cfg,
+                base,
+                http: parent.http.clone(),
+                credentials: Arc::clone(&parent.credentials),
+                auth,
+                limiter: Arc::clone(&parent.limiter),
             }),
         })
     }
@@ -225,7 +286,10 @@ impl ApiClient {
         query: &[(String, String)],
         body: Option<Vec<u8>>,
     ) -> Result<Bytes> {
-        Ok(self.run(method, path, query, body, true).await?.0)
+        let mut call = Call::new(method, path.to_owned()).workspace();
+        call.query = query.to_vec();
+        call.body = body;
+        Ok(self.run(call).await?.0)
     }
 
     /// Send a [`Call`] built by generated service code and decode the
@@ -241,15 +305,7 @@ impl ApiClient {
         &self,
         call: Call,
     ) -> Result<(R, HeaderMap)> {
-        let (bytes, headers) = self
-            .run(
-                call.method,
-                &call.path,
-                &call.query,
-                call.body,
-                call.workspace_header,
-            )
-            .await?;
+        let (bytes, headers) = self.run(call).await?;
         Ok((decode(&bytes)?, headers))
     }
 
@@ -263,21 +319,24 @@ impl ApiClient {
             .ok_or_else(|| Error::Config("account_id is required for account-level APIs".into()))
     }
 
-    async fn run(
-        &self,
-        method: Method,
-        path: &str,
-        query: &[(String, String)],
-        body: Option<Vec<u8>>,
-        workspace_header: bool,
-    ) -> Result<(Bytes, HeaderMap)> {
+    async fn run(&self, call: Call) -> Result<(Bytes, HeaderMap)> {
+        let Call {
+            method,
+            path,
+            query,
+            body,
+            workspace_header,
+            idempotent,
+        } = call;
+        let path = path.as_str();
+        let replayable = idempotent || self.inner.cfg.retry_non_idempotent;
         let mut url = self
             .inner
             .base
             .join(path)
             .map_err(|e| Error::Config(format!("invalid path {path:?}: {e}")))?;
         if !query.is_empty() {
-            url.query_pairs_mut().extend_pairs(query);
+            url.query_pairs_mut().extend_pairs(&query);
         }
         let (auth_type, provider) = self.provider().await?;
         let user_agent = useragent::build(Some(auth_type));
@@ -299,7 +358,16 @@ impl ApiClient {
             let (err, hint) = match outcome {
                 Ok(done) => return Ok(done),
                 Err(Failure::Fatal(e)) => return Err(e),
-                Err(Failure::Retriable(e, hint)) => (e, hint),
+                Err(Failure::Retriable(e, hint, Replay::Safe)) => (e, hint),
+                Err(Failure::Retriable(e, hint, Replay::IfIdempotent)) if replayable => (e, hint),
+                Err(Failure::Retriable(e, _, Replay::IfIdempotent)) => {
+                    tracing::warn!(
+                        %method,
+                        path,
+                        "not retrying a non-idempotent request that may have been applied: {e}"
+                    );
+                    return Err(e);
+                }
             };
             let wait = backoff(attempt).max(hint.unwrap_or_default());
             if deadline.is_some_and(|d| Instant::now() + wait > d) {
@@ -356,11 +424,19 @@ impl ApiClient {
         }
         let resp = match req.send().await {
             Ok(r) => r,
-            Err(e) if e.is_connect() || e.is_timeout() => {
-                return Err(Failure::Retriable(e.into(), None));
+            // The connection was never made, so nothing was sent.
+            Err(e) if e.is_connect() => {
+                return Err(Failure::Retriable(e.into(), None, Replay::Safe));
+            }
+            // Sent, but no answer: it may have been applied.
+            Err(e) if e.is_timeout() => {
+                return Err(Failure::Retriable(e.into(), None, Replay::IfIdempotent));
             }
             Err(e) => return Err(Failure::Fatal(e.into())),
         };
+        if let Some(e) = private_link_error(resp.url()) {
+            return Err(Failure::Fatal(e.into()));
+        }
         let status = resp.status();
         let headers = resp.headers().clone();
         let hint = retry_after(&headers);
@@ -371,11 +447,31 @@ impl ApiClient {
         }
         let bytes = match resp.bytes().await {
             Ok(b) => b,
-            Err(e) if e.is_timeout() => return Err(Failure::Retriable(e.into(), None)),
+            Err(e) if e.is_timeout() => {
+                return Err(Failure::Retriable(e.into(), None, Replay::IfIdempotent));
+            }
             Err(e) => return Err(Failure::Fatal(e.into())),
         };
-        if status.is_success() || status.is_redirection() {
+        if status.is_success() {
             return Ok((bytes, headers));
+        }
+        if status.is_redirection() {
+            // Redirects are followed, so one that reaches here wasn't
+            // (a loop, a missing Location, or a cross-scheme hop); often a
+            // proxy or private-link front door sending us somewhere else.
+            let to = headers
+                .get(reqwest::header::LOCATION)
+                .and_then(|l| l.to_str().ok())
+                .unwrap_or("(no Location header)");
+            let api = ApiError::new(
+                status.as_u16(),
+                "UNEXPECTED_REDIRECT",
+                &format!(
+                    "{method} {} was redirected to {to} and not followed; check the host and any proxy or private-link routing",
+                    url.path()
+                ),
+            );
+            return Err(Failure::Fatal(api.into()));
         }
         let api = ApiError::from_response(status.as_u16(), method.as_str(), url.path(), &bytes);
         let retriable = api.is_retriable()
@@ -383,8 +479,14 @@ impl ApiClient {
             || api.is(ErrorKind::RequestLimitExceeded)
             || api.message.contains("REQUEST_LIMIT_EXCEEDED");
         let hint = hint.or(api.details.retry_delay);
-        if retriable {
-            Err(Failure::Retriable(api.into(), hint))
+        // Throttling rejects the request before it is processed.
+        let throttled = status == StatusCode::TOO_MANY_REQUESTS
+            || api.is(ErrorKind::RequestLimitExceeded)
+            || api.message.contains("REQUEST_LIMIT_EXCEEDED");
+        if throttled {
+            Err(Failure::Retriable(api.into(), hint, Replay::Safe))
+        } else if retriable {
+            Err(Failure::Retriable(api.into(), hint, Replay::IfIdempotent))
         } else {
             Err(Failure::Fatal(api.into()))
         }
@@ -414,19 +516,33 @@ pub struct Call {
     /// Send `X-Databricks-Workspace-Id` when configured (workspace-level
     /// operations only, as in Go).
     pub workspace_header: bool,
+    /// Safe to repeat after a failure the server may have acted on. True
+    /// for GET, HEAD, PUT, DELETE and PATCH; POST needs [`Call::idempotent`].
+    pub idempotent: bool,
 }
 
 impl Call {
     /// A call with no query or body.
     #[must_use]
     pub fn new(method: Method, path: String) -> Self {
+        let idempotent = method != Method::POST;
         Self {
             method,
             path,
             query: Vec::new(),
             body: None,
             workspace_header: false,
+            idempotent,
         }
+    }
+
+    /// Mark the call safe to retry after a failure the server may already
+    /// have acted on: the request carries an idempotency token, or the
+    /// operation is idempotent by nature.
+    #[must_use]
+    pub fn idempotent(mut self) -> Self {
+        self.idempotent = true;
+        self
     }
 
     /// Send the workspace header.
@@ -448,6 +564,28 @@ impl Call {
         self.body = Some(serde_json::to_vec(body).map_err(|e| Error::json("request body", e))?);
         Ok(self)
     }
+}
+
+/// A random UUID v4 for idempotency keys. Generated calls fill one in
+/// when the caller leaves the request's key empty, so a retry after a
+/// timeout can't create a second object (#3).
+#[must_use]
+pub fn idempotency_token() -> String {
+    let mut b: [u8; 16] = fastrand::u128(..).to_le_bytes();
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    let h = b.iter().fold(String::with_capacity(32), |mut h, x| {
+        let _ = write!(h, "{x:02x}");
+        h
+    });
+    format!(
+        "{}-{}-{}-{}-{}",
+        &h[0..8],
+        &h[8..12],
+        &h[12..16],
+        &h[16..20],
+        &h[20..32]
+    )
 }
 
 /// A response header parsed as `T` (`None` when absent or unparsable).
@@ -488,7 +626,51 @@ pub fn path_param(value: &str, multi_segment: bool) -> String {
 
 enum Failure {
     Fatal(Error),
-    Retriable(Error, Option<Duration>),
+    Retriable(Error, Option<Duration>, Replay),
+}
+
+/// Whether a retriable failure can be replayed for any call.
+enum Replay {
+    /// The server didn't process the request (throttled, not connected).
+    Safe,
+    /// The server may have processed it; replay only idempotent calls.
+    IfIdempotent,
+}
+
+/// Go: `apierr.isPrivateLinkRedirect`. A private-link workspace reached
+/// from outside the private network redirects to its login page.
+fn private_link_error(final_url: &Url) -> Option<ApiError> {
+    let query = final_url.query().unwrap_or_default();
+    if final_url.path() != "/login.html" || !query.contains("error=private-link-validation-error") {
+        return None;
+    }
+    let host = final_url.host_str().unwrap_or_default();
+    let (service, endpoint, docs) = match crate::config::environment_for_hostname(host).cloud {
+        crate::config::Cloud::Azure => (
+            "Azure Private Link",
+            "Azure Private Link endpoint",
+            "https://learn.microsoft.com/en-us/azure/databricks/security/network/classic/private-link-standard#authentication-troubleshooting",
+        ),
+        crate::config::Cloud::Gcp => (
+            "Private Service Connect",
+            "GCP VPC endpoint",
+            "https://docs.gcp.databricks.com/en/security/network/classic/private-service-connect.html",
+        ),
+        _ => (
+            "AWS PrivateLink",
+            "AWS VPC endpoint",
+            "https://docs.databricks.com/en/security/network/classic/privatelink.html",
+        ),
+    };
+    let mut e = ApiError::new(
+        403,
+        "PRIVATE_LINK_VALIDATION_ERROR",
+        &format!(
+            "The requested workspace has {service} enabled and is not accessible from the current network. Ensure that {service} is properly configured and that your device has access to the {endpoint}. For more information, see {docs}."
+        ),
+    );
+    e.kind = ErrorKind::PermissionDenied;
+    Some(e)
 }
 
 fn decode<R: DeserializeOwned>(bytes: &[u8]) -> Result<R> {

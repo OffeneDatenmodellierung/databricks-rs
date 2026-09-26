@@ -21226,8 +21226,12 @@ impl FeatureEngineeringApi {
         &self,
         request: BackfillFeaturesRequest,
     ) -> ::community_databricks_core::Result<Operation> {
+        let mut request = request;
+        if request.request_id.as_deref().is_none_or(str::is_empty) {
+            request.request_id = Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/2.0/feature-engineering/features:backfill");
-        let mut call = Call::new(Method::POST, path).workspace();
+        let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         self.api.send::<Operation>(call).await
     }
@@ -21694,8 +21698,12 @@ impl FeatureEngineeringApi {
         &self,
         request: PurgeFeatureEntitiesRequest,
     ) -> ::community_databricks_core::Result<Operation> {
+        let mut request = request;
+        if request.request_id.as_deref().is_none_or(str::is_empty) {
+            request.request_id = Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = String::from("/api/2.0/feature-engineering/features:purgeFeatureEntities");
-        let mut call = Call::new(Method::POST, path).workspace();
+        let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         self.api.send::<Operation>(call).await
     }

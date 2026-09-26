@@ -120,10 +120,49 @@ fn resp_ty(m: &Method, pkg: &str) -> String {
         .map_or_else(|| "()".to_owned(), |r| rust_type(r, pkg))
 }
 
+/// The request's idempotency-key field: a string body field documented as
+/// one (Jobs `idempotency_token`, budget-policy and ML `request_id`).
+fn idempotency_field(types: &Types<'_>, m: &Method) -> Option<crate::model::FieldInfo> {
+    let r = m.request.as_ref()?;
+    let t = types.get(r)?;
+    let fields = t.fields.as_deref().unwrap_or_default();
+    let infos = crate::model::field_infos(types, &r.pkg, t);
+    fields
+        .iter()
+        .zip(infos)
+        .find(|(f, info)| {
+            // Only key-shaped fields: a documented "idempotency check" on a
+            // real value (e.g. disasterrecovery's target region) must never
+            // be overwritten with a random key.
+            info.kind == "string"
+                && matches!(info.json.as_str(), "idempotency_token" | "request_id")
+                && f.doc.to_ascii_lowercase().contains("idempot")
+        })
+        .map(|(_, info)| info)
+}
+
 /// Statements building `call` for one operation.
 #[allow(clippy::many_single_char_names)]
 fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
     let mut s = String::new();
+    // An idempotency key makes a POST safe to retry (#3): fill one in when
+    // the caller didn't, and mark the call idempotent.
+    let token = idempotency_field(types, m);
+    if let Some(f) = &token {
+        let fill = if f.optional {
+            format!(
+                "        if request.{0}.as_deref().is_none_or(str::is_empty) {{\n            request.{0} = Some(::community_databricks_core::http::idempotency_token());\n        }}\n",
+                f.ident
+            )
+        } else {
+            format!(
+                "        if request.{0}.is_empty() {{\n            request.{0} = ::community_databricks_core::http::idempotency_token();\n        }}\n",
+                f.ident
+            )
+        };
+        s.push_str("        let mut request = request;\n");
+        s.push_str(&fill);
+    }
     // Path.
     let mut fmt = String::new();
     let mut args = Vec::new();
@@ -160,6 +199,9 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
     let _ = write!(s, "        let MUT_call = Call::new(Method::{verb}, path)");
     if m.workspace_header {
         s.push_str(".workspace()");
+    }
+    if token.is_some() {
+        s.push_str(".idempotent()");
     }
     s.push_str(";\n");
     let _ = svc;

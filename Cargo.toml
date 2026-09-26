@@ -13,7 +13,7 @@ keywords = ["databricks", "sdk", "api", "lakehouse"]
 categories = ["api-bindings", "asynchronous"]
 
 # Versions: newest non-yanked release published more than 48h before
-# 2026-09-25 (house rule). See docs/dependency-policy.md.
+# 2026-09-25 (house rule). See the "Dependency policy" section of README.md.
 [workspace.dependencies]
 community-databricks-core = { path = "crates/community-databricks-core", version = "0.1.0" }
 # The generated service crates, one per package (`cargo xtask codegen`).

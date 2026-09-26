@@ -3254,11 +3254,15 @@ impl BudgetPolicyApi {
         &self,
         request: CreateBudgetPolicyRequest,
     ) -> ::community_databricks_core::Result<BudgetPolicy> {
+        let mut request = request;
+        if request.request_id.as_deref().is_none_or(str::is_empty) {
+            request.request_id = Some(::community_databricks_core::http::idempotency_token());
+        }
         let path = format!(
             "/api/2.1/accounts/{}/budget-policies",
             path_param(self.api.account_id()?, false)
         );
-        let mut call = Call::new(Method::POST, path);
+        let mut call = Call::new(Method::POST, path).idempotent();
         call = call.json(&request)?;
         self.api.send::<BudgetPolicy>(call).await
     }
