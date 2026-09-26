@@ -32,6 +32,15 @@ pub struct AutoTaggingConfig {
     /// governance tag key.
     #[serde(default)]
     pub classification_tag: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl AutoTaggingConfig {
@@ -46,6 +55,17 @@ impl AutoTaggingConfig {
             classification_tag: classification_tag.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `auto_tagging_mode`.
@@ -105,9 +125,29 @@ pub struct CatalogConfig {
     /// Resource name in the format: catalogs/{catalog_name}/config.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CatalogConfig {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `auto_tag_configs`.
     #[must_use]
     pub fn with_auto_tag_configs(mut self, value: impl Into<Vec<AutoTaggingConfig>>) -> Self {
@@ -144,6 +184,15 @@ pub struct CatalogConfigSchemaNames {
     /// Schema names, each relative to the parent catalog. Must not be empty.
     #[serde(default)]
     pub names: Vec<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CatalogConfigSchemaNames {
@@ -154,6 +203,17 @@ impl CatalogConfigSchemaNames {
             names: names.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `names`.
@@ -174,6 +234,15 @@ pub struct CreateCatalogConfigRequest {
     /// Parent resource in the format: catalogs/{catalog_name}
     #[serde(skip)]
     pub parent: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCatalogConfigRequest {
@@ -185,6 +254,17 @@ impl CreateCatalogConfigRequest {
             parent: parent.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `catalog_config`.
@@ -209,6 +289,15 @@ pub struct DeleteCatalogConfigRequest {
     /// Resource name in the format: catalogs/{catalog_name}/config
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl DeleteCatalogConfigRequest {
@@ -219,6 +308,17 @@ impl DeleteCatalogConfigRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -236,6 +336,15 @@ pub struct GetCatalogConfigRequest {
     /// Resource name in the format: catalogs/{catalog_name}/config
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetCatalogConfigRequest {
@@ -246,6 +355,17 @@ impl GetCatalogConfigRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -270,9 +390,29 @@ pub struct UpdateCatalogConfigRequest {
     /// Field mask specifying which fields to update.
     #[serde(skip)]
     pub update_mask: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl UpdateCatalogConfigRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `catalog_config`.
     #[must_use]
     pub fn with_catalog_config(mut self, value: impl Into<CatalogConfig>) -> Self {
@@ -341,7 +481,8 @@ impl DataClassificationApi {
             "/api/data-classification/v1/{}",
             path_param(&request.name.to_string(), true)
         );
-        let call = Call::new(Method::DELETE, path).workspace();
+        let mut call = Call::new(Method::DELETE, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<::serde::de::IgnoredAny>(call)
             .await
@@ -359,7 +500,8 @@ impl DataClassificationApi {
             "/api/data-classification/v1/{}",
             path_param(&request.name.to_string(), true)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<CatalogConfig>(call).await
     }
 

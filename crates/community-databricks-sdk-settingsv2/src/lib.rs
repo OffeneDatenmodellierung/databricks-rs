@@ -26,6 +26,15 @@ pub struct AibiDashboardEmbeddingAccessPolicy {
     /// `access_policy_type`
     #[serde(default)]
     pub access_policy_type: AibiDashboardEmbeddingAccessPolicyAccessPolicyType,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl AibiDashboardEmbeddingAccessPolicy {
@@ -38,6 +47,17 @@ impl AibiDashboardEmbeddingAccessPolicy {
             access_policy_type: access_policy_type.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `access_policy_type`.
@@ -70,9 +90,29 @@ pub struct AibiDashboardEmbeddingApprovedDomains {
     /// `approved_domains`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub approved_domains: Vec<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl AibiDashboardEmbeddingApprovedDomains {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `approved_domains`.
     #[must_use]
     pub fn with_approved_domains(mut self, value: impl Into<Vec<String>>) -> Self {
@@ -88,9 +128,29 @@ pub struct AllowedAppsUserApiScopesMessage {
     /// `allowed_scopes`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub allowed_scopes: Vec<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl AllowedAppsUserApiScopesMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `allowed_scopes`.
     #[must_use]
     pub fn with_allowed_scopes(mut self, value: impl Into<Vec<String>>) -> Self {
@@ -106,9 +166,29 @@ pub struct BooleanMessage {
     /// `value`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<bool>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl BooleanMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `value`.
     #[must_use]
     pub fn with_value(mut self, value: bool) -> Self {
@@ -136,9 +216,29 @@ pub struct ClusterAutoRestartMessage {
     /// `restart_even_if_no_updates_available`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub restart_even_if_no_updates_available: Option<bool>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ClusterAutoRestartMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `can_toggle`.
     #[must_use]
     pub fn with_can_toggle(mut self, value: bool) -> Self {
@@ -200,9 +300,29 @@ pub struct ClusterAutoRestartMessageEnablementDetails {
     /// The feature is unavailable if the customer doesn't have enterprise tier
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unavailable_for_non_enterprise_tier: Option<bool>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ClusterAutoRestartMessageEnablementDetails {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `forced_for_compliance_mode`.
     #[must_use]
     pub fn with_forced_for_compliance_mode(mut self, value: bool) -> Self {
@@ -233,9 +353,29 @@ pub struct ClusterAutoRestartMessageMaintenanceWindow {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub week_day_based_schedule:
         Option<ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ClusterAutoRestartMessageMaintenanceWindow {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `week_day_based_schedule`.
     #[must_use]
     pub fn with_week_day_based_schedule(
@@ -280,9 +420,29 @@ pub struct ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule {
     /// `window_start_time`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub window_start_time: Option<ClusterAutoRestartMessageMaintenanceWindowWindowStartTime>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `day_of_week`.
     #[must_use]
     pub fn with_day_of_week(
@@ -352,9 +512,29 @@ pub struct ClusterAutoRestartMessageMaintenanceWindowWindowStartTime {
         skip_serializing_if = "Option::is_none"
     )]
     pub minutes: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ClusterAutoRestartMessageMaintenanceWindowWindowStartTime {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `hours`.
     #[must_use]
     pub fn with_hours(mut self, value: i64) -> Self {
@@ -378,6 +558,15 @@ pub struct CollaborationPlatformConnectivityMessage {
     /// `connectivity`
     #[serde(default)]
     pub connectivity: CollaborationPlatformConnectivityMessageConnectivity,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CollaborationPlatformConnectivityMessage {
@@ -390,6 +579,17 @@ impl CollaborationPlatformConnectivityMessage {
             connectivity: connectivity.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `connectivity`.
@@ -424,6 +624,15 @@ pub struct GetPublicAccountSettingRequest {
     /// `name`
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetPublicAccountSettingRequest {
@@ -434,6 +643,17 @@ impl GetPublicAccountSettingRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -454,6 +674,15 @@ pub struct GetPublicAccountUserPreferenceRequest {
     /// User ID of the user whose setting is being retrieved.
     #[serde(skip)]
     pub user_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetPublicAccountUserPreferenceRequest {
@@ -465,6 +694,17 @@ impl GetPublicAccountUserPreferenceRequest {
             user_id: user_id.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -489,6 +729,15 @@ pub struct GetPublicWorkspaceSettingRequest {
     /// Name of the setting
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetPublicWorkspaceSettingRequest {
@@ -499,6 +748,17 @@ impl GetPublicWorkspaceSettingRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -520,9 +780,29 @@ pub struct IntegerMessage {
         skip_serializing_if = "Option::is_none"
     )]
     pub value: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl IntegerMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `value`.
     #[must_use]
     pub fn with_value(mut self, value: i64) -> Self {
@@ -549,9 +829,29 @@ pub struct ListAccountSettingsMetadataRequest {
     /// the page token.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListAccountSettingsMetadataRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `page_size`.
     #[must_use]
     pub fn with_page_size(mut self, value: i64) -> Self {
@@ -578,9 +878,29 @@ pub struct ListAccountSettingsMetadataResponse {
     /// List of all settings available via public APIs and their metadata
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub settings_metadata: Vec<SettingsMetadata>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListAccountSettingsMetadataResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -617,6 +937,15 @@ pub struct ListAccountUserPreferencesMetadataRequest {
     /// User ID of the user whose settings metadata is being retrieved.
     #[serde(skip)]
     pub user_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListAccountUserPreferencesMetadataRequest {
@@ -627,6 +956,17 @@ impl ListAccountUserPreferencesMetadataRequest {
             user_id: user_id.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `page_size`.
@@ -662,9 +1002,29 @@ pub struct ListAccountUserPreferencesMetadataResponse {
     /// List of all settings available via public APIs and their metadata
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub settings_metadata: Vec<SettingsMetadata>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListAccountUserPreferencesMetadataResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -698,9 +1058,29 @@ pub struct ListWorkspaceSettingsMetadataRequest {
     /// the page token.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListWorkspaceSettingsMetadataRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `page_size`.
     #[must_use]
     pub fn with_page_size(mut self, value: i64) -> Self {
@@ -727,9 +1107,29 @@ pub struct ListWorkspaceSettingsMetadataResponse {
     /// List of all settings available via public APIs and their metadata
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub settings_metadata: Vec<SettingsMetadata>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListWorkspaceSettingsMetadataResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -752,9 +1152,29 @@ pub struct OperationalEmailCustomRecipientMessage {
     /// `email`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl OperationalEmailCustomRecipientMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `email`.
     #[must_use]
     pub fn with_email(mut self, value: impl Into<String>) -> Self {
@@ -773,6 +1193,15 @@ pub struct PatchPublicAccountSettingRequest {
     /// `setting`
     #[serde(default)]
     pub setting: Setting,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl PatchPublicAccountSettingRequest {
@@ -784,6 +1213,17 @@ impl PatchPublicAccountSettingRequest {
             setting: setting.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -814,9 +1254,29 @@ pub struct PatchPublicAccountUserPreferenceRequest {
     /// User ID of the user whose setting is being updated.
     #[serde(skip)]
     pub user_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl PatchPublicAccountUserPreferenceRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `name`.
     #[must_use]
     pub fn with_name(mut self, value: impl Into<String>) -> Self {
@@ -849,6 +1309,15 @@ pub struct PatchPublicWorkspaceSettingRequest {
     /// `setting`
     #[serde(default)]
     pub setting: Setting,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl PatchPublicWorkspaceSettingRequest {
@@ -860,6 +1329,17 @@ impl PatchPublicWorkspaceSettingRequest {
             setting: setting.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -884,9 +1364,29 @@ pub struct PersonalComputeMessage {
     /// `value`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<PersonalComputeMessagePersonalComputeMessageEnum>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl PersonalComputeMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `value`.
     #[must_use]
     pub fn with_value(
@@ -943,6 +1443,15 @@ pub struct RestrictWorkspaceAdminsMessage {
     /// `status`
     #[serde(default)]
     pub status: RestrictWorkspaceAdminsMessageStatus,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl RestrictWorkspaceAdminsMessage {
@@ -953,6 +1462,17 @@ impl RestrictWorkspaceAdminsMessage {
             status: status.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `disable_gov_tag_creation`.
@@ -1102,9 +1622,29 @@ pub struct Setting {
     /// by consumers, check effective_workspace_label for final setting value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub workspace_label: Option<WorkspaceLabelMessage>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl Setting {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `aibi_dashboard_embedding_access_policy`.
     #[must_use]
     pub fn with_aibi_dashboard_embedding_access_policy(
@@ -1354,9 +1894,29 @@ pub struct SettingsMetadata {
     /// the value sent must match this type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl SettingsMetadata {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `description`.
     #[must_use]
     pub fn with_description(mut self, value: impl Into<String>) -> Self {
@@ -1407,9 +1967,29 @@ pub struct StringMessage {
     /// Represents a generic string value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl StringMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `value`.
     #[must_use]
     pub fn with_value(mut self, value: impl Into<String>) -> Self {
@@ -1443,9 +2023,29 @@ pub struct UserPreference {
     /// User ID of the user.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_id: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl UserPreference {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `boolean_val`.
     #[must_use]
     pub fn with_boolean_val(mut self, value: impl Into<BooleanMessage>) -> Self {
@@ -1499,9 +2099,29 @@ pub struct WorkspaceLabelMessage {
     /// `label`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl WorkspaceLabelMessage {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `color`.
     #[must_use]
     pub fn with_color(mut self, value: impl Into<String>) -> Self {
@@ -1543,7 +2163,8 @@ impl WorkspaceSettingsV2Api {
             "/api/2.1/settings/{}",
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<Setting>(call).await
     }
 
@@ -1558,6 +2179,7 @@ impl WorkspaceSettingsV2Api {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListWorkspaceSettingsMetadataResponse>(call)
             .await
@@ -1651,7 +2273,8 @@ impl AccountSettingsV2Api {
             path_param(self.api.account_id()?, false),
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::GET, path);
+        let mut call = Call::new(Method::GET, path);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<Setting>(call).await
     }
 
@@ -1671,7 +2294,8 @@ impl AccountSettingsV2Api {
             path_param(&request.user_id.to_string(), false),
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::GET, path);
+        let mut call = Call::new(Method::GET, path);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<UserPreference>(call).await
     }
 
@@ -1689,6 +2313,7 @@ impl AccountSettingsV2Api {
         let mut call = Call::new(Method::GET, path);
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListAccountSettingsMetadataResponse>(call)
             .await
@@ -1747,6 +2372,7 @@ impl AccountSettingsV2Api {
         let mut call = Call::new(Method::GET, path);
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListAccountUserPreferencesMetadataResponse>(call)
             .await

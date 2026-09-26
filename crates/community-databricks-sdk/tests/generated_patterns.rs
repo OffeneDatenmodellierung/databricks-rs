@@ -11,7 +11,8 @@
     feature = "iam",
     feature = "ml",
     feature = "provisioning",
-    feature = "sql"
+    feature = "sql",
+    feature = "tags"
 ))]
 
 use std::time::Duration;
@@ -29,6 +30,9 @@ use community_databricks_sdk::service::iam::ListUsersRequest;
 use community_databricks_sdk::service::ml::Metric;
 use community_databricks_sdk::service::provisioning::GetWorkspaceRequest;
 use community_databricks_sdk::service::sql::ListDashboardsRequest;
+use community_databricks_sdk::service::tags::{
+    GetTagPolicyRequest, ListTagPoliciesRequest, UpdateTagPolicyRequest,
+};
 use community_databricks_sdk::{AccountClient, Config, WorkspaceClient};
 use serde_json::json;
 use wiremock::matchers::{body_json, method, path, query_param, query_param_is_missing};
@@ -358,4 +362,77 @@ async fn bodyless_post_sends_empty_json_object_like_go() {
         .cancel_optimize(CancelCustomLlmOptimizationRunRequest::new("llm-1"))
         .await
         .unwrap();
+}
+
+#[tokio::test]
+async fn unknown_fields_survive_read_modify_write() {
+    // #11: a field this SDK version doesn't model, at the top level and
+    // nested, must come back unchanged when the object is sent back.
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/tag-policies/env"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "tag_key": "env",
+            "values": [{"name": "prod", "colour": "red"}],
+            "future_field": {"a": 1},
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("PATCH"))
+        .and(path("/api/2.1/tag-policies/env"))
+        .and(query_param("update_mask", "description"))
+        .and(body_json(json!({
+            "tag_key": "env",
+            "description": "deployment stage",
+            "values": [{"name": "prod", "colour": "red"}],
+            "future_field": {"a": 1},
+        })))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"tag_key": "env"})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let w = workspace(&server).await;
+    let policy = w
+        .tag_policies()
+        .get_tag_policy(GetTagPolicyRequest::new("env"))
+        .await
+        .unwrap();
+    assert_eq!(policy.other["future_field"], json!({"a": 1}));
+    assert_eq!(policy.values[0].other["colour"], json!("red"));
+    w.tag_policies()
+        .update_tag_policy(
+            UpdateTagPolicyRequest::default()
+                .with_tag_key("env")
+                .with_update_mask("description")
+                .with_tag_policy(policy.with_description("deployment stage")),
+        )
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn unmodelled_query_parameters_are_sent() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/tag-policies"))
+        .and(query_param("page_size", "10"))
+        .and(query_param("new_filter", "x"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!({"tag_policies": [{"tag_key": "a"}]})),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+    let all = workspace(&server)
+        .await
+        .tag_policies()
+        .list_tag_policies_all(
+            ListTagPoliciesRequest::default()
+                .with_page_size(10)
+                .with_other("new_filter", "x"),
+        )
+        .await
+        .unwrap();
+    assert_eq!(all.len(), 1);
 }

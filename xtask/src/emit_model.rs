@@ -69,6 +69,13 @@ fn emit_enum(out: &mut String, t: &TypeDef) {
     out.push_str("    }\n}\n");
 }
 
+/// Every struct keeps the fields this SDK version doesn't model, so a
+/// value read from the API and sent back (read-modify-write) doesn't drop
+/// them, and a caller can send a field before the SDK knows it (#11).
+const OTHER_FIELD: &str = "    /// Fields not modelled by this SDK version. Kept when read, so a\n    /// read-modify-write round trip never drops them, and sent with a\n    /// request (in the JSON body, or the query string for GET/DELETE).\n    #[serde(flatten, default, skip_serializing_if = \"::std::collections::BTreeMap::is_empty\")]\n    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,\n";
+
+const OTHER_SETTER: &str = "    /// Set a field this SDK version doesn't model (see `other`).\n    #[must_use]\n    pub fn with_other(mut self, name: impl Into<String>, value: impl Into<::serde_json::Value>) -> Self {\n        self.other.insert(name.into(), value.into());\n        self\n    }\n\n";
+
 fn emit_struct(out: &mut String, types: &Types<'_>, pkg: &str, t: &TypeDef) {
     let fields = t.fields.as_deref().unwrap_or_default();
     let infos = field_infos(types, pkg, t);
@@ -83,6 +90,7 @@ fn emit_struct(out: &mut String, types: &Types<'_>, pkg: &str, t: &TypeDef) {
         out.push_str(&serde_attr(info));
         let _ = writeln!(out, "    pub {}: {},", info.ident, info.declared());
     }
+    out.push_str(OTHER_FIELD);
     out.push_str("}\n\n");
 
     // Constructor for 1–2 required fields (more would be an easy-to-misorder
@@ -105,6 +113,7 @@ fn emit_struct(out: &mut String, types: &Types<'_>, pkg: &str, t: &TypeDef) {
             inits.join(", ")
         );
     }
+    out.push_str(OTHER_SETTER);
     for info in &infos {
         let value = convert(info, "value");
         let assign = if info.optional && !info.collection {

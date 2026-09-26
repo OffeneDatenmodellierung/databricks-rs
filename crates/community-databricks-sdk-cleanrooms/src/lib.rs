@@ -76,9 +76,29 @@ pub struct CleanRoom {
         skip_serializing_if = "Option::is_none"
     )]
     pub updated_at: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoom {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `access_restricted`.
     #[must_use]
     pub fn with_access_restricted(mut self, value: impl Into<CleanRoomAccessRestricted>) -> Self {
@@ -238,6 +258,15 @@ pub struct CleanRoomAsset {
     /// if and only if **asset_type** is **VOLUME**
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub volume_local_details: Option<CleanRoomAssetVolumeLocalDetails>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAsset {
@@ -249,6 +278,17 @@ impl CleanRoomAsset {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `added_at`.
@@ -394,9 +434,29 @@ pub struct CleanRoomAssetForeignTable {
     /// The metadata information of the columns in the foreign table
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub columns: Vec<::community_databricks_sdk_catalog::ColumnInfo>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetForeignTable {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `columns`.
     #[must_use]
     pub fn with_columns(
@@ -416,6 +476,15 @@ pub struct CleanRoomAssetForeignTableLocalDetails {
     /// metastore, in the format of *catalog*.*schema*.*foreign_table_name*
     #[serde(default)]
     pub local_name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetForeignTableLocalDetails {
@@ -426,6 +495,17 @@ impl CleanRoomAssetForeignTableLocalDetails {
             local_name: local_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `local_name`.
@@ -471,9 +551,29 @@ pub struct CleanRoomAssetJarAnalysis {
     /// Collaborators that can run the jar.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub runner_collaborator_aliases: Vec<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetJarAnalysis {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `central_jar_file_paths`.
     #[must_use]
     pub fn with_central_jar_file_paths(mut self, value: impl Into<Vec<String>>) -> Self {
@@ -563,6 +663,15 @@ pub struct CleanRoomAssetNotebook {
     /// Aliases of collaborators that can run the notebook.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub runner_collaborator_aliases: Vec<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetNotebook {
@@ -573,6 +682,17 @@ impl CleanRoomAssetNotebook {
             notebook_content: notebook_content.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `description`.
@@ -647,9 +767,29 @@ pub struct CleanRoomAssetTable {
     /// The metadata information of the columns in the table
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub columns: Vec<::community_databricks_sdk_catalog::ColumnInfo>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetTable {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `columns`.
     #[must_use]
     pub fn with_columns(
@@ -672,6 +812,15 @@ pub struct CleanRoomAssetTableLocalDetails {
     /// Partition filtering specification for a shared table.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub partitions: Vec<::community_databricks_sdk_sharing::Partition>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetTableLocalDetails {
@@ -682,6 +831,17 @@ impl CleanRoomAssetTableLocalDetails {
             local_name: local_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `local_name`.
@@ -709,9 +869,29 @@ pub struct CleanRoomAssetView {
     /// The metadata information of the columns in the view
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub columns: Vec<::community_databricks_sdk_catalog::ColumnInfo>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetView {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `columns`.
     #[must_use]
     pub fn with_columns(
@@ -731,6 +911,15 @@ pub struct CleanRoomAssetViewLocalDetails {
     /// the format of *catalog*.*schema*.*view_name*
     #[serde(default)]
     pub local_name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetViewLocalDetails {
@@ -741,6 +930,17 @@ impl CleanRoomAssetViewLocalDetails {
             local_name: local_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `local_name`.
@@ -759,6 +959,15 @@ pub struct CleanRoomAssetVolumeLocalDetails {
     /// the format of *catalog*.*schema*.*volume_name*
     #[serde(default)]
     pub local_name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAssetVolumeLocalDetails {
@@ -769,6 +978,17 @@ impl CleanRoomAssetVolumeLocalDetails {
             local_name: local_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `local_name`.
@@ -810,9 +1030,29 @@ pub struct CleanRoomAutoApprovalRule {
     /// Collaborator alias of the runner covered by the rule.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub runner_collaborator_alias: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomAutoApprovalRule {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `author_collaborator_alias`.
     #[must_use]
     pub fn with_author_collaborator_alias(mut self, value: impl Into<String>) -> Self {
@@ -917,6 +1157,15 @@ pub struct CleanRoomCollaborator {
     /// configured in the metastore
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub organization_name: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomCollaborator {
@@ -927,6 +1176,17 @@ impl CleanRoomCollaborator {
             collaborator_alias: collaborator_alias.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `collaborator_alias`.
@@ -996,9 +1256,29 @@ pub struct CleanRoomJarAnalysisReview {
     /// collaborator alias of the reviewer
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reviewer_collaborator_alias: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomJarAnalysisReview {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `comment`.
     #[must_use]
     pub fn with_comment(mut self, value: impl Into<String>) -> Self {
@@ -1084,9 +1364,29 @@ pub struct CleanRoomNotebookReview {
     /// Collaborator alias of the reviewer
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reviewer_collaborator_alias: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomNotebookReview {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `comment`.
     #[must_use]
     pub fn with_comment(mut self, value: impl Into<String>) -> Self {
@@ -1217,9 +1517,29 @@ pub struct CleanRoomNotebookTaskRun {
         skip_serializing_if = "Option::is_none"
     )]
     pub start_time: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomNotebookTaskRun {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `collaborator_job_run_info`.
     #[must_use]
     pub fn with_collaborator_job_run_info(
@@ -1317,9 +1637,29 @@ pub struct CleanRoomOutputCatalog {
     /// `status`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<CleanRoomOutputCatalogOutputCatalogStatus>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomOutputCatalog {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `catalog_name`.
     #[must_use]
     pub fn with_catalog_name(mut self, value: impl Into<String>) -> Self {
@@ -1392,9 +1732,29 @@ pub struct CleanRoomRemoteDetail {
     /// Region of the central clean room.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub region: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomRemoteDetail {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `central_clean_room_id`.
     #[must_use]
     pub fn with_central_clean_room_id(mut self, value: impl Into<String>) -> Self {
@@ -1522,9 +1882,29 @@ pub struct CleanRoomTaskRun {
     /// The type of Clean Room task.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub task_type: Option<CleanRoomTaskType>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomTaskRun {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `analysis_details`.
     #[must_use]
     pub fn with_analysis_details(
@@ -1613,9 +1993,29 @@ pub struct CleanRoomTaskRunCleanRoomTaskAnalysisDetails {
         skip_serializing_if = "Option::is_none"
     )]
     pub updated_at: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomTaskRunCleanRoomTaskAnalysisDetails {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `etag`.
     #[must_use]
     pub fn with_etag(mut self, value: impl Into<String>) -> Self {
@@ -1646,9 +2046,29 @@ pub struct CleanRoomTaskRunOutputInfo {
     /// Name of the output schema associated with the clean room task run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output_schema_name: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CleanRoomTaskRunOutputInfo {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `output_schema_expiration_time`.
     #[must_use]
     pub fn with_output_schema_expiration_time(mut self, value: i64) -> Self {
@@ -1709,9 +2129,29 @@ pub struct CollaboratorJobRunInfo {
         skip_serializing_if = "Option::is_none"
     )]
     pub collaborator_workspace_id: Option<i64>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CollaboratorJobRunInfo {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `collaborator_alias`.
     #[must_use]
     pub fn with_collaborator_alias(mut self, value: impl Into<String>) -> Self {
@@ -1760,9 +2200,29 @@ pub struct ComplianceSecurityProfile {
     /// Whether the compliance security profile is enabled.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ComplianceSecurityProfile {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `compliance_standards`.
     #[must_use]
     pub fn with_compliance_standards(
@@ -1792,6 +2252,15 @@ pub struct CreateCleanRoomAssetRequest {
     /// for create operations and populated by the server for responses.
     #[serde(skip)]
     pub clean_room_name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomAssetRequest {
@@ -1803,6 +2272,17 @@ impl CreateCleanRoomAssetRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `asset`.
@@ -1839,9 +2319,29 @@ pub struct CreateCleanRoomAssetReviewRequest {
     /// `notebook_review`
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notebook_review: Option<NotebookVersionReview>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomAssetReviewRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset_type`.
     #[must_use]
     pub fn with_asset_type(mut self, value: impl Into<CleanRoomAssetAssetType>) -> Self {
@@ -1894,9 +2394,29 @@ pub struct CreateCleanRoomAssetReviewResponse {
     /// All existing notebook approvals or rejections
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notebook_reviews: Vec<CleanRoomNotebookReview>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomAssetReviewResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `jar_analysis_review_state`.
     #[must_use]
     pub fn with_jar_analysis_review_state(
@@ -1945,6 +2465,15 @@ pub struct CreateCleanRoomAutoApprovalRuleRequest {
     /// The name of the clean room this auto-approval rule belongs to.
     #[serde(skip)]
     pub clean_room_name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomAutoApprovalRuleRequest {
@@ -1959,6 +2488,17 @@ impl CreateCleanRoomAutoApprovalRuleRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `auto_approval_rule`.
@@ -1986,6 +2526,15 @@ pub struct CreateCleanRoomOutputCatalogRequest {
     /// `output_catalog`
     #[serde(default)]
     pub output_catalog: CleanRoomOutputCatalog,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomOutputCatalogRequest {
@@ -2000,6 +2549,17 @@ impl CreateCleanRoomOutputCatalogRequest {
             output_catalog: output_catalog.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2024,6 +2584,15 @@ pub struct CreateCleanRoomOutputCatalogResponse {
     /// `output_catalog`
     #[serde(default)]
     pub output_catalog: CleanRoomOutputCatalog,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomOutputCatalogResponse {
@@ -2034,6 +2603,17 @@ impl CreateCleanRoomOutputCatalogResponse {
             output_catalog: output_catalog.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `output_catalog`.
@@ -2051,6 +2631,15 @@ pub struct CreateCleanRoomRequest {
     /// `clean_room`
     #[serde(default)]
     pub clean_room: CleanRoom,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl CreateCleanRoomRequest {
@@ -2061,6 +2650,17 @@ impl CreateCleanRoomRequest {
             clean_room: clean_room.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room`.
@@ -2085,9 +2685,29 @@ pub struct DeleteCleanRoomAssetRequest {
     /// CleanRoomAsset.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl DeleteCleanRoomAssetRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset_type`.
     #[must_use]
     pub fn with_asset_type(mut self, value: impl Into<CleanRoomAssetAssetType>) -> Self {
@@ -2120,6 +2740,15 @@ pub struct DeleteCleanRoomAutoApprovalRuleRequest {
     /// `rule_id`
     #[serde(skip)]
     pub rule_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl DeleteCleanRoomAutoApprovalRuleRequest {
@@ -2131,6 +2760,17 @@ impl DeleteCleanRoomAutoApprovalRuleRequest {
             rule_id: rule_id.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2155,6 +2795,15 @@ pub struct DeleteCleanRoomRequest {
     /// Name of the clean room.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl DeleteCleanRoomRequest {
@@ -2165,6 +2814,17 @@ impl DeleteCleanRoomRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -2189,9 +2849,29 @@ pub struct GetCleanRoomAssetRequest {
     /// CleanRoomAsset.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetCleanRoomAssetRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset_type`.
     #[must_use]
     pub fn with_asset_type(mut self, value: impl Into<CleanRoomAssetAssetType>) -> Self {
@@ -2231,9 +2911,29 @@ pub struct GetCleanRoomAssetRevisionRequest {
     /// Name of the asset.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetCleanRoomAssetRevisionRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset_type`.
     #[must_use]
     pub fn with_asset_type(mut self, value: impl Into<CleanRoomAssetAssetType>) -> Self {
@@ -2273,6 +2973,15 @@ pub struct GetCleanRoomAutoApprovalRuleRequest {
     /// `rule_id`
     #[serde(skip)]
     pub rule_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetCleanRoomAutoApprovalRuleRequest {
@@ -2284,6 +2993,17 @@ impl GetCleanRoomAutoApprovalRuleRequest {
             rule_id: rule_id.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2308,6 +3028,15 @@ pub struct GetCleanRoomRequest {
     /// `name`
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl GetCleanRoomRequest {
@@ -2318,6 +3047,17 @@ impl GetCleanRoomRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `name`.
@@ -2342,6 +3082,15 @@ pub struct JarAnalysisVersionReview {
     /// Review outcome
     #[serde(default)]
     pub review_state: CleanRoomJarAnalysisReviewJarAnalysisReviewState,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl JarAnalysisVersionReview {
@@ -2356,6 +3105,17 @@ impl JarAnalysisVersionReview {
             review_state: review_state.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `comment`.
@@ -2402,9 +3162,29 @@ pub struct ListCleanRoomAssetRevisionsRequest {
     /// Opaque pagination token to go to next page based on the previous query.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAssetRevisionsRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset_type`.
     #[must_use]
     pub fn with_asset_type(mut self, value: impl Into<CleanRoomAssetAssetType>) -> Self {
@@ -2451,9 +3231,29 @@ pub struct ListCleanRoomAssetRevisionsResponse {
     /// `revisions`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub revisions: Vec<CleanRoomAsset>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAssetRevisionsResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -2479,6 +3279,15 @@ pub struct ListCleanRoomAssetsRequest {
     /// Opaque pagination token to go to next page based on previous query.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAssetsRequest {
@@ -2489,6 +3298,17 @@ impl ListCleanRoomAssetsRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2518,9 +3338,29 @@ pub struct ListCleanRoomAssetsResponse {
     /// (for the next page of results).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next_page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAssetsResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `assets`.
     #[must_use]
     pub fn with_assets(mut self, value: impl Into<Vec<CleanRoomAsset>>) -> Self {
@@ -2549,6 +3389,15 @@ pub struct ListCleanRoomAutoApprovalRulesRequest {
     /// Opaque pagination token to go to next page based on previous query.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAutoApprovalRulesRequest {
@@ -2559,6 +3408,17 @@ impl ListCleanRoomAutoApprovalRulesRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2595,9 +3455,29 @@ pub struct ListCleanRoomAutoApprovalRulesResponse {
     /// `rules`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rules: Vec<CleanRoomAutoApprovalRule>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomAutoApprovalRulesResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -2630,6 +3510,15 @@ pub struct ListCleanRoomNotebookTaskRunsRequest {
     /// Opaque pagination token to go to next page based on previous query.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomNotebookTaskRunsRequest {
@@ -2640,6 +3529,17 @@ impl ListCleanRoomNotebookTaskRunsRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2683,9 +3583,29 @@ pub struct ListCleanRoomNotebookTaskRunsResponse {
     /// Name of the clean room.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub runs: Vec<CleanRoomNotebookTaskRun>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomNotebookTaskRunsResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -2720,6 +3640,15 @@ pub struct ListCleanRoomTaskRunsRequest {
     /// Filter by the type of Clean Room task.
     #[serde(skip)]
     pub task_type: Option<CleanRoomTaskType>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomTaskRunsRequest {
@@ -2730,6 +3659,17 @@ impl ListCleanRoomTaskRunsRequest {
             clean_room_name: clean_room_name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room_name`.
@@ -2780,9 +3720,29 @@ pub struct ListCleanRoomTaskRunsResponse {
     /// Task runs in the clean room.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub runs: Vec<CleanRoomTaskRun>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomTaskRunsResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `next_page_token`.
     #[must_use]
     pub fn with_next_page_token(mut self, value: impl Into<String>) -> Self {
@@ -2809,9 +3769,29 @@ pub struct ListCleanRoomsRequest {
     /// Opaque pagination token to go to next page based on previous query.
     #[serde(skip)]
     pub page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomsRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `page_size`.
     #[must_use]
     pub fn with_page_size(mut self, value: i64) -> Self {
@@ -2839,9 +3819,29 @@ pub struct ListCleanRoomsResponse {
     /// (for the next page of results).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next_page_token: Option<String>,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl ListCleanRoomsResponse {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `clean_rooms`.
     #[must_use]
     pub fn with_clean_rooms(mut self, value: impl Into<Vec<CleanRoom>>) -> Self {
@@ -2870,6 +3870,15 @@ pub struct NotebookVersionReview {
     /// Review outcome
     #[serde(default)]
     pub review_state: CleanRoomNotebookReviewNotebookReviewState,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl NotebookVersionReview {
@@ -2884,6 +3893,17 @@ impl NotebookVersionReview {
             review_state: review_state.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `comment`.
@@ -2936,9 +3956,29 @@ pub struct UpdateCleanRoomAssetRequest {
     /// the clean room; the caller does not choose it.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl UpdateCleanRoomAssetRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `asset`.
     #[must_use]
     pub fn with_asset(mut self, value: impl Into<CleanRoomAsset>) -> Self {
@@ -2982,9 +4022,29 @@ pub struct UpdateCleanRoomAutoApprovalRuleRequest {
     /// A generated UUID identifying the rule.
     #[serde(skip)]
     pub rule_id: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl UpdateCleanRoomAutoApprovalRuleRequest {
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
+    }
+
     /// Set `auto_approval_rule`.
     #[must_use]
     pub fn with_auto_approval_rule(mut self, value: impl Into<CleanRoomAutoApprovalRule>) -> Self {
@@ -3017,6 +4077,15 @@ pub struct UpdateCleanRoomRequest {
     /// Name of the clean room.
     #[serde(skip)]
     pub name: String,
+    /// Fields not modelled by this SDK version. Kept when read, so a
+    /// read-modify-write round trip never drops them, and sent with a
+    /// request (in the JSON body, or the query string for GET/DELETE).
+    #[serde(
+        flatten,
+        default,
+        skip_serializing_if = "::std::collections::BTreeMap::is_empty"
+    )]
+    pub other: ::std::collections::BTreeMap<String, ::serde_json::Value>,
 }
 
 impl UpdateCleanRoomRequest {
@@ -3027,6 +4096,17 @@ impl UpdateCleanRoomRequest {
             name: name.into(),
             ..Default::default()
         }
+    }
+
+    /// Set a field this SDK version doesn't model (see `other`).
+    #[must_use]
+    pub fn with_other(
+        mut self,
+        name: impl Into<String>,
+        value: impl Into<::serde_json::Value>,
+    ) -> Self {
+        self.other.insert(name.into(), value.into());
+        self
     }
 
     /// Set `clean_room`.
@@ -3072,7 +4152,8 @@ impl CleanRoomAssetRevisionsApi {
             path_param(&request.name.to_string(), false),
             path_param(&request.etag.to_string(), false)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<CleanRoomAsset>(call).await
     }
 
@@ -3092,6 +4173,7 @@ impl CleanRoomAssetRevisionsApi {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListCleanRoomAssetRevisionsResponse>(call)
             .await
@@ -3201,7 +4283,8 @@ impl CleanRoomAssetsApi {
             path_param(&request.asset_type.to_string(), false),
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::DELETE, path).workspace();
+        let mut call = Call::new(Method::DELETE, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<::serde::de::IgnoredAny>(call)
             .await
@@ -3221,7 +4304,8 @@ impl CleanRoomAssetsApi {
             path_param(&request.asset_type.to_string(), false),
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<CleanRoomAsset>(call).await
     }
 
@@ -3238,6 +4322,7 @@ impl CleanRoomAssetsApi {
         );
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<ListCleanRoomAssetsResponse>(call).await
     }
 
@@ -3337,7 +4422,8 @@ impl CleanRoomAutoApprovalRulesApi {
             path_param(&request.clean_room_name.to_string(), false),
             path_param(&request.rule_id.to_string(), false)
         );
-        let call = Call::new(Method::DELETE, path).workspace();
+        let mut call = Call::new(Method::DELETE, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<::serde::de::IgnoredAny>(call)
             .await
@@ -3356,7 +4442,8 @@ impl CleanRoomAutoApprovalRulesApi {
             path_param(&request.clean_room_name.to_string(), false),
             path_param(&request.rule_id.to_string(), false)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<CleanRoomAutoApprovalRule>(call).await
     }
 
@@ -3374,6 +4461,7 @@ impl CleanRoomAutoApprovalRulesApi {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListCleanRoomAutoApprovalRulesResponse>(call)
             .await
@@ -3462,6 +4550,7 @@ impl CleanRoomTaskRunsApi {
         call = call.query(query::field("notebook_name", &request.notebook_name)?);
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<ListCleanRoomNotebookTaskRunsResponse>(call)
             .await
@@ -3519,6 +4608,7 @@ impl CleanRoomTaskRunsApi {
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
         call = call.query(query::field("task_type", &request.task_type)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<ListCleanRoomTaskRunsResponse>(call).await
     }
 
@@ -3638,7 +4728,8 @@ impl CleanRoomsApi {
             "/api/2.0/clean-rooms/{}",
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::DELETE, path).workspace();
+        let mut call = Call::new(Method::DELETE, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api
             .send::<::serde::de::IgnoredAny>(call)
             .await
@@ -3656,7 +4747,8 @@ impl CleanRoomsApi {
             "/api/2.0/clean-rooms/{}",
             path_param(&request.name.to_string(), false)
         );
-        let call = Call::new(Method::GET, path).workspace();
+        let mut call = Call::new(Method::GET, path).workspace();
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<CleanRoom>(call).await
     }
 
@@ -3671,6 +4763,7 @@ impl CleanRoomsApi {
         let mut call = Call::new(Method::GET, path).workspace();
         call = call.query(query::field("page_size", &request.page_size)?);
         call = call.query(query::field("page_token", &request.page_token)?);
+        call = call.query(query::to_pairs(&request.other)?);
         self.api.send::<ListCleanRoomsResponse>(call).await
     }
 

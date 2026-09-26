@@ -190,6 +190,10 @@ fn build_call(types: &Types<'_>, svc: &Service, m: &Method) -> String {
                 f.ident
             );
         }
+        if !body_verb {
+            // Fields the SDK doesn't model yet go in the query string.
+            s.push_str("        call = call.query(query::to_pairs(&request.other)?);\n");
+        }
         if body_verb {
             if m.body_field.is_empty() {
                 s.push_str("        call = call.json(&request)?;\n");

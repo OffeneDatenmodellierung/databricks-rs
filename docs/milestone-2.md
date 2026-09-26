@@ -77,7 +77,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 ## Verification
 
 - 134 tests pass under `cargo test --workspace --all-features`.
-- The 10 milestone-1 spike tests pass against the generated code. The only changes are the construction syntax (from `builder()` to `new`/`with_*`) and dropping the `other` map assertion.
+- The 10 milestone-1 spike tests pass against the generated code. The only change is the construction syntax (from `builder()` to `new`/`with_*`).
 - `tests/generated_patterns.rs` has one test per generated shape:
   - SCIM offset pagination;
   - page-number pagination;
@@ -97,7 +97,7 @@ databricks-sdk-go ──(codegen/extract-go, Go)──▶ spec/ir.json ──(ca
 ## Breaking changes from milestone 1
 
 - The `bon` builders are gone; use `new(..)` or `Default` plus `with_*`.
-- Response structs no longer have an `other` map. Unknown fields are ignored, and every known field is typed.
+- Every generated struct (not only responses) has an `other` map for fields this SDK version doesn't model. It is kept on read and sent on write, and `with_other(name, value)` sets one. See [ADR-0001](adr/0001-generate-the-sdk-and-keep-unknown-fields.md).
 - Integer fields are `i64` throughout. Go's `int` is 64-bit, so an `i32` could fail to deserialise large values. They also accept numeric strings, and float fields accept `"NaN"`/`"Infinity"` (`community_databricks_core::serde_num`).
 - `AccountClient::workspaces()` and the other accessors are generated. Account IDs are read from the config on each call.
 
