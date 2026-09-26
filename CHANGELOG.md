@@ -20,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Idempotency keys (`idempotency_token`, `request_id`) are generated when
   empty and reused across retries.
 - Private-link validation errors and unfollowed redirects become typed API
-  errors (#4).
-- `AccountClient::get_workspace_client` and `ApiClient::for_workspace` (#5).
+  errors (#5).
+- `AccountClient::get_workspace_client` and `ApiClient::for_workspace` (#4).
 - Hygiene (#6): `Config::attribute` masks secrets (`secret_attribute` for
   the raw value); host-metadata lookups share one client and retry; a
   warning is logged when TLS verification is off.
