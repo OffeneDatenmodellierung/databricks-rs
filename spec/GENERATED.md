@@ -36,4 +36,7 @@ Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a3
 
 ## Hand-written overrides
 
+- `jobs.Jobs.Get` is generated as `get_page`; see `src/ext.rs` in the package crate.
 - `jobs.Jobs.GetRun` is generated as `get_run_page`; see `src/ext.rs` in the package crate.
+- `jobs.Jobs.List` is generated as `page:list`; see `src/ext.rs` in the package crate.
+- `jobs.Jobs.ListRuns` is generated as `page:list_runs`; see `src/ext.rs` in the package crate.

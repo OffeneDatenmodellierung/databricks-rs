@@ -1,3 +1,6 @@
 {
-  "jobs.Jobs.GetRun": "get_run_page"
+  "jobs.Jobs.Get": "get_page",
+  "jobs.Jobs.GetRun": "get_run_page",
+  "jobs.Jobs.List": "page:list",
+  "jobs.Jobs.ListRuns": "page:list_runs"
 }

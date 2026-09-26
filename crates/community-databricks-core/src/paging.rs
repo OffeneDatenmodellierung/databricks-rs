@@ -73,6 +73,19 @@ pub fn next_token(token: Option<String>, set: impl FnOnce(String)) -> bool {
     }
 }
 
+/// Run an async step on each item, in order, one at a time (for Go's
+/// expanding iterators, which fetch the rest of an item as it is reached).
+/// The first error ends the stream.
+pub fn then_each<'a, T, U, F, Fut>(s: Paged<'a, T>, f: F) -> Paged<'a, U>
+where
+    T: Send + 'a,
+    U: Send + 'a,
+    F: FnMut(T) -> Fut + Send + 'a,
+    Fut: Future<Output = Result<U>> + Send + 'a,
+{
+    s.and_then(f).boxed()
+}
+
 /// Drain a paginated stream into a `Vec` (Go's `ListAll`).
 pub async fn collect<T>(s: Paged<'_, T>) -> Result<Vec<T>> {
     s.try_collect().await
@@ -87,6 +100,25 @@ mod tests {
     #[derive(Clone, Default)]
     struct Req {
         token: Option<String>,
+    }
+
+    #[tokio::test]
+    async fn then_each_runs_in_order_and_stops_at_the_first_error() {
+        let s: Paged<'_, i32> = stream::iter([Ok(1), Ok(2), Ok(3)]).boxed();
+        let out: Vec<i32> = collect(then_each(s, |n| async move { Ok(n * 10) }))
+            .await
+            .unwrap();
+        assert_eq!(out, vec![10, 20, 30]);
+        let s: Paged<'_, i32> = stream::iter([Ok(1), Ok(2)]).boxed();
+        let err = collect(then_each(s, |n| async move {
+            if n == 2 {
+                Err(crate::Error::Config("boom".into()))
+            } else {
+                Ok(n)
+            }
+        }))
+        .await;
+        assert!(err.is_err());
     }
 
     #[tokio::test]

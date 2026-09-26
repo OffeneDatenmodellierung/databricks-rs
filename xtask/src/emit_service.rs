@@ -8,7 +8,10 @@ use crate::ir::{Method, Service, TypeRef, Waiter};
 use crate::model::{FieldInfo, Types, find_field, rust_type};
 use crate::names;
 
-/// Per-method overrides (hand-written wrappers in `src/ext`).
+/// Per-method overrides (hand-written wrappers in `src/ext`), keyed by
+/// `package.Service.Method`. The value renames the generated method, so a
+/// hand-written one can take its name. `page:<name>` on a paginated method
+/// emits only `<name>_page`, leaving the stream and `_all` to `src/ext`.
 pub type Overrides = BTreeMap<String, String>;
 
 pub fn struct_name(s: &Service) -> String {
@@ -96,10 +99,17 @@ pub fn emit(
         }
         let key = format!("{}.{}.{}", pkg, svc.name, m.name);
         let mut fname = names::method_ident(&m.name);
+        let mut page_only = false;
         if let Some(renamed) = overrides.get(&key) {
-            fname.clone_from(renamed);
+            match renamed.strip_prefix("page:") {
+                Some(base) if m.pagination.is_some() => {
+                    fname = base.to_owned();
+                    page_only = true;
+                }
+                _ => fname.clone_from(renamed),
+            }
         }
-        emit_method(&mut out, types, svc, m, &fname, &waiters);
+        emit_method(&mut out, types, svc, m, &fname, page_only, &waiters);
     }
     for w in waiters.values() {
         emit_waiter_fn(&mut out, types, svc, w);
@@ -359,6 +369,7 @@ fn emit_method(
     svc: &Service,
     m: &Method,
     fname: &str,
+    page_only: bool,
     waiters: &BTreeMap<&str, &Waiter>,
 ) {
     let pkg = &svc.package;
@@ -404,6 +415,9 @@ fn emit_method(
             build_call(types, svc, m, false),
             send_expr(types, m, pkg)
         );
+        if page_only {
+            return;
+        }
         // Stream.
         let step = pagination_step(types, m);
         let init = request_init(types, m).0;
