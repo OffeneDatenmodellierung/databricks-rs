@@ -139,5 +139,14 @@ class Parity(unittest.TestCase):
         self.assertIn("na needs a reason", errors)
 
 
+class Lookup(unittest.TestCase):
+    def test_the_most_specific_pattern_wins(self):
+        entries = {"*.*.GetBy*": {"issue": 17}, "iam.*.GetBy*": {"issue": 14}, "iam.Users.GetByName": {"issue": 1}}
+        self.assertEqual(check_parity.lookup(entries, "iam.Users.GetByName")[0], "iam.Users.GetByName")
+        self.assertEqual(check_parity.lookup(entries, "iam.Groups.GetByName")[0], "iam.*.GetBy*")
+        self.assertEqual(check_parity.lookup(entries, "jobs.Jobs.GetByName")[0], "*.*.GetBy*")
+        self.assertIsNone(check_parity.lookup(entries, "jobs.Jobs.List"))
+
+
 if __name__ == "__main__":
     unittest.main()

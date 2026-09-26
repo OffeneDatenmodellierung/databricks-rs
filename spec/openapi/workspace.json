@@ -16786,10 +16786,6 @@
         ],
         "type": "string"
       },
-      "dashboards.DownloadMessageAttachmentVisualizationResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "dashboards.EvaluationStatusType": {
         "enum": [
           "DONE",
@@ -19991,10 +19987,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "files.DownloadResponse": {
-        "properties": {},
         "type": "object"
       },
       "files.FileInfo": {
@@ -41321,10 +41313,6 @@
         },
         "type": "object"
       },
-      "serving.ExportMetricsResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "serving.ExternalFunctionRequest": {
         "description": "Simple Proto message for testing",
         "properties": {
@@ -41496,10 +41484,6 @@
         },
         "type": "object"
       },
-      "serving.GetOpenApiResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "serving.GetServingEndpointPermissionLevelsResponse": {
         "properties": {
           "permission_levels": {
@@ -41535,10 +41519,6 @@
           "project_id",
           "region"
         ],
-        "type": "object"
-      },
-      "serving.HttpRequestResponse": {
-        "properties": {},
         "type": "object"
       },
       "serving.ListEndpointsResponse": {
@@ -61246,7 +61226,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.HttpRequestResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -63244,7 +63225,8 @@
             "content": {
               "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/files.DownloadResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -65140,7 +65122,8 @@
             "content": {
               "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/dashboards.DownloadMessageAttachmentVisualizationResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -85130,7 +85113,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.ExportMetricsResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
@@ -85218,7 +85202,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/serving.GetOpenApiResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },

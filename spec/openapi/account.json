@@ -478,10 +478,6 @@
         ],
         "type": "string"
       },
-      "billing.DownloadResponse": {
-        "properties": {},
-        "type": "object"
-      },
       "billing.GetBillingUsageDashboardResponse": {
         "properties": {
           "dashboard_id": {
@@ -13167,7 +13163,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/billing.DownloadResponse"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },

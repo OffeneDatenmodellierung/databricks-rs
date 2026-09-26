@@ -159,17 +159,29 @@ impl<O: OperationState, T, M> LongRunning<O, T, M> {
             if let Some(d) = deadline {
                 let now = Instant::now();
                 if now >= d {
-                    return Err(Error::Timeout {
-                        after: self.timeout.unwrap_or_default(),
-                        last: format!("operation {} still in progress", self.name()),
-                    });
+                    return Err(self.timed_out());
                 }
                 tokio::time::sleep(delay.min(d - now)).await;
+                if Instant::now() >= d {
+                    return Err(self.timed_out());
+                }
+                // The poll itself counts against the timeout.
+                tracing::debug!(operation = self.name(), "polling long-running operation");
+                tokio::time::timeout_at(d, self.refresh())
+                    .await
+                    .map_err(|_| self.timed_out())??;
             } else {
                 tokio::time::sleep(delay).await;
+                tracing::debug!(operation = self.name(), "polling long-running operation");
+                self.refresh().await?;
             }
-            tracing::debug!(operation = self.name(), "polling long-running operation");
-            self.refresh().await?;
+        }
+    }
+
+    fn timed_out(&self) -> Error {
+        Error::Timeout {
+            after: self.timeout.unwrap_or_default(),
+            last: format!("operation {} still in progress", self.name()),
         }
     }
 
@@ -363,6 +375,22 @@ mod tests {
         let e = lro.wait().await.unwrap_err();
         assert!(matches!(e, Error::Timeout { .. }), "{e}");
         assert!(e.to_string().contains("still in progress"));
+    }
+
+    #[tokio::test]
+    async fn the_timeout_bounds_a_hanging_poll() {
+        let hang: PollFn<Op> = Arc::new(|_| {
+            Box::pin(async {
+                tokio::time::sleep(Duration::from_hours(1)).await;
+                Ok(pending())
+            })
+        });
+        let started = std::time::Instant::now();
+        let lro: LongRunning<Op, (), Value> =
+            fast(LongRunning::new(pending(), hang, None)).with_timeout(Duration::from_millis(50));
+        let e = lro.wait().await.unwrap_err();
+        assert!(matches!(e, Error::Timeout { .. }), "{e}");
+        assert!(started.elapsed() < Duration::from_secs(5));
     }
 
     #[tokio::test]

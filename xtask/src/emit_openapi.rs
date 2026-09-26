@@ -327,8 +327,14 @@ fn operation(
                 .iter()
                 .filter(|f| f.location == "header")
                 .collect();
-            // Header-only responses (HEAD metadata) have no body.
-            if header_fields.len() < types.fields(r).len() || header_fields.is_empty() {
+            // A binary response's body is the raw bytes of its binary
+            // field (other fields come from headers), not a JSON object.
+            let binary = types.fields(r).iter().find(|f| f.ty.kind == "binary");
+            if let Some(b) = binary {
+                ok["content"] =
+                    json!({ct: {"schema": with_desc(type_schema(&b.ty, reach), &b.doc)}});
+            } else if header_fields.len() < types.fields(r).len() || header_fields.is_empty() {
+                // Header-only responses (HEAD metadata) have no body.
                 ok["content"] = json!({ct: {"schema": type_schema(r, reach)}});
             }
             if !header_fields.is_empty() {

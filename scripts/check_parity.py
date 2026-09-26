@@ -151,13 +151,21 @@ def classify(name: str, line: str, ir_methods: set[str]) -> str | None:
     return None
 
 
+def specificity(pattern: str) -> tuple[int, int]:
+    """More literal characters, then fewer wildcards, is more specific."""
+    literal = len(re.sub(r"[*?]|\[[^]]*\]", "", pattern))
+    return literal, -sum(pattern.count(c) for c in "*?[")
+
+
 def lookup(entries: dict[str, dict], sym: str) -> tuple[str, dict] | None:
+    """The exact entry, else the most specific matching pattern."""
     if sym in entries:
         return sym, entries[sym]
-    for key, e in entries.items():
-        if any(c in key for c in "*?[") and fnmatch.fnmatchcase(sym, key):
-            return key, e
-    return None
+    hits = [k for k in entries if any(c in k for c in "*?[") and fnmatch.fnmatchcase(sym, k)]
+    if not hits:
+        return None
+    key = max(hits, key=specificity)
+    return key, entries[key]
 
 
 def validate(key: str, e: dict, root: Path) -> list[str]:
