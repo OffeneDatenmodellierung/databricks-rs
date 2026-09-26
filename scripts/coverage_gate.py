@@ -24,15 +24,22 @@ THRESHOLD = float(os.environ.get("COVERAGE_THRESHOLD", "85"))
 GENERATED = "// Code generated"
 
 
-def is_generated(f: dict, parts: list[str]) -> bool:
+def source_path(raw) -> str:
+    """The report's path as a filesystem path, keeping it absolute."""
+    if isinstance(raw, str):
+        return raw
+    return os.path.join(*raw) if raw else ""
+
+
+def is_generated(f: dict) -> bool:
     """tarpaulin includes each file's source as `content`; if a version
     omits it, read the first line from disk instead."""
     if "content" in f:
         return f["content"].startswith(GENERATED)
     try:
-        with open(os.path.join(*parts)) as src:
+        with open(source_path(f["path"])) as src:
             return src.readline().startswith(GENERATED)
-    except (OSError, TypeError):
+    except (OSError, TypeError, KeyError):
         return False
 
 
@@ -49,7 +56,7 @@ def main(report: str) -> int:
         path = "/".join(parts[anchor:]) if anchor is not None else "/".join(parts)
         if not path.startswith("crates/") or "/src/" not in path or not f["coverable"]:
             continue
-        if is_generated(f, parts):
+        if is_generated(f):
             continue
         pct = 100.0 * f["covered"] / f["coverable"]
         rows.append((path, f["covered"], f["coverable"], pct))

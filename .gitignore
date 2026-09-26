@@ -1,3 +1,7 @@
 /target
 *.profraw
 tarpaulin-report.*
+
+# Python bytecode
+__pycache__/
+*.pyc
