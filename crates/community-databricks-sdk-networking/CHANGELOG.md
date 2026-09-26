@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0](https://github.com/OffeneDatenmodellierung/databricks-rs/releases/tag/community-databricks-sdk-v0.1.0) - 2026-09-26
+## [0.1.0](https://github.com/OffeneDatenmodellierung/databricks-rs/releases/tag/community-databricks-sdk-networking-v0.1.0) - 2026-09-26
 
 ### Other
 
