@@ -101,6 +101,12 @@ impl Binary {
     }
 }
 
+/// The next chunk of a body stream (`None` at the end), for crates that
+/// don't depend on `futures` themselves.
+pub async fn next_chunk(stream: &mut ByteStream) -> Option<Result<Bytes>> {
+    stream.next().await
+}
+
 fn take(cell: &Mutex<Option<ByteStream>>) -> Option<ByteStream> {
     cell.lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
@@ -185,6 +191,14 @@ mod tests {
         assert_eq!(b.bytes().await.unwrap(), "hello");
         assert_eq!(Binary::default(), Binary::from(Bytes::new()));
         assert_eq!(Binary::from(&b"x"[..]).as_bytes().unwrap(), "x");
+    }
+
+    #[tokio::test]
+    async fn next_chunk_walks_a_stream() {
+        let mut s = chunks().into_stream();
+        assert_eq!(next_chunk(&mut s).await.unwrap().unwrap(), "ab");
+        assert_eq!(next_chunk(&mut s).await.unwrap().unwrap(), "cd");
+        assert!(next_chunk(&mut s).await.is_none());
     }
 
     #[tokio::test]

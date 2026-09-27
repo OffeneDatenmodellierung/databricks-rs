@@ -7353,12 +7353,15 @@ impl GenieApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.conversation_id.clone();
+        let wait_conversation_id = request.conversation_id.clone();
+        let wait_space_id = request.space_id.clone();
         let response = self.api.send::<GenieMessage>(call).await?;
-        let param = param;
+        let wait_message_id = response.message_id.clone();
         Ok(WaitGetMessageGenieCompleted {
             api: Clone::clone(self),
-            conversation_id: param,
+            conversation_id: wait_conversation_id,
+            message_id: wait_message_id,
+            space_id: wait_space_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -7945,14 +7948,18 @@ impl GenieApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
+        let wait_space_id = request.space_id.clone();
         let response = self
             .api
             .send::<GenieStartConversationResponse>(call)
             .await?;
-        let param = response.conversation_id.clone();
+        let wait_conversation_id = response.conversation_id.clone();
+        let wait_message_id = response.message_id.clone();
         Ok(WaitGetMessageGenieCompleted {
             api: Clone::clone(self),
-            conversation_id: param,
+            conversation_id: wait_conversation_id,
+            message_id: wait_message_id,
+            space_id: wait_space_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -7998,15 +8005,22 @@ impl GenieApi {
     pub async fn wait_get_message_genie_completed(
         &self,
         conversation_id: impl Into<String>,
+        message_id: impl Into<String>,
+        space_id: impl Into<String>,
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GenieMessage>>,
     ) -> ::community_databricks_core::Result<GenieMessage> {
-        let param: String = conversation_id.into();
+        let conversation_id_param: String = conversation_id.into();
+        let message_id_param: String = message_id.into();
+        let space_id_param: String = space_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
             let fut = self.get_message(
-                GenieGetConversationMessageRequest::default().with_conversation_id(param.clone()),
+                GenieGetConversationMessageRequest::default()
+                    .with_conversation_id(conversation_id_param.clone())
+                    .with_message_id(message_id_param.clone())
+                    .with_space_id(space_id_param.clone()),
             );
             async move {
                 let value = fut.await?;
@@ -8036,8 +8050,12 @@ impl GenieApi {
 /// the result reaches COMPLETED.
 pub struct WaitGetMessageGenieCompleted<R> {
     api: GenieApi,
-    /// The ID being waited on.
+    /// `conversation_id` of what is being waited on.
     pub conversation_id: String,
+    /// `message_id` of what is being waited on.
+    pub message_id: String,
+    /// `space_id` of what is being waited on.
+    pub space_id: String,
     /// The operation's immediate response.
     pub response: R,
     timeout: ::std::time::Duration,
@@ -8048,6 +8066,8 @@ impl<R: ::std::fmt::Debug> ::std::fmt::Debug for WaitGetMessageGenieCompleted<R>
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         f.debug_struct("WaitGetMessageGenieCompleted")
             .field("conversation_id", &self.conversation_id)
+            .field("message_id", &self.message_id)
+            .field("space_id", &self.space_id)
             .field("response", &self.response)
             .field("timeout", &self.timeout)
             .finish_non_exhaustive()
@@ -8072,7 +8092,13 @@ impl<R> WaitGetMessageGenieCompleted<R> {
     /// Wait until the result reaches COMPLETED.
     pub async fn wait(self) -> ::community_databricks_core::Result<GenieMessage> {
         self.api
-            .wait_get_message_genie_completed(self.conversation_id, self.timeout, self.on_progress)
+            .wait_get_message_genie_completed(
+                self.conversation_id,
+                self.message_id,
+                self.space_id,
+                self.timeout,
+                self.on_progress,
+            )
             .await
     }
 }

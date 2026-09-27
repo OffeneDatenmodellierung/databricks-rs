@@ -4798,10 +4798,10 @@ impl CleanRoomsApi {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.clean_room)?;
         let response = self.api.send::<CleanRoom>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetCleanRoomActive {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -4941,11 +4941,11 @@ impl CleanRoomsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<CleanRoom>>,
     ) -> ::community_databricks_core::Result<CleanRoom> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetCleanRoomRequest::default().with_name(param.clone()));
+            let fut = self.get(GetCleanRoomRequest::default().with_name(name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

@@ -10,55 +10,89 @@
 # status = "implemented" (rust = "path#fn"), "gap" (issue = N) or "na" (reason).
 
 [accessors]
-"*.Users" = { status = "gap", issue = 14 }
-"*.Groups" = { status = "gap", issue = 14 }
-"*.ServicePrincipals" = { status = "gap", issue = 14 }
+"*.Users" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#users" }
+"*.Groups" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#groups" }
+"*.ServicePrincipals" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#service_principals" }
 "workspace.ServingEndpointsDataPlane" = { status = "gap", issue = 16 }
 
 [methods]
-"*.*.*To*Map" = { status = "gap", issue = 17 }
-# List-and-search lookups (positional GetByX shortcuts are covered by rule).
-"*.*.GetBy*" = { status = "gap", issue = 17 }
 "serving.ServingEndpointsDataPlane.Query" = { status = "gap", issue = 16 }
 "bundle.Bundle.*" = { status = "na", reason = "Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated." }
 
 [helpers]
 # Implemented here.
+# Jobs paging (Go: service/jobs/ext_api.go).
 "jobs.JobsAPI.Get" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#get" }
 "jobs.JobsAPI.GetRun" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#get_run" }
 "jobs.JobsAPI.List" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#list" }
 "jobs.JobsAPI.ListRuns" = { status = "implemented", rust = "crates/community-databricks-sdk-jobs/src/ext.rs#list_runs" }
-"provisioning.Workspace.AzureResourceId" = { status = "implemented", rust = "crates/community-databricks-sdk-provisioning/src/ext.rs#azure_resource_id" }
+# Clients.
 "AccountClient.GetWorkspaceClient" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#get_workspace_client" }
+"WorkspaceClient.CurrentWorkspaceID" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#current_workspace_id" }
+"provisioning.Workspace.AzureResourceId" = { status = "implemented", rust = "crates/community-databricks-sdk-provisioning/src/ext.rs#azure_resource_id" }
 # Go wraps these only to escape `tag_key`; every generated single-segment
 # path parameter is escaped.
 "catalog.EntityTagAssignmentsAPI.*" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#path_param" }
 "tags.*API.*Tag*" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#path_param" }
+# SCIM (Go: service/iam/ext_api.go), on the V2 services.
+"iam.*API.GetById" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_id" }
+"iam.*API.GetByUserName" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_user_name" }
+"iam.*API.GetByDisplayName" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#get_by_display_name" }
+"iam.*API.DeleteById" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#delete_by_id" }
+"iam.*API.UserUserNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#user_user_name_to_id_map" }
+"iam.*API.GroupDisplayNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#group_display_name_to_id_map" }
+"iam.*API.ServicePrincipalDisplayNameToIdMap" = { status = "implemented", rust = "crates/community-databricks-sdk-iam/src/ext.rs#service_principal_display_name_to_id_map" }
+# SQL.
+"sql.StatementExecutionAPI.ExecuteAndWait" = { status = "implemented", rust = "crates/community-databricks-sdk-sql/src/ext.rs#execute_and_wait" }
+# Workspace files. Go's functional options are UploadOptions/DownloadOptions.
+"workspace.WorkspaceAPI.Upload" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#upload" }
+"workspace.WorkspaceAPI.WriteFile" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#write_file" }
+"workspace.WorkspaceAPI.Download" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#download" }
+"workspace.WorkspaceAPI.ReadFile" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#read_file" }
+"workspace.WorkspaceAPI.RecursiveList" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#recursive_list" }
+"workspace.ExportResponse.Bytes" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#bytes" }
+"workspace.PythonNotebookOverwrite" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite" }
+"workspace.PythonNotebookOverwriteReader" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite_bytes" }
+"workspace.UploadOverwrite" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#overwrite" }
+"workspace.UploadLanguage" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#language" }
+"workspace.UploadFormat" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#format" }
+"workspace.DownloadFormat" = { status = "implemented", rust = "crates/community-databricks-sdk-workspace/src/ext.rs#format" }
+# DBFS (the handle is DbfsHandle).
+"files.DbfsAPI.Open" = { status = "implemented", rust = "crates/community-databricks-sdk-files/src/ext.rs#open" }
+"files.DbfsAPI.ReadFile" = { status = "implemented", rust = "crates/community-databricks-sdk-files/src/ext.rs#read_file" }
+"files.DbfsAPI.WriteFile" = { status = "implemented", rust = "crates/community-databricks-sdk-files/src/ext.rs#write_file" }
+"files.DbfsAPI.RecursiveList" = { status = "implemented", rust = "crates/community-databricks-sdk-files/src/ext.rs#recursive_list" }
+# Compute: node types, Spark versions, clusters.
+"compute.ClustersAPI.SelectNodeType" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#select_node_type" }
+"compute.ClustersAPI.SelectSparkVersion" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#select_spark_version" }
+"compute.ClustersAPI.EnsureClusterIsRunning" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#ensure_cluster_is_running" }
+"compute.ClustersAPI.GetOrCreateRunningCluster" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#get_or_create_running_cluster" }
+"compute.ClusterDetails.IsRunningOrResizing" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#is_running_or_resizing" }
+"compute.ListNodeTypesResponse.Smallest" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#smallest" }
+"compute.GetSparkVersionsResponse.Select" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#select" }
+# Libraries (Go's Wait and Update are LibraryWait and LibraryUpdate).
+"compute.LibrariesAPI.UpdateAndWait" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#update_and_wait" }
+"compute.LibrariesAPI.Wait" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#wait" }
+"compute.ClusterLibraryStatuses.IsRetryNeeded" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#is_retry_needed" }
+"compute.ClusterLibraryStatuses.ToLibraryList" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#to_library_list" }
+"compute.InstallLibraries.Sort" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#sort" }
+"compute.Library.String" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#fmt" }
+"compute.Wait.IsNotInScope" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#is_not_in_scope" }
+# Command execution (Go's CommandExecutorV2 is CommandExecutor).
+"compute.CommandExecutionAPI.Start" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#start" }
+"compute.CommandExecutorV2.Execute" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#execute" }
+"compute.CommandExecutorV2.Destroy" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#destroy" }
+"compute.CommandsHighLevelAPI.Execute" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#execute" }
+"compute.NewCommandExecutor" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#new_command_executor" }
+"compute.Results.Failed" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#failed" }
+"compute.Results.Text" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#text" }
+"compute.Results.Err" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#err" }
+"compute.Results.Error" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#error" }
+"compute.Results.Scan" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#scan" }
+"compute.TrimLeadingWhitespace" = { status = "implemented", rust = "crates/community-databricks-core/src/text.rs#trim_leading_whitespace" }
 
 # Planned.
-"iam.*API.GetBy*" = { status = "gap", issue = 14 }
-"iam.*API.DeleteById" = { status = "gap", issue = 14 }
-"iam.*API.*ToIdMap" = { status = "gap", issue = 14 }
-"WorkspaceClient.CurrentWorkspaceID" = { status = "gap", issue = 14 }
 "serving.NewDataPlaneService" = { status = "gap", issue = 16 }
-"sql.StatementExecutionAPI.ExecuteAndWait" = { status = "gap", issue = 15 }
-"workspace.*" = { status = "gap", issue = 15 }
-"files.DbfsAPI.*" = { status = "gap", issue = 15 }
-"compute.ClustersAPI.*" = { status = "gap", issue = 15 }
-"compute.ClusterDetails.IsRunningOrResizing" = { status = "gap", issue = 15 }
-"compute.ListNodeTypesResponse.Smallest" = { status = "gap", issue = 15 }
-"compute.GetSparkVersionsResponse.Select" = { status = "gap", issue = 15 }
-"compute.LibrariesAPI.*" = { status = "gap", issue = 15 }
-"compute.ClusterLibraryStatuses.*" = { status = "gap", issue = 15 }
-"compute.InstallLibraries.Sort" = { status = "gap", issue = 15 }
-"compute.Library.String" = { status = "gap", issue = 15 }
-"compute.Wait.IsNotInScope" = { status = "gap", issue = 15 }
-"compute.CommandExecutionAPI.Start" = { status = "gap", issue = 15 }
-"compute.CommandExecutorV2.*" = { status = "gap", issue = 15 }
-"compute.CommandsHighLevelAPI.Execute" = { status = "gap", issue = 15 }
-"compute.NewCommandExecutor" = { status = "gap", issue = 15 }
-"compute.Results.*" = { status = "gap", issue = 15 }
-"compute.TrimLeadingWhitespace" = { status = "gap", issue = 15 }
 
 # Not applicable.
 "iam.New*" = { status = "na", reason = "Constructors for Go's API structs; Rust clients come from the WorkspaceClient/AccountClient accessors." }

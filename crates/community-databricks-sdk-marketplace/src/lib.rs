@@ -7733,6 +7733,33 @@ impl ConsumerListingsApi {
     ) -> ::community_databricks_core::Result<Vec<Listing>> {
         paging::collect(self.search(request)).await
     }
+
+    /// The single [`Listing`] whose `summary.name` is `name`, listing them all first
+    /// (Go: `ConsumerListingsAPI.GetBySummaryName`). None, or more than one, is an error.
+    pub async fn get_by_summary_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<Listing> {
+        let items = self.list_all(ListListingsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "Listing", name, |v: &Listing| {
+            v.summary.name.clone()
+        })
+    }
+
+    /// Map each [`Listing`]'s `summary.name` to its `id`, listing them all first
+    /// (Go: `ConsumerListingsAPI.ListingSummaryNameToIdMap`). A duplicate `summary.name` is an error.
+    pub async fn listing_summary_name_to_id_map(
+        &self,
+        request: ListListingsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "summary.name",
+            |v: &Listing| v.summary.name.clone(),
+            |v: &Listing| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// Personalization Requests allow customers to interact with the
@@ -7934,6 +7961,38 @@ impl ConsumerProvidersApi {
     ) -> ::community_databricks_core::Result<Vec<ProviderInfo>> {
         paging::collect(self.list(request)).await
     }
+
+    /// The single [`ProviderInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `ConsumerProvidersAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ProviderInfo> {
+        let items = self
+            .list_all(ListConsumerProvidersRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ProviderInfo",
+            name,
+            |v: &ProviderInfo| v.name.clone(),
+        )
+    }
+
+    /// Map each [`ProviderInfo`]'s `name` to its `id`, listing them all first
+    /// (Go: `ConsumerProvidersAPI.ProviderInfoNameToIdMap`). A duplicate `name` is an error.
+    pub async fn provider_info_name_to_id_map(
+        &self,
+        request: ListConsumerProvidersRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &ProviderInfo| v.name.clone(),
+            |v: &ProviderInfo| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// Marketplace exchanges filters curate which groups can access an exchange.
@@ -8044,6 +8103,36 @@ impl ProviderExchangeFiltersApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request)?;
         self.api.send::<UpdateExchangeFilterResponse>(call).await
+    }
+
+    /// Map each [`ExchangeFilter`]'s `name` to its `id`, listing them all first
+    /// (Go: `ProviderExchangeFiltersAPI.ExchangeFilterNameToIdMap`). A duplicate `name` is an error.
+    pub async fn exchange_filter_name_to_id_map(
+        &self,
+        request: ListExchangeFiltersRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &ExchangeFilter| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &ExchangeFilter| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`ExchangeFilter`] whose `name` is `name`, listing them all first
+    /// (Go: `ProviderExchangeFiltersAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ExchangeFilter> {
+        let items = self.list_all(ListExchangeFiltersRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ExchangeFilter",
+            name,
+            |v: &ExchangeFilter| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 
@@ -8308,6 +8397,119 @@ impl ProviderExchangesApi {
         call = call.json(&request)?;
         self.api.send::<UpdateExchangeResponse>(call).await
     }
+
+    /// Map each [`ExchangeListing`]'s `exchange_name` to its `exchange_id`, listing them all first
+    /// (Go: `ProviderExchangesAPI.ExchangeListingExchangeNameToExchangeIdMap`). A duplicate `exchange_name` is an error.
+    pub async fn exchange_listing_exchange_name_to_exchange_id_map(
+        &self,
+        request: ListExchangesForListingRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_exchanges_for_listing_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "exchange_name",
+            |v: &ExchangeListing| {
+                v.exchange_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &ExchangeListing| {
+                v.exchange_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`ExchangeListing`]'s `listing_name` to its `listing_id`, listing them all first
+    /// (Go: `ProviderExchangesAPI.ExchangeListingListingNameToListingIdMap`). A duplicate `listing_name` is an error.
+    pub async fn exchange_listing_listing_name_to_listing_id_map(
+        &self,
+        request: ListListingsForExchangeRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_listings_for_exchange_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "listing_name",
+            |v: &ExchangeListing| {
+                v.listing_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &ExchangeListing| v.listing_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`Exchange`]'s `name` to its `id`, listing them all first
+    /// (Go: `ProviderExchangesAPI.ExchangeNameToIdMap`). A duplicate `name` is an error.
+    pub async fn exchange_name_to_id_map(
+        &self,
+        request: ListExchangesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &Exchange| v.name.clone(),
+            |v: &Exchange| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`ExchangeListing`] whose `exchange_name` is `name`, listing them all first
+    /// (Go: `ProviderExchangesAPI.GetByExchangeName`). None, or more than one, is an error.
+    pub async fn get_by_exchange_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ExchangeListing> {
+        let items = self
+            .list_exchanges_for_listing_all(ListExchangesForListingRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ExchangeListing",
+            name,
+            |v: &ExchangeListing| {
+                v.exchange_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// The single [`ExchangeListing`] whose `listing_name` is `name`, listing them all first
+    /// (Go: `ProviderExchangesAPI.GetByListingName`). None, or more than one, is an error.
+    pub async fn get_by_listing_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ExchangeListing> {
+        let items = self
+            .list_listings_for_exchange_all(ListListingsForExchangeRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ExchangeListing",
+            name,
+            |v: &ExchangeListing| {
+                v.listing_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// The single [`Exchange`] whose `name` is `name`, listing them all first
+    /// (Go: `ProviderExchangesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(&self, name: &str) -> ::community_databricks_core::Result<Exchange> {
+        let items = self.list_all(ListExchangesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "Exchange", name, |v: &Exchange| {
+            v.name.clone()
+        })
+    }
 }
 
 /// Marketplace offers a set of file APIs for various purposes such as
@@ -8420,6 +8622,41 @@ impl ProviderFilesApi {
         request: ListFilesRequest,
     ) -> ::community_databricks_core::Result<Vec<FileInfo>> {
         paging::collect(self.list(request)).await
+    }
+
+    /// Map each [`FileInfo`]'s `display_name` to its `id`, listing them all first
+    /// (Go: `ProviderFilesAPI.FileInfoDisplayNameToIdMap`). A duplicate `display_name` is an error.
+    pub async fn file_info_display_name_to_id_map(
+        &self,
+        request: ListFilesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "display_name",
+            |v: &FileInfo| {
+                v.display_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &FileInfo| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`FileInfo`] whose `display_name` is `name`, listing them all first
+    /// (Go: `ProviderFilesAPI.GetByDisplayName`). None, or more than one, is an error.
+    pub async fn get_by_display_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<FileInfo> {
+        let items = self.list_all(ListFilesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "FileInfo", name, |v: &FileInfo| {
+            v.display_name
+                .as_ref()
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
     }
 }
 
@@ -8547,6 +8784,33 @@ impl ProviderListingsApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request)?;
         self.api.send::<UpdateListingResponse>(call).await
+    }
+
+    /// The single [`Listing`] whose `summary.name` is `name`, listing them all first
+    /// (Go: `ProviderListingsAPI.GetBySummaryName`). None, or more than one, is an error.
+    pub async fn get_by_summary_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<Listing> {
+        let items = self.list_all(GetListingsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "Listing", name, |v: &Listing| {
+            v.summary.name.clone()
+        })
+    }
+
+    /// Map each [`Listing`]'s `summary.name` to its `id`, listing them all first
+    /// (Go: `ProviderListingsAPI.ListingSummaryNameToIdMap`). A duplicate `summary.name` is an error.
+    pub async fn listing_summary_name_to_id_map(
+        &self,
+        request: GetListingsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "summary.name",
+            |v: &Listing| v.summary.name.clone(),
+            |v: &Listing| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 
@@ -8831,5 +9095,35 @@ impl ProviderProvidersApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request)?;
         self.api.send::<UpdateProviderResponse>(call).await
+    }
+
+    /// The single [`ProviderInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `ProviderProvidersAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ProviderInfo> {
+        let items = self.list_all(ListProvidersRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ProviderInfo",
+            name,
+            |v: &ProviderInfo| v.name.clone(),
+        )
+    }
+
+    /// Map each [`ProviderInfo`]'s `name` to its `id`, listing them all first
+    /// (Go: `ProviderProvidersAPI.ProviderInfoNameToIdMap`). A duplicate `name` is an error.
+    pub async fn provider_info_name_to_id_map(
+        &self,
+        request: ListProvidersRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &ProviderInfo| v.name.clone(),
+            |v: &ProviderInfo| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }

@@ -7963,10 +7963,10 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<ServingEndpointDetailed>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetServingEndpointNotUpdating {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -7986,10 +7986,10 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<ServingEndpointDetailed>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetServingEndpointNotUpdating {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -8317,10 +8317,10 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<ServingEndpointDetailed>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetServingEndpointNotUpdating {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -8380,10 +8380,10 @@ impl ServingEndpointsApi {
         let mut call = Call::new(Method::PUT, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<ServingEndpointDetailed>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetServingEndpointNotUpdating {
             api: Clone::clone(self),
-            name: param,
+            name: wait_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -8397,11 +8397,11 @@ impl ServingEndpointsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<ServingEndpointDetailed>>,
     ) -> ::community_databricks_core::Result<ServingEndpointDetailed> {
-        let param: String = name.into();
+        let name_param: String = name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetServingEndpointRequest::default().with_name(param.clone()));
+            let fut = self.get(GetServingEndpointRequest::default().with_name(name_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

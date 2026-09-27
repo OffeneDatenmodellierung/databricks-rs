@@ -91,6 +91,20 @@ type Service struct {
 	Doc      string    `json:"doc,omitempty"`
 	Methods  []*Method `json:"methods"`
 	Waiters  []*Waiter `json:"waiters,omitempty"`
+	// Go's generated name lookups (`XNameToIdMap`, list-based `GetByX`).
+	Lookups []*Lookup `json:"lookups,omitempty"`
+}
+
+// Lookup is a generated Go helper that lists everything with `List` and
+// either maps `Key` to `Value` (kind "map", duplicates are an error) or
+// returns the single item whose `Key` equals a name (kind "get"). Key and
+// Value are wire paths on the listed item type.
+type Lookup struct {
+	Name  string   `json:"name"`
+	Kind  string   `json:"kind"`
+	List  string   `json:"list"`
+	Key   []string `json:"key"`
+	Value []string `json:"value,omitempty"`
 }
 
 type PathPart struct {
@@ -168,18 +182,38 @@ type WaitBinding struct {
 	FromResponse   bool   `json:"from_response"`
 	Field          string `json:"field"` // wire name
 	TimeoutMinutes int    `json:"timeout_minutes"`
+	// Every waiter parameter's source; the fields above are the first.
+	Args []*WaitArg `json:"args,omitempty"`
+}
+
+// WaitArg binds one waiter parameter (Key, the Go wait-struct field such
+// as `ContextId`) to a request or response field.
+type WaitArg struct {
+	Key          string `json:"key"`
+	FromResponse bool   `json:"from_response"`
+	Field        string `json:"field"`
+}
+
+// WaitParam is one waiter parameter: its Go name and the poll request's
+// wire field it sets.
+type WaitParam struct {
+	Name string   `json:"name"`
+	Wire string   `json:"wire"`
+	Type *TypeRef `json:"type"`
 }
 
 type Waiter struct {
-	Name        string   `json:"name"`
-	PollMethod  string   `json:"poll_method"`
-	Param       string   `json:"param"` // wire name on the poll request
-	ParamType   *TypeRef `json:"param_type"`
-	Result      *TypeRef `json:"result"`
-	StatusPath  []string `json:"status_path"`
-	MessagePath []string `json:"message_path,omitempty"`
-	Targets     []string `json:"targets"`
-	Failures    []string `json:"failures,omitempty"`
+	Name       string   `json:"name"`
+	PollMethod string   `json:"poll_method"`
+	Param      string   `json:"param"` // wire name on the poll request
+	ParamType  *TypeRef `json:"param_type"`
+	// Every parameter in order; Param/ParamType are the first.
+	Params      []*WaitParam `json:"params,omitempty"`
+	Result      *TypeRef     `json:"result"`
+	StatusPath  []string     `json:"status_path"`
+	MessagePath []string     `json:"message_path,omitempty"`
+	Targets     []string     `json:"targets"`
+	Failures    []string     `json:"failures,omitempty"`
 }
 
 // ---------------------------------------------------------------- parsing
@@ -855,6 +889,78 @@ func (p *pkgInfo) parseLro(fd *ast.FuncDecl, api *apiInfo) *Lro {
 	return l
 }
 
+// parseLookups reads Go's generated name lookups on `<base>API`: bodies
+// that call `a.<List>[All](ctx, …)` and build `mapping` (a name map) or
+// `tmp` (list-based GetBy).
+func (p *pkgInfo) parseLookups(base string, api *apiInfo, methods []*Method, warnings *[]string) []*Lookup {
+	var out []*Lookup
+	for _, key := range sortedKeys(api.methods) {
+		if !strings.HasPrefix(key, base+"API.") {
+			continue
+		}
+		fd := api.methods[key]
+		var list string
+		var keyPath, valPath []string
+		kind := ""
+		ast.Inspect(fd.Body, func(n ast.Node) bool {
+			switch s := n.(type) {
+			case *ast.CallExpr:
+				if fn := exprString(s.Fun); strings.HasPrefix(fn, "a.") && list == "" {
+					list = strings.TrimSuffix(strings.TrimPrefix(fn, "a."), "All")
+				}
+			case *ast.AssignStmt:
+				if len(s.Lhs) != 1 || len(s.Rhs) != 1 {
+					return true
+				}
+				lhs, rhs := exprString(s.Lhs[0]), exprString(s.Rhs[0])
+				isMap := false
+				if cl, ok := s.Rhs[0].(*ast.CompositeLit); ok {
+					_, isMap = cl.Type.(*ast.MapType)
+				}
+				switch {
+				case lhs == "mapping" && isMap:
+					kind = "map"
+				case lhs == "tmp" && isMap:
+					kind = "get"
+				case lhs == "key" && strings.HasPrefix(rhs, "v."):
+					keyPath = strings.Split(strings.TrimPrefix(rhs, "v."), ".")
+				case lhs == "mapping[key]" && strings.HasPrefix(rhs, "v."):
+					valPath = strings.Split(strings.TrimPrefix(rhs, "v."), ".")
+				}
+			}
+			return true
+		})
+		if kind == "" {
+			continue
+		}
+		name := fd.Name.Name
+		var item string
+		for _, m := range methods {
+			if m.Name != list {
+				continue
+			}
+			switch {
+			case m.Pagination != nil && m.Pagination.ItemType != nil:
+				item = m.Pagination.ItemType.Name
+			case m.Response != nil && m.Response.Kind == "list" && m.Response.Elem != nil:
+				item = m.Response.Elem.Name
+			}
+		}
+		wireKey, ok1 := p.goPathToWire(item, keyPath)
+		wireVal, ok2 := p.goPathToWire(item, valPath)
+		if item == "" || !ok1 || (kind == "map" && !ok2) {
+			*warnings = append(*warnings, fmt.Sprintf("%s.%s: unresolved lookup", base, name))
+			continue
+		}
+		l := &Lookup{Name: name, Kind: kind, List: list, Key: wireKey}
+		if kind == "map" {
+			l.Value = wireVal
+		}
+		out = append(out, l)
+	}
+	return out
+}
+
 // ---------------------------------------------------------------- api.go
 
 type apiInfo struct {
@@ -930,10 +1036,21 @@ func (p *pkgInfo) goPathToWire(typ string, path []string) ([]string, bool) {
 
 func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 	w := &Waiter{Name: strings.TrimPrefix(fd.Name.Name, "Wait")}
-	// Param: second parameter (after ctx).
-	prm := fd.Type.Params.List[1]
-	paramGo := prm.Names[0].Name
-	w.ParamType = typeRef(p.name, prm.Type)
+	// Parameters between ctx and timeout.
+	var params []*WaitParam
+	for _, prm := range fd.Type.Params.List[1:] {
+		for _, n := range prm.Names {
+			if n.Name == "timeout" || n.Name == "callback" {
+				continue
+			}
+			params = append(params, &WaitParam{Name: n.Name, Type: typeRef(p.name, prm.Type)})
+		}
+	}
+	if len(params) == 0 {
+		return nil, fmt.Errorf("%s: no parameters", name)
+	}
+	paramGo := params[0].Name
+	w.ParamType = params[0].Type
 	resultType := ""
 	var respVar string
 	var statusExpr, msgExpr []string
@@ -951,11 +1068,18 @@ func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 					if cl, ok := call.Args[1].(*ast.CompositeLit); ok {
 						for _, el := range cl.Elts {
 							kv := el.(*ast.KeyValueExpr)
-							if exprString(kv.Value) == paramGo {
-								reqT := exprString(cl.Type)
-								if wire, ok := p.goToWire[reqT][exprString(kv.Key)]; ok {
-									w.Param = wire
+							reqT := exprString(cl.Type)
+							wire, ok := p.goToWire[reqT][exprString(kv.Key)]
+							if !ok {
+								continue
+							}
+							for _, prm := range params {
+								if exprString(kv.Value) == prm.Name {
+									prm.Wire = wire
 								}
+							}
+							if exprString(kv.Value) == paramGo {
+								w.Param = wire
 							}
 						}
 					}
@@ -1036,6 +1160,14 @@ func (p *pkgInfo) parseWaiter(name string, fd *ast.FuncDecl) (*Waiter, error) {
 			return true
 		})
 	}
+	if len(params) > 1 {
+		for _, prm := range params {
+			if prm.Wire == "" {
+				return nil, fmt.Errorf("%s: parameter %s not in the poll request", name, prm.Name)
+			}
+		}
+		w.Params = params
+	}
 	return w, nil
 }
 
@@ -1080,27 +1212,37 @@ func (p *pkgInfo) parseTrigger(fd *ast.FuncDecl, reqType, respType string) *Wait
 			}
 			return false
 		}
-		if key == "Response" || key == "Poll" || key == "callback" || b.Field != "" {
+		if key == "Response" || key == "Poll" || key == "callback" {
 			return false
 		}
 		parts := strings.SplitN(exprString(kv.Value), ".", 2)
 		if len(parts) != 2 {
 			return true
 		}
+		var arg *WaitArg
 		switch parts[0] {
 		case respVar:
 			if w, ok := p.goToWire[respType][parts[1]]; ok {
-				b.FromResponse, b.Field = true, w
+				arg = &WaitArg{Key: key, FromResponse: true, Field: w}
 			}
 		case reqVar:
 			if w, ok := p.goToWire[reqType][parts[1]]; ok {
-				b.FromResponse, b.Field = false, w
+				arg = &WaitArg{Key: key, FromResponse: false, Field: w}
 			}
+		}
+		if arg != nil {
+			if b.Field == "" {
+				b.FromResponse, b.Field = arg.FromResponse, arg.Field
+			}
+			b.Args = append(b.Args, arg)
 		}
 		return false
 	})
 	if b.Field == "" {
 		return nil
+	}
+	if len(b.Args) < 2 {
+		b.Args = nil
 	}
 	return b
 }
@@ -1269,6 +1411,7 @@ func main() {
 			}
 			svc.Methods = append(svc.Methods, m)
 		}
+		svc.Lookups = p.parseLookups(base, api, svc.Methods, &warnings)
 		for _, key := range sortedKeys(api.waiters) {
 			if !strings.HasPrefix(key, base+"API.") {
 				continue

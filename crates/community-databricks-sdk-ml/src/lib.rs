@@ -22662,10 +22662,10 @@ impl ForecastingApi {
             .api
             .send::<CreateForecastingExperimentResponse>(call)
             .await?;
-        let param = response.experiment_id.clone().unwrap_or_default();
+        let wait_experiment_id = response.experiment_id.clone().unwrap_or_default();
         Ok(WaitGetExperimentForecastingSucceeded {
             api: Clone::clone(self),
-            experiment_id: param,
+            experiment_id: wait_experiment_id,
             response,
             timeout: ::std::time::Duration::from_secs(7200),
             on_progress: None,
@@ -22695,12 +22695,13 @@ impl ForecastingApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<ForecastingExperiment>>,
     ) -> ::community_databricks_core::Result<ForecastingExperiment> {
-        let param: String = experiment_id.into();
+        let experiment_id_param: String = experiment_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
             let fut = self.get_experiment(
-                GetForecastingExperimentRequest::default().with_experiment_id(param.clone()),
+                GetForecastingExperimentRequest::default()
+                    .with_experiment_id(experiment_id_param.clone()),
             );
             async move {
                 let value = fut.await?;

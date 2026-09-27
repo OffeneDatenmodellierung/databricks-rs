@@ -19,6 +19,9 @@ use community_databricks_core::http::{Call, Method, path_param};
 use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
+mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// An item representing an ACL rule applied to the given principal (user or
 /// group) on the associated scope point.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
@@ -4750,6 +4753,46 @@ impl GitCredentialsApi {
             .await
             .map(|_| ())
     }
+
+    /// Map each [`CredentialInfo`]'s `git_provider` to its `credential_id`, listing them all first
+    /// (Go: `GitCredentialsAPI.CredentialInfoGitProviderToCredentialIdMap`). A duplicate `git_provider` is an error.
+    pub async fn credential_info_git_provider_to_credential_id_map(
+        &self,
+        request: ListCredentialsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "git_provider",
+            |v: &CredentialInfo| {
+                v.git_provider
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &CredentialInfo| v.credential_id.clone(),
+        )
+    }
+
+    /// The single [`CredentialInfo`] whose `git_provider` is `name`, listing them all first
+    /// (Go: `GitCredentialsAPI.GetByGitProvider`). None, or more than one, is an error.
+    pub async fn get_by_git_provider(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<CredentialInfo> {
+        let items = self.list_all(ListCredentialsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "CredentialInfo",
+            name,
+            |v: &CredentialInfo| {
+                v.git_provider
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
 }
 
 /// The Repos API allows users to manage their git repos. Users can use the
@@ -4966,6 +5009,30 @@ impl ReposApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<RepoPermissions>(call).await
+    }
+
+    /// The single [`RepoInfo`] whose `path` is `name`, listing them all first
+    /// (Go: `ReposAPI.GetByPath`). None, or more than one, is an error.
+    pub async fn get_by_path(&self, name: &str) -> ::community_databricks_core::Result<RepoInfo> {
+        let items = self.list_all(ListReposRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "RepoInfo", name, |v: &RepoInfo| {
+            v.path.as_ref().map(|x| x.clone()).unwrap_or_default()
+        })
+    }
+
+    /// Map each [`RepoInfo`]'s `path` to its `id`, listing them all first
+    /// (Go: `ReposAPI.RepoInfoPathToIdMap`). A duplicate `path` is an error.
+    pub async fn repo_info_path_to_id_map(
+        &self,
+        request: ListReposRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "path",
+            |v: &RepoInfo| v.path.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &RepoInfo| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }
 
@@ -5675,5 +5742,29 @@ impl WorkspaceApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<WorkspaceObjectPermissions>(call).await
+    }
+
+    /// The single [`ObjectInfo`] whose `path` is `name`, listing them all first
+    /// (Go: `WorkspaceAPI.GetByPath`). None, or more than one, is an error.
+    pub async fn get_by_path(&self, name: &str) -> ::community_databricks_core::Result<ObjectInfo> {
+        let items = self.list_all(ListWorkspaceRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "ObjectInfo", name, |v: &ObjectInfo| {
+            v.path.as_ref().map(|x| x.clone()).unwrap_or_default()
+        })
+    }
+
+    /// Map each [`ObjectInfo`]'s `path` to its `object_id`, listing them all first
+    /// (Go: `WorkspaceAPI.ObjectInfoPathToObjectIdMap`). A duplicate `path` is an error.
+    pub async fn object_info_path_to_object_id_map(
+        &self,
+        request: ListWorkspaceRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "path",
+            |v: &ObjectInfo| v.path.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &ObjectInfo| v.object_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
     }
 }

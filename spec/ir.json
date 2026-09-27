@@ -1478,6 +1478,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByDisplayName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "display_name"
+     ]
+    },
+    {
+     "name": "ListAlertsResponseAlertDisplayNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "display_name"
+     ],
+     "value": [
+      "id"
+     ]
+    }
    ]
   },
   {
@@ -1740,6 +1761,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "AlertV2DisplayNameToIdMap",
+     "kind": "map",
+     "list": "ListAlerts",
+     "key": [
+      "display_name"
+     ],
+     "value": [
+      "id"
+     ]
+    },
+    {
+     "name": "GetByDisplayName",
+     "kind": "get",
+     "list": "ListAlerts",
+     "key": [
+      "display_name"
+     ]
+    }
    ]
   },
   {
@@ -1969,7 +2011,19 @@
       "waiter": "GetDeploymentAppSucceeded",
       "from_response": false,
       "field": "app_name",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "AppName",
+        "from_response": false,
+        "field": "app_name"
+       },
+       {
+        "key": "DeploymentId",
+        "from_response": true,
+        "field": "deployment_id"
+       }
+      ]
      }
     },
     {
@@ -2556,6 +2610,22 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "appName",
+       "wire": "app_name",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "deploymentId",
+       "wire": "deployment_id",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "apps",
@@ -4431,6 +4501,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "PolicyNameToPolicyIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "policy_id"
+     ]
+    }
    ]
   },
   {
@@ -4981,6 +5072,27 @@
       "ERROR"
      ]
     }
+   ],
+   "lookups": [
+    {
+     "name": "ClusterDetailsClusterNameToClusterIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "cluster_name"
+     ],
+     "value": [
+      "cluster_id"
+     ]
+    },
+    {
+     "name": "GetByClusterName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "cluster_name"
+     ]
+    }
    ]
   },
   {
@@ -5011,7 +5123,24 @@
       "waiter": "CommandStatusCommandExecutionCancelled",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "CommandId",
+        "from_response": false,
+        "field": "commandId"
+       },
+       {
+        "key": "ContextId",
+        "from_response": false,
+        "field": "contextId"
+       }
+      ]
      }
     },
     {
@@ -5084,7 +5213,19 @@
       "waiter": "ContextStatusCommandExecutionRunning",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "ContextId",
+        "from_response": true,
+        "field": "id"
+       }
+      ]
      }
     },
     {
@@ -5131,7 +5272,24 @@
       "waiter": "CommandStatusCommandExecutionFinishedOrError",
       "from_response": false,
       "field": "clusterId",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ClusterId",
+        "from_response": false,
+        "field": "clusterId"
+       },
+       {
+        "key": "CommandId",
+        "from_response": true,
+        "field": "id"
+       },
+       {
+        "key": "ContextId",
+        "from_response": false,
+        "field": "contextId"
+       }
+      ]
      }
     }
    ],
@@ -5143,6 +5301,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "commandId",
+       "wire": "commandId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -5169,6 +5350,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "commandId",
+       "wire": "commandId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -5193,6 +5397,22 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "clusterId",
+       "wire": "clusterId",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "contextId",
+       "wire": "contextId",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "compute",
@@ -5350,6 +5570,19 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "ConnectionInfoNameToFullNameMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "full_name"
+     ]
     }
    ]
   },
@@ -5728,6 +5961,29 @@
       "req_field": "page_token"
      }
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetBySummaryName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "summary",
+      "name"
+     ]
+    },
+    {
+     "name": "ListingSummaryNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "summary",
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
+    }
    ]
   },
   {
@@ -5915,6 +6171,27 @@
       "resp_field": "next_page_token",
       "req_field": "page_token"
      }
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "ProviderInfoNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
     }
    ]
   },
@@ -11259,6 +11536,19 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "FunctionInfoNameToFullNameMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "full_name"
+     ]
+    }
    ]
   },
   {
@@ -11306,7 +11596,24 @@
       "waiter": "GetMessageGenieCompleted",
       "from_response": false,
       "field": "conversation_id",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ConversationId",
+        "from_response": false,
+        "field": "conversation_id"
+       },
+       {
+        "key": "MessageId",
+        "from_response": true,
+        "field": "message_id"
+       },
+       {
+        "key": "SpaceId",
+        "from_response": false,
+        "field": "space_id"
+       }
+      ]
      }
     },
     {
@@ -12262,7 +12569,24 @@
       "waiter": "GetMessageGenieCompleted",
       "from_response": true,
       "field": "conversation_id",
-      "timeout_minutes": 20
+      "timeout_minutes": 20,
+      "args": [
+       {
+        "key": "ConversationId",
+        "from_response": true,
+        "field": "conversation_id"
+       },
+       {
+        "key": "MessageId",
+        "from_response": true,
+        "field": "message_id"
+       },
+       {
+        "key": "SpaceId",
+        "from_response": false,
+        "field": "space_id"
+       }
+      ]
      }
     },
     {
@@ -12320,6 +12644,29 @@
      "param_type": {
       "kind": "string"
      },
+     "params": [
+      {
+       "name": "conversationId",
+       "wire": "conversation_id",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "messageId",
+       "wire": "message_id",
+       "type": {
+        "kind": "string"
+       }
+      },
+      {
+       "name": "spaceId",
+       "wire": "space_id",
+       "type": {
+        "kind": "string"
+       }
+      }
+     ],
      "result": {
       "kind": "ref",
       "pkg": "dashboards",
@@ -12464,6 +12811,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "CredentialInfoGitProviderToCredentialIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "git_provider"
+     ],
+     "value": [
+      "credential_id"
+     ]
+    },
+    {
+     "name": "GetByGitProvider",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "git_provider"
+     ]
+    }
    ]
   },
   {
@@ -12587,6 +12955,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "GlobalInitScriptDetailsNameToScriptIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "script_id"
+     ]
     }
    ]
   },
@@ -13160,6 +13549,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByInstancePoolName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "instance_pool_name"
+     ]
+    },
+    {
+     "name": "InstancePoolAndStatsInstancePoolNameToInstancePoolIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "instance_pool_name"
+     ],
+     "value": [
+      "instance_pool_id"
+     ]
+    }
    ]
   },
   {
@@ -13390,6 +13800,27 @@
      },
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByLabel",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "label"
+     ]
+    },
+    {
+     "name": "IpAccessListInfoLabelToListIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "label"
+     ],
+     "value": [
+      "list_id"
+     ]
     }
    ]
   },
@@ -13905,6 +14336,29 @@
      ],
      "failures": [
       "INTERNAL_ERROR"
+     ]
+    }
+   ],
+   "lookups": [
+    {
+     "name": "BaseJobSettingsNameToJobIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "settings",
+      "name"
+     ],
+     "value": [
+      "job_id"
+     ]
+    },
+    {
+     "name": "GetBySettingsName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "settings",
+      "name"
      ]
     }
    ]
@@ -17629,6 +18083,27 @@
       "FAILED"
      ]
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "ListPipelines",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "PipelineStateInfoNameToPipelineIdMap",
+     "kind": "map",
+     "list": "ListPipelines",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "pipeline_id"
+     ]
+    }
    ]
   },
   {
@@ -20093,6 +20568,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "ExchangeFilterNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
+    },
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    }
    ]
   },
   {
@@ -20338,6 +20834,65 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "ExchangeListingExchangeNameToExchangeIdMap",
+     "kind": "map",
+     "list": "ListExchangesForListing",
+     "key": [
+      "exchange_name"
+     ],
+     "value": [
+      "exchange_id"
+     ]
+    },
+    {
+     "name": "ExchangeListingListingNameToListingIdMap",
+     "kind": "map",
+     "list": "ListListingsForExchange",
+     "key": [
+      "listing_name"
+     ],
+     "value": [
+      "listing_id"
+     ]
+    },
+    {
+     "name": "ExchangeNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
+    },
+    {
+     "name": "GetByExchangeName",
+     "kind": "get",
+     "list": "ListExchangesForListing",
+     "key": [
+      "exchange_name"
+     ]
+    },
+    {
+     "name": "GetByListingName",
+     "kind": "get",
+     "list": "ListListingsForExchange",
+     "key": [
+      "listing_name"
+     ]
+    },
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    }
    ]
   },
   {
@@ -20447,6 +21002,27 @@
       "resp_field": "next_page_token",
       "req_field": "page_token"
      }
+    }
+   ],
+   "lookups": [
+    {
+     "name": "FileInfoDisplayNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "display_name"
+     ],
+     "value": [
+      "id"
+     ]
+    },
+    {
+     "name": "GetByDisplayName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "display_name"
+     ]
     }
    ]
   },
@@ -20583,6 +21159,29 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetBySummaryName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "summary",
+      "name"
+     ]
+    },
+    {
+     "name": "ListingSummaryNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "summary",
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
     }
    ]
   },
@@ -20884,6 +21483,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "ProviderInfoNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
+    }
    ]
   },
   {
@@ -21102,6 +21722,19 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "ProviderInfoNameToMetastoreIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "metastore_id"
+     ]
     }
    ]
   },
@@ -21703,6 +22336,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByDisplayName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "display_name"
+     ]
+    },
+    {
+     "name": "ListQueryObjectsResponseQueryDisplayNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "display_name"
+     ],
+     "value": [
+      "id"
+     ]
     }
    ]
   },
@@ -22661,6 +23315,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "RegisteredModelInfoNameToFullNameMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "full_name"
+     ]
+    }
    ]
   },
   {
@@ -22896,6 +23571,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByPath",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "path"
+     ]
+    },
+    {
+     "name": "RepoInfoPathToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "path"
+     ],
+     "value": [
+      "id"
+     ]
     }
    ]
   },
@@ -27719,6 +28415,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByComment",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "comment"
+     ]
+    },
+    {
+     "name": "TokenInfoCommentToTokenIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "comment"
+     ],
+     "value": [
+      "token_id"
+     ]
+    }
    ]
   },
   {
@@ -27820,6 +28537,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByComment",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "comment"
+     ]
+    },
+    {
+     "name": "PublicTokenInfoCommentToTokenIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "comment"
+     ],
+     "value": [
+      "token_id"
+     ]
     }
    ]
   },
@@ -28851,6 +29589,27 @@
      "content_type": "application/json",
      "workspace_header": true
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    },
+    {
+     "name": "VolumeInfoNameToVolumeIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "volume_id"
+     ]
+    }
    ]
   },
   {
@@ -29398,6 +30157,27 @@
       "STOPPED"
      ]
     }
+   ],
+   "lookups": [
+    {
+     "name": "EndpointInfoNameToIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "name"
+     ],
+     "value": [
+      "id"
+     ]
+    },
+    {
+     "name": "GetByName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "name"
+     ]
+    }
    ]
   },
   {
@@ -29664,6 +30444,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": true
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByPath",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "path"
+     ]
+    },
+    {
+     "name": "ObjectInfoPathToObjectIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "path"
+     ],
+     "value": [
+      "object_id"
+     ]
     }
    ]
   },
@@ -31815,6 +32616,27 @@
      },
      "accept": "application/json",
      "workspace_header": false
+    }
+   ],
+   "lookups": [
+    {
+     "name": "CredentialCredentialsNameToCredentialsIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "credentials_name"
+     ],
+     "value": [
+      "credentials_id"
+     ]
+    },
+    {
+     "name": "GetByCredentialsName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "credentials_name"
+     ]
     }
    ]
   },
@@ -34403,6 +35225,27 @@
      "content_type": "application/json",
      "workspace_header": false
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByLabel",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "label"
+     ]
+    },
+    {
+     "name": "IpAccessListInfoLabelToListIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "label"
+     ],
+     "value": [
+      "list_id"
+     ]
+    }
    ]
   },
   {
@@ -34537,6 +35380,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": false
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByConfigName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "config_name"
+     ]
+    },
+    {
+     "name": "LogDeliveryConfigurationConfigNameToConfigIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "config_name"
+     ],
+     "value": [
+      "config_id"
+     ]
     }
    ]
   },
@@ -35528,6 +36392,27 @@
      "accept": "application/json",
      "workspace_header": false
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByNetworkName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "network_name"
+     ]
+    },
+    {
+     "name": "NetworkNetworkNameToNetworkIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "network_name"
+     ],
+     "value": [
+      "network_id"
+     ]
+    }
    ]
   },
   {
@@ -35734,6 +36619,27 @@
      "accept": "application/json",
      "content_type": "application/json",
      "workspace_header": false
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByPrivateAccessSettingsName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "private_access_settings_name"
+     ]
+    },
+    {
+     "name": "PrivateAccessSettingsPrivateAccessSettingsNameToPrivateAccessSettingsIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "private_access_settings_name"
+     ],
+     "value": [
+      "private_access_settings_id"
+     ]
     }
    ]
   },
@@ -37346,6 +38252,27 @@
      "accept": "application/json",
      "workspace_header": false
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByStorageConfigurationName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "storage_configuration_name"
+     ]
+    },
+    {
+     "name": "StorageConfigurationStorageConfigurationNameToStorageConfigurationIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "storage_configuration_name"
+     ],
+     "value": [
+      "storage_configuration_id"
+     ]
+    }
    ]
   },
   {
@@ -37937,6 +38864,27 @@
      "accept": "application/json",
      "workspace_header": false
     }
+   ],
+   "lookups": [
+    {
+     "name": "GetByVpcEndpointName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "vpc_endpoint_name"
+     ]
+    },
+    {
+     "name": "VpcEndpointVpcEndpointNameToVpcEndpointIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "vpc_endpoint_name"
+     ],
+     "value": [
+      "vpc_endpoint_id"
+     ]
+    }
    ]
   },
   {
@@ -38375,6 +39323,27 @@
      "failures": [
       "BANNED",
       "FAILED"
+     ]
+    }
+   ],
+   "lookups": [
+    {
+     "name": "GetByWorkspaceName",
+     "kind": "get",
+     "list": "List",
+     "key": [
+      "workspace_name"
+     ]
+    },
+    {
+     "name": "WorkspaceWorkspaceNameToWorkspaceIdMap",
+     "kind": "map",
+     "list": "List",
+     "key": [
+      "workspace_name"
+     ],
+     "value": [
+      "workspace_id"
      ]
     }
    ]

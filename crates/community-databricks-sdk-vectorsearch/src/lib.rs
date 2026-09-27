@@ -4460,10 +4460,10 @@ impl VectorSearchEndpointsApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<EndpointInfo>(call).await?;
-        let param = response.name.clone().unwrap_or_default();
+        let wait_endpoint_name = response.name.clone().unwrap_or_default();
         Ok(WaitGetEndpointVectorSearchEndpointOnline {
             api: Clone::clone(self),
-            endpoint_name: param,
+            endpoint_name: wait_endpoint_name,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -4699,12 +4699,13 @@ impl VectorSearchEndpointsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<EndpointInfo>>,
     ) -> ::community_databricks_core::Result<EndpointInfo> {
-        let param: String = endpoint_name.into();
+        let endpoint_name_param: String = endpoint_name.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut =
-                self.get_endpoint(GetEndpointRequest::default().with_endpoint_name(param.clone()));
+            let fut = self.get_endpoint(
+                GetEndpointRequest::default().with_endpoint_name(endpoint_name_param.clone()),
+            );
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

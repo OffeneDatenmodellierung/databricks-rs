@@ -103,7 +103,9 @@ fn codegen(root: &Path, check: bool) -> Result<(), String> {
             ir.source.go_sdk_version
         );
         if has_ext {
-            out.push_str("\nmod ext;\n");
+            // Hand-written helpers: methods on generated types, and any
+            // public types or functions they add.
+            out.push_str("\nmod ext;\n#[allow(unused_imports)]\npub use ext::*;\n");
         }
         out.push_str(&emit_model::emit(&types, p));
         for s in by_pkg.get(pkg.as_str()).into_iter().flatten() {

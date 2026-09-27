@@ -11032,16 +11032,15 @@ impl PipelinesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.pipeline_id.clone();
+        let wait_pipeline_id = request.pipeline_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetPipelineIdle {
             api: Clone::clone(self),
-            pipeline_id: param,
+            pipeline_id: wait_pipeline_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -11081,6 +11080,43 @@ impl PipelinesApi {
         self.api.send::<PipelinePermissions>(call).await
     }
 
+    /// The single [`PipelineStateInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `PipelinesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<PipelineStateInfo> {
+        let items = self
+            .list_pipelines_all(ListPipelinesRequest::default())
+            .await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "PipelineStateInfo",
+            name,
+            |v: &PipelineStateInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// Map each [`PipelineStateInfo`]'s `name` to its `pipeline_id`, listing them all first
+    /// (Go: `PipelinesAPI.PipelineStateInfoNameToPipelineIdMap`). A duplicate `name` is an error.
+    pub async fn pipeline_state_info_name_to_pipeline_id_map(
+        &self,
+        request: ListPipelinesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_pipelines_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &PipelineStateInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &PipelineStateInfo| {
+                v.pipeline_id
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
     /// Repeatedly calls [`get`](Self::get) until the result reaches IDLE.
     pub async fn wait_get_pipeline_idle(
         &self,
@@ -11088,11 +11124,12 @@ impl PipelinesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetPipelineResponse>>,
     ) -> ::community_databricks_core::Result<GetPipelineResponse> {
-        let param: String = pipeline_id.into();
+        let pipeline_id_param: String = pipeline_id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetPipelineRequest::default().with_pipeline_id(param.clone()));
+            let fut =
+                self.get(GetPipelineRequest::default().with_pipeline_id(pipeline_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

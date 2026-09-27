@@ -53743,6 +53743,23 @@
             "cause"
           ],
           "param": "clusterId",
+          "params": [
+            {
+              "field": "clusterId",
+              "from_response": false,
+              "param": "clusterId"
+            },
+            {
+              "field": "commandId",
+              "from_response": false,
+              "param": "commandId"
+            },
+            {
+              "field": "contextId",
+              "from_response": false,
+              "param": "contextId"
+            }
+          ],
           "poll": "command_execution.command_status",
           "status_path": [
             "status"
@@ -53800,6 +53817,23 @@
           "from_response": false,
           "message_path": null,
           "param": "clusterId",
+          "params": [
+            {
+              "field": "clusterId",
+              "from_response": false,
+              "param": "clusterId"
+            },
+            {
+              "field": "id",
+              "from_response": true,
+              "param": "commandId"
+            },
+            {
+              "field": "contextId",
+              "from_response": false,
+              "param": "contextId"
+            }
+          ],
           "poll": "command_execution.command_status",
           "status_path": [
             "status"
@@ -53911,6 +53945,18 @@
           "from_response": false,
           "message_path": null,
           "param": "clusterId",
+          "params": [
+            {
+              "field": "clusterId",
+              "from_response": false,
+              "param": "clusterId"
+            },
+            {
+              "field": "id",
+              "from_response": true,
+              "param": "contextId"
+            }
+          ],
           "poll": "command_execution.context_status",
           "status_path": [
             "status"
@@ -56125,6 +56171,18 @@
             "message"
           ],
           "param": "app_name",
+          "params": [
+            {
+              "field": "app_name",
+              "from_response": false,
+              "param": "app_name"
+            },
+            {
+              "field": "deployment_id",
+              "from_response": true,
+              "param": "deployment_id"
+            }
+          ],
           "poll": "apps.get_deployment",
           "status_path": [
             "status",
@@ -63947,6 +64005,23 @@
           "from_response": false,
           "message_path": null,
           "param": "conversation_id",
+          "params": [
+            {
+              "field": "conversation_id",
+              "from_response": false,
+              "param": "conversation_id"
+            },
+            {
+              "field": "message_id",
+              "from_response": true,
+              "param": "message_id"
+            },
+            {
+              "field": "space_id",
+              "from_response": false,
+              "param": "space_id"
+            }
+          ],
           "poll": "genie.get_message",
           "status_path": [
             "status"
@@ -65088,6 +65163,23 @@
           "from_response": true,
           "message_path": null,
           "param": "conversation_id",
+          "params": [
+            {
+              "field": "conversation_id",
+              "from_response": true,
+              "param": "conversation_id"
+            },
+            {
+              "field": "message_id",
+              "from_response": true,
+              "param": "message_id"
+            },
+            {
+              "field": "space_id",
+              "from_response": false,
+              "param": "space_id"
+            }
+          ],
           "poll": "genie.get_message",
           "status_path": [
             "status"

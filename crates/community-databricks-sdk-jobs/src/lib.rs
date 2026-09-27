@@ -20,6 +20,8 @@ use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
 mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// AiRuntimeTask: multi-node GPU compute task definition for Databricks AI
 /// Runtime workloads.
 ///
@@ -17706,16 +17708,15 @@ impl JobsApi {
         let path = String::from("/api/2.2/jobs/runs/cancel");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.run_id.clone();
+        let wait_run_id = request.run_id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetRunJobTerminatedOrSkipped {
             api: Clone::clone(self),
-            run_id: param,
+            run_id: wait_run_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17943,12 +17944,11 @@ impl JobsApi {
         let path = String::from("/api/2.2/jobs/runs/repair");
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.run_id.clone();
+        let wait_run_id = request.run_id.clone();
         let response = self.api.send::<RepairRunResponse>(call).await?;
-        let param = param;
         Ok(WaitGetRunJobTerminatedOrSkipped {
             api: Clone::clone(self),
-            run_id: param,
+            run_id: wait_run_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17989,10 +17989,10 @@ impl JobsApi {
         let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         let response = self.api.send::<RunNowResponse>(call).await?;
-        let param = response.run_id.clone().unwrap_or_default();
+        let wait_run_id = response.run_id.clone().unwrap_or_default();
         Ok(WaitGetRunJobTerminatedOrSkipped {
             api: Clone::clone(self),
-            run_id: param,
+            run_id: wait_run_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -18049,10 +18049,10 @@ impl JobsApi {
         let mut call = Call::new(Method::POST, path).workspace().idempotent();
         call = call.json(&request)?;
         let response = self.api.send::<SubmitRunResponse>(call).await?;
-        let param = response.run_id.clone().unwrap_or_default();
+        let wait_run_id = response.run_id.clone().unwrap_or_default();
         Ok(WaitGetRunJobTerminatedOrSkipped {
             api: Clone::clone(self),
-            run_id: param,
+            run_id: wait_run_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -18090,6 +18090,43 @@ impl JobsApi {
         self.api.send::<JobPermissions>(call).await
     }
 
+    /// Map each [`BaseJob`]'s `settings.name` to its `job_id`, listing them all first
+    /// (Go: `JobsAPI.BaseJobSettingsNameToJobIdMap`). A duplicate `settings.name` is an error.
+    pub async fn base_job_settings_name_to_job_id_map(
+        &self,
+        request: ListJobsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, i64>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "settings.name",
+            |v: &BaseJob| {
+                v.settings
+                    .as_ref()
+                    .and_then(|x| x.name.as_ref())
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &BaseJob| v.job_id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`BaseJob`] whose `settings.name` is `name`, listing them all first
+    /// (Go: `JobsAPI.GetBySettingsName`). None, or more than one, is an error.
+    pub async fn get_by_settings_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<BaseJob> {
+        let items = self.list_all(ListJobsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(items, "BaseJob", name, |v: &BaseJob| {
+            v.settings
+                .as_ref()
+                .and_then(|x| x.name.as_ref())
+                .map(|x| x.clone())
+                .unwrap_or_default()
+        })
+    }
+
     /// Repeatedly calls [`get_run`](Self::get_run) until the result reaches TERMINATED or SKIPPED.
     pub async fn wait_get_run_job_terminated_or_skipped(
         &self,
@@ -18097,11 +18134,11 @@ impl JobsApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<Run>>,
     ) -> ::community_databricks_core::Result<Run> {
-        let param: i64 = run_id;
+        let run_id_param: i64 = run_id;
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get_run(GetRunRequest::default().with_run_id(param.clone()));
+            let fut = self.get_run(GetRunRequest::default().with_run_id(run_id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback

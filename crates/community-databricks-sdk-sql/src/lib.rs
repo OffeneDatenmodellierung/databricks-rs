@@ -19,6 +19,9 @@ use community_databricks_core::http::{Call, Method, path_param};
 use community_databricks_core::paging::{self, Paged};
 use community_databricks_core::{ApiClient, query, wait};
 
+mod ext;
+#[allow(unused_imports)]
+pub use ext::*;
 /// `AccessControl`.
 #[derive(Debug, Clone, Default, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
 #[non_exhaustive]
@@ -15785,6 +15788,46 @@ impl AlertsApi {
         call = call.json(&request)?;
         self.api.send::<Alert>(call).await
     }
+
+    /// The single [`ListAlertsResponseAlert`] whose `display_name` is `name`, listing them all first
+    /// (Go: `AlertsAPI.GetByDisplayName`). None, or more than one, is an error.
+    pub async fn get_by_display_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ListAlertsResponseAlert> {
+        let items = self.list_all(ListAlertsRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ListAlertsResponseAlert",
+            name,
+            |v: &ListAlertsResponseAlert| {
+                v.display_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`ListAlertsResponseAlert`]'s `display_name` to its `id`, listing them all first
+    /// (Go: `AlertsAPI.ListAlertsResponseAlertDisplayNameToIdMap`). A duplicate `display_name` is an error.
+    pub async fn list_alerts_response_alert_display_name_to_id_map(
+        &self,
+        request: ListAlertsRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "display_name",
+            |v: &ListAlertsResponseAlert| {
+                v.display_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &ListAlertsResponseAlert| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
 }
 
 /// The alerts API can be used to perform CRUD operations on alerts. An alert
@@ -16042,6 +16085,33 @@ impl AlertsV2Api {
         call = call.query(query::to_pairs(&request.other)?);
         call = call.json(&request.alert)?;
         self.api.send::<AlertV2>(call).await
+    }
+
+    /// Map each [`AlertV2`]'s `display_name` to its `id`, listing them all first
+    /// (Go: `AlertsV2API.AlertV2DisplayNameToIdMap`). A duplicate `display_name` is an error.
+    pub async fn alert_v2_display_name_to_id_map(
+        &self,
+        request: ListAlertsV2Request,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_alerts_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "display_name",
+            |v: &AlertV2| v.display_name.clone(),
+            |v: &AlertV2| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`AlertV2`] whose `display_name` is `name`, listing them all first
+    /// (Go: `AlertsV2API.GetByDisplayName`). None, or more than one, is an error.
+    pub async fn get_by_display_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<AlertV2> {
+        let items = self.list_alerts_all(ListAlertsV2Request::default()).await?;
+        ::community_databricks_core::lookup::single(items, "AlertV2", name, |v: &AlertV2| {
+            v.display_name.clone()
+        })
     }
 }
 
@@ -16626,6 +16696,48 @@ impl QueriesApi {
         let mut call = Call::new(Method::PATCH, path).workspace();
         call = call.json(&request)?;
         self.api.send::<Query>(call).await
+    }
+
+    /// The single [`ListQueryObjectsResponseQuery`] whose `display_name` is `name`, listing them all first
+    /// (Go: `QueriesAPI.GetByDisplayName`). None, or more than one, is an error.
+    pub async fn get_by_display_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<ListQueryObjectsResponseQuery> {
+        let items = self.list_all(ListQueriesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "ListQueryObjectsResponseQuery",
+            name,
+            |v: &ListQueryObjectsResponseQuery| {
+                v.display_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+        )
+    }
+
+    /// Map each [`ListQueryObjectsResponseQuery`]'s `display_name` to its `id`, listing them all first
+    /// (Go: `QueriesAPI.ListQueryObjectsResponseQueryDisplayNameToIdMap`). A duplicate `display_name` is an error.
+    pub async fn list_query_objects_response_query_display_name_to_id_map(
+        &self,
+        request: ListQueriesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "display_name",
+            |v: &ListQueryObjectsResponseQuery| {
+                v.display_name
+                    .as_ref()
+                    .map(|x| x.clone())
+                    .unwrap_or_default()
+            },
+            |v: &ListQueryObjectsResponseQuery| {
+                v.id.as_ref().map(|x| x.clone()).unwrap_or_default()
+            },
+        )
     }
 }
 
@@ -17341,10 +17453,10 @@ impl WarehousesApi {
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
         let response = self.api.send::<CreateWarehouseResponse>(call).await?;
-        let param = response.id.clone().unwrap_or_default();
+        let wait_id = response.id.clone().unwrap_or_default();
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17423,16 +17535,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17673,16 +17784,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseRunning {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17702,16 +17812,15 @@ impl WarehousesApi {
         );
         let mut call = Call::new(Method::POST, path).workspace();
         call = call.json(&request)?;
-        let param = request.id.clone();
+        let wait_id = request.id.clone();
         let response = self
             .api
             .send::<::serde::de::IgnoredAny>(call)
             .await
             .map(|_| ())?;
-        let param = param;
         Ok(WaitGetWarehouseStopped {
             api: Clone::clone(self),
-            id: param,
+            id: wait_id,
             response,
             timeout: ::std::time::Duration::from_secs(1200),
             on_progress: None,
@@ -17755,6 +17864,36 @@ impl WarehousesApi {
         self.api.send::<WarehousePermissions>(call).await
     }
 
+    /// Map each [`EndpointInfo`]'s `name` to its `id`, listing them all first
+    /// (Go: `WarehousesAPI.EndpointInfoNameToIdMap`). A duplicate `name` is an error.
+    pub async fn endpoint_info_name_to_id_map(
+        &self,
+        request: ListWarehousesRequest,
+    ) -> ::community_databricks_core::Result<::std::collections::BTreeMap<String, String>> {
+        let items = self.list_all(request).await?;
+        ::community_databricks_core::lookup::unique_map(
+            &items,
+            "name",
+            |v: &EndpointInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+            |v: &EndpointInfo| v.id.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
+    /// The single [`EndpointInfo`] whose `name` is `name`, listing them all first
+    /// (Go: `WarehousesAPI.GetByName`). None, or more than one, is an error.
+    pub async fn get_by_name(
+        &self,
+        name: &str,
+    ) -> ::community_databricks_core::Result<EndpointInfo> {
+        let items = self.list_all(ListWarehousesRequest::default()).await?;
+        ::community_databricks_core::lookup::single(
+            items,
+            "EndpointInfo",
+            name,
+            |v: &EndpointInfo| v.name.as_ref().map(|x| x.clone()).unwrap_or_default(),
+        )
+    }
+
     /// Repeatedly calls [`get`](Self::get) until the result reaches RUNNING.
     pub async fn wait_get_warehouse_running(
         &self,
@@ -17762,11 +17901,11 @@ impl WarehousesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetWarehouseResponse>>,
     ) -> ::community_databricks_core::Result<GetWarehouseResponse> {
-        let param: String = id.into();
+        let id_param: String = id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetWarehouseRequest::default().with_id(param.clone()));
+            let fut = self.get(GetWarehouseRequest::default().with_id(id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
@@ -17797,11 +17936,11 @@ impl WarehousesApi {
         timeout: ::std::time::Duration,
         on_progress: Option<wait::Progress<GetWarehouseResponse>>,
     ) -> ::community_databricks_core::Result<GetWarehouseResponse> {
-        let param: String = id.into();
+        let id_param: String = id.into();
         let callback = ::std::sync::Mutex::new(on_progress);
         let callback = &callback;
         wait::poll(timeout, || {
-            let fut = self.get(GetWarehouseRequest::default().with_id(param.clone()));
+            let fut = self.get(GetWarehouseRequest::default().with_id(id_param.clone()));
             async move {
                 let value = fut.await?;
                 if let Some(cb) = callback
