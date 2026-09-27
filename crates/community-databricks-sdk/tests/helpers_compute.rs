@@ -520,6 +520,76 @@ async fn get_or_create_running_cluster() {
         .unwrap();
 }
 
+#[tokio::test]
+async fn a_pending_cluster_is_reused_and_a_broken_one_replaced() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/clusters/list"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!({"clusters": [
+                {"cluster_id": "p1", "cluster_name": "pending", "state": "PENDING"},
+                {"cluster_id": "r1", "cluster_name": "restarting", "state": "RESTARTING"},
+                {"cluster_id": "e1", "cluster_name": "broken", "state": "ERROR"}
+            ]})),
+        )
+        .mount(&server)
+        .await;
+    for (id, from) in [("p1", "PENDING"), ("r1", "RESTARTING")] {
+        Mock::given(method("GET"))
+            .and(path("/api/2.1/clusters/get"))
+            .and(query_param("cluster_id", id))
+            .respond_with(Sequence::json(vec![
+                json!({"cluster_id": id, "state": from}),
+                json!({"cluster_id": id, "state": "RUNNING"}),
+            ]))
+            .mount(&server)
+            .await;
+    }
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/clusters/get"))
+        .and(query_param("cluster_id", "e1"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!({"cluster_id": "e1", "state": "ERROR"})),
+        )
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.1/clusters/get"))
+        .and(query_param("cluster_id", "e2"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(json!({"cluster_id": "e2", "state": "RUNNING"})),
+        )
+        .mount(&server)
+        .await;
+    // Only the broken cluster is replaced; nothing is started.
+    Mock::given(method("POST"))
+        .and(path("/api/2.1/clusters/start"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
+        .expect(0)
+        .mount(&server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path("/api/2.1/clusters/create"))
+        .and(body_partial_json(json!({"cluster_name": "broken"})))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"cluster_id": "e2"})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let c = workspace(&server).await.clusters();
+    for (name, id) in [("pending", "p1"), ("restarting", "r1")] {
+        let got = c.get_or_create_running_cluster(name, None).await.unwrap();
+        assert_eq!(got.cluster_id.as_deref(), Some(id));
+        assert!(got.is_running_or_resizing());
+    }
+    let custom = CreateCluster::new("15.0.x-scala2.12").with_cluster_name("broken");
+    let replaced = c
+        .get_or_create_running_cluster("broken", Some(custom))
+        .await
+        .unwrap();
+    assert_eq!(replaced.cluster_id.as_deref(), Some("e2"));
+}
+
 #[test]
 fn cluster_state_helpers() {
     let with = |s: State| ClusterDetails::default().with_state(s);
