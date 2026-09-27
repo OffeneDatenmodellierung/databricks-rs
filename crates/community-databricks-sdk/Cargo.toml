@@ -2,7 +2,7 @@
 name = "community-databricks-sdk"
 description = "Community-maintained (unofficial) Rust SDK for the Databricks Account and Workspace REST APIs"
 readme = "../../README.md"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

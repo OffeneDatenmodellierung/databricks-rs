@@ -2,7 +2,7 @@
 name = "community-databricks-core"
 description = "Runtime for the community-maintained Databricks Rust SDK: unified config, authentication, HTTP, errors, pagination and waiters"
 readme = "../../README.md"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
