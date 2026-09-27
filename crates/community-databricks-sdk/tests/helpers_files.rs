@@ -363,6 +363,37 @@ async fn dbfs_read_file_reads_in_blocks() {
 }
 
 #[tokio::test]
+async fn dbfs_read_with_no_data_fails_instead_of_looping() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/2.0/dbfs/get-status"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"file_size": 5})))
+        .mount(&server)
+        .await;
+    for (p, body) in [
+        ("/tmp/missing", json!({"bytes_read": 5})),
+        ("/tmp/empty", json!({"bytes_read": 5, "data": ""})),
+    ] {
+        Mock::given(method("GET"))
+            .and(path("/api/2.0/dbfs/read"))
+            .and(query_param("path", p))
+            .respond_with(ResponseTemplate::new(200).set_body_json(body))
+            .expect(1)
+            .mount(&server)
+            .await;
+    }
+    let dbfs = workspace(&server).await.dbfs();
+    for p in ["/tmp/missing", "/tmp/empty"] {
+        let e = dbfs.read_file(p).await.unwrap_err();
+        assert!(
+            e.to_string()
+                .contains("no data at offset 0 (size 5) despite 5 bytes read"),
+            "{p}: {e}"
+        );
+    }
+}
+
+#[tokio::test]
 async fn dbfs_write_file_and_write_from_add_blocks() {
     let server = MockServer::start().await;
     Mock::given(method("POST"))

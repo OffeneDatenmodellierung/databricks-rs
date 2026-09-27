@@ -179,6 +179,16 @@ impl DbfsHandle {
             }
             let data = base64_decode(res.data.as_deref().unwrap_or_default())
                 .map_err(|e| Error::OperationFailed(format!("dbfs read: {e}")))?;
+            // Go loops forever on a non-empty read with no data; the offset
+            // would never advance.
+            if data.is_empty() {
+                return Err(Error::OperationFailed(format!(
+                    "dbfs read: no data at offset {} (size {}) despite {} bytes read",
+                    r.offset,
+                    r.size,
+                    res.bytes_read.unwrap_or(0)
+                )));
+            }
             let n = data.len().min(buf.len() - total);
             buf[total..total + n].copy_from_slice(&data[..n]);
             total += n;

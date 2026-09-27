@@ -340,10 +340,12 @@ impl ClustersApi {
     }
 
     /// A running cluster named `name` (Go:
-    /// `ClustersAPI.GetOrCreateRunningCluster`): an existing one, started if
-    /// needed, or else a new one from `custom`, or by default a 1-worker
-    /// cluster on the smallest local-disk node type with the latest LTS
-    /// runtime, terminating after 10 idle minutes.
+    /// `ClustersAPI.GetOrCreateRunningCluster`): an existing one, brought
+    /// up with [`ensure_cluster_is_running`](Self::ensure_cluster_is_running)
+    /// (so a pending or restarting cluster is waited on, where Go would
+    /// create a second one), or else a new one from `custom`, or by default
+    /// a 1-worker cluster on the smallest local-disk node type with the
+    /// latest LTS runtime, terminating after 10 idle minutes.
     pub async fn get_or_create_running_cluster(
         &self,
         name: &str,
@@ -358,9 +360,12 @@ impl ClustersApi {
                 return Ok(cl);
             }
             let id = cl.cluster_id.clone().unwrap_or_default();
-            // As in Go, a cluster that can't be started is replaced.
-            if let Ok(started) = Box::pin(self.start(StartCluster::new(id))).await
-                && let Ok(details) = Box::pin(started.wait()).await
+            // Go calls start, which fails for a pending or restarting
+            // cluster, and then creates a second one. Waiting through
+            // ensure_cluster_is_running reuses it; only a cluster that
+            // can't be brought up is replaced, as in Go.
+            if Box::pin(self.ensure_cluster_is_running(&id)).await.is_ok()
+                && let Ok(details) = self.get(GetClusterRequest::new(id)).await
             {
                 return Ok(details);
             }
