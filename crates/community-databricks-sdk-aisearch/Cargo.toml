@@ -4,7 +4,7 @@
 name = "community-databricks-sdk-aisearch"
 description = "Databricks `aisearch` API models and services (community-maintained, generated; use via community-databricks-sdk)"
 readme = "../../README.md"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
