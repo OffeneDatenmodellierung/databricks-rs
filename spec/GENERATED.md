@@ -2,9 +2,9 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a34f301`).
+Source: databricks-sdk-go v0.184.0 (OpenAPI `fbf1beb6c3c730036b45888219658151047732a8`).
 
-- 39 packages, 191 services, 1268 operations (1268 generated), 3550 types.
+- 40 packages, 192 services, 1303 operations (1303 generated), 3616 types.
 
 ## Not generated (binary or streaming payloads)
 
@@ -13,6 +13,15 @@ Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a3
 
 - workspace: GET /api/environments/v1/{name} (Environments.GetOperation)
 - workspace: PATCH /api/environments/v1/{name} (Environments.UpdateWorkspaceBaseEnvironment)
+- workspace: DELETE /api/2.0/agents/{name} (Mason.DeleteMemoryStore)
+- workspace: DELETE /api/2.0/agents/{name} (Mason.DeleteSession)
+- workspace: DELETE /api/2.0/agents/{name} (Mason.DeleteSessionStore)
+- workspace: GET /api/2.0/agents/{name} (Mason.GetMemoryStore)
+- workspace: GET /api/2.0/agents/{name} (Mason.GetSession)
+- workspace: GET /api/2.0/agents/{name} (Mason.GetSessionStore)
+- workspace: PATCH /api/2.0/agents/{name} (Mason.UpdateMemoryStore)
+- workspace: PATCH /api/2.0/agents/{name} (Mason.UpdateSession)
+- workspace: PATCH /api/2.0/agents/{name} (Mason.UpdateSessionStore)
 - workspace: DELETE /api/2.0/postgres/{name} (Postgres.DeleteSyncedTable)
 - workspace: GET /api/2.0/postgres/{name} (Postgres.GetOperation)
 

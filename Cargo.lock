@@ -343,6 +343,7 @@ dependencies = [
  "community-databricks-sdk-jobs",
  "community-databricks-sdk-knowledgeassistants",
  "community-databricks-sdk-marketplace",
+ "community-databricks-sdk-mason",
  "community-databricks-sdk-ml",
  "community-databricks-sdk-networking",
  "community-databricks-sdk-oauth2",
@@ -568,6 +569,15 @@ dependencies = [
 [[package]]
 name = "community-databricks-sdk-marketplace"
 version = "0.1.1"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-mason"
+version = "0.1.0"
 dependencies = [
  "community-databricks-core",
  "serde",

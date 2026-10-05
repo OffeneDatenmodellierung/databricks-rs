@@ -1,7 +1,7 @@
 {
  "source": {
-  "go_sdk_version": "v0.182.0",
-  "openapi_sha": "4648d66fa37e7683468dc92cc043c6aa7a34f301"
+  "go_sdk_version": "v0.184.0",
+  "openapi_sha": "fbf1beb6c3c730036b45888219658151047732a8"
  },
  "services": [
   {
@@ -298,6 +298,29 @@
      "workspace_header": true
     },
     {
+     "name": "AiDecide",
+     "doc": "Turn text and structured data into decisions your application can use. Define\nquestions and criteria to choose an option, estimate a probability, or assign\na score given a provided state.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/ai-functions/ai-decide"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "aifunctions",
+      "name": "AiDecideRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "aifunctions",
+      "name": "AiDecideResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
      "name": "AiExtract",
      "doc": "Extracts structured data from text and documents according to a provided\nschema. For REST API requests, the default rate limit is 120 requests per\nminute per workspace. Contact your Databricks account team to request a\nhigher limit.",
      "verb": "POST",
@@ -486,6 +509,40 @@
      "workspace_header": true
     },
     {
+     "name": "CreateSkill",
+     "doc": "Creates a skill in a Unity Catalog schema and provisions its managed bundle\nstorage. Specify its name in `skill_id`. The request contains an optional\ncomment but no bundle bytes. Upload bundle files through the Files API, then\ncall FinalizeSkill.\n\nYou must be the owner of the parent schema or have `CREATE_VOLUME` and\n`USE_SCHEMA` on it, plus `USE_CATALOG` on the parent catalog.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/skills"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "CreateSkillRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "Skill"
+     },
+     "body_field": "skill",
+     "explicit_query": [
+      {
+       "name": "parent",
+       "field": "parent"
+      },
+      {
+       "name": "skill_id",
+       "field": "skill_id"
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
      "name": "DeleteMcpService",
      "doc": "Deletes the MCP service identified by its resource name. Optionally supply an\n`etag` to make the delete conditional on the MCP service not having changed\nsince it was read.\n\nYou must be the owner of the MCP service or have `MANAGE` on it, plus\n`USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.",
      "verb": "DELETE",
@@ -573,6 +630,56 @@
       "kind": "ref",
       "pkg": "catalog",
       "name": "DeleteModelServiceRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "DeleteSkill",
+     "doc": "Deletes the skill identified by its resource name and makes its managed\nbundle path unavailable. Managed bundle data is deleted asynchronously.\nOptionally supply an `etag` to make the delete conditional on the skill not\nhaving changed since it was read.\n\nYou must be the owner of the skill or have `MANAGE` on it, plus `USE_CATALOG`\non the parent catalog and `USE_SCHEMA` on the parent schema.",
+     "verb": "DELETE",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "DeleteSkillRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "FinalizeSkill",
+     "doc": "Finalizes a skill after its bundle is uploaded. This method reads SKILL.md\nthrough the Files API using the caller's authorization. Its YAML frontmatter\nmust contain an agentskills.io-compliant `name` and a nonblank `description`\nwithin the configured UTF-8 byte limit. On success, it replaces `bundle_name`\nand `description`; refreshes `finalize_time`, `update_time`, and\n`updated_by`; and returns the updated skill. `comment` is preserved.\nRe-finalization uses the latest SKILL.md and is last-write-wins without an\netag precondition. Validation failures do not change metadata.\n\nYou must be the owner of the skill or have `READ_VOLUME` on it, plus\n`USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      },
+      {
+       "lit": "/finalize"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "FinalizeSkillRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "Skill"
      },
      "accept": "application/json",
      "workspace_header": true
@@ -685,6 +792,32 @@
      "workspace_header": true
     },
     {
+     "name": "GetSkill",
+     "doc": "Returns the skill identified by its resource name.\n\nYou must be the owner of the skill or have `READ_VOLUME`, `READ_METADATA`, or\n`MANAGE` on it, plus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on\nthe parent schema.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "GetSkillRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "Skill"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
      "name": "ListMcpServices",
      "doc": "Lists the MCP services in a Unity Catalog schema. Provide `parent` as\n`schemas/{catalog}.{schema}`. Results are paginated; pass the returned\n`next_page_token` to fetch subsequent pages.\n\nRequires `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema. Only MCP services the caller can access (as owner or through\n`EXECUTE`, `READ_METADATA`, or `MANAGE`) are returned.\n\nThis method is generated by Databricks SDK Code Generator.",
      "verb": "GET",
@@ -778,6 +911,39 @@
        "kind": "ref",
        "pkg": "catalog",
        "name": "ModelService"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "ListSkills",
+     "doc": "Lists skills in a Unity Catalog schema. Provide `parent` as\n`schemas/{catalog}.{schema}`. Results are paginated; pass the returned\n`next_page_token` to fetch subsequent pages.\n\nRequires `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema. Only skills the caller can access as owner or through `READ_VOLUME`,\n`READ_METADATA`, or `MANAGE` are returned.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/skills"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "ListSkillsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "ListSkillsResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "skills",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "catalog",
+       "name": "Skill"
       },
       "resp_field": "next_page_token",
       "req_field": "page_token"
@@ -885,6 +1051,45 @@
       "name": "ModelService"
      },
      "body_field": "model_service",
+     "explicit_query": [
+      {
+       "name": "etag",
+       "field": "etag"
+      },
+      {
+       "name": "update_mask",
+       "field": "update_mask",
+       "field_mask": true
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "UpdateSkill",
+     "doc": "Updates a skill. Only fields named in `update_mask` are changed; currently\nonly `comment` is supported. The resource name is immutable. Optionally\nsupply an `etag` to make the update conditional on the skill not having\nchanged since it was read. Bundle files, grants, tags, and ownership are\nunchanged.\n\nYou must be the owner of the skill or have `MANAGE` on it, plus `USE_CATALOG`\non the parent catalog and `USE_SCHEMA` on the parent schema.",
+     "verb": "PATCH",
+     "path": [
+      {
+       "lit": "/api/2.1/unity-catalog/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "UpdateSkillRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "catalog",
+      "name": "Skill"
+     },
+     "body_field": "skill",
      "explicit_query": [
       {
        "name": "etag",
@@ -2420,7 +2625,7 @@
     },
     {
      "name": "Update",
-     "doc": "Updates the app with the supplied name.",
+     "doc": "Updates the app with the supplied name. This is a full replacement: fields\nomitted from the request are cleared, so send the complete app.",
      "verb": "PATCH",
      "path": [
       {
@@ -11740,7 +11945,7 @@
     },
     {
      "name": "DownloadMessageAttachmentVisualization",
-     "doc": "Download a rendered image of a message visualization attachment. The response\nbody is the raw PNG image, not a JSON payload. This is only available if the\nattachment is a visualization and the message status is `COMPLETED`. This\nendpoint is not supported for Private Link workspaces.",
+     "doc": "Download a rendered image of a message visualization attachment. The response\nbody is the raw PNG image, not a JSON payload. This is only available if the\nattachment is a visualization and the message status is `COMPLETED`.",
      "verb": "GET",
      "path": [
       {
@@ -15687,6 +15892,860 @@
   },
   {
    "client": "workspace",
+   "accessor": "Mason",
+   "package": "mason",
+   "name": "Mason",
+   "doc": "APIs for managing agent memory and durable session state. This interface\nis under active development and may change.",
+   "methods": [
+    {
+     "name": "AppendSessionItems",
+     "doc": "Appends items to a session.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/items:append"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "AppendSessionItemsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "AppendSessionItemsResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "ClearSessionItems",
+     "doc": "Clears all items from a session.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/items:clear"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ClearSessionItemsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ClearSessionItemsResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "CreateMemory",
+     "doc": "Creates a managed memory entry using exclusive-create semantics. Callers may\nchoose the entry ID; the service generates one when it is omitted. Returns\n`ALREADY_EXISTS` when an entry with the same actor, session, and path already\nexists. Omitted `session_id` is its own uniqueness key: two omitted-session\nentries with the same actor and path conflict, but an omitted-session entry\ndoes not conflict with a session-scoped entry at the same actor and path.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/entries"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "CreateManagedMemoryEntryRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryEntry"
+     },
+     "body_field": "managed_memory_entry",
+     "explicit_query": [
+      {
+       "name": "managed_memory_entry_id",
+       "field": "managed_memory_entry_id"
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "CreateMemoryStore",
+     "doc": "Creates a managed memory store in the caller's workspace.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/memory-stores"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "CreateManagedMemoryStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryStore"
+     },
+     "body_field": "managed_memory_store",
+     "explicit_query": [
+      {
+       "name": "managed_memory_store_id",
+       "field": "managed_memory_store_id"
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "CreateSession",
+     "doc": "Creates a session within a session store.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/sessions"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "CreateSessionRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "Session"
+     },
+     "body_field": "session",
+     "explicit_query": [
+      {
+       "name": "session_id",
+       "field": "session_id"
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "CreateSessionStore",
+     "doc": "Creates a session store.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/session-stores"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "CreateSessionStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "SessionStore"
+     },
+     "body_field": "session_store",
+     "explicit_query": [
+      {
+       "name": "session_store_id",
+       "field": "session_store_id"
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "DeleteMemory",
+     "doc": "Deletes a managed memory entry by resource name. Returns `NOT_FOUND` when the\nentry does not exist in the caller's workspace.",
+     "verb": "DELETE",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "DeleteManagedMemoryEntryRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "DeleteMemoryStore",
+     "doc": "Deletes a managed memory store by resource name. Returns `NOT_FOUND` when the\nstore does not exist in the caller's workspace.",
+     "verb": "DELETE",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "DeleteManagedMemoryStoreRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "DeleteSession",
+     "doc": "Deletes a session, its items, and any descendant sessions recursively.\nIndependently retained memory is not deleted.",
+     "verb": "DELETE",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "DeleteSessionRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "DeleteSessionStore",
+     "doc": "Deletes a session store, its sessions and items, and its service-managed\nstorage. Memory entries retained by a separate Memory Store are not deleted.",
+     "verb": "DELETE",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "DeleteSessionStoreRequest"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "ExtractMemories",
+     "doc": "Synchronously extracts memories from a single session into the given memory\nstore, returning the entries that were written.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "session_store",
+       "multi_segment": true
+      },
+      {
+       "lit": "/sessions/"
+      },
+      {
+       "field": "session_id"
+      },
+      {
+       "lit": "/extractions"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ExtractMemoriesRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ExtractMemoriesResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "ForkSession",
+     "doc": "Forks a session into an independent top-level copy.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/sessions:fork"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ForkSessionRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ForkSessionResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "GetMemory",
+     "doc": "Retrieves a managed memory entry, including its content, by resource name.\nReturns `NOT_FOUND` when the entry does not exist in the caller's workspace.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "GetManagedMemoryEntryRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryEntry"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "GetMemoryStore",
+     "doc": "Retrieves a managed memory store by resource name. Returns `NOT_FOUND` when\nthe store does not exist in the caller's workspace.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "GetManagedMemoryStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryStore"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "GetSession",
+     "doc": "Gets a session by resource name.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "GetSessionRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "Session"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "GetSessionStore",
+     "doc": "Gets a session store by resource name.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "GetSessionStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "SessionStore"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "ListMemories",
+     "doc": "Lists managed memory entries for one actor. An exact `path` filters entries\nacross sessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `read_mask` selects fields in\neach returned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/entries"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListManagedMemoryEntriesRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListManagedMemoryEntriesResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "managed_memory_entries",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "ManagedMemoryEntry"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "ListMemoryStores",
+     "doc": "Lists managed memory stores in the caller's workspace.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/memory-stores"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListManagedMemoryStoresRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListManagedMemoryStoresResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "managed_memory_stores",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "ManagedMemoryStore"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "ListSessionItems",
+     "doc": "Lists items in a session.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/items"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionItemsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionItemsResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "session_items",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "SessionItem"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "ListSessionStores",
+     "doc": "Lists session stores.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/session-stores"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionStoresRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionStoresResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "session_stores",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "SessionStore"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "ListSessions",
+     "doc": "Lists sessions within a session store.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/sessions"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ListSessionsResponse"
+     },
+     "accept": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "sessions",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "Session"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "PopSessionItem",
+     "doc": "Pops the newest item from a session.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/items:pop"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "PopSessionItemRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "PopSessionItemResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "SearchMemories",
+     "doc": "Searches managed memory entries by text query for one actor. Returns matching\nentries and scores ranked by relevance; `read_mask` selects fields in each\nreturned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+     "verb": "POST",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/entries:search"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "SearchManagedMemoryEntriesRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "SearchManagedMemoryEntriesResponse"
+     },
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true,
+     "pagination": {
+      "kind": "token",
+      "items": "results",
+      "item_type": {
+       "kind": "ref",
+       "pkg": "mason",
+       "name": "ManagedMemoryEntrySearchResult"
+      },
+      "resp_field": "next_page_token",
+      "req_field": "page_token"
+     }
+    },
+    {
+     "name": "UpdateMemory",
+     "doc": "Updates selected mutable fields on a managed memory entry. Identity fields\nare immutable.",
+     "verb": "PATCH",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "UpdateManagedMemoryEntryRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryEntry"
+     },
+     "body_field": "managed_memory_entry",
+     "explicit_query": [
+      {
+       "name": "update_mask",
+       "field": "update_mask",
+       "field_mask": true
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "UpdateMemoryStore",
+     "doc": "Updates a managed memory store's description.",
+     "verb": "PATCH",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "UpdateManagedMemoryStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "ManagedMemoryStore"
+     },
+     "body_field": "managed_memory_store",
+     "explicit_query": [
+      {
+       "name": "update_mask",
+       "field": "update_mask",
+       "field_mask": true
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "UpdateSession",
+     "doc": "Updates a session's mutable fields.",
+     "verb": "PATCH",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "UpdateSessionRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "Session"
+     },
+     "body_field": "session",
+     "explicit_query": [
+      {
+       "name": "update_mask",
+       "field": "update_mask",
+       "field_mask": true
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "UpdateSessionStore",
+     "doc": "Updates a session store's description and metadata.",
+     "verb": "PATCH",
+     "path": [
+      {
+       "lit": "/api/2.0/agents/"
+      },
+      {
+       "field": "name",
+       "multi_segment": true
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "UpdateSessionStoreRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "mason",
+      "name": "SessionStore"
+     },
+     "body_field": "session_store",
+     "explicit_query": [
+      {
+       "name": "update_mask",
+       "field": "update_mask",
+       "field_mask": true
+      }
+     ],
+     "accept": "application/json",
+     "content_type": "application/json",
+     "workspace_header": true
+    }
+   ]
+  },
+  {
+   "client": "workspace",
    "accessor": "MaterializedFeatures",
    "package": "ml",
    "name": "MaterializedFeatures",
@@ -19457,7 +20516,7 @@
     },
     {
      "name": "GetCdfConfig",
-     "doc": "Get a single Lakebase CDF configuration, including the source Postgres\nschema, target Unity Catalog schema, and the identity under which writes are\nauthorized.",
+     "doc": "Get a single Lakebase CDF configuration, including the source Postgres schema\nand target Unity Catalog schema.",
      "verb": "GET",
      "path": [
       {
@@ -23877,6 +24936,35 @@
       "kind": "ref",
       "pkg": "sandbox",
       "name": "Sandbox"
+     },
+     "accept": "application/json",
+     "workspace_header": true
+    },
+    {
+     "name": "ListCommands",
+     "doc": "Lists the tracked command executions (running and completed) in a sandbox.",
+     "verb": "GET",
+     "path": [
+      {
+       "lit": "/api/2.0/sandbox-exec/"
+      },
+      {
+       "field": "parent",
+       "multi_segment": true
+      },
+      {
+       "lit": "/commands"
+      }
+     ],
+     "request": {
+      "kind": "ref",
+      "pkg": "sandbox",
+      "name": "ListCommandsRequest"
+     },
+     "response": {
+      "kind": "ref",
+      "pkg": "sandbox",
+      "name": "ListCommandsResponse"
      },
      "accept": "application/json",
      "workspace_header": true
@@ -33776,7 +34864,7 @@
    "methods": [
     {
      "name": "CreateDirectGroupMember",
-     "doc": "Creates a group membership (assigns a principal to a group).",
+     "doc": "Creates a group membership (assigns a principal to a group).\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
      "verb": "POST",
      "path": [
       {
@@ -33974,7 +35062,7 @@
     },
     {
      "name": "DeleteDirectGroupMember",
-     "doc": "Deletes a group membership (unassigns a principal from a group).",
+     "doc": "Deletes a group membership (unassigns a principal from a group).\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
      "verb": "DELETE",
      "path": [
       {
@@ -34006,7 +35094,7 @@
     },
     {
      "name": "DeleteGroup",
-     "doc": "Deletes a group from the Databricks account by its internal ID.",
+     "doc": "Deletes a group from the Databricks account by its internal ID.\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
      "verb": "DELETE",
      "path": [
       {
@@ -34840,7 +35928,7 @@
     },
     {
      "name": "UpdateGroup",
-     "doc": "Updates an existing group in the Databricks account. Only the fields named in\nthe update mask are modified. Returns the updated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider.",
+     "doc": "Updates an existing group in the Databricks account. Only the fields named in\nthe update mask are modified. Returns the updated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider.\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
      "verb": "PATCH",
      "path": [
       {
@@ -39902,6 +40990,112 @@
      ]
     },
     {
+     "name": "AiDecideOptions",
+     "doc": "ai_decide",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "version",
+       "go_name": "Version",
+       "doc": "The function API version to invoke. Defaults to \"1.0\". Supported\nversions: [\"1.0\"].",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "version"
+      }
+     ]
+    },
+    {
+     "name": "AiDecideRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "options",
+       "go_name": "Options",
+       "doc": "Function options. Omitted fields fall back to their documented defaults.",
+       "type": {
+        "kind": "ref",
+        "pkg": "aifunctions",
+        "name": "AiDecideOptions"
+       },
+       "required": false,
+       "location": "body",
+       "json": "options"
+      },
+      {
+       "name": "questions",
+       "go_name": "Questions",
+       "doc": "A JSON object mapping question IDs to their definitions. Choose a\nnonempty string for each ID; its answer is returned with the same ID in\n`response.answers`.\n\nEach definition is an object with the required fields `type` and\n`instructions`. The `criteria` field is optional for the type `noul` but\nis required for the types `choice` and `score`.\n\nThe `instructions` field describes the judgment to make and can be a\nstring, object, or array. Use an object or array to include supporting\ncontext alongside the instructions.\n\nThe `type` can be one of:\n\n- `choice`: Selects one option from a defined set. Requires `criteria` to\nbe an object mapping 1 to 255 nonempty option names to descriptions. The\ncriteria description can be a string, object, array, or null when the\nname needs no additional detail. For example:\n\n```json { \"team\": { \"type\": \"choice\", \"instructions\": \"Which team should\nhandle this ticket?\", \"criteria\": { \"billing\": \"Payments, charges, and\nrefunds\", \"technical_support\": null } } } ```\n\n- `noul`: Estimates the probability that the answer to a true-or-false\nquestion is true. `criteria` can take the fields `true` or `false`, or\nboth, with descriptions that are strings, objects, or arrays. Omit\n`criteria` to use the question alone. For example, both of the following\nare valid:\n\n```json { \"escalate\": { \"type\": \"noul\", \"instructions\": \"Does this ticket\nneed escalation?\", \"criteria\": { \"true\": \"Suspected fraud or an exception\nto standard policy\", \"false\": \"A routine issue frontline support can\nresolve\" } } } ```\n\nor\n\n```json { \"escalate\": { \"type\": \"noul\", \"instructions\": \"Does this ticket\nneed escalation?\" } } ```\n\n- `score`: Rates the state on an ordered scale. Requires `criteria` to be\nan array of 2 to 10 level descriptions, ordered from low to high.\nDescriptions can be strings, objects, or arrays. Array positions define\nlevels starting at 0. For example:\n\n```json { \"urgency\": { \"type\": \"score\", \"instructions\": \"How urgent is\nthis ticket?\", \"criteria\": [ \"Routine: can wait a few days\",\n\"Time-sensitive: needs attention today\", \"Critical: needs immediate\naction\" ] } } ```",
+       "type": {
+        "kind": "any"
+       },
+       "required": true,
+       "location": "body",
+       "json": "questions"
+      },
+      {
+       "name": "state",
+       "go_name": "State",
+       "doc": "A string, JSON object, or array containing the content, related context,\nand examples needed to answer the provided questions. For example,\nprovide a support message, a conversation, or records describing the\ncurrent state of an application. All questions receive this same state.",
+       "type": {
+        "kind": "any"
+       },
+       "required": true,
+       "location": "body",
+       "json": "state"
+      }
+     ]
+    },
+    {
+     "name": "AiDecideResponse",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "metadata",
+       "go_name": "Metadata",
+       "doc": "Metadata identifying the function API version used for this request.",
+       "type": {
+        "kind": "ref",
+        "pkg": "aifunctions",
+        "name": "AiDecideResponseMetadata"
+       },
+       "required": false,
+       "location": "body",
+       "json": "metadata"
+      },
+      {
+       "name": "response",
+       "go_name": "Response",
+       "doc": "A JSON object containing an `answers` map with one answer for each\nquestion, keyed by the same IDs as `questions`.\n\nEach answer has a `type` matching its question and the following fields:\n\n- `choice`: choice is the highest-probability option from `criteria`.\n`probabilities` maps every option name to its probability. `confidence`\nis a number from 0 to 1 indicating how well the state supports the\nassessment. The `probabilities` values sum to 1. For example:\n\n```json { \"answers\": { \"team\": { \"type\": \"choice\", \"choice\": \"billing\",\n\"probabilities\": { \"billing\": 0.85, \"technical_support\": 0.15 },\n\"confidence\": 0.9 } } } ```\n\n- `noul`: `probability` is a number from 0 to 1 estimating the\nprobability that the answer is true. For example:\n\n```json { \"answers\": { \"escalate\": { \"type\": \"noul\", \"probability\": 0.8 }\n} } ```\n\n- `score`: score is the probability-weighted mean of the zero-based level\nindices. It can fall between levels, from 0 to the number of levels minus\n1. `probabilities` maps each level index to its probability, and `legend`\nmaps each index to its original description. Both maps use string keys\nsuch as \"0\", \"1\", and \"2\". `confidence` is a number from 0 to 1\nindicating how well the state supports the assessment. The\n`probabilities` values sum to 1. For example:\n\n```json { \"answers\": { \"urgency\": { \"type\": \"score\", \"score\": 1.6,\n\"probabilities\": { \"0\": 0.1, \"1\": 0.2, \"2\": 0.7 }, \"legend\": { \"0\":\n\"Routine: can wait a few days\", \"1\": \"Time-sensitive: needs attention\ntoday\", \"2\": \"Critical: needs immediate action\" }, \"confidence\": 0.85 } }\n} ```",
+       "type": {
+        "kind": "any"
+       },
+       "required": false,
+       "location": "body",
+       "json": "response"
+      }
+     ]
+    },
+    {
+     "name": "AiDecideResponseMetadata",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "version",
+       "go_name": "Version",
+       "doc": "The function API version used to evaluate the request.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "version"
+      }
+     ]
+    },
+    {
      "name": "AiExtractBbox",
      "doc": "A bounding box on a source page; used by bbox-input citations.",
      "kind": "struct",
@@ -41787,7 +42981,7 @@
       {
        "name": "max_results",
        "go_name": "MaxResults",
-       "doc": "Maximum number of results to return (the legacy `num_results`). Defaults\nto 10.",
+       "doc": "Maximum number of results to return (the legacy `num_results`). Defaults\nto 10. Prefer `page_size`; when both are set, `page_size` takes\nprecedence.",
        "type": {
         "kind": "int"
        },
@@ -42475,7 +43669,7 @@
       {
        "name": "compute_max_instances",
        "go_name": "ComputeMaxInstances",
-       "doc": "Maximum number of app instances. Must be set together with\n`compute_min_instances`.",
+       "doc": "Maximum number of app instances the app is configured to run. Must be set\ntogether with `compute_min_instances`.",
        "type": {
         "kind": "int"
        },
@@ -42486,7 +43680,7 @@
       {
        "name": "compute_min_instances",
        "go_name": "ComputeMinInstances",
-       "doc": "Minimum number of app instances. Must be set together with\n`compute_max_instances`.",
+       "doc": "Minimum number of app instances the app is configured to run. Must be set\ntogether with `compute_max_instances`.",
        "type": {
         "kind": "int"
        },
@@ -44512,7 +45706,7 @@
       {
        "name": "compute_max_instances",
        "go_name": "ComputeMaxInstances",
-       "doc": "Maximum number of app instances. Must be set together with\n`compute_min_instances`.",
+       "doc": "Maximum number of app instances the app is configured to run. Must be set\ntogether with `compute_min_instances`.",
        "type": {
         "kind": "int"
        },
@@ -44523,7 +45717,7 @@
       {
        "name": "compute_min_instances",
        "go_name": "ComputeMinInstances",
-       "doc": "Minimum number of app instances. Must be set together with\n`compute_max_instances`.",
+       "doc": "Minimum number of app instances the app is configured to run. Must be set\ntogether with `compute_max_instances`.",
        "type": {
         "kind": "int"
        },
@@ -44733,7 +45927,7 @@
       {
        "name": "running_instances",
        "go_name": "RunningInstances",
-       "doc": "The number of running instances of this application.",
+       "doc": "The number of app instances whose application process is running.",
        "type": {
         "kind": "int"
        },
@@ -44853,7 +46047,7 @@
       {
        "name": "active_instances",
        "go_name": "ActiveInstances",
-       "doc": "The number of compute instances used and billed for this application.",
+       "doc": "The number of active compute instances currently used and billed for this\napplication.",
        "type": {
         "kind": "int"
        },
@@ -48893,7 +50087,7 @@
       {
        "name": "completion_reason",
        "go_name": "CompletionReason",
-       "doc": "The reason for completing the version. Must be a terminal reason:\nVERSION_COMPLETE_SUCCESS, VERSION_COMPLETE_FAILURE, or\nVERSION_COMPLETE_FORCE_ABORT.",
+       "doc": "The reason for completing the version. Must be VERSION_COMPLETE_SUCCESS\nor VERSION_COMPLETE_FAILURE.",
        "type": {
         "kind": "ref",
         "pkg": "bundledeployments",
@@ -48906,7 +50100,7 @@
       {
        "name": "force",
        "go_name": "Force",
-       "doc": "If true, force-completes the version even if the caller is not the\noriginal creator. The completion_reason must be\nVERSION_COMPLETE_FORCE_ABORT when force is true.",
+       "doc": "If true, force-completes the version even if the caller is not the\noriginal creator.",
        "type": {
         "kind": "bool"
        },
@@ -54774,6 +55968,47 @@
      ]
     },
     {
+     "name": "CreateSkillRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Name of the parent schema. Format: `schemas/{catalog}.{schema}`. Each\n`{...}` component is capped at 255 characters individually.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "parent"
+      },
+      {
+       "name": "skill",
+       "go_name": "Skill",
+       "doc": "The skill to create. `comment` is the only accepted client input and may\nbe omitted. Do not set `name`; the server derives it from `parent` and\n`skill_id`.",
+       "type": {
+        "kind": "ref",
+        "pkg": "catalog",
+        "name": "Skill"
+       },
+       "required": true,
+       "location": "body",
+       "json": "skill"
+      },
+      {
+       "name": "skill_id",
+       "go_name": "SkillId",
+       "doc": "Name for the skill, e.g. \"basic-math\". The server normalizes this\nidentifier to lowercase. It is independent of the bundle name read from\nSKILL.md.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "skill_id"
+      }
+     ]
+    },
+    {
      "name": "CreateStorageCredential",
      "kind": "struct",
      "fields": [
@@ -56281,6 +57516,33 @@
        "name": "full_name",
        "go_name": "FullName",
        "doc": "The three-level (fully qualified) name of the secret (for example,\n**catalog_name.schema_name.secret_name**).",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "DeleteSkillRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "etag",
+       "go_name": "Etag",
+       "doc": "Optimistic concurrency token from the most recent read. When set, the\ndelete succeeds only if the resource has not changed. Leave unset for an\nunconditional delete. For REST requests, URL-encode the base64 string\nreturned by the API when setting the `etag` query parameter.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "etag"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Full resource name of the skill. Format:\n`skills/{catalog}.{schema}.{skill}`. Each `{...}` component is capped at\n255 characters individually.",
        "type": {
         "kind": "string"
        },
@@ -58050,6 +59312,22 @@
        "required": false,
        "location": "body",
        "json": "provided_sqs"
+      }
+     ]
+    },
+    {
+     "name": "FinalizeSkillRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Full resource name of the skill. Format:\n`skills/{catalog}.{schema}.{skill}`. Each `{...}` component is capped at\n255 characters individually.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
       }
      ]
     },
@@ -60395,6 +61673,22 @@
      ]
     },
     {
+     "name": "GetSkillRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Full resource name of the skill. Format:\n`skills/{catalog}.{schema}.{skill}`. Each `{...}` component is capped at\n255 characters individually.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
      "name": "GetStorageCredentialRequest",
      "kind": "struct",
      "fields": [
@@ -62381,6 +63675,79 @@
      ]
     },
     {
+     "name": "ListSkillsRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of skills to return. Defaults to 100 when unset or 0; the\nmaximum is 100. Use `page_token` to retrieve additional pages.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Opaque pagination token from a previous request.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Name of the parent schema. Format: `schemas/{catalog}.{schema}`. Each\n`{...}` component is capped at 255 characters individually.\n\nRequired: skill listing is schema-scoped, so `parent` must be set; an\nunset or empty `parent` is rejected with INVALID_PARAMETER_VALUE.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "parent"
+      }
+     ]
+    },
+    {
+     "name": "ListSkillsResponse",
+     "doc": "Response for listing skills.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Pagination token for retrieving the next page of results.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      },
+      {
+       "name": "skills",
+       "go_name": "Skills",
+       "doc": "The list of skills.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "catalog",
+         "name": "Skill"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "skills"
+      }
+     ]
+    },
+    {
      "name": "ListStorageCredentialsRequest",
      "kind": "struct",
      "fields": [
@@ -64193,6 +65560,19 @@
        "required": false,
        "location": "body",
        "json": "region"
+      },
+      {
+       "name": "service_credential",
+       "go_name": "ServiceCredential",
+       "doc": "Reference to a Unity Catalog service credential authorizing Gemini\nEnterprise requests. On Create, supply `service_credential.name` as\n`credentials/{name}`; required when using service-credential\nauthentication and mutually exclusive with `api_key`. The credential is\nreferenced by name; its value is not carried here. On read, the resolved\n`id` and `is_deleted` are also populated. Supported only on GCP-hosted\nworkspaces.",
+       "type": {
+        "kind": "ref",
+        "pkg": "catalog",
+        "name": "ModelProviderServiceConfigServiceCredential"
+       },
+       "required": false,
+       "location": "body",
+       "json": "service_credential"
       }
      ]
     },
@@ -64382,6 +65762,37 @@
        "required": false,
        "location": "body",
        "json": "plaintext"
+      },
+      {
+       "name": "secret_reference",
+       "go_name": "SecretReference",
+       "doc": "Reference to a customer-owned UC Secret that carries this secret value.\nThe value is read at invoke time under the model provider service owner's\naccess and is never copied onto the model provider service, so rotating\nthe UC Secret takes effect with no change to the model provider service.\nOn Create, supply `secret_reference.name` as\n`secrets/{catalog}.{schema}.{secret}`.",
+       "type": {
+        "kind": "ref",
+        "pkg": "catalog",
+        "name": "ModelProviderServiceConfigSecretReference"
+       },
+       "required": false,
+       "location": "body",
+       "json": "secret_reference"
+      }
+     ]
+    },
+    {
+     "name": "ModelProviderServiceConfigSecretReference",
+     "doc": "Reference to a customer-owned UC Secret backing a secret-bearing provider\nfield, in the `ProviderSecret.secret_reference` arm.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name of the bound UC Secret, in the form\n`secrets/{catalog}.{schema}.{secret}`. On Create the caller supplies the\nname here. On read it reflects the secret's current name at read time.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "name"
       }
      ]
     },
@@ -68349,6 +69760,10 @@
        "value": "TABLE_FOREIGN_DELTASHARING"
       },
       {
+       "go_name": "SecurableKindTableForeignDeltaDeltasharing",
+       "value": "TABLE_FOREIGN_DELTA_DELTASHARING"
+      },
+      {
        "go_name": "SecurableKindTableForeignHiveMetastore",
        "value": "TABLE_FOREIGN_HIVE_METASTORE"
       },
@@ -68832,6 +70247,145 @@
        "required": true,
        "location": "body",
        "json": "version_num"
+      }
+     ]
+    },
+    {
+     "name": "Skill",
+     "doc": "A Skill is an agentskills.io bundle registered in Unity Catalog. Clients\ntransfer bundle bytes through the Files API. FinalizeSkill reads the uploaded\nSKILL.md and projects its frontmatter onto the Skill metadata.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "bundle_name",
+       "go_name": "BundleName",
+       "doc": "Name from the most recently successfully finalized SKILL.md. It may\ndiffer from the final component of the Skill resource name. Unset until\nFinalizeSkill succeeds.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "bundle_name"
+      },
+      {
+       "name": "comment",
+       "go_name": "Comment",
+       "doc": "User-provided comment for the skill. Free-text, user-editable via\nUpdateSkill (listed in its `update_mask`). DISTINCT from `description`,\nwhich is the server-parsed, OUTPUT_ONLY SKILL.md frontmatter value:\n`comment` is the customer's own annotation and is preserved across bundle\nre-uploads. When `comment` is in the update mask, omitting it clears the\nfield, while an explicitly empty string is retained.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "comment"
+      },
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Time the skill was created.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "created_by",
+       "go_name": "CreatedBy",
+       "doc": "Creator identity.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "created_by"
+      },
+      {
+       "name": "description",
+       "go_name": "Description",
+       "doc": "Description from the most recently successfully finalized SKILL.md. Unset\nuntil FinalizeSkill succeeds.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "description"
+      },
+      {
+       "name": "effective_owner",
+       "go_name": "EffectiveOwner",
+       "doc": "Owner of the skill.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "effective_owner"
+      },
+      {
+       "name": "etag",
+       "go_name": "Etag",
+       "doc": "Optimistic concurrency token returned on every read. To make an Update or\nDelete conditional, pass the last-read value in that request's `etag`\nfield. In REST responses, this value is a base64 string; URL-encode it\nwhen setting the `etag` query parameter.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "etag"
+      },
+      {
+       "name": "finalize_time",
+       "go_name": "FinalizeTime",
+       "doc": "Time of the most recent successful FinalizeSkill. Unset until one\nsucceeds.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "finalize_time"
+      },
+      {
+       "name": "metastore_id",
+       "go_name": "MetastoreId",
+       "doc": "Metastore hosting the skill.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "metastore_id"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name of the skill. Format: `skills/{catalog}.{schema}.{skill}`.\nEach `{...}` component is capped at 255 characters individually.\nServer-derived on Create from `parent` + `skill_id`; required and\nimmutable on Update/Get/Delete.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      },
+      {
+       "name": "update_time",
+       "go_name": "UpdateTime",
+       "doc": "Time of the most recent Skill metadata mutation. Uploading bundle files\nalone does not change this value.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "update_time"
+      },
+      {
+       "name": "updated_by",
+       "go_name": "UpdatedBy",
+       "doc": "Identity of the last updater.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "updated_by"
       }
      ]
     },
@@ -72236,6 +73790,57 @@
      ]
     },
     {
+     "name": "UpdateSkillRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "etag",
+       "go_name": "Etag",
+       "doc": "Optimistic concurrency token from the most recent read. When set, the\nupdate succeeds only if the resource has not changed. Leave unset for an\nunconditional update. For REST requests, URL-encode the base64 string\nreturned by the API when setting the `etag` query parameter.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "etag"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name of the skill. Format: `skills/{catalog}.{schema}.{skill}`.\nEach `{...}` component is capped at 255 characters individually.\nServer-derived on Create from `parent` + `skill_id`; required and\nimmutable on Update/Get/Delete.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "skill",
+       "go_name": "Skill",
+       "doc": "The skill with the updated field values. `name` identifies the resource\n(`skills/{catalog}.{schema}.{skill}`); only fields listed in\n`update_mask` are applied.",
+       "type": {
+        "kind": "ref",
+        "pkg": "catalog",
+        "name": "Skill"
+       },
+       "required": true,
+       "location": "body",
+       "json": "skill"
+      },
+      {
+       "name": "update_mask",
+       "go_name": "UpdateMask",
+       "doc": "Fields to update; validated against `skill`. REQUIRED, matching the\nsibling Update RPCs. `comment` is the only mutable field.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": true,
+       "location": "query",
+       "query": "update_mask"
+      }
+     ]
+    },
+    {
      "name": "UpdateStorageCredential",
      "kind": "struct",
      "fields": [
@@ -73560,7 +75165,7 @@
       {
        "name": "view",
        "go_name": "View",
-       "doc": "View details available to all collaborators of the clean room. Present if\nand only if **asset_type** is **VIEW**",
+       "doc": "View details available to all collaborators of the clean room. Present if\nand only if **asset_type** is **VIEW** or **METRIC_VIEW**",
        "type": {
         "kind": "ref",
         "pkg": "cleanrooms",
@@ -73573,7 +75178,7 @@
       {
        "name": "view_local_details",
        "go_name": "ViewLocalDetails",
-       "doc": "Local details for a view that are only available to its owner. Present if\nand only if **asset_type** is **VIEW**",
+       "doc": "Local details for a view that are only available to its owner. Present if\nand only if **asset_type** is **VIEW** or **METRIC_VIEW**",
        "type": {
         "kind": "ref",
         "pkg": "cleanrooms",
@@ -73699,7 +75304,7 @@
       {
        "name": "environment_version",
        "go_name": "EnvironmentVersion",
-       "doc": "The serverless environment version used to execute the JAR analysis (e.g.\n\"4\"). Defaults to \"4-scala-preview\" if not specified.",
+       "doc": "The serverless environment version used to execute the JAR analysis (e.g.\n\"4\"). If not specified, uses the service-configured JAR analysis default.",
        "type": {
         "kind": "string"
        },
@@ -81727,6 +83332,17 @@
        "required": false,
        "location": "body",
        "json": "java_dependencies"
+      },
+      {
+       "name": "project_environment",
+       "go_name": "ProjectEnvironment",
+       "doc": "File path of pyproject.toml file that defines the project-scoped\nenvironment.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "project_environment"
       }
      ]
     },
@@ -84162,7 +85778,7 @@
       {
        "name": "availability",
        "go_name": "Availability",
-       "doc": "Availability type used for the spot nodes.",
+       "doc": "Availability type used for the instances in the pool. Supports on-demand,\nspot, and spot-with-fallback (the pool acquires spot instances first, and\nfalls back to on-demand instances when spot capacity is unavailable).\n\nYou can change this value on an existing pool. New clusters use the\nupdated availability, and existing clusters keep the availability they\nlaunched with.",
        "type": {
         "kind": "ref",
         "pkg": "compute",
@@ -84186,7 +85802,7 @@
       {
        "name": "spot_bid_price_percent",
        "go_name": "SpotBidPricePercent",
-       "doc": "Calculates the bid price for AWS spot instances, as a percentage of the\ncorresponding instance type's on-demand price. For example, if this field\nis set to 50, and the cluster needs a new `r3.xlarge` spot instance, then\nthe bid price is half of the price of on-demand `r3.xlarge` instances.\nSimilarly, if this field is set to 200, the bid price is twice the price\nof on-demand `r3.xlarge` instances. If not specified, the default value\nis 100. When spot instances are requested for this cluster, only spot\ninstances whose bid price percentage matches this field will be\nconsidered. Note that, for safety, we enforce this field to be no more\nthan 10000.",
+       "doc": "Calculates the bid price for AWS spot instances, as a percentage of the\ncorresponding instance type's on-demand price. For example, if this field\nis set to 50, and the cluster needs a new `r3.xlarge` spot instance, then\nthe bid price is half of the price of on-demand `r3.xlarge` instances.\nSimilarly, if this field is set to 200, the bid price is twice the price\nof on-demand `r3.xlarge` instances. If not specified, the default value\nis 100. When spot instances are requested for this cluster, only spot\ninstances whose bid price percentage matches this field will be\nconsidered. Note that, for safety, we enforce this field to be no more\nthan 10000.\n\nYou can change this value on an existing pool. New clusters use the\nupdated bid price, and existing clusters keep the bid price they launched\nwith.",
        "type": {
         "kind": "int"
        },
@@ -84197,7 +85813,7 @@
       {
        "name": "zone_id",
        "go_name": "ZoneId",
-       "doc": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west-2a\". The provided\navailability zone must be in the same region as the Databricks\ndeployment. For example, \"us-west-2a\" is not a valid zone id if the\nDatabricks deployment resides in the \"us-east-1\" region. This is an\noptional field at cluster creation, and if not specified, a default zone\nwill be used. The list of available zones as well as the default value\ncan be found by using the `List Zones` method.",
+       "doc": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west-2a\". The provided\navailability zone must be in the same region as the Databricks\ndeployment. For example, \"us-west-2a\" is not a valid zone id if the\nDatabricks deployment resides in the \"us-east-1\" region. This is an\noptional field at cluster creation, and if not specified, a default zone\nwill be used. The list of available zones as well as the default value\ncan be found by using the `List Zones` method.\n\nSet this field to \"auto\" to enable Auto-AZ, in which case Databricks\nselects the availability zone for each cluster independently when the\ncluster launches, and retries another zone if the cluster can't be\nfulfilled because of insufficient capacity or quota. All nodes in a\ncluster land in the same zone, and different clusters backed by the pool\ncan run in different zones.\n\nYou can change the zone on an existing pool. New clusters use the updated\nzone, and existing clusters keep the zone they launched with.",
        "type": {
         "kind": "string"
        },
@@ -84230,7 +85846,7 @@
       {
        "name": "availability",
        "go_name": "Availability",
-       "doc": "Availability type used for the spot nodes.",
+       "doc": "Availability type used for the instances in the pool. Supports on-demand,\nspot, and spot-with-fallback (the pool acquires spot instances first, and\nfalls back to on-demand instances when spot capacity is unavailable).\n\nYou can change this value on an existing pool. New clusters use the\nupdated availability, and existing clusters keep the availability they\nlaunched with.",
        "type": {
         "kind": "ref",
         "pkg": "compute",
@@ -84254,7 +85870,7 @@
       {
        "name": "spot_bid_max_price",
        "go_name": "SpotBidMaxPrice",
-       "doc": "With variable pricing, you have option to set a max price, in US dollars\n(USD) For example, the value 2 would be a max price of $2.00 USD per\nhour. If you set the max price to be -1, the VM won't be evicted based on\nprice. The price for the VM will be the current price for spot or the\nprice for a standard VM, which ever is less, as long as there is capacity\nand quota available.",
+       "doc": "With variable pricing, you have option to set a max price, in US dollars\n(USD) For example, the value 2 would be a max price of $2.00 USD per\nhour. If you set the max price to be -1, the VM won't be evicted based on\nprice. The price for the VM will be the current price for spot or the\nprice for a standard VM, which ever is less, as long as there is capacity\nand quota available.\n\nYou can change this value on an existing pool. New clusters use the\nupdated max price, and existing clusters keep the max price they launched\nwith.",
        "type": {
         "kind": "float64"
        },
@@ -84287,6 +85903,7 @@
       {
        "name": "gcp_availability",
        "go_name": "GcpAvailability",
+       "doc": "Availability type for the instances in the pool. One of:\n\n- `ON_DEMAND_GCP`: the pool uses on-demand instances only. -\n`PREEMPTIBLE_GCP`: the pool uses preemptible instances only. -\n`PREEMPTIBLE_WITH_FALLBACK_GCP`: the pool acquires preemptible instances\nfirst, and falls back to on-demand instances when preemptible capacity is\nunavailable.",
        "type": {
         "kind": "ref",
         "pkg": "compute",
@@ -84310,7 +85927,7 @@
       {
        "name": "zone_id",
        "go_name": "ZoneId",
-       "doc": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west1-a\". The provided\navailability zone must be in the same region as the Databricks workspace.\nFor example, \"us-west1-a\" is not a valid zone id if the Databricks\nworkspace resides in the \"us-east1\" region. This is an optional field at\ninstance pool creation, and if not specified, a default zone will be\nused.\n\nThis field can be one of the following: - \"HA\" =\u003e High availability,\nspread nodes across availability zones for a Databricks deployment region\n- A GCP availability zone =\u003e Pick One of the available zones for (machine\ntype + region) from https://cloud.google.com/compute/docs/regions-zones\n(e.g. \"us-west1-a\").\n\nIf empty, Databricks picks an availability zone to schedule the cluster\non.",
+       "doc": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west1-a\". The provided\navailability zone must be in the same region as the Databricks workspace.\nFor example, \"us-west1-a\" is not a valid zone id if the Databricks\nworkspace resides in the \"us-east1\" region. This is an optional field at\ninstance pool creation, and if not specified, a default zone will be\nused.\n\nThis field can be one of the following: - \"HA\" =\u003e High availability,\nspread nodes across availability zones for a Databricks deployment region\n- \"auto\" =\u003e Auto-AZ. Databricks selects the availability zone for each\ncluster independently when the cluster launches, and retries another zone\nif the cluster can't be fulfilled because of insufficient capacity or\nquota. All nodes in a cluster land in the same zone, and different\nclusters backed by the pool can run in different zones. - A GCP\navailability zone =\u003e Pick One of the available zones for (machine type +\nregion) from https://cloud.google.com/compute/docs/regions-zones (e.g.\n\"us-west1-a\").\n\nIf empty, Databricks picks an availability zone to schedule the cluster\non.\n\nYou can change the zone on an existing pool. New clusters use the updated\nzone, and existing clusters keep the zone they launched with.",
        "type": {
         "kind": "string"
        },
@@ -109679,6 +111296,22 @@
        "json": "end_time"
       },
       {
+       "name": "environment_variables",
+       "go_name": "EnvironmentVariables",
+       "doc": "Snapshot of `JobSettings.environment_variables` as it was at run launch\n— the full list of named environment-variable entries the job defined.\nTo find which entry a given task ran with, look at\n`RunTaskSettings.environment_variables_key`.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "JobEnvironmentVariables"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables"
+      },
+      {
        "name": "execution_duration",
        "go_name": "ExecutionDuration",
        "doc": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
@@ -110784,6 +112417,22 @@
        "json": "email_notifications"
       },
       {
+       "name": "environment_variables",
+       "go_name": "EnvironmentVariables",
+       "doc": "Named environment-variable entries that tasks can reference by key from\n`TaskSettings.environment_variables_key`. Each entry's `spec` holds\ninline `variables` and optional `.env` `files`. Maximum 10 entries per\njob. A task can reference at most one entry from this list.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "JobEnvironmentVariables"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables"
+      },
+      {
        "name": "environments",
        "go_name": "Environments",
        "doc": "A list of task execution environment specifications that can be\nreferenced by tasks that use serverless compute or a compute resource\nthat uses Environments mode.\n\nFor notebook tasks that use serverless compute or a compute resource that\nuses Environments mode, if the environment_key is not specified, the\nnotebook environment will be used if present. If a jobs environment is\nspecified, it will override the notebook environment. For other tasks\nthat use serverless compute or a compute resource that uses Environments\nmode, the task environment is required to be specified using\nenvironment_key in the task settings.",
@@ -111785,11 +113434,11 @@
       {
        "name": "command_path",
        "go_name": "CommandPath",
-       "doc": "Workspace path of the script to run on each node in this deployment.\nUpload the script to this path and supply the path here. When the task\nruns, the file at this path is run on each node; if it fails, the task\nfails with its exit code.\n\nExample script contents:\n\n# Plain Python: python train.py --epochs 10\n\n# Multi-GPU via accelerate: accelerate launch train.py --config\nconfig.yaml\n\n# Distributed via torchrun: torchrun --nproc_per_node=8 train.py",
+       "doc": "Workspace path of the script to run on each node in this deployment.\nUpload the script to this path and supply the path here. When the task\nruns, the file at this path is run on each node; if it fails, the task\nfails with its exit code.\n\nExample script contents:\n\n```bash # Plain Python: python train.py --epochs 10\n\n# Multi-GPU via accelerate: accelerate launch train.py --config\nconfig.yaml\n\n# Distributed via torchrun: torchrun --nproc_per_node=8 train.py ```",
        "type": {
         "kind": "string"
        },
-       "required": true,
+       "required": false,
        "location": "body",
        "json": "command_path"
       },
@@ -113173,6 +114822,34 @@
        "json": "on_failure"
       },
       {
+       "name": "on_maintenance_complete",
+       "go_name": "OnMaintenanceComplete",
+       "doc": "A list of email addresses to notify when platform-initiated maintenance\ncompletes for a continuous job.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_complete"
+      },
+      {
+       "name": "on_maintenance_start",
+       "go_name": "OnMaintenanceStart",
+       "doc": "A list of email addresses to notify when platform-initiated maintenance\nstarts for a continuous job.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_start"
+      },
+      {
        "name": "on_start",
        "go_name": "OnStart",
        "doc": "A list of email addresses to be notified when a run begins. If not\nspecified on job creation, reset, or update, the list is empty, and\nnotifications are not sent.",
@@ -113242,6 +114919,72 @@
        "required": false,
        "location": "body",
        "json": "spec"
+      }
+     ]
+    },
+    {
+     "name": "JobEnvironmentVariables",
+     "doc": "A named environment-variable entry, defined once at the job level and\nreferenced by key from one or more tasks. Entries live on\n`JobSettings.environment_variables`, and tasks select one via\n`TaskSettings.environment_variables_key`.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "environment_variables_key",
+       "go_name": "EnvironmentVariablesKey",
+       "doc": "Identifier for this entry. Must be unique within\n`JobSettings.environment_variables`. Tasks reference it from\n`TaskSettings.environment_variables_key`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "environment_variables_key"
+      },
+      {
+       "name": "spec",
+       "go_name": "Spec",
+       "doc": "The environment variable specification.",
+       "type": {
+        "kind": "ref",
+        "pkg": "jobs",
+        "name": "JobEnvironmentVariablesSpec"
+       },
+       "required": false,
+       "location": "body",
+       "json": "spec"
+      }
+     ]
+    },
+    {
+     "name": "JobEnvironmentVariablesSpec",
+     "doc": "The environment variables and files associated with a job environment\nvariable entry. Runtime environment variables override inline `variables`,\nwhich override values from `files`, on duplicate keys.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "files",
+       "go_name": "Files",
+       "doc": "Workspace (`/Workspace/...`) or UC Volumes (`/Volumes/...`) paths to\n`.env` files. Maximum 5 files. Files are read, parsed, and merged at task\nexecution time, not at job creation or update API call time.\n\nFile format: each line containing a variable must be exactly `KEY=VALUE`.\nEmpty and whitespace-only lines, and lines beginning with `#`, are\nignored. Keys must match the same regex as inlined variable names\n(`^[A-Za-z_][A-Za-z0-9_]*$`); the value continues to the end of the line.\nNo other syntax is supported — no inline comments, no quoted values, no\nescape sequences, no variable interpolation. Any other line that does not\nmatch the `KEY=VALUE` shape fails the run.\n\nSize limits: maximum 32,768 bytes (32 KiB) per file on disk; maximum\n1,024 bytes (1 KiB) per `KEY=VALUE` line combined. Files or lines\nexceeding these limits fail the run.\n\nOn a duplicate key, the later file wins; `variables` override values from\nany file.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "files"
+      },
+      {
+       "name": "variables",
+       "go_name": "Variables",
+       "doc": "Environment variables specified directly as key/value pairs. Maximum 20\nentries.\n\nEach key must be 1 to 256 characters and match\n`^[A-Za-z_][A-Za-z0-9_]*$`: it must start with an ASCII letter or\nunderscore and contain only ASCII letters, digits, and underscores. Each\nvalue can be any Unicode string of up to 512 characters, including an\nempty string.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "variables"
       }
      ]
     },
@@ -113621,6 +115364,22 @@
        "required": false,
        "location": "body",
        "json": "email_notifications"
+      },
+      {
+       "name": "environment_variables",
+       "go_name": "EnvironmentVariables",
+       "doc": "Named environment-variable entries that tasks can reference by key from\n`TaskSettings.environment_variables_key`. Each entry's `spec` holds\ninline `variables` and optional `.env` `files`. Maximum 10 entries per\njob. A task can reference at most one entry from this list.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "JobEnvironmentVariables"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables"
       },
       {
        "name": "environments",
@@ -116266,6 +118025,22 @@
        "json": "end_time"
       },
       {
+       "name": "environment_variables",
+       "go_name": "EnvironmentVariables",
+       "doc": "Snapshot of `JobSettings.environment_variables` as it was at run launch\n— the full list of named environment-variable entries the job defined.\nTo find which entry a given task ran with, look at\n`RunTaskSettings.environment_variables_key`.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "JobEnvironmentVariables"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables"
+      },
+      {
        "name": "execution_duration",
        "go_name": "ExecutionDuration",
        "doc": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
@@ -117973,6 +119748,17 @@
        "json": "environment_key"
       },
       {
+       "name": "environment_variables_key",
+       "go_name": "EnvironmentVariablesKey",
+       "doc": "Reference to a `JobEnvironmentVariables` entry defined in\n`RunSettings.environment_variables` for one-time runs or preserved in\n`Run.environment_variables` for run snapshots. The selected entry's\nvariables are applied to this task at execution time. This field supports\nserverless tasks using environment version 5 or later.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables_key"
+      },
+      {
        "name": "execution_duration",
        "go_name": "ExecutionDuration",
        "doc": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
@@ -119415,6 +121201,22 @@
        "json": "email_notifications"
       },
       {
+       "name": "environment_variables",
+       "go_name": "EnvironmentVariables",
+       "doc": "Named environment-variable entries that tasks of this one-time run can\nreference by key from `RunTaskSettings.environment_variables_key`. Each\nentry's `spec` holds inline `variables` and optional `.env` `files`.\nHandled identically to `JobSettings.environment_variables`. Maximum 10\nentries. Entries are independent of one another — there is no\ncross-entry merging.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "JobEnvironmentVariables"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables"
+      },
+      {
        "name": "environments",
        "go_name": "Environments",
        "doc": "A list of task execution environment specifications that can be\nreferenced by tasks of this run.",
@@ -119791,6 +121593,17 @@
        "required": false,
        "location": "body",
        "json": "environment_key"
+      },
+      {
+       "name": "environment_variables_key",
+       "go_name": "EnvironmentVariablesKey",
+       "doc": "Reference to a `JobEnvironmentVariables` entry defined in\n`RunSettings.environment_variables` for one-time runs or preserved in\n`Run.environment_variables` for run snapshots. The selected entry's\nvariables are applied to this task at execution time. This field supports\nserverless tasks using environment version 5 or later.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables_key"
       },
       {
        "name": "existing_cluster_id",
@@ -120476,6 +122289,17 @@
        "json": "environment_key"
       },
       {
+       "name": "environment_variables_key",
+       "go_name": "EnvironmentVariablesKey",
+       "doc": "Reference to a `JobEnvironmentVariables` entry defined in\n`JobSettings.environment_variables`. The selected entry's variables are\napplied to this task at execution time. This field supports serverless\ntasks using environment version 5 or later.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment_variables_key"
+      },
+      {
        "name": "existing_cluster_id",
        "go_name": "ExistingClusterId",
        "doc": "If existing_cluster_id, the ID of an existing cluster that is used for\nall runs. When running jobs or tasks on an existing cluster, you may need\nto manually restart the cluster if it stops responding. We suggest\nrunning jobs and tasks on new clusters for greater reliability",
@@ -120859,6 +122683,34 @@
        "required": false,
        "location": "body",
        "json": "on_failure"
+      },
+      {
+       "name": "on_maintenance_complete",
+       "go_name": "OnMaintenanceComplete",
+       "doc": "A list of email addresses to notify when platform-initiated maintenance\ncompletes for a continuous job.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_complete"
+      },
+      {
+       "name": "on_maintenance_start",
+       "go_name": "OnMaintenanceStart",
+       "doc": "A list of email addresses to notify when platform-initiated maintenance\nstarts for a continuous job.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_start"
       },
       {
        "name": "on_start",
@@ -121781,6 +123633,38 @@
        "required": false,
        "location": "body",
        "json": "on_failure"
+      },
+      {
+       "name": "on_maintenance_complete",
+       "go_name": "OnMaintenanceComplete",
+       "doc": "An optional list of system notification IDs to call when\nplatform-initiated maintenance completes for a continuous job. A maximum\nof 3 destinations can be specified for the `on_maintenance_complete`\nproperty.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "Webhook"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_complete"
+      },
+      {
+       "name": "on_maintenance_start",
+       "go_name": "OnMaintenanceStart",
+       "doc": "An optional list of system notification IDs to call when\nplatform-initiated maintenance starts for a continuous job. A maximum of\n3 destinations can be specified for the `on_maintenance_start` property.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "jobs",
+         "name": "Webhook"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "on_maintenance_start"
       },
       {
        "name": "on_start",
@@ -127755,6 +129639,1855 @@
     }
    ]
   },
+  "mason": {
+   "name": "mason",
+   "types": [
+    {
+     "name": "AppendSessionItemsRequest",
+     "doc": "Request to append items to a session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "items",
+       "go_name": "Items",
+       "doc": "Items to append atomically in request order. Concurrent append requests\nare serialized into one committed order without exposing a numeric\nsequence in the public contract.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "SessionItem"
+        }
+       },
+       "required": true,
+       "location": "body",
+       "json": "items"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "AppendSessionItemsResponse",
+     "doc": "Response containing appended items.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "session_items",
+       "go_name": "SessionItems",
+       "doc": "Persisted session items with service-assigned fields.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "SessionItem"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_items"
+      }
+     ]
+    },
+    {
+     "name": "ClearSessionItemsRequest",
+     "doc": "Request to clear all items from a session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ClearSessionItemsResponse",
+     "doc": "Response from clearing items from a session.",
+     "kind": "struct"
+    },
+    {
+     "name": "CreateManagedMemoryEntryRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_entry",
+       "go_name": "ManagedMemoryEntry",
+       "doc": "The managed memory entry to create.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryEntry"
+       },
+       "required": true,
+       "location": "body",
+       "json": "managed_memory_entry"
+      },
+      {
+       "name": "managed_memory_entry_id",
+       "go_name": "ManagedMemoryEntryId",
+       "doc": "Optional caller-selected managed memory entry ID. The service generates\nan ID when omitted.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "managed_memory_entry_id"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Managed memory store that will contain the entry, in the form\n`memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "CreateManagedMemoryStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_store",
+       "go_name": "ManagedMemoryStore",
+       "doc": "The managed memory store to create.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryStore"
+       },
+       "required": true,
+       "location": "body",
+       "json": "managed_memory_store"
+      },
+      {
+       "name": "managed_memory_store_id",
+       "go_name": "ManagedMemoryStoreId",
+       "doc": "Caller-provided, workspace-unique managed memory store ID. It must be\n3-56 characters, begin with a lowercase letter, contain only lowercase\nletters, digits, and hyphens, and end with a letter or digit.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "managed_memory_store_id"
+      }
+     ]
+    },
+    {
+     "name": "CreateSessionRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "session",
+       "go_name": "Session",
+       "doc": "The session to create. `actor_id` is required. A session with\n`parent_session_id` is a child and must use its parent's `actor_id`.\nIndependent forks are created only through `ForkSession`.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "Session"
+       },
+       "required": true,
+       "location": "body",
+       "json": "session"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Optional caller-selected session ID. The service generates a UUID when\nthis field is omitted. The ID must be unique; a collision returns\n`ALREADY_EXISTS`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "session_id"
+      }
+     ]
+    },
+    {
+     "name": "CreateSessionStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "session_store",
+       "go_name": "SessionStore",
+       "doc": "The session store to create.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "SessionStore"
+       },
+       "required": true,
+       "location": "body",
+       "json": "session_store"
+      },
+      {
+       "name": "session_store_id",
+       "go_name": "SessionStoreId",
+       "doc": "Caller-provided, workspace-unique session store ID. It must be 3-55\ncharacters, begin with a lowercase letter, and contain only lowercase\nletters, digits, and hyphens.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "session_store_id"
+      }
+     ]
+    },
+    {
+     "name": "DeleteManagedMemoryEntryRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "DeleteManagedMemoryStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "DeleteSessionRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "DeleteSessionStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ExtractMemoriesRequest",
+     "doc": "Request to synchronously extract memories from a single session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "dry_run",
+       "go_name": "DryRun",
+       "doc": "When true, extract and return the entries without writing them to the\nmemory store. Defaults to false, which persists the extracted entries and\nreturns them.",
+       "type": {
+        "kind": "bool"
+       },
+       "required": false,
+       "location": "body",
+       "json": "dry_run"
+      },
+      {
+       "name": "instructions",
+       "go_name": "Instructions",
+       "doc": "Instructions steering what is extracted from the session.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "instructions"
+      },
+      {
+       "name": "memory_store",
+       "go_name": "MemoryStore",
+       "doc": "Managed memory store the extracted entries are written to, in the form\n`memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "memory_store"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Identifier of the session whose transcript is distilled into memories.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "session_store",
+       "go_name": "SessionStore",
+       "doc": "Session store containing the session, in the form\n`session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ExtractMemoriesResponse",
+     "doc": "Result of a single-session memory extraction.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "entries",
+       "go_name": "Entries",
+       "doc": "The memory entries written by this extraction.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "ManagedMemoryEntry"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "entries"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Correlation identifier for this extraction, for logging and tracing. Not\na fetchable resource.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      }
+     ]
+    },
+    {
+     "name": "ForkSessionRequest",
+     "doc": "Request to fork a session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "actor_id",
+       "go_name": "ActorId",
+       "doc": "Opaque caller-provided identifier for the application actor associated\nwith the forked session.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "actor_id"
+      },
+      {
+       "name": "metadata",
+       "go_name": "Metadata",
+       "doc": "Optional metadata for the fork.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "metadata"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Optional unique ID for the forked session. A collision returns\n`ALREADY_EXISTS`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_id"
+      },
+      {
+       "name": "source_session_id",
+       "go_name": "SourceSessionId",
+       "doc": "ID of the session to copy.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "source_session_id"
+      },
+      {
+       "name": "up_to_item_id",
+       "go_name": "UpToItemId",
+       "doc": "Optional last item ID to copy through, inclusively. When omitted, the\nfork atomically copies all items committed before the fork operation\nbegins.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "up_to_item_id"
+      }
+     ]
+    },
+    {
+     "name": "ForkSessionResponse",
+     "doc": "Response from forking a session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "session",
+       "go_name": "Session",
+       "doc": "The newly-created independent top-level session.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "Session"
+       },
+       "required": false,
+       "location": "body",
+       "json": "session"
+      }
+     ]
+    },
+    {
+     "name": "GetManagedMemoryEntryRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "read_mask",
+       "go_name": "ReadMask",
+       "doc": "Fields to return, using proto field names such as `content` (not\n`contents`). An omitted or empty mask returns the full entry, including\n`content`; a non-empty mask returns only the requested fields.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": false,
+       "location": "query",
+       "query": "read_mask"
+      }
+     ]
+    },
+    {
+     "name": "GetManagedMemoryStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "GetSessionRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "GetSessionStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ListManagedMemoryEntriesRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "actor_id",
+       "go_name": "ActorId",
+       "doc": "Customer-provided identifier for the actor whose entries are listed.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "query",
+       "query": "actor_id"
+      },
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of entries to return. The service may return fewer entries\nthan requested. Defaults to 10; must be between 1 and 100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Opaque pagination token from a previous ListManagedMemoryEntries\nresponse.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Managed memory store whose entries are listed, in the form\n`memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "path_prefix",
+       "go_name": "PathPrefix",
+       "doc": "Optional path prefix used to restrict entries within the actor partition.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "path_prefix"
+      },
+      {
+       "name": "read_mask",
+       "go_name": "ReadMask",
+       "doc": "Fields to return in each entry, using proto field names such as `content`\n(not `contents`). An omitted or empty mask returns each full entry,\nincluding `content`; a non-empty mask returns only the requested fields.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": false,
+       "location": "query",
+       "query": "read_mask"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Optional session identifier. When set, only entries with this exact\n`session_id` are returned. Omitted-session (cross-session) entries are\nnot included. Ignored when path is set.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "session_id"
+      }
+     ]
+    },
+    {
+     "name": "ListManagedMemoryEntriesResponse",
+     "doc": "Response containing managed memory entries.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_entries",
+       "go_name": "ManagedMemoryEntries",
+       "doc": "Managed memory entries matching the request and its read mask.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "ManagedMemoryEntry"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "managed_memory_entries"
+      },
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Opaque pagination token. This field is omitted when there are no more\nresults.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      }
+     ]
+    },
+    {
+     "name": "ListManagedMemoryStoresRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of stores to return. The service may return fewer stores\nthan requested. Defaults to 10; must be between 1 and 100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Opaque pagination token from a previous ListManagedMemoryStores response.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      }
+     ]
+    },
+    {
+     "name": "ListManagedMemoryStoresResponse",
+     "doc": "Response containing managed memory stores in the caller's workspace.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_stores",
+       "go_name": "ManagedMemoryStores",
+       "doc": "Managed memory stores in the caller's workspace.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "ManagedMemoryStore"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "managed_memory_stores"
+      },
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Opaque pagination token. This field is omitted when there are no more\nresults.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionItemsRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "order_by",
+       "go_name": "OrderBy",
+       "doc": "Sort order. Supported values are `create_time asc` and `create_time\ndesc`. The default is `create_time desc`, which returns the most recently\nappended items first. Equal timestamps are resolved by committed append\norder in the requested direction.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "order_by"
+      },
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of items to return. Defaults to 10; must be between 1 and\n100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Token returned by a previous list request.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionItemsResponse",
+     "doc": "Response containing a page of session items.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Token to retrieve the next page.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      },
+      {
+       "name": "session_items",
+       "go_name": "SessionItems",
+       "doc": "Session items in the requested page.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "SessionItem"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_items"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionStoresRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of session stores to return. Defaults to 10; must be\nbetween 1 and 100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Token returned by a previous list request.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionStoresResponse",
+     "doc": "Response containing a page of session stores.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Token to retrieve the next page.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      },
+      {
+       "name": "session_stores",
+       "go_name": "SessionStores",
+       "doc": "Session stores in the requested page.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "SessionStore"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_stores"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionsRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "filter",
+       "go_name": "Filter",
+       "doc": "Filter expression. Supported fields include `actor_id` and `metadata`;\nfor example, `actor_id = \"support-customer-123\"`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "filter"
+      },
+      {
+       "name": "order_by",
+       "go_name": "OrderBy",
+       "doc": "Sort order. Defaults to `last_activity_time desc`. Page-token\ncontinuation is exactly-once when ordering by `create_time` (immutable);\nordering by `last_activity_time` is best-effort, because that value\nchanges as a session gains activity, so a session updated between page\nrequests may be repeated or skipped. To enumerate every session exactly\nonce, order by `create_time`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "order_by"
+      },
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of sessions to return. Defaults to 10; must be between 1\nand 100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Token returned by a previous list request.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ListSessionsResponse",
+     "doc": "Response containing a page of sessions.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Token to retrieve the next page.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      },
+      {
+       "name": "sessions",
+       "go_name": "Sessions",
+       "doc": "Sessions in the requested page.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "Session"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "sessions"
+      }
+     ]
+    },
+    {
+     "name": "ManagedMemoryEntry",
+     "doc": "A workspace-scoped entry in a managed memory store.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "actor_id",
+       "go_name": "ActorId",
+       "doc": "Customer-provided identifier for the actor whose memory this entry\nrepresents.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "actor_id"
+      },
+      {
+       "name": "content",
+       "go_name": "Content",
+       "doc": "Optional free-form memory content.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "content"
+      },
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Time when the entry was created.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "description",
+       "go_name": "Description",
+       "doc": "Human-readable description of the memory entry.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "description"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      },
+      {
+       "name": "path",
+       "go_name": "Path",
+       "doc": "Absolute, case-sensitive path identifying the entry within its actor and\noptional session. Paths must begin with `/` and must not contain empty,\n`.` or `..` segments.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "path"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Optional identifier for the session associated with this memory entry.\nWhen omitted, the entry applies across the actor's sessions.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_id"
+      },
+      {
+       "name": "source_type",
+       "go_name": "SourceType",
+       "doc": "Which writer created this entry. Caller sets this on Create; immutable\nafter creation.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryEntrySourceType"
+       },
+       "required": false,
+       "location": "body",
+       "json": "source_type"
+      },
+      {
+       "name": "update_time",
+       "go_name": "UpdateTime",
+       "doc": "Time when the entry was last updated.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "update_time"
+      }
+     ]
+    },
+    {
+     "name": "ManagedMemoryEntrySearchResult",
+     "doc": "One relevance-ranked managed memory search result.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_entry",
+       "go_name": "ManagedMemoryEntry",
+       "doc": "Managed memory entry matching the query.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryEntry"
+       },
+       "required": false,
+       "location": "body",
+       "json": "managed_memory_entry"
+      },
+      {
+       "name": "score",
+       "go_name": "Score",
+       "doc": "Relevance score for the result. Higher scores are more relevant.",
+       "type": {
+        "kind": "float64"
+       },
+       "required": false,
+       "location": "body",
+       "json": "score"
+      }
+     ]
+    },
+    {
+     "name": "ManagedMemoryEntrySourceType",
+     "doc": "Identifies the source that created a managed memory entry.",
+     "kind": "enum",
+     "values": [
+      {
+       "go_name": "ManagedMemoryEntrySourceTypeManagedMemoryEntrySourceTypeAgent",
+       "value": "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_AGENT"
+      },
+      {
+       "go_name": "ManagedMemoryEntrySourceTypeManagedMemoryEntrySourceTypeDreamer",
+       "value": "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_DREAMER"
+      }
+     ]
+    },
+    {
+     "name": "ManagedMemoryStore",
+     "doc": "A workspace-scoped managed memory store backed by service-managed storage.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Time when the store was created.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "creator_user_id",
+       "go_name": "CreatorUserId",
+       "doc": "Workspace-local user ID of the authenticated principal that created the\nstore. This is immutable server-set attribution and does not grant\naccess; authorization is evaluated from the authenticated request\ncontext.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "creator_user_id"
+      },
+      {
+       "name": "description",
+       "go_name": "Description",
+       "doc": "Human-readable description of the memory store.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "description"
+      },
+      {
+       "name": "display_name",
+       "go_name": "DisplayName",
+       "doc": "Deprecated compatibility alias for the caller-provided managed memory\nstore ID. Canonical clients provide the ID through\n`CreateMemoryStoreRequest.managed_memory_store_id` and use `name` as the\nresource identifier.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "display_name"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      },
+      {
+       "name": "owner_user_id",
+       "go_name": "OwnerUserId",
+       "doc": "Deprecated alias for `creator_user_id`. This identifies the original\ncreator, not a transferable owner. Use `creator_user_id` instead.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "owner_user_id"
+      },
+      {
+       "name": "storage_backend",
+       "go_name": "StorageBackend",
+       "doc": "Service-managed storage backing this memory store.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "StorageBackend"
+       },
+       "required": false,
+       "location": "body",
+       "json": "storage_backend"
+      },
+      {
+       "name": "update_time",
+       "go_name": "UpdateTime",
+       "doc": "Time when the store was last updated.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "update_time"
+      },
+      {
+       "name": "workspace_id",
+       "go_name": "WorkspaceId",
+       "doc": "Workspace that owns the memory store.",
+       "type": {
+        "kind": "int64"
+       },
+       "required": false,
+       "location": "body",
+       "json": "workspace_id"
+      }
+     ]
+    },
+    {
+     "name": "PopSessionItemRequest",
+     "doc": "Request to pop an item from a session.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "PopSessionItemResponse",
+     "doc": "Response containing the popped item.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "item",
+       "go_name": "Item",
+       "doc": "Removed item, if any.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "SessionItem"
+       },
+       "required": false,
+       "location": "body",
+       "json": "item"
+      }
+     ]
+    },
+    {
+     "name": "SearchManagedMemoryEntriesRequest",
+     "doc": "Request to search managed memory entries by text query for one actor. Search\nreturns a relevance-ranked top-N result set and does not currently paginate.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "actor_id",
+       "go_name": "ActorId",
+       "doc": "Customer-provided identifier for the actor whose entries are searched.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "actor_id"
+      },
+      {
+       "name": "limit",
+       "go_name": "Limit",
+       "doc": "Deprecated alias for `page_size`. When both fields are set, their values\nmust match.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "body",
+       "json": "limit"
+      },
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of relevance-ranked entries to return. Defaults to 10 and\nmust be between 1 and 100.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "body",
+       "json": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Reserved for pagination compatibility. The server currently ignores this\nfield because Search returns a ranked top-N result set.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "Managed memory store whose entries are searched, in the form\n`memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "path_prefix",
+       "go_name": "PathPrefix",
+       "doc": "Optional absolute, case-sensitive path prefix used to restrict searched\nentries within the actor partition. The prefix must begin with `/` and\nmust not contain empty, `.` or `..` segments.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "path_prefix"
+      },
+      {
+       "name": "query",
+       "go_name": "Query",
+       "doc": "Free-form search query.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "query"
+      },
+      {
+       "name": "read_mask",
+       "go_name": "ReadMask",
+       "doc": "Fields to return in each matching entry, using proto field names such as\n`content` (not `contents`). An omitted or empty mask returns each full\nentry, including `content`; a non-empty mask returns only the requested\nfields. Search scores are always returned.\n\nThe field mask must be a single string, with multiple fields separated by\ncommas (no spaces). The field path is relative to the resource object,\nusing a dot (`.`) to navigate sub-fields (e.g., `author.given_name`).\nSpecification of elements in sequence or map fields is not allowed, as\nonly the entire collection field can be specified. Field names must\nexactly match the resource field names.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": false,
+       "location": "body",
+       "json": "read_mask"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Optional session identifier. When set, only entries with this exact\n`session_id` are searched. Omitted-session (cross-session) entries are\nnot included.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_id"
+      }
+     ]
+    },
+    {
+     "name": "SearchManagedMemoryEntriesResponse",
+     "doc": "Response containing managed memory entries ranked by relevance.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_entries",
+       "go_name": "ManagedMemoryEntries",
+       "doc": "Deprecated compatibility alias for clients migrating to `results`. This\ncontains the same entries in the same order, but omits their relevance\nscores.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "ManagedMemoryEntry"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "managed_memory_entries"
+      },
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Opaque pagination token. Search currently returns an unpaginated ranked\ntop-N result set, so the server does not populate this field.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      },
+      {
+       "name": "results",
+       "go_name": "Results",
+       "doc": "Canonical matching entries and relevance scores, ordered most relevant\nfirst.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "mason",
+         "name": "ManagedMemoryEntrySearchResult"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "results"
+      }
+     ]
+    },
+    {
+     "name": "Session",
+     "doc": "A durable logical interaction stored within a Session Store.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "actor_id",
+       "go_name": "ActorId",
+       "doc": "Opaque caller-provided identifier for the application actor associated\nwith the session.\n\nThis is application data and has no Databricks authentication or\nauthorization semantics. Use the same value as the Managed Memory Entry\n`actor_id` when storing memories associated with this actor. Every\nsession must set it. A child session must use the same value as its\nparent.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "body",
+       "json": "actor_id"
+      },
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Time when the session was created.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "last_activity_time",
+       "go_name": "LastActivityTime",
+       "doc": "Time when the session's item history was last mutated.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "last_activity_time"
+      },
+      {
+       "name": "metadata",
+       "go_name": "Metadata",
+       "doc": "Mutable caller-defined string labels.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "metadata"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      },
+      {
+       "name": "parent_session_id",
+       "go_name": "ParentSessionId",
+       "doc": "Immediate parent session ID. Set only at creation for child sessions,\nimmutable thereafter, and restricted to the same store.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "parent_session_id"
+      },
+      {
+       "name": "root_session_id",
+       "go_name": "RootSessionId",
+       "doc": "Top-level session ID in the spawn tree. This equals `session_id` for a\nroot or fork and is inherited transitively by child sessions.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "root_session_id"
+      },
+      {
+       "name": "session_id",
+       "go_name": "SessionId",
+       "doc": "Unique session ID. The service generates a UUID unless the caller\nsupplies `CreateSessionRequest.session_id`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "session_id"
+      },
+      {
+       "name": "update_time",
+       "go_name": "UpdateTime",
+       "doc": "Time when session resource fields last changed.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "update_time"
+      }
+     ]
+    },
+    {
+     "name": "SessionItem",
+     "doc": "A transcript entry in a session's history.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Server-assigned time when the append commits. Values are nondecreasing\nwithin a session. Item listing orders by this timestamp; equal timestamps\nare resolved by committed append order.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "data",
+       "go_name": "Data",
+       "doc": "Complete SDK-native, JSON-compatible item. The service stores and returns\nthis value without interpreting provider-specific fields such as `type`,\n`role`, or `content`.",
+       "type": {
+        "kind": "any"
+       },
+       "required": true,
+       "location": "body",
+       "json": "data"
+      },
+      {
+       "name": "item_id",
+       "go_name": "ItemId",
+       "doc": "Stable service-generated item ID.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "item_id"
+      }
+     ]
+    },
+    {
+     "name": "SessionStore",
+     "doc": "A workspace-scoped session store.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "create_time",
+       "go_name": "CreateTime",
+       "doc": "Time when the store was created.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "create_time"
+      },
+      {
+       "name": "creator_user_id",
+       "go_name": "CreatorUserId",
+       "doc": "Workspace-local user ID of the authenticated principal that created the\nstore. This is immutable server-set attribution and does not grant\naccess; authorization is evaluated from the authenticated request\ncontext.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "creator_user_id"
+      },
+      {
+       "name": "description",
+       "go_name": "Description",
+       "doc": "Human-readable description of the session store.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "description"
+      },
+      {
+       "name": "metadata",
+       "go_name": "Metadata",
+       "doc": "Mutable caller-defined string labels.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "metadata"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "name"
+      },
+      {
+       "name": "update_time",
+       "go_name": "UpdateTime",
+       "doc": "Time when the store was last updated.",
+       "type": {
+        "kind": "timestamp"
+       },
+       "required": false,
+       "location": "body",
+       "json": "update_time"
+      }
+     ]
+    },
+    {
+     "name": "StorageBackend",
+     "doc": "Service-managed storage backing a managed memory store.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "backend_id",
+       "go_name": "BackendId",
+       "doc": "Backend-specific identifier. For Lakebase, this is the project ID.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "backend_id"
+      },
+      {
+       "name": "backend_type",
+       "go_name": "BackendType",
+       "doc": "Type of the storage backend.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "StorageBackendType"
+       },
+       "required": false,
+       "location": "body",
+       "json": "backend_type"
+      }
+     ]
+    },
+    {
+     "name": "StorageBackendType",
+     "doc": "Type of service-managed storage backing a managed memory store.",
+     "kind": "enum",
+     "values": [
+      {
+       "go_name": "StorageBackendTypeStorageBackendTypeLakebase",
+       "value": "STORAGE_BACKEND_TYPE_LAKEBASE"
+      }
+     ]
+    },
+    {
+     "name": "UpdateManagedMemoryEntryRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_entry",
+       "go_name": "ManagedMemoryEntry",
+       "doc": "The managed memory entry to update.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryEntry"
+       },
+       "required": true,
+       "location": "body",
+       "json": "managed_memory_entry"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "update_mask",
+       "go_name": "UpdateMask",
+       "doc": "Fields to update. Only `content` and `description` may be updated.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": true,
+       "location": "query",
+       "query": "update_mask"
+      }
+     ]
+    },
+    {
+     "name": "UpdateManagedMemoryStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "managed_memory_store",
+       "go_name": "ManagedMemoryStore",
+       "doc": "The managed memory store to update. `name` is taken from the URL.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "ManagedMemoryStore"
+       },
+       "required": true,
+       "location": "body",
+       "json": "managed_memory_store"
+      },
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "update_mask",
+       "go_name": "UpdateMask",
+       "doc": "Only `description` may be updated.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": true,
+       "location": "query",
+       "query": "update_mask"
+      }
+     ]
+    },
+    {
+     "name": "UpdateSessionRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "session",
+       "go_name": "Session",
+       "doc": "Session to update.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "Session"
+       },
+       "required": true,
+       "location": "body",
+       "json": "session"
+      },
+      {
+       "name": "update_mask",
+       "go_name": "UpdateMask",
+       "doc": "Fields to update. Only `metadata` is mutable; any other path returns\n`INVALID_PARAMETER_VALUE`.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": true,
+       "location": "query",
+       "query": "update_mask"
+      }
+     ]
+    },
+    {
+     "name": "UpdateSessionStoreRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "name",
+       "go_name": "Name",
+       "doc": "Resource name in the form `session-stores/{session_store_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      },
+      {
+       "name": "session_store",
+       "go_name": "SessionStore",
+       "doc": "Session store to update.",
+       "type": {
+        "kind": "ref",
+        "pkg": "mason",
+        "name": "SessionStore"
+       },
+       "required": true,
+       "location": "body",
+       "json": "session_store"
+      },
+      {
+       "name": "update_mask",
+       "go_name": "UpdateMask",
+       "doc": "Fields to update. Only `description` and `metadata` are mutable; any\nother path returns `INVALID_PARAMETER_VALUE`.",
+       "type": {
+        "kind": "field_mask"
+       },
+       "required": true,
+       "location": "query",
+       "query": "update_mask"
+      }
+     ]
+    }
+   ]
+  },
   "ml": {
    "name": "ml",
    "types": [
@@ -128381,6 +132114,17 @@
        "json": "backfill_ranges"
       },
       {
+       "name": "budget_policy_id",
+       "go_name": "BudgetPolicyId",
+       "doc": "The budget policy ID, in UUID format, used to attribute the serverless\ncompute cost of this backfill. If not specified, a default budget policy\nmay be applied.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "budget_policy_id"
+      },
+      {
        "name": "feature_full_names",
        "go_name": "FeatureFullNames",
        "doc": "Full names of the features to backfill.",
@@ -128404,6 +132148,20 @@
        "required": false,
        "location": "body",
        "json": "request_id"
+      },
+      {
+       "name": "tags",
+       "go_name": "Tags",
+       "doc": "Custom tags to associate with this backfill. They are applied to the\nbackfill job and forwarded to the underlying compute as Databricks\nresource tags, so backfill cost can be attributed in the billing system\ntables. These tags apply only to the backfill compute; they are not\napplied to the Unity Catalog Feature resources themselves, whose tags are\nmanaged separately through the Unity Catalog tagging API. A maximum of 25\ntags is supported; keys and values are subject to the same limitations as\nDatabricks resource tags.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "tags"
       }
      ]
     },
@@ -135436,6 +139194,17 @@
        "json": "is_online"
       },
       {
+       "name": "job_id",
+       "go_name": "JobId",
+       "doc": "The ID of the job that materializes the feature. This is present for both\nbatch and streaming features.",
+       "type": {
+        "kind": "int64"
+       },
+       "required": false,
+       "location": "body",
+       "json": "job_id"
+      },
+      {
        "name": "last_materialization_time",
        "go_name": "LastMaterializationTime",
        "doc": "The timestamp when the pipeline last ran and updated the materialized\nfeature values. If the pipeline has not run yet, this field will be null.",
@@ -135493,6 +139262,17 @@
        "required": false,
        "location": "body",
        "json": "online_store_config"
+      },
+      {
+       "name": "pipeline_id",
+       "go_name": "PipelineId",
+       "doc": "The ID of the pipeline that materializes this feature. This is only\npresent for streaming features.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "pipeline_id"
       },
       {
        "name": "pipeline_schedule_state",
@@ -137111,6 +140891,17 @@
      "kind": "struct",
      "fields": [
       {
+       "name": "budget_policy_id",
+       "go_name": "BudgetPolicyId",
+       "doc": "The budget policy ID, in UUID format, used to attribute the serverless\ncompute cost of this purge. If not specified, a default budget policy may\nbe applied.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "budget_policy_id"
+      },
+      {
        "name": "entities_table",
        "go_name": "EntitiesTable",
        "doc": "Fully qualified name of the Unity Catalog Delta table containing the\nentity keys to purge. The table may contain a subset of each feature's\nentity-key columns. A partial key match deletes all feature rows matching\nthe provided key values. Non-key columns are rejected; null key values\nare allowed.",
@@ -137145,6 +140936,20 @@
        "required": false,
        "location": "body",
        "json": "request_id"
+      },
+      {
+       "name": "tags",
+       "go_name": "Tags",
+       "doc": "Custom tags to associate with this purge. They are applied to the purge\njob and forwarded to the underlying compute as Databricks resource tags,\nso purge cost can be attributed in the billing system tables. These tags\napply only to the purge compute; they are not applied to the Unity\nCatalog Feature resources themselves, whose tags are managed separately\nthrough the Unity Catalog tagging API. A maximum of 25 tags is supported;\nkeys and values are subject to the same limitations as Databricks\nresource tags.",
+       "type": {
+        "kind": "map",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "tags"
       }
      ]
     },
@@ -138556,13 +142361,13 @@
       {
        "name": "api_secret_ref",
        "go_name": "ApiSecretRef",
-       "doc": "Reference to the schema registry API secret in a Databricks secret scope.",
+       "doc": "Reference to the schema registry API secret in a Databricks secret scope.\nSet this only if required for authentication for the schema registry.",
        "type": {
         "kind": "ref",
         "pkg": "ml",
         "name": "SecretScopeReference"
        },
-       "required": true,
+       "required": false,
        "location": "body",
        "json": "api_secret_ref"
       },
@@ -140484,7 +144289,7 @@
       {
        "name": "feature",
        "go_name": "Feature",
-       "doc": "Feature to update.",
+       "doc": "Feature whose full_name identifies the target. Only description is\nmutable.",
        "type": {
         "kind": "ref",
         "pkg": "ml",
@@ -140507,7 +144312,7 @@
       {
        "name": "update_mask",
        "go_name": "UpdateMask",
-       "doc": "The list of fields to update.",
+       "doc": "Fields to update. The only supported path is description.",
        "type": {
         "kind": "string"
        },
@@ -142040,6 +145845,7 @@
       {
        "name": "oidc_policy",
        "go_name": "OidcPolicy",
+       "doc": "audit_mode INCLUDE is required on both this message field and its leaf\nfields so the OIDC policy configuration is captured in create/update\naudit logs (see go/auditlogs).",
        "type": {
         "kind": "ref",
         "pkg": "oauth2",
@@ -143299,7 +147105,7 @@
       {
        "name": "parse_mode",
        "go_name": "ParseMode",
-       "doc": "(Optional) Parse mode for Avro data. Valid values: FAILFAST, PERMISSIVE.\nDefaults to FAILFAST.",
+       "doc": "(Optional) Parse mode for Avro data. Valid values: FAILFAST, PERMISSIVE.\nDefaults to PERMISSIVE.",
        "type": {
         "kind": "ref",
         "pkg": "pipelines",
@@ -143475,7 +147281,7 @@
       {
        "name": "development",
        "go_name": "Development",
-       "doc": "Whether the pipeline is in Development mode. Defaults to false.",
+       "doc": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
        "type": {
         "kind": "bool"
        },
@@ -144156,7 +147962,7 @@
       {
        "name": "development",
        "go_name": "Development",
-       "doc": "Whether the pipeline is in Development mode. Defaults to false.",
+       "doc": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
        "type": {
         "kind": "bool"
        },
@@ -144772,7 +148578,7 @@
       {
        "name": "development",
        "go_name": "Development",
-       "doc": "Whether the pipeline is in Development mode. Defaults to false.",
+       "doc": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
        "type": {
         "kind": "bool"
        },
@@ -148862,7 +152668,7 @@
       {
        "name": "development",
        "go_name": "Development",
-       "doc": "Whether the pipeline is in Development mode. Defaults to false.",
+       "doc": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
        "type": {
         "kind": "bool"
        },
@@ -149430,7 +153236,7 @@
       {
        "name": "parse_mode",
        "go_name": "ParseMode",
-       "doc": "(Optional) Parse mode for Protobuf data. Valid values: FAILFAST,\nPERMISSIVE. Defaults to FAILFAST.",
+       "doc": "(Optional) Parse mode for Protobuf data. Valid values: FAILFAST,\nPERMISSIVE. Defaults to PERMISSIVE.",
        "type": {
         "kind": "ref",
         "pkg": "pipelines",
@@ -152360,7 +156166,7 @@
       {
        "name": "cdf_config",
        "go_name": "CdfConfig",
-       "doc": "The CdfConfig to create. The catalog, schema, and postgres_schema fields\nare required; all other fields are output only and ignored on input.",
+       "doc": "The CdfConfig to create. The catalog, schema, and postgres_schema fields\nare required; service_principal is optional. All other fields are output\nonly and ignored on input.",
        "type": {
         "kind": "ref",
         "pkg": "postgres",
@@ -161051,6 +164857,82 @@
    "name": "sandbox",
    "types": [
     {
+     "name": "Command",
+     "doc": "A single command execution.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "args",
+       "go_name": "Args",
+       "doc": "Arguments passed to the program.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "string"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "args"
+      },
+      {
+       "name": "cmd",
+       "go_name": "Cmd",
+       "doc": "The program that was executed.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "cmd"
+      },
+      {
+       "name": "command_id",
+       "go_name": "CommandId",
+       "doc": "Stable identifier for this command.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "command_id"
+      },
+      {
+       "name": "exit_code",
+       "go_name": "ExitCode",
+       "doc": "Process exit code. Only present when finished is true and the process\nexited normally (not killed by signal or failed to start).",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "body",
+       "json": "exit_code"
+      },
+      {
+       "name": "finished",
+       "go_name": "Finished",
+       "doc": "Whether the command has finished executing.",
+       "type": {
+        "kind": "bool"
+       },
+       "required": false,
+       "location": "body",
+       "json": "finished"
+      },
+      {
+       "name": "pid",
+       "go_name": "Pid",
+       "doc": "PID of the spawned process. Absent if the process failed to start.",
+       "type": {
+        "kind": "int64"
+       },
+       "required": false,
+       "location": "body",
+       "json": "pid"
+      }
+     ]
+    },
+    {
      "name": "ComputeSpec",
      "kind": "struct",
      "fields": [
@@ -161109,6 +164991,23 @@
        },
        "required": true,
        "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "EnvironmentSpec",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "image_uri",
+       "go_name": "ImageUri",
+       "doc": "A Unity Catalog container artifact (e.g.\n`catalog.schema.folder.image:tag`) to run as the sandbox environment.\nWhen set, this image is used as the environment instead of resolving a\nmanaged image from `environment_version`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "image_uri"
       }
      ]
     },
@@ -161289,6 +165188,78 @@
      ]
     },
     {
+     "name": "ListCommandsRequest",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "page_size",
+       "go_name": "PageSize",
+       "doc": "Maximum number of commands to return. The server may return fewer. If\nunspecified, the server returns all commands.",
+       "type": {
+        "kind": "int"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_size"
+      },
+      {
+       "name": "page_token",
+       "go_name": "PageToken",
+       "doc": "Page token returned by a previous ListCommands call. Use this to retrieve\nthe next page of results.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "query",
+       "query": "page_token"
+      },
+      {
+       "name": "parent",
+       "go_name": "Parent",
+       "doc": "The sandbox whose commands to list, in the form `sandboxes/{sandbox_id}`.",
+       "type": {
+        "kind": "string"
+       },
+       "required": true,
+       "location": "path"
+      }
+     ]
+    },
+    {
+     "name": "ListCommandsResponse",
+     "doc": "Response listing tracked command executions.",
+     "kind": "struct",
+     "fields": [
+      {
+       "name": "commands",
+       "go_name": "Commands",
+       "doc": "Commands in this page of results.",
+       "type": {
+        "kind": "list",
+        "elem": {
+         "kind": "ref",
+         "pkg": "sandbox",
+         "name": "Command"
+        }
+       },
+       "required": false,
+       "location": "body",
+       "json": "commands"
+      },
+      {
+       "name": "next_page_token",
+       "go_name": "NextPageToken",
+       "doc": "Token to retrieve the next page. Empty when there are no more results.",
+       "type": {
+        "kind": "string"
+       },
+       "required": false,
+       "location": "body",
+       "json": "next_page_token"
+      }
+     ]
+    },
+    {
      "name": "ListSandboxesRequest",
      "kind": "struct",
      "fields": [
@@ -161439,6 +165410,19 @@
        "required": false,
        "location": "body",
        "json": "compute"
+      },
+      {
+       "name": "environment",
+       "go_name": "Environment",
+       "doc": "The execution environment to use for the sandbox.",
+       "type": {
+        "kind": "ref",
+        "pkg": "sandbox",
+        "name": "EnvironmentSpec"
+       },
+       "required": false,
+       "location": "body",
+       "json": "environment"
       }
      ]
     },
@@ -190505,7 +194489,7 @@
     },
     {
      "name": "SpotInstancePolicy",
-     "doc": "EndpointSpotInstancePolicy configures whether the endpoint should use spot\ninstances.\n\nThe breakdown of how the EndpointSpotInstancePolicy converts to per cloud\nconfigurations is:\n\n+-------+--------------------------------------+--------------------------------+\n| Cloud | COST_OPTIMIZED | RELIABILITY_OPTIMIZED |\n+-------+--------------------------------------+--------------------------------+\n| AWS | On Demand Driver with Spot Executors | On Demand Driver and Executors\n| | AZURE | On Demand Driver and Executors | On Demand Driver and Executors |\n+-------+--------------------------------------+--------------------------------+",
+     "doc": "EndpointSpotInstancePolicy configures whether the endpoint should use spot\ninstances.\n\nThe breakdown of how the EndpointSpotInstancePolicy converts to per cloud\nconfigurations is:\n\n- AWS, COST_OPTIMIZED: On Demand Driver with Spot Executors. - AWS,\nRELIABILITY_OPTIMIZED: On Demand Driver and Executors. - AZURE,\nCOST_OPTIMIZED: On Demand Driver and Executors. - AZURE,\nRELIABILITY_OPTIMIZED: On Demand Driver and Executors.",
      "kind": "enum",
      "values": [
       {
@@ -194380,7 +198364,7 @@
       {
        "name": "entity_type",
        "go_name": "EntityType",
-       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
        "type": {
         "kind": "string"
        },
@@ -194431,7 +198415,7 @@
       {
        "name": "entity_type",
        "go_name": "EntityType",
-       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
        "type": {
         "kind": "string"
        },
@@ -194482,7 +198466,7 @@
       {
        "name": "entity_type",
        "go_name": "EntityType",
-       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
        "type": {
         "kind": "string"
        },
@@ -194622,7 +198606,7 @@
       {
        "name": "entity_type",
        "go_name": "EntityType",
-       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
        "type": {
         "kind": "string"
        },
@@ -194744,7 +198728,7 @@
       {
        "name": "entity_type",
        "go_name": "EntityType",
-       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+       "doc": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
        "type": {
         "kind": "string"
        },

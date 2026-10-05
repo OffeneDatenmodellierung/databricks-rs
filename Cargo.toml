@@ -40,6 +40,7 @@ community-databricks-sdk-iamv2 = { path = "crates/community-databricks-sdk-iamv2
 community-databricks-sdk-jobs = { path = "crates/community-databricks-sdk-jobs", version = "0.1.1" }
 community-databricks-sdk-knowledgeassistants = { path = "crates/community-databricks-sdk-knowledgeassistants", version = "0.1.1" }
 community-databricks-sdk-marketplace = { path = "crates/community-databricks-sdk-marketplace", version = "0.1.1" }
+community-databricks-sdk-mason = { path = "crates/community-databricks-sdk-mason", version = "0.1.0" }
 community-databricks-sdk-ml = { path = "crates/community-databricks-sdk-ml", version = "0.1.1" }
 community-databricks-sdk-networking = { path = "crates/community-databricks-sdk-networking", version = "0.1.1" }
 community-databricks-sdk-oauth2 = { path = "crates/community-databricks-sdk-oauth2", version = "0.1.1" }
