@@ -41,18 +41,63 @@ pub const DEFAULT_RETRY_TIMEOUT: Duration = Duration::from_mins(5);
 pub const DEFAULT_RATE_LIMIT: u32 = 15;
 
 /// The kind of host a config points at.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+///
+/// Deserialises from Go's documented `WORKSPACE_HOST` / `ACCOUNT_HOST` /
+/// `UNIFIED_HOST` and from the `workspace` / `account` / `unified` forms that
+/// live `/.well-known/databricks-config` endpoints return, ignoring case. An
+/// unrecognised value is an error here; [`HostMetadata`] maps it to `None`
+/// so one unexpected host type doesn't discard the rest of the metadata.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum HostType {
     /// A workspace URL.
-    #[serde(rename = "WORKSPACE_HOST")]
     Workspace,
     /// The accounts console (`accounts.*`).
-    #[serde(rename = "ACCOUNT_HOST")]
     Account,
     /// A unified host serving both account- and workspace-level APIs.
-    #[serde(rename = "UNIFIED_HOST")]
     Unified,
+}
+
+impl std::str::FromStr for HostType {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        let t = s.trim();
+        let t = t
+            .get(t.len().saturating_sub(5)..)
+            .filter(|suffix| suffix.eq_ignore_ascii_case("_HOST"))
+            .map_or(t, |_| &t[..t.len() - 5]);
+        if t.eq_ignore_ascii_case("workspace") {
+            Ok(Self::Workspace)
+        } else if t.eq_ignore_ascii_case("account") {
+            Ok(Self::Account)
+        } else if t.eq_ignore_ascii_case("unified") {
+            Ok(Self::Unified)
+        } else {
+            Err(format!("unknown host type {s:?}"))
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for HostType {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        let s = String::deserialize(d)?;
+        s.parse().map_err(serde::de::Error::custom)
+    }
+}
+
+/// `host_type` for [`HostMetadata`]: absent, null or unrecognised → `None`.
+fn lenient_host_type<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> std::result::Result<Option<HostType>, D::Error> {
+    let Some(v) = Option::<serde_json::Value>::deserialize(d)? else {
+        return Ok(None);
+    };
+    let parsed = v.as_str().and_then(|s| s.parse::<HostType>().ok());
+    if parsed.is_none() {
+        tracing::debug!(host_type = %v, "ignoring unrecognised host_type in host metadata");
+    }
+    Ok(parsed)
 }
 
 /// Parsed `/.well-known/databricks-config` response.
@@ -71,8 +116,8 @@ pub struct HostMetadata {
     /// Cloud provider (`AWS`, `AZURE`, `GCP`).
     #[serde(default)]
     pub cloud: String,
-    /// Host type.
-    #[serde(default)]
+    /// Host type; `None` when absent or not recognised.
+    #[serde(default, deserialize_with = "lenient_host_type")]
     pub host_type: Option<HostType>,
     /// Default OIDC audiences for token federation; the first becomes
     /// `audience` when none is configured.
