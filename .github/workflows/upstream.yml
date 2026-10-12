@@ -42,9 +42,16 @@ jobs:
           # Refresh the parity report; new Go surface shows up as errors
           # here and in the PR's CI until parity.toml or the code covers it.
           python3 scripts/check_parity.py /tmp/go-sdk || echo "::warning::new databricks-sdk-go surface; see spec/PARITY.md and CI"
+          # The docs spot-check header names the spec version; CI diffs it.
+          python3 spec/docs-check/compare.py
       - if: steps.check.outputs.update == 'true'
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
+          # PRs opened with the default GITHUB_TOKEN don't trigger CI. Set
+          # UPSTREAM_PR_TOKEN (a GitHub App or fine-grained token with
+          # contents and pull-requests write) so the PR's checks run.
+          token: ${{ secrets.UPSTREAM_PR_TOKEN || github.token }}
           branch: upstream/${{ steps.check.outputs.go_sdk_tag }}
           title: "spec: databricks-sdk-go ${{ steps.check.outputs.go_sdk_tag }} (OpenAPI ${{ steps.check.outputs.openapi_sha }})"
           commit-message: "spec: regenerate from databricks-sdk-go ${{ steps.check.outputs.go_sdk_tag }}"
@@ -55,3 +62,18 @@ jobs:
 
             See `spec/GENERATED.md` for the surface summary and
             `spec/PARITY.md` for parity with the Go SDK's hand-written surface.
+      # Each tag gets its own branch, so close older upstream/* PRs: the new
+      # one carries everything they did, and merging a stale one could ship
+      # a package upstream has since removed.
+      - if: steps.cpr.outputs.pull-request-number != ''
+        name: Close superseded upstream PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_PR: ${{ steps.cpr.outputs.pull-request-number }}
+          NEW_BRANCH: upstream/${{ steps.check.outputs.go_sdk_tag }}
+        run: |
+          gh pr list --state open --limit 100 --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("upstream/")) | select(.headRefName != env.NEW_BRANCH) | .number' |
+          while read -r n; do
+            gh pr close "$n" --delete-branch --comment "Superseded by #$NEW_PR."
+          done
