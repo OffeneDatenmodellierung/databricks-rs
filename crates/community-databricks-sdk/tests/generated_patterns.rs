@@ -559,7 +559,7 @@ async fn account_client_derives_a_workspace_client() {
         .list_all(community_databricks_sdk::service::compute::ListClustersRequest::default())
         .await
         .unwrap();
-    assert!(clusters.is_empty());
+    assert_eq!(clusters.len(), 0);
     assert!(a.get_workspace_client(&Workspace::default()).is_err());
 
     // An Azure workspace carries its ARM resource ID to the derived client.
