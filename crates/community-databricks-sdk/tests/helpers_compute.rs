@@ -662,7 +662,7 @@ fn library_strings_sort_and_scope() {
         "library_statuses": [{"status": "INSTALLED"}]
     }))
     .unwrap();
-    assert!(odd.to_library_list().libraries.is_empty());
+    assert_eq!(odd.to_library_list().libraries.len(), 0);
     let e = odd.is_retry_needed(&LibraryWait::default()).unwrap_err();
     assert!(
         e.to_string().contains("library status without a library"),

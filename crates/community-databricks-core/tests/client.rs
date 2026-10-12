@@ -109,7 +109,7 @@ async fn json_body_and_empty_responses() {
         .json(Method::POST, "/api/2.0/thing", &json!({"name": "x"}))
         .await
         .unwrap();
-    assert!(e.items.is_empty());
+    assert_eq!(e.items.len(), 0);
 }
 
 #[tokio::test]

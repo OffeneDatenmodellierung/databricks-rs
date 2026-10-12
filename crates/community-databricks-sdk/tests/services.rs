@@ -97,7 +97,7 @@ async fn clusters_list_streams_every_page_with_nested_query_params() {
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
         .mount(&server)
         .await;
-    assert!(w.clusters().list_all(req).await.unwrap().is_empty());
+    assert_eq!(w.clusters().list_all(req).await.unwrap().len(), 0);
 }
 
 fn run_state(life: &str, result: Option<&str>) -> serde_json::Value {
