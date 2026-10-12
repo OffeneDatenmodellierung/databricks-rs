@@ -123,6 +123,10 @@ pub(crate) struct TokenHeaders {
     pub primary: Arc<dyn TokenSource>,
     pub secondary: Option<Secondary>,
     pub fixed: Headers,
+    /// `primary` mints Databricks OAuth tokens (Go: an
+    /// `OAuthCredentialsProvider`), so it can be exchanged for data-plane
+    /// tokens. False for Azure AD and Google tokens.
+    pub oauth: bool,
 }
 
 impl fmt::Debug for TokenHeaders {
@@ -134,16 +138,24 @@ impl fmt::Debug for TokenHeaders {
 }
 
 impl TokenHeaders {
+    /// A Databricks OAuth token as the bearer. Go's OAuth strategies
+    /// (`oauth-m2m`, `databricks-cli`, the OIDC family and
+    /// `github-oidc-azure`) are exactly the ones built this way.
     pub(crate) fn bearer(primary: impl TokenSource + 'static) -> Self {
         Self {
             primary: Arc::new(primary),
             secondary: None,
             fixed: Vec::new(),
+            oauth: true,
         }
     }
 }
 
 impl CredentialsProvider for TokenHeaders {
+    fn oauth_token_source(&self) -> Option<Arc<dyn TokenSource>> {
+        self.oauth.then(|| Arc::clone(&self.primary))
+    }
+
     fn headers(&self) -> BoxFuture<'_, Result<Headers>> {
         Box::pin(async move {
             let mut h = self.fixed.clone();

@@ -13,10 +13,10 @@
 "*.Users" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#users" }
 "*.Groups" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#groups" }
 "*.ServicePrincipals" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#service_principals" }
-"workspace.ServingEndpointsDataPlane" = { status = "gap", issue = 16 }
+"workspace.ServingEndpointsDataPlane" = { status = "implemented", rust = "crates/community-databricks-sdk/src/lib.rs#serving_endpoints_data_plane" }
 
 [methods]
-"serving.ServingEndpointsDataPlane.Query" = { status = "gap", issue = 16 }
+"serving.ServingEndpointsDataPlane.Query" = { status = "implemented", rust = "crates/community-databricks-sdk-serving/src/ext.rs#query" }
 "bundle.Bundle.*" = { status = "na", reason = "Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated." }
 "mason.Mason.*" = { status = "na", reason = "databricks-sdk-go v0.187.0 renamed `mason` to `agentkit` and unwired `w.Mason`; the stale `service/mason` package is no longer reachable API surface there. `agentkit` is generated." }
 
@@ -92,8 +92,8 @@
 "compute.Results.Scan" = { status = "implemented", rust = "crates/community-databricks-sdk-compute/src/ext.rs#scan" }
 "compute.TrimLeadingWhitespace" = { status = "implemented", rust = "crates/community-databricks-core/src/text.rs#trim_leading_whitespace" }
 
-# Planned.
-"serving.NewDataPlaneService" = { status = "gap", issue = 16 }
+# Data-plane endpoint and token caches (Go: serving/ext_data_plane.go).
+"serving.NewDataPlaneService" = { status = "implemented", rust = "crates/community-databricks-core/src/http.rs#data_plane_target" }
 
 # Not applicable.
 "iam.New*" = { status = "na", reason = "Constructors for Go's API structs; Rust clients come from the WorkspaceClient/AccountClient accessors." }

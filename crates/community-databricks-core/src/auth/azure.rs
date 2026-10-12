@@ -133,6 +133,7 @@ fn databricks_provider(
             optional: false,
         }),
         fixed,
+        oauth: false,
     }))
 }
 
