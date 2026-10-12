@@ -20,7 +20,7 @@
 
 mod azure;
 mod cli;
-mod common;
+pub(crate) mod common;
 mod gcp;
 mod m2m;
 mod oidc;
@@ -68,6 +68,16 @@ pub type Headers = Vec<(HeaderName, HeaderValue)>;
 pub trait CredentialsProvider: Send + Sync + Debug {
     /// Headers for the next request (may refresh a token).
     fn headers(&self) -> BoxFuture<'_, Result<Headers>>;
+
+    /// The Databricks OAuth token source behind these credentials, if any
+    /// (Go: `credentials.OAuthCredentialsProvider`). Data-plane calls
+    /// exchange its token for an endpoint-scoped one; see
+    /// [`ApiClient::data_plane_token`](crate::ApiClient::data_plane_token).
+    ///
+    /// `None` by default, and for PAT, Azure AD and Google credentials.
+    fn oauth_token_source(&self) -> Option<Arc<dyn TokenSource>> {
+        None
+    }
 }
 
 /// Decides whether it can authenticate a [`Config`], and if so builds a

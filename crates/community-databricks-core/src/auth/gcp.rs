@@ -236,6 +236,7 @@ fn provider(
         primary: Arc::new(primary),
         secondary,
         fixed: Vec::new(),
+        oauth: false,
     })
 }
 

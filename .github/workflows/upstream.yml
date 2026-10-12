@@ -48,9 +48,10 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
-          # PRs opened with the default GITHUB_TOKEN don't trigger CI. Set
+          # CI on PRs opened with the default GITHUB_TOKEN waits for a
+          # maintainer to approve it ("action_required"). Set
           # UPSTREAM_PR_TOKEN (a GitHub App or fine-grained token with
-          # contents and pull-requests write) so the PR's checks run.
+          # contents and pull-requests write) so the checks start at once.
           token: ${{ secrets.UPSTREAM_PR_TOKEN || github.token }}
           branch: upstream/${{ steps.check.outputs.go_sdk_tag }}
           title: "spec: databricks-sdk-go ${{ steps.check.outputs.go_sdk_tag }} (OpenAPI ${{ steps.check.outputs.openapi_sha }})"
