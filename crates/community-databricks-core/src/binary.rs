@@ -78,7 +78,6 @@ impl Binary {
 
     /// The body as a stream of chunks. A stream can be taken once; taking
     /// it again (from a clone) yields an error.
-    #[must_use]
     pub fn into_stream(self) -> ByteStream {
         match self.0 {
             Inner::Bytes(b) => stream::iter([Ok(b)]).boxed(),

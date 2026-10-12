@@ -82,12 +82,15 @@ mod tests {
                 ("page_size".into(), "10".into()),
             ]
         );
-        assert!(to_pairs(&()).unwrap().is_empty());
+        assert_eq!(to_pairs(&()).unwrap(), Vec::<(String, String)>::new());
         assert_eq!(
             field("sort_by", &json!({"field": "NAME"})).unwrap(),
             vec![("sort_by.field".to_owned(), "NAME".to_owned())]
         );
-        assert!(field("x", &None::<u8>).unwrap().is_empty());
+        assert_eq!(
+            field("x", &None::<u8>).unwrap(),
+            Vec::<(String, String)>::new()
+        );
         assert!(to_pairs(&1).is_err());
     }
 }
