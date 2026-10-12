@@ -288,6 +288,73 @@ async fn host_metadata_backfills_ids_and_discovery_url() {
     assert_eq!(c.source_of("account_id"), Some(&Source::HostMetadata));
 }
 
+#[test]
+fn host_type_accepts_documented_and_live_forms() {
+    for (raw, want) in [
+        ("WORKSPACE_HOST", HostType::Workspace),
+        ("ACCOUNT_HOST", HostType::Account),
+        ("UNIFIED_HOST", HostType::Unified),
+        ("workspace", HostType::Workspace),
+        ("account", HostType::Account),
+        ("unified", HostType::Unified),
+        ("Workspace", HostType::Workspace),
+        ("workspace_host", HostType::Workspace),
+    ] {
+        let t: HostType = serde_json::from_value(serde_json::json!(raw)).unwrap();
+        assert_eq!(t, want, "{raw}");
+    }
+    assert!(serde_json::from_value::<HostType>(serde_json::json!("lakehouse")).is_err());
+    assert!(serde_json::from_value::<HostType>(serde_json::json!("_HOST")).is_err());
+}
+
+#[test]
+fn unknown_host_type_keeps_the_rest_of_the_metadata() {
+    for host_type in [
+        serde_json::json!("LAKEHOUSE_HOST"),
+        serde_json::json!(3),
+        serde_json::Value::Null,
+    ] {
+        let m: HostMetadata = serde_json::from_value(serde_json::json!({
+            "account_id": "acc-1",
+            "workspace_id": "9",
+            "host_type": host_type,
+        }))
+        .unwrap();
+        assert_eq!(m.host_type, None, "{host_type}");
+        assert_eq!(m.account_id, "acc-1");
+        assert_eq!(m.workspace_id, "9");
+    }
+}
+
+/// Issue #25: live workspace hosts answer `"host_type": "workspace"`.
+#[tokio::test]
+async fn host_metadata_with_lowercase_host_type_backfills() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/.well-known/databricks-config"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "oidc_endpoint": "https://ws.example/oidc",
+            "account_id": "acc-7",
+            "workspace_id": "1234",
+            "cloud": "AWS",
+            "host_type": "workspace"
+        })))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let c = resolve(Config::with_host(server.uri()).token("t"), &[], None)
+        .await
+        .unwrap();
+    assert_eq!(c.host_type(), HostType::Workspace);
+    assert_eq!(c.account_id.as_deref(), Some("acc-7"));
+    assert_eq!(c.workspace_id.as_deref(), Some("1234"));
+    assert_eq!(
+        c.discovery_url.as_deref(),
+        Some("https://ws.example/oidc/.well-known/oauth-authorization-server")
+    );
+    assert_eq!(c.source_of("discovery_url"), Some(&Source::HostMetadata));
+}
+
 #[tokio::test]
 async fn host_metadata_failure_is_not_fatal() {
     let server = MockServer::start().await; // every path 404s
