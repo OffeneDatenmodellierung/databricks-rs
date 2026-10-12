@@ -103,4 +103,5 @@ change `codegen/parity.toml` or the code, then re-run.
 | `bundle.Bundle.*` (18) | Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated. |
 | `compute.CommandMock.Execute` | A test double in Go's package; not API surface. |
 | `iam.New*` (6) | Constructors for Go's API structs; Rust clients come from the WorkspaceClient/AccountClient accessors. |
+| `mason.Mason.*` (33) | databricks-sdk-go v0.187.0 renamed `mason` to `agentkit` and unwired `w.Mason`; the stale `service/mason` package is no longer reachable API surface there. `agentkit` is generated. |
 | `sharing.SharesAPI.List*` (2) | Deprecated Go aliases of `ListShares`; `list_shares` is generated with the same `max_results` handling. |
