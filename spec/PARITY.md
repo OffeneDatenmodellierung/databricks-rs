@@ -24,11 +24,7 @@ change `codegen/parity.toml` or the code, then re-run.
 
 ## Gaps
 
-| Go | Issue |
-|---|---|
-| `serving.NewDataPlaneService` | #16 |
-| `serving.ServingEndpointsDataPlane.Query` | #16 |
-| `workspace.ServingEndpointsDataPlane` | #16 |
+None.
 
 ## Implemented by hand
 
@@ -81,12 +77,15 @@ change `codegen/parity.toml` or the code, then re-run.
 | `jobs.JobsAPI.List` | `crates/community-databricks-sdk-jobs/src/ext.rs#list` |
 | `jobs.JobsAPI.ListRuns` | `crates/community-databricks-sdk-jobs/src/ext.rs#list_runs` |
 | `provisioning.Workspace.AzureResourceId` | `crates/community-databricks-sdk-provisioning/src/ext.rs#azure_resource_id` |
+| `serving.NewDataPlaneService` | `crates/community-databricks-core/src/http.rs#data_plane_target` |
+| `serving.ServingEndpointsDataPlane.Query` | `crates/community-databricks-sdk-serving/src/ext.rs#query` |
 | `sql.StatementExecutionAPI.ExecuteAndWait` | `crates/community-databricks-sdk-sql/src/ext.rs#execute_and_wait` |
 | `tags.*API.*Tag*` (6) | `crates/community-databricks-core/src/http.rs#path_param` |
 | `workspace.DownloadFormat` | `crates/community-databricks-sdk-workspace/src/ext.rs#format` |
 | `workspace.ExportResponse.Bytes` | `crates/community-databricks-sdk-workspace/src/ext.rs#bytes` |
 | `workspace.PythonNotebookOverwrite` | `crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite` |
 | `workspace.PythonNotebookOverwriteReader` | `crates/community-databricks-sdk-workspace/src/ext.rs#python_notebook_overwrite_bytes` |
+| `workspace.ServingEndpointsDataPlane` | `crates/community-databricks-sdk/src/lib.rs#serving_endpoints_data_plane` |
 | `workspace.UploadFormat` | `crates/community-databricks-sdk-workspace/src/ext.rs#format` |
 | `workspace.UploadLanguage` | `crates/community-databricks-sdk-workspace/src/ext.rs#language` |
 | `workspace.UploadOverwrite` | `crates/community-databricks-sdk-workspace/src/ext.rs#overwrite` |

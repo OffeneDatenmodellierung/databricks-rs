@@ -122,6 +122,15 @@ impl WorkspaceClient {
     pub fn service_principals(&self) -> service::iam::ServicePrincipalsV2Api {
         self.service_principals_v2()
     }
+
+    /// Serving endpoint queries sent straight to the data plane (Go:
+    /// `w.ServingEndpointsDataPlane`). Needs Databricks OAuth credentials;
+    /// endpoint details and tokens are cached on this client.
+    #[cfg(feature = "serving")]
+    #[must_use]
+    pub fn serving_endpoints_data_plane(&self) -> service::serving::ServingEndpointsDataPlaneApi {
+        service::serving::ServingEndpointsDataPlaneApi::new(self.api_client().clone())
+    }
 }
 
 /// Client for account-level APIs.

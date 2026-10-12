@@ -13,10 +13,12 @@
 //! * [`error`]: the Databricks error envelope mapped to typed errors.
 //! * [`paging`]: token-based pagination as a [`Stream`](futures_core::Stream).
 //! * [`wait`]: long-running-operation polling.
+//! * [`dataplane`]: direct data-plane calls with exchanged OAuth tokens.
 
 pub mod auth;
 pub mod binary;
 pub mod config;
+pub mod dataplane;
 pub mod error;
 pub mod http;
 pub mod lookup;

@@ -27,6 +27,7 @@
 //!   (Go adds it per operation; every workspace-level operation does so).
 
 use std::fmt::Write as _;
+use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -39,9 +40,10 @@ use tokio::sync::{Mutex, OnceCell};
 use tokio::time::Instant;
 use url::Url;
 
-use crate::auth::{CredentialsProvider, DefaultCredentials};
+use crate::auth::{CachedTokenSource, CredentialsProvider, DefaultCredentials, Token};
 pub use crate::binary::{Binary, ByteStream, Bytes, next_chunk};
 use crate::config::{Config, DEFAULT_RATE_LIMIT};
+use crate::dataplane::{DataPlane, DataPlaneBearer, DataPlaneTarget, Exchange};
 use crate::error::{ApiError, Error, ErrorKind, Result};
 use crate::{query, useragent};
 
@@ -97,6 +99,7 @@ struct Inner {
     credentials: Arc<DefaultCredentials>,
     auth: OnceCell<(&'static str, Arc<dyn CredentialsProvider>)>,
     limiter: Arc<RateLimiter>,
+    data_plane: DataPlane,
 }
 
 /// Authenticated, retrying, rate-limited client for one host.
@@ -170,6 +173,7 @@ impl ApiClient {
                 credentials: Arc::new(credentials),
                 auth: OnceCell::new(),
                 limiter: Arc::new(limiter),
+                data_plane: DataPlane::default(),
             }),
         })
     }
@@ -216,6 +220,7 @@ impl ApiClient {
                 credentials: Arc::clone(&parent.credentials),
                 auth,
                 limiter: Arc::clone(&parent.limiter),
+                data_plane: DataPlane::default(),
             }),
         })
     }
@@ -325,6 +330,77 @@ impl ApiClient {
         }
     }
 
+    /// Where to reach a data-plane operation (see [`crate::dataplane`]).
+    ///
+    /// `key` names the operation and request (Go: `"Query/<name>"`). The
+    /// first call for a key runs `fetch`, normally a control-plane `Get`;
+    /// the result is cached for the life of this client and its clones.
+    pub async fn data_plane_target<F, Fut>(&self, key: &str, fetch: F) -> Result<DataPlaneTarget>
+    where
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<DataPlaneTarget>>,
+    {
+        if let Some(t) = self.inner.data_plane.target(key) {
+            return Ok(t);
+        }
+        let fetched = fetch().await?;
+        Ok(self.inner.data_plane.store_target(key, fetched))
+    }
+
+    /// A token for `target`: the control-plane Databricks OAuth token
+    /// exchanged at `/oidc/v1/token` for one carrying
+    /// `target.authorization_details` (Go: `dataplane.EndpointTokenSource`).
+    ///
+    /// Tokens are cached per target and refreshed ahead of expiry. Fails
+    /// with [`Error::Auth`] when the configured credentials aren't
+    /// Databricks OAuth (a PAT, Azure AD or Google credentials).
+    pub async fn data_plane_token(&self, target: &DataPlaneTarget) -> Result<Token> {
+        let (auth_type, provider) = self.provider().await?;
+        let Some(control) = provider.oauth_token_source() else {
+            return Err(Error::Auth {
+                auth_type: (*auth_type).into(),
+                message: format!(
+                    "OAuth token not supported for current auth type {auth_type}; data-plane calls need Databricks OAuth credentials"
+                ),
+            });
+        };
+        let tokens = self.inner.data_plane.tokens(target, || {
+            let token_url = self.inner.base.join("/oidc/v1/token").map_or_else(
+                |_| format!("{}oidc/v1/token", self.inner.base),
+                String::from,
+            );
+            CachedTokenSource::new(
+                Exchange {
+                    http: self.inner.http.clone(),
+                    token_url,
+                    control,
+                    authorization_details: target.authorization_details.clone(),
+                },
+                true,
+            )
+        });
+        tokens.token().await
+    }
+
+    /// Send `call` to `target.endpoint_url` (its `path` is ignored) with a
+    /// data-plane token from [`data_plane_token`](Self::data_plane_token),
+    /// retrying as usual, and decode the JSON response with its headers.
+    pub async fn send_data_plane_with_headers<R: DeserializeOwned>(
+        &self,
+        target: &DataPlaneTarget,
+        mut call: Call,
+    ) -> Result<(R, HeaderMap)> {
+        let token = self.data_plane_token(target).await?;
+        let (auth_type, _) = self.provider().await?;
+        call.path.clone_from(&target.endpoint_url);
+        let provider = DataPlaneBearer(token.access_token);
+        let (bytes, headers) = self
+            .run_as(call, false, auth_type, &provider)
+            .await?
+            .into_bytes();
+        Ok((decode(&bytes)?, headers))
+    }
+
     /// The configured account ID, required by account-level paths.
     pub fn account_id(&self) -> Result<&str> {
         self.inner
@@ -336,6 +412,21 @@ impl ApiClient {
     }
 
     async fn run(&self, call: Call, stream: bool) -> Result<Done> {
+        let (auth_type, provider) = self.provider().await?;
+        self.run_as(call, stream, auth_type, provider.as_ref())
+            .await
+    }
+
+    /// [`run`](Self::run) authenticated by `provider` instead of the
+    /// configured credentials (`auth_type` is still reported in the
+    /// user agent).
+    async fn run_as(
+        &self,
+        call: Call,
+        stream: bool,
+        auth_type: &'static str,
+        provider: &dyn CredentialsProvider,
+    ) -> Result<Done> {
         let Call {
             method,
             path,
@@ -367,7 +458,6 @@ impl ApiClient {
         if !query.is_empty() {
             url.query_pairs_mut().extend_pairs(&query);
         }
-        let (auth_type, provider) = self.provider().await?;
         let user_agent = useragent::build(Some(auth_type));
         let deadline = self.inner.cfg.retry_timeout().map(|d| Instant::now() + d);
         let mut attempt = 0u32;
@@ -381,7 +471,7 @@ impl ApiClient {
                     body: body.as_ref(),
                     accept,
                     stream,
-                    provider: provider.as_ref(),
+                    provider,
                     user_agent: &user_agent,
                     workspace_header,
                 })
