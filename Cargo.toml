@@ -19,6 +19,7 @@ community-databricks-core = { path = "crates/community-databricks-core", version
 # The generated service crates, one per package (`cargo xtask codegen`).
 # BEGIN GENERATED WORKSPACE CRATES
 community-databricks-sdk-agentbricks = { path = "crates/community-databricks-sdk-agentbricks", version = "0.1.1" }
+community-databricks-sdk-agentkit = { path = "crates/community-databricks-sdk-agentkit", version = "0.1.0" }
 community-databricks-sdk-aifunctions = { path = "crates/community-databricks-sdk-aifunctions", version = "0.1.1" }
 community-databricks-sdk-aisearch = { path = "crates/community-databricks-sdk-aisearch", version = "0.1.1" }
 community-databricks-sdk-apps = { path = "crates/community-databricks-sdk-apps", version = "0.2.0" }

@@ -195,6 +195,540 @@
         ],
         "type": "object"
       },
+      "agentkit.AppendSessionItemsRequest": {
+        "description": "Request to append items to a session.",
+        "properties": {
+          "items": {
+            "description": "Items to append atomically in request order. Concurrent append requests\nare serialized into one committed order without exposing a numeric\nsequence in the public contract.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.SessionItem"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "agentkit.AppendSessionItemsResponse": {
+        "description": "Response containing appended items.",
+        "properties": {
+          "session_items": {
+            "description": "Persisted session items with service-assigned fields.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.SessionItem"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ClearSessionItemsRequest": {
+        "description": "Request to clear all items from a session.",
+        "properties": {},
+        "type": "object"
+      },
+      "agentkit.ClearSessionItemsResponse": {
+        "description": "Response from clearing items from a session.",
+        "properties": {},
+        "type": "object"
+      },
+      "agentkit.ExtractMemoriesRequest": {
+        "description": "Request to synchronously extract memories from a single session.",
+        "properties": {
+          "dry_run": {
+            "description": "When true, extract and return the entries without writing them to the\nmemory store. Defaults to false, which persists the extracted entries and\nreturns them.",
+            "type": "boolean"
+          },
+          "instructions": {
+            "description": "Instructions steering what is extracted from the session.",
+            "type": "string"
+          },
+          "memory_store": {
+            "description": "Managed memory store the extracted entries are written to, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "memory_store"
+        ],
+        "type": "object"
+      },
+      "agentkit.ExtractMemoriesResponse": {
+        "description": "Result of a single-session memory extraction.",
+        "properties": {
+          "entries": {
+            "description": "The memory entries written by this extraction.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "Correlation identifier for this extraction, for logging and tracing. Not\na fetchable resource.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ForkSessionRequest": {
+        "description": "Request to fork a session.",
+        "properties": {
+          "actor_id": {
+            "description": "Opaque caller-provided identifier for the application actor associated\nwith the forked session.",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Optional metadata for the fork.",
+            "type": "object"
+          },
+          "session_id": {
+            "description": "Optional unique ID for the forked session. A collision returns\n`ALREADY_EXISTS`.",
+            "type": "string"
+          },
+          "source_session_id": {
+            "description": "ID of the session to copy.",
+            "type": "string"
+          },
+          "up_to_item_id": {
+            "description": "Optional last item ID to copy through, inclusively. When omitted, the\nfork atomically copies all items committed before the fork operation\nbegins.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "source_session_id"
+        ],
+        "type": "object"
+      },
+      "agentkit.ForkSessionResponse": {
+        "description": "Response from forking a session.",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/agentkit.Session",
+            "description": "The newly-created independent top-level session."
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ListManagedMemoryEntriesResponse": {
+        "description": "Response containing managed memory entries.",
+        "properties": {
+          "managed_memory_entries": {
+            "description": "Managed memory entries matching the request and its read mask.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "Opaque pagination token. This field is omitted when there are no more\nresults.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ListManagedMemoryStoresResponse": {
+        "description": "Response containing managed memory stores in the caller's workspace.",
+        "properties": {
+          "managed_memory_stores": {
+            "description": "Managed memory stores in the caller's workspace.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "Opaque pagination token. This field is omitted when there are no more\nresults.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ListSessionItemsResponse": {
+        "description": "Response containing a page of session items.",
+        "properties": {
+          "next_page_token": {
+            "description": "Token to retrieve the next page.",
+            "type": "string"
+          },
+          "session_items": {
+            "description": "Session items in the requested page.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.SessionItem"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ListSessionStoresResponse": {
+        "description": "Response containing a page of session stores.",
+        "properties": {
+          "next_page_token": {
+            "description": "Token to retrieve the next page.",
+            "type": "string"
+          },
+          "session_stores": {
+            "description": "Session stores in the requested page.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.SessionStore"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ListSessionsResponse": {
+        "description": "Response containing a page of sessions.",
+        "properties": {
+          "next_page_token": {
+            "description": "Token to retrieve the next page.",
+            "type": "string"
+          },
+          "sessions": {
+            "description": "Sessions in the requested page.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.Session"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ManagedMemoryEntry": {
+        "description": "A workspace-scoped entry in a managed memory store.",
+        "properties": {
+          "actor_id": {
+            "description": "Customer-provided identifier for the actor whose memory this entry\nrepresents.",
+            "type": "string"
+          },
+          "content": {
+            "description": "Optional free-form memory content.",
+            "type": "string"
+          },
+          "create_time": {
+            "description": "Time when the entry was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description of the memory entry.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+            "type": "string"
+          },
+          "path": {
+            "description": "Absolute, case-sensitive path identifying the entry within its actor and\noptional session. Paths must begin with `/` and must not contain empty,\n`.` or `..` segments.",
+            "type": "string"
+          },
+          "session_id": {
+            "description": "Optional identifier for the session associated with this memory entry.\nWhen omitted, the entry applies across the actor's sessions.",
+            "type": "string"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/agentkit.ManagedMemoryEntrySourceType",
+            "description": "Which writer created this entry. Caller sets this on Create; immutable\nafter creation."
+          },
+          "update_time": {
+            "description": "Time when the entry was last updated.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "path"
+        ],
+        "type": "object"
+      },
+      "agentkit.ManagedMemoryEntrySearchResult": {
+        "description": "One relevance-ranked managed memory search result.",
+        "properties": {
+          "managed_memory_entry": {
+            "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry",
+            "description": "Managed memory entry matching the query."
+          },
+          "score": {
+            "description": "Relevance score for the result. Higher scores are more relevant.",
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.ManagedMemoryEntrySourceType": {
+        "description": "Identifies the source that created a managed memory entry.",
+        "enum": [
+          "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_AGENT",
+          "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_DREAMER"
+        ],
+        "type": "string"
+      },
+      "agentkit.ManagedMemoryStore": {
+        "description": "A workspace-scoped managed memory store backed by service-managed storage.",
+        "properties": {
+          "create_time": {
+            "description": "Time when the store was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "creator_user_id": {
+            "description": "Workspace-local user ID of the authenticated principal that created the\nstore. This is immutable server-set attribution and does not grant\naccess; authorization is evaluated from the authenticated request\ncontext.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description of the memory store.",
+            "type": "string"
+          },
+          "display_name": {
+            "description": "Deprecated compatibility alias for the caller-provided managed memory\nstore ID. Canonical clients provide the ID through\n`CreateMemoryStoreRequest.managed_memory_store_id` and use `name` as the\nresource identifier.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "description": "Deprecated alias for `creator_user_id`. This identifies the original\ncreator, not a transferable owner. Use `creator_user_id` instead.",
+            "type": "string"
+          },
+          "storage_backend": {
+            "$ref": "#/components/schemas/agentkit.StorageBackend",
+            "description": "Service-managed storage backing this memory store."
+          },
+          "update_time": {
+            "description": "Time when the store was last updated.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "workspace_id": {
+            "description": "Workspace that owns the memory store.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.PopSessionItemRequest": {
+        "description": "Request to pop an item from a session.",
+        "properties": {},
+        "type": "object"
+      },
+      "agentkit.PopSessionItemResponse": {
+        "description": "Response containing the popped item.",
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/agentkit.SessionItem",
+            "description": "Removed item, if any."
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.SearchManagedMemoryEntriesRequest": {
+        "description": "Request to search managed memory entries by text query for one actor. Search\nreturns a relevance-ranked top-N result set and does not currently paginate.",
+        "properties": {
+          "actor_id": {
+            "description": "Customer-provided identifier for the actor whose entries are searched.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Deprecated alias for `page_size`. When both fields are set, their values\nmust match.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of relevance-ranked entries to return. Defaults to 10 and\nmust be between 1 and 100.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "page_token": {
+            "description": "Reserved for pagination compatibility. The server currently ignores this\nfield because Search returns a ranked top-N result set.",
+            "type": "string"
+          },
+          "path_prefix": {
+            "description": "Optional absolute, case-sensitive path prefix used to restrict searched\nentries within the actor partition. The prefix must begin with `/` and\nmust not contain empty, `.` or `..` segments.",
+            "type": "string"
+          },
+          "query": {
+            "description": "Free-form search query.",
+            "type": "string"
+          },
+          "read_mask": {
+            "description": "Fields to return in each matching entry, using proto field names such as\n`content` (not `contents`). An omitted or empty mask returns each full\nentry, including `content`; a non-empty mask returns only the requested\nfields. Search scores are always returned.\n\nThe field mask must be a single string, with multiple fields separated by\ncommas (no spaces). The field path is relative to the resource object,\nusing a dot (`.`) to navigate sub-fields (e.g., `author.given_name`).\nSpecification of elements in sequence or map fields is not allowed, as\nonly the entire collection field can be specified. Field names must\nexactly match the resource field names.",
+            "example": "name,owner",
+            "format": "google-fieldmask",
+            "type": "string"
+          },
+          "session_id": {
+            "description": "Optional session identifier. When set, only entries with this exact\n`session_id` are searched. Omitted-session (cross-session) entries are\nnot included.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "query"
+        ],
+        "type": "object"
+      },
+      "agentkit.SearchManagedMemoryEntriesResponse": {
+        "description": "Response containing managed memory entries ranked by relevance.",
+        "properties": {
+          "managed_memory_entries": {
+            "description": "Deprecated compatibility alias for clients migrating to `results`. This\ncontains the same entries in the same order, but omits their relevance\nscores.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "Opaque pagination token. Search currently returns an unpaginated ranked\ntop-N result set, so the server does not populate this field.",
+            "type": "string"
+          },
+          "results": {
+            "description": "Canonical matching entries and relevance scores, ordered most relevant\nfirst.",
+            "items": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntrySearchResult"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.Session": {
+        "description": "A durable logical interaction stored within a Session Store.",
+        "properties": {
+          "actor_id": {
+            "description": "Opaque caller-provided identifier for the application actor associated\nwith the session.\n\nThis is application data and has no Databricks authentication or\nauthorization semantics. Use the same value as the Managed Memory Entry\n`actor_id` when storing memories associated with this actor. Every\nsession must set it. A child session must use the same value as its\nparent.",
+            "type": "string"
+          },
+          "create_time": {
+            "description": "Time when the session was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "last_activity_time": {
+            "description": "Time when the session's item history was last mutated.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Mutable caller-defined string labels.",
+            "type": "object"
+          },
+          "name": {
+            "description": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+            "type": "string"
+          },
+          "parent_session_id": {
+            "description": "Immediate parent session ID. Set only at creation for child sessions,\nimmutable thereafter, and restricted to the same store.",
+            "type": "string"
+          },
+          "root_session_id": {
+            "description": "Top-level session ID in the spawn tree. This equals `session_id` for a\nroot or fork and is inherited transitively by child sessions.",
+            "type": "string"
+          },
+          "session_id": {
+            "description": "Unique session ID. The service generates a UUID unless the caller\nsupplies `CreateSessionRequest.session_id`.",
+            "type": "string"
+          },
+          "update_time": {
+            "description": "Time when session resource fields last changed.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id"
+        ],
+        "type": "object"
+      },
+      "agentkit.SessionItem": {
+        "description": "A transcript entry in a session's history.",
+        "properties": {
+          "create_time": {
+            "description": "Server-assigned time when the append commits. Values are nondecreasing\nwithin a session. Item listing orders by this timestamp; equal timestamps\nare resolved by committed append order.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "description": "Complete SDK-native, JSON-compatible item. The service stores and returns\nthis value without interpreting provider-specific fields such as `type`,\n`role`, or `content`."
+          },
+          "item_id": {
+            "description": "Stable service-generated item ID.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "type": "object"
+      },
+      "agentkit.SessionStore": {
+        "description": "A workspace-scoped session store.",
+        "properties": {
+          "create_time": {
+            "description": "Time when the store was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "creator_user_id": {
+            "description": "Workspace-local user ID of the authenticated principal that created the\nstore. This is immutable server-set attribution and does not grant\naccess; authorization is evaluated from the authenticated request\ncontext.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description of the session store.",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Mutable caller-defined string labels.",
+            "type": "object"
+          },
+          "name": {
+            "description": "Resource name in the form `session-stores/{session_store_id}`.",
+            "type": "string"
+          },
+          "update_time": {
+            "description": "Time when the store was last updated.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.StorageBackend": {
+        "description": "Service-managed storage backing a managed memory store.",
+        "properties": {
+          "backend_id": {
+            "description": "Backend-specific identifier. For Lakebase, this is the project ID.",
+            "type": "string"
+          },
+          "backend_type": {
+            "$ref": "#/components/schemas/agentkit.StorageBackendType",
+            "description": "Type of the storage backend."
+          }
+        },
+        "type": "object"
+      },
+      "agentkit.StorageBackendType": {
+        "description": "Type of service-managed storage backing a managed memory store.",
+        "enum": [
+          "STORAGE_BACKEND_TYPE_LAKEBASE"
+        ],
+        "type": "string"
+      },
       "aifunctions.AiClassifyOptions": {
         "description": "ai_classify",
         "properties": {
@@ -256,6 +790,56 @@
         "properties": {
           "version": {
             "description": "The resolved function version.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "aifunctions.AiDecideOptions": {
+        "description": "ai_decide",
+        "properties": {
+          "version": {
+            "description": "The function API version to invoke. Defaults to \"1.0\". Supported\nversions: [\"1.0\"].",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "aifunctions.AiDecideRequest": {
+        "properties": {
+          "options": {
+            "$ref": "#/components/schemas/aifunctions.AiDecideOptions",
+            "description": "Function options. Omitted fields fall back to their documented defaults."
+          },
+          "questions": {
+            "description": "A JSON object mapping question IDs to their definitions. Each ID must\ncontain non-whitespace text; its answer is returned with the same ID in\n`response.answers`.\n\nEach definition is an object with the required fields `type` and\n`instructions`. The `criteria` field is optional for the type `noul` but\nis required for the types `choice` and `score`.\n\nThe `instructions` field describes the judgment to make and can be a\nstring, object, or array. Use an object or array to include supporting\ncontext alongside the instructions.\n\nThe `type` can be one of:\n\n- `choice`: Selects one option from a defined set. Requires `criteria` to\nbe an object mapping 1 to 255 nonempty option names to descriptions. The\ncriteria description can be a string, object, array, or null when the\nname needs no additional detail. For example:\n\n```json { \"team\": { \"type\": \"choice\", \"instructions\": \"Which team should\nhandle this ticket?\", \"criteria\": { \"billing\": \"Payments, charges, and\nrefunds\", \"technical_support\": null } } } ```\n\n- `noul`: Estimates the probability that the answer to a true-or-false\nquestion is true. `criteria` can take the fields `true` or `false`, or\nboth, with descriptions that are strings, objects, or arrays. Omit\n`criteria` to use the question alone. The instructions or at least one\ncriteria description must contain non-whitespace text, a nonempty object,\nor a nonempty array. For example, both of the following are valid:\n\n```json { \"escalate\": { \"type\": \"noul\", \"instructions\": \"Does this ticket\nneed escalation?\", \"criteria\": { \"true\": \"Suspected fraud or an exception\nto standard policy\", \"false\": \"A routine issue frontline support can\nresolve\" } } } ```\n\nor\n\n```json { \"escalate\": { \"type\": \"noul\", \"instructions\": \"Does this ticket\nneed escalation?\" } } ```\n\n- `score`: Rates the state on an ordered scale. Requires `criteria` to be\nan array of 2 to 10 level descriptions, ordered from low to high.\nDescriptions must contain non-whitespace text, a nonempty object, or a\nnonempty array. Array positions define levels starting at 0. For example:\n\n```json { \"urgency\": { \"type\": \"score\", \"instructions\": \"How urgent is\nthis ticket?\", \"criteria\": [ \"Routine: can wait a few days\",\n\"Time-sensitive: needs attention today\", \"Critical: needs immediate\naction\" ] } } ```"
+          },
+          "state": {
+            "description": "A string, JSON object, or array containing the content, related context,\nand examples needed to answer the provided questions. For example,\nprovide a support message, a conversation, or records describing the\ncurrent state of an application. All questions receive this same state."
+          }
+        },
+        "required": [
+          "questions",
+          "state"
+        ],
+        "type": "object"
+      },
+      "aifunctions.AiDecideResponse": {
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/aifunctions.AiDecideResponseMetadata",
+            "description": "Metadata identifying the function API version used for this request."
+          },
+          "response": {
+            "description": "A JSON object containing an `answers` map with one answer for each\nquestion, keyed by the same IDs as `questions`.\n\nEach answer has a `type` matching its question and the following fields:\n\n- `choice`: choice is the highest-probability option from `criteria`.\n`probabilities` maps every option name to its probability. `confidence`\nis a number from 0 to 1 indicating how well the state supports the\nassessment. The `probabilities` values sum to 1. For example:\n\n```json { \"answers\": { \"team\": { \"type\": \"choice\", \"choice\": \"billing\",\n\"probabilities\": { \"billing\": 0.85, \"technical_support\": 0.15 },\n\"confidence\": 0.9 } } } ```\n\n- `noul`: `probability` is a number from 0 to 1 estimating the\nprobability that the answer is true. For example:\n\n```json { \"answers\": { \"escalate\": { \"type\": \"noul\", \"probability\": 0.8 }\n} } ```\n\n- `score`: score is the probability-weighted mean of the zero-based level\nindices. It can fall between levels, from 0 to the number of levels minus\n1. `probabilities` maps each level index to its probability, and `legend`\nmaps each index to its original description. Both maps use string keys\nsuch as \"0\", \"1\", and \"2\". `confidence` is a number from 0 to 1\nindicating how well the state supports the assessment. The\n`probabilities` values sum to 1. For example:\n\n```json { \"answers\": { \"urgency\": { \"type\": \"score\", \"score\": 1.6,\n\"probabilities\": { \"0\": 0.1, \"1\": 0.2, \"2\": 0.7 }, \"legend\": { \"0\":\n\"Routine: can wait a few days\", \"1\": \"Time-sensitive: needs attention\ntoday\", \"2\": \"Critical: needs immediate action\" }, \"confidence\": 0.85 } }\n} ```"
+          }
+        },
+        "type": "object"
+      },
+      "aifunctions.AiDecideResponseMetadata": {
+        "properties": {
+          "version": {
+            "description": "The function API version used to evaluate the request.",
             "type": "string"
           }
         },
@@ -1034,7 +1618,7 @@
             "type": "string"
           },
           "max_results": {
-            "description": "Maximum number of results to return (the legacy `num_results`). Defaults\nto 10.",
+            "description": "Maximum number of results to return (the legacy `num_results`). Defaults\nto 10. Prefer `page_size`; when both are set, `page_size` takes\nprecedence.",
             "format": "int64",
             "type": "integer"
           },
@@ -1323,12 +1907,12 @@
             "type": "string"
           },
           "compute_max_instances": {
-            "description": "Maximum number of app instances. Must be set together with\n`compute_min_instances`.",
+            "description": "Maximum number of app instances the app is configured to run. Must be set\ntogether with `compute_min_instances`.",
             "format": "int64",
             "type": "integer"
           },
           "compute_min_instances": {
-            "description": "Minimum number of app instances. Must be set together with\n`compute_max_instances`.",
+            "description": "Minimum number of app instances the app is configured to run. Must be set\ntogether with `compute_max_instances`.",
             "format": "int64",
             "type": "integer"
           },
@@ -1546,6 +2130,10 @@
             "$ref": "#/components/schemas/apps.GitSource",
             "description": "Git repository to use as the source for the app deployment."
           },
+          "health_check": {
+            "$ref": "#/components/schemas/apps.AppHealthCheck",
+            "description": "Deploy-time health check for the app. Verifies the app is responding to\nHTTP requests before considering the deployment successful."
+          },
           "mode": {
             "$ref": "#/components/schemas/apps.AppDeploymentMode",
             "description": "The mode of which the deployment will manage the source code."
@@ -1599,6 +2187,22 @@
           "state": {
             "$ref": "#/components/schemas/apps.AppDeploymentState",
             "description": "State of the deployment."
+          }
+        },
+        "type": "object"
+      },
+      "apps.AppHealthCheck": {
+        "description": "Deploy-time HTTP health check configuration for an app deployment.",
+        "properties": {
+          "path": {
+            "description": "HTTP path to probe, e.g. \"/health\" or \"/api/status\".",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Timeout to wait for the health check to pass before failing the\ndeployment. If not set, a default timeout is used.",
+            "example": "3.5s",
+            "format": "google-duration",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2192,12 +2796,12 @@
             "type": "string"
           },
           "compute_max_instances": {
-            "description": "Maximum number of app instances. Must be set together with\n`compute_min_instances`.",
+            "description": "Maximum number of app instances the app is configured to run. Must be set\ntogether with `compute_min_instances`.",
             "format": "int64",
             "type": "integer"
           },
           "compute_min_instances": {
-            "description": "Minimum number of app instances. Must be set together with\n`compute_max_instances`.",
+            "description": "Minimum number of app instances the app is configured to run. Must be set\ntogether with `compute_max_instances`.",
             "format": "int64",
             "type": "integer"
           },
@@ -2277,7 +2881,7 @@
             "type": "string"
           },
           "running_instances": {
-            "description": "The number of running instances of this application.",
+            "description": "The number of app instances whose application process is running.",
             "format": "int64",
             "type": "integer"
           },
@@ -2326,7 +2930,7 @@
       "apps.ComputeStatus": {
         "properties": {
           "active_instances": {
-            "description": "The number of compute instances used and billed for this application.",
+            "description": "The number of active compute instances currently used and billed for this\napplication.",
             "format": "int64",
             "type": "integer"
           },
@@ -2871,10 +3475,10 @@
         "properties": {
           "completion_reason": {
             "$ref": "#/components/schemas/bundledeployments.VersionComplete",
-            "description": "The reason for completing the version. Must be a terminal reason:\nVERSION_COMPLETE_SUCCESS, VERSION_COMPLETE_FAILURE, or\nVERSION_COMPLETE_FORCE_ABORT."
+            "description": "The reason for completing the version. Must be VERSION_COMPLETE_SUCCESS\nor VERSION_COMPLETE_FAILURE."
           },
           "force": {
-            "description": "If true, force-completes the version even if the caller is not the\noriginal creator. The completion_reason must be\nVERSION_COMPLETE_FORCE_ABORT when force is true.",
+            "description": "If true, force-completes the version even if the caller is not the\noriginal creator.",
             "type": "boolean"
           }
         },
@@ -5896,6 +6500,10 @@
         },
         "type": "object"
       },
+      "catalog.FinalizeSkillRequest": {
+        "properties": {},
+        "type": "object"
+      },
       "catalog.ForeignKeyConstraint": {
         "properties": {
           "child_columns": {
@@ -6946,6 +7554,23 @@
         },
         "type": "object"
       },
+      "catalog.ListSkillsResponse": {
+        "description": "Response for listing skills.",
+        "properties": {
+          "next_page_token": {
+            "description": "Pagination token for retrieving the next page of results.",
+            "type": "string"
+          },
+          "skills": {
+            "description": "The list of skills.",
+            "items": {
+              "$ref": "#/components/schemas/catalog.Skill"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "catalog.ListStorageCredentialsResponse": {
         "properties": {
           "next_page_token": {
@@ -7589,6 +8214,10 @@
           "region": {
             "description": "GCP region of the Gemini Enterprise endpoint (e.g., `us-central1`).\nRequired on Create.",
             "type": "string"
+          },
+          "service_credential": {
+            "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigServiceCredential",
+            "description": "Reference to a Unity Catalog service credential authorizing Gemini\nEnterprise requests. On Create, supply `service_credential.name` as\n`credentials/{name}`; required when using service-credential\nauthentication and mutually exclusive with `api_key`. The credential is\nreferenced by name; its value is not carried here. On read, the resolved\n`id` and `is_deleted` are also populated. Supported only on GCP-hosted\nworkspaces."
           }
         },
         "type": "object"
@@ -7626,14 +8255,18 @@
         "type": "object"
       },
       "catalog.ModelProviderServiceConfigModelTargetConfig": {
-        "description": "Model target configuration for an external model destination.",
+        "description": "Model target configuration shared by model provider service targets and\nexternal model destinations on model services.",
         "properties": {
+          "endpoint_route": {
+            "description": "Relative path appended to a custom provider's `base_url` for this model,\nsuch as `serve/openai/chat`. Only custom model provider service targets\nuse this field; other provider types ignore it, and model service\ndestinations reject it. Do not include URI templates, queries, or\nfragments. When empty, `base_url` is used unchanged.",
+            "type": "string"
+          },
           "model": {
             "description": "Provider-side model identifier, such as `gpt-5` or `claude-opus-4-7`.\nThis identifies a model at the upstream provider; it is not a Unity\nCatalog model resource.",
             "type": "string"
           },
           "native_api_types": {
-            "description": "Provider-native API types supported by this model, such as\n`openai/v1/chat/completions`. At least one value is required. AI Gateway\nuses these values to translate requests and responses. At most 64 entries\nof 256 characters each are allowed.",
+            "description": "Provider-native API types supported by this model, such as\n`openai/v1/chat/completions`. A model provider service target requires at\nleast one value. A model service destination may omit the list to use the\nmatching provider service target's types when available. AI Gateway uses\nthe selected types for translation. At most 64 entries of 256 characters\neach are allowed.",
             "items": {
               "type": "string"
             },
@@ -7679,8 +8312,25 @@
           "plaintext": {
             "description": "Inline plaintext credential. INPUT_ONLY: the value never round-trips on\nreads. Get and List responses omit `plaintext`; the enclosing secret\nobject remains present to indicate that a secret is configured.",
             "type": "string"
+          },
+          "secret_reference": {
+            "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigSecretReference",
+            "description": "Reference to a customer-owned UC Secret that carries this secret value.\nThe value is read at invoke time under the model provider service owner's\naccess and is never copied onto the model provider service, so rotating\nthe UC Secret takes effect with no change to the model provider service.\nOn Create, supply `secret_reference.name` as\n`secrets/{catalog}.{schema}.{secret}`."
           }
         },
+        "type": "object"
+      },
+      "catalog.ModelProviderServiceConfigSecretReference": {
+        "description": "Reference to a customer-owned UC Secret backing a secret-bearing provider\nfield, in the `ProviderSecret.secret_reference` arm.",
+        "properties": {
+          "name": {
+            "description": "Resource name of the bound UC Secret, in the form\n`secrets/{catalog}.{schema}.{secret}`. On Create the caller supplies the\nname here. On read it reflects the secret's current name at read time.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
         "type": "object"
       },
       "catalog.ModelProviderServiceConfigServiceCredential": {
@@ -9354,6 +10004,7 @@
           "TABLE_FOREIGN_BIGQUERY",
           "TABLE_FOREIGN_DATABRICKS",
           "TABLE_FOREIGN_DELTASHARING",
+          "TABLE_FOREIGN_DELTA_DELTASHARING",
           "TABLE_FOREIGN_HIVE_METASTORE",
           "TABLE_FOREIGN_HIVE_METASTORE_DBFS_EXTERNAL",
           "TABLE_FOREIGN_HIVE_METASTORE_DBFS_MANAGED",
@@ -9519,6 +10170,63 @@
         "required": [
           "version_num"
         ],
+        "type": "object"
+      },
+      "catalog.Skill": {
+        "description": "A Skill is an agentskills.io bundle registered in Unity Catalog. Clients\ntransfer bundle bytes through the Files API. FinalizeSkill reads the uploaded\nSKILL.md and projects its frontmatter onto the Skill metadata.",
+        "properties": {
+          "bundle_name": {
+            "description": "Name from the most recently successfully finalized SKILL.md. It may\ndiffer from the final component of the Skill resource name. Unset until\nFinalizeSkill succeeds.",
+            "type": "string"
+          },
+          "comment": {
+            "description": "User-provided comment for the skill. Free-text, user-editable via\nUpdateSkill (listed in its `update_mask`). DISTINCT from `description`,\nwhich is the server-parsed, OUTPUT_ONLY SKILL.md frontmatter value:\n`comment` is the customer's own annotation and is preserved across bundle\nre-uploads. When `comment` is in the update mask, omitting it clears the\nfield, while an explicitly empty string is retained.",
+            "type": "string"
+          },
+          "create_time": {
+            "description": "Time the skill was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "Creator identity.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description from the most recently successfully finalized SKILL.md. Unset\nuntil FinalizeSkill succeeds.",
+            "type": "string"
+          },
+          "effective_owner": {
+            "description": "Owner of the skill.",
+            "type": "string"
+          },
+          "etag": {
+            "description": "Optimistic concurrency token returned on every read. To make an Update or\nDelete conditional, pass the last-read value in that request's `etag`\nfield. In REST responses, this value is a base64 string; URL-encode it\nwhen setting the `etag` query parameter.",
+            "type": "string"
+          },
+          "finalize_time": {
+            "description": "Time of the most recent successful FinalizeSkill. Unset until one\nsucceeds.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "metastore_id": {
+            "description": "Metastore hosting the skill.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Resource name of the skill. Format: `skills/{catalog}.{schema}.{skill}`.\nEach `{...}` component is capped at 255 characters individually.\nServer-derived on Create from `parent` + `skill_id`; required and\nimmutable on Update/Get/Delete.",
+            "type": "string"
+          },
+          "update_time": {
+            "description": "Time of the most recent Skill metadata mutation. Uploading bundle files\nalone does not change this value.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_by": {
+            "description": "Identity of the last updater.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "catalog.SpecialDestination": {
@@ -11080,11 +11788,11 @@
           },
           "view": {
             "$ref": "#/components/schemas/cleanrooms.CleanRoomAssetView",
-            "description": "View details available to all collaborators of the clean room. Present if\nand only if **asset_type** is **VIEW**"
+            "description": "View details available to all collaborators of the clean room. Present if\nand only if **asset_type** is **VIEW** or **METRIC_VIEW**"
           },
           "view_local_details": {
             "$ref": "#/components/schemas/cleanrooms.CleanRoomAssetViewLocalDetails",
-            "description": "Local details for a view that are only available to its owner. Present if\nand only if **asset_type** is **VIEW**"
+            "description": "Local details for a view that are only available to its owner. Present if\nand only if **asset_type** is **VIEW** or **METRIC_VIEW**"
           },
           "volume_local_details": {
             "$ref": "#/components/schemas/cleanrooms.CleanRoomAssetVolumeLocalDetails",
@@ -11146,7 +11854,7 @@
             "type": "string"
           },
           "environment_version": {
-            "description": "The serverless environment version used to execute the JAR analysis (e.g.\n\"4\"). Defaults to \"4-scala-preview\" if not specified.",
+            "description": "The serverless environment version used to execute the JAR analysis (e.g.\n\"4\"). If not specified, uses the service-configured JAR analysis default.",
             "type": "string"
           },
           "etag": {
@@ -14215,6 +14923,10 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "project_environment": {
+            "description": "File path of pyproject.toml file that defines the project-scoped\nenvironment.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -15133,19 +15845,19 @@
         "properties": {
           "availability": {
             "$ref": "#/components/schemas/compute.InstancePoolAwsAttributesAvailability",
-            "description": "Availability type used for the spot nodes."
+            "description": "Availability type used for the instances in the pool. Supports on-demand,\nspot, and spot-with-fallback (the pool acquires spot instances first, and\nfalls back to on-demand instances when spot capacity is unavailable).\n\nYou can change this value on an existing pool. New clusters use the\nupdated availability, and existing clusters keep the availability they\nlaunched with."
           },
           "instance_profile_arn": {
             "description": "All AWS instances belonging to the instance pool will have this instance\nprofile. If omitted, instances will initially be launched with the\nworkspace's default instance profile. If defined, clusters that use the\npool will inherit the instance profile, and must not specify their own\ninstance profile on cluster creation or update. If the pool does not\nspecify an instance profile, clusters using the pool may specify any\ninstance profile. The instance profile must have previously been added to\nthe Databricks environment by an account administrator.\n\nThis feature may only be available to certain customer plans.",
             "type": "string"
           },
           "spot_bid_price_percent": {
-            "description": "Calculates the bid price for AWS spot instances, as a percentage of the\ncorresponding instance type's on-demand price. For example, if this field\nis set to 50, and the cluster needs a new `r3.xlarge` spot instance, then\nthe bid price is half of the price of on-demand `r3.xlarge` instances.\nSimilarly, if this field is set to 200, the bid price is twice the price\nof on-demand `r3.xlarge` instances. If not specified, the default value\nis 100. When spot instances are requested for this cluster, only spot\ninstances whose bid price percentage matches this field will be\nconsidered. Note that, for safety, we enforce this field to be no more\nthan 10000.",
+            "description": "Calculates the bid price for AWS spot instances, as a percentage of the\ncorresponding instance type's on-demand price. For example, if this field\nis set to 50, and the cluster needs a new `r3.xlarge` spot instance, then\nthe bid price is half of the price of on-demand `r3.xlarge` instances.\nSimilarly, if this field is set to 200, the bid price is twice the price\nof on-demand `r3.xlarge` instances. If not specified, the default value\nis 100. When spot instances are requested for this cluster, only spot\ninstances whose bid price percentage matches this field will be\nconsidered. Note that, for safety, we enforce this field to be no more\nthan 10000.\n\nYou can change this value on an existing pool. New clusters use the\nupdated bid price, and existing clusters keep the bid price they launched\nwith.",
             "format": "int64",
             "type": "integer"
           },
           "zone_id": {
-            "description": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west-2a\". The provided\navailability zone must be in the same region as the Databricks\ndeployment. For example, \"us-west-2a\" is not a valid zone id if the\nDatabricks deployment resides in the \"us-east-1\" region. This is an\noptional field at cluster creation, and if not specified, a default zone\nwill be used. The list of available zones as well as the default value\ncan be found by using the `List Zones` method.",
+            "description": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west-2a\". The provided\navailability zone must be in the same region as the Databricks\ndeployment. For example, \"us-west-2a\" is not a valid zone id if the\nDatabricks deployment resides in the \"us-east-1\" region. This is an\noptional field at cluster creation, and if not specified, a default zone\nwill be used. The list of available zones as well as the default value\ncan be found by using the `List Zones` method.\n\nSet this field to \"auto\" to enable Auto-AZ, in which case Databricks\nselects the availability zone for each cluster independently when the\ncluster launches, and retries another zone if the cluster can't be\nfulfilled because of insufficient capacity or quota. All nodes in a\ncluster land in the same zone, and different clusters backed by the pool\ncan run in different zones.\n\nYou can change the zone on an existing pool. New clusters use the updated\nzone, and existing clusters keep the zone they launched with.",
             "type": "string"
           }
         },
@@ -15164,14 +15876,14 @@
         "properties": {
           "availability": {
             "$ref": "#/components/schemas/compute.InstancePoolAzureAttributesAvailability",
-            "description": "Availability type used for the spot nodes."
+            "description": "Availability type used for the instances in the pool. Supports on-demand,\nspot, and spot-with-fallback (the pool acquires spot instances first, and\nfalls back to on-demand instances when spot capacity is unavailable).\n\nYou can change this value on an existing pool. New clusters use the\nupdated availability, and existing clusters keep the availability they\nlaunched with."
           },
           "capacity_reservation_group": {
             "description": "The Azure capacity reservation group resource ID to use for launching VMs\nin this pool. When specified, VMs will be launched using the provided\ncapacity reservation.\n\nNOTE: Omitting this field will clear any existing configured capacity\nreservation group on the pool.\n\nCapacity reservations can only be specified when the workspace uses\ninjected vnet (i.e. customer defined vnet not managed by databricks).\nEnsure the databricks-login-prod Enterprise Application is granted the\nfollowing four permissions: 1.\nMicrosoft.Compute/capacityReservationGroups/read 2.\nMicrosoft.Compute/capacityReservationGroups/deploy/action 3.\nMicrosoft.Compute/capacityReservationGroups/capacityReservations/read 4.\nMicrosoft.Compute/capacityReservationGroups/capacityReservations/deploy/action\n\nFormat:\n`/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/capacityReservationGroups/{capacityReservationGroupName}`",
             "type": "string"
           },
           "spot_bid_max_price": {
-            "description": "With variable pricing, you have option to set a max price, in US dollars\n(USD) For example, the value 2 would be a max price of $2.00 USD per\nhour. If you set the max price to be -1, the VM won't be evicted based on\nprice. The price for the VM will be the current price for spot or the\nprice for a standard VM, which ever is less, as long as there is capacity\nand quota available.",
+            "description": "With variable pricing, you have option to set a max price, in US dollars\n(USD) For example, the value 2 would be a max price of $2.00 USD per\nhour. If you set the max price to be -1, the VM won't be evicted based on\nprice. The price for the VM will be the current price for spot or the\nprice for a standard VM, which ever is less, as long as there is capacity\nand quota available.\n\nYou can change this value on an existing pool. New clusters use the\nupdated max price, and existing clusters keep the max price they launched\nwith.",
             "format": "double",
             "type": "number"
           }
@@ -15190,7 +15902,8 @@
         "description": "Attributes set during instance pool creation which are related to GCP.",
         "properties": {
           "gcp_availability": {
-            "$ref": "#/components/schemas/compute.GcpAvailability"
+            "$ref": "#/components/schemas/compute.GcpAvailability",
+            "description": "Availability type for the instances in the pool. One of:\n\n- `ON_DEMAND_GCP`: the pool uses on-demand instances only. -\n`PREEMPTIBLE_GCP`: the pool uses preemptible instances only. -\n`PREEMPTIBLE_WITH_FALLBACK_GCP`: the pool acquires preemptible instances\nfirst, and falls back to on-demand instances when preemptible capacity is\nunavailable."
           },
           "local_ssd_count": {
             "description": "If provided, each node in the instance pool will have this number of\nlocal SSDs attached. Each local SSD is 375GB in size. Refer to [GCP\ndocumentation] for the supported number of local SSDs for each instance\ntype.\n\n[GCP documentation]: https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds",
@@ -15198,7 +15911,7 @@
             "type": "integer"
           },
           "zone_id": {
-            "description": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west1-a\". The provided\navailability zone must be in the same region as the Databricks workspace.\nFor example, \"us-west1-a\" is not a valid zone id if the Databricks\nworkspace resides in the \"us-east1\" region. This is an optional field at\ninstance pool creation, and if not specified, a default zone will be\nused.\n\nThis field can be one of the following: - \"HA\" => High availability,\nspread nodes across availability zones for a Databricks deployment region\n- A GCP availability zone => Pick One of the available zones for (machine\ntype + region) from https://cloud.google.com/compute/docs/regions-zones\n(e.g. \"us-west1-a\").\n\nIf empty, Databricks picks an availability zone to schedule the cluster\non.",
+            "description": "Identifier for the availability zone/datacenter in which the cluster\nresides. This string will be of a form like \"us-west1-a\". The provided\navailability zone must be in the same region as the Databricks workspace.\nFor example, \"us-west1-a\" is not a valid zone id if the Databricks\nworkspace resides in the \"us-east1\" region. This is an optional field at\ninstance pool creation, and if not specified, a default zone will be\nused.\n\nThis field can be one of the following: - \"HA\" => High availability,\nspread nodes across availability zones for a Databricks deployment region\n- \"auto\" => Auto-AZ. Databricks selects the availability zone for each\ncluster independently when the cluster launches, and retries another zone\nif the cluster can't be fulfilled because of insufficient capacity or\nquota. All nodes in a cluster land in the same zone, and different\nclusters backed by the pool can run in different zones. - A GCP\navailability zone => Pick One of the available zones for (machine type +\nregion) from https://cloud.google.com/compute/docs/regions-zones (e.g.\n\"us-west1-a\").\n\nIf empty, Databricks picks an availability zone to schedule the cluster\non.\n\nYou can change the zone on an existing pool. New clusters use the updated\nzone, and existing clusters keep the zone they launched with.",
             "type": "string"
           }
         },
@@ -22234,6 +22947,13 @@
             "format": "int64",
             "type": "integer"
           },
+          "environment_variables": {
+            "description": "Snapshot of `JobSettings.environment_variables` as it was at run launch\n— the full list of named environment-variable entries the job defined.\nTo find which entry a given task ran with, look at\n`RunTaskSettings.environment_variables_key`.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.JobEnvironmentVariables"
+            },
+            "type": "array"
+          },
           "execution_duration": {
             "description": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
             "format": "int64",
@@ -22702,6 +23422,13 @@
             "$ref": "#/components/schemas/jobs.JobEmailNotifications",
             "description": "An optional set of email addresses that is notified when runs of this job\nbegin or complete as well as when this job is deleted."
           },
+          "environment_variables": {
+            "description": "Named environment-variable entries that tasks can reference by key from\n`TaskSettings.environment_variables_key`. Each entry's `spec` holds\ninline `variables` and optional `.env` `files`. Maximum 10 entries per\njob. A task can reference at most one entry from this list.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.JobEnvironmentVariables"
+            },
+            "type": "array"
+          },
           "environments": {
             "description": "A list of task execution environment specifications that can be\nreferenced by tasks that use serverless compute or a compute resource\nthat uses Environments mode.\n\nFor notebook tasks that use serverless compute or a compute resource that\nuses Environments mode, if the environment_key is not specified, the\nnotebook environment will be used if present. If a jobs environment is\nspecified, it will override the notebook environment. For other tasks\nthat use serverless compute or a compute resource that uses Environments\nmode, the task environment is required to be specified using\nenvironment_key in the task settings.",
             "items": {
@@ -23151,7 +23878,7 @@
         "description": "DeploymentSpec: configuration for one deployment within an AiRuntimeTask.\nEach entry in `AiRuntimeTask.deployments` describes a group of nodes that\nshare the same command and compute. Many single-program training algorithms\nuse a single entry where every node runs the same command; role-split\nworkloads (driver + worker, parameter server, separate eval node, etc.) use\nmultiple entries.",
         "properties": {
           "command_path": {
-            "description": "Workspace path of the script to run on each node in this deployment.\nUpload the script to this path and supply the path here. When the task\nruns, the file at this path is run on each node; if it fails, the task\nfails with its exit code.\n\nExample script contents:\n\n# Plain Python: python train.py --epochs 10\n\n# Multi-GPU via accelerate: accelerate launch train.py --config\nconfig.yaml\n\n# Distributed via torchrun: torchrun --nproc_per_node=8 train.py",
+            "description": "Workspace path of the script to run on each node in this deployment.\nUpload the script to this path and supply the path here. When the task\nruns, the file at this path is run on each node; if it fails, the task\nfails with its exit code.\n\nExample script contents:\n\n```bash # Plain Python: python train.py --epochs 10\n\n# Multi-GPU via accelerate: accelerate launch train.py --config\nconfig.yaml\n\n# Distributed via torchrun: torchrun --nproc_per_node=8 train.py ```",
             "type": "string"
           },
           "compute": {
@@ -23164,7 +23891,6 @@
           }
         },
         "required": [
-          "command_path",
           "compute"
         ],
         "type": "object"
@@ -23712,6 +24438,20 @@
             },
             "type": "array"
           },
+          "on_maintenance_complete": {
+            "description": "A list of email addresses to notify when platform-initiated maintenance\ncompletes for a continuous job.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "on_maintenance_start": {
+            "description": "A list of email addresses to notify when platform-initiated maintenance\nstarts for a continuous job.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "on_start": {
             "description": "A list of email addresses to be notified when a run begins. If not\nspecified on job creation, reset, or update, the list is empty, and\nnotifications are not sent.",
             "items": {
@@ -23749,6 +24489,43 @@
         "required": [
           "environment_key"
         ],
+        "type": "object"
+      },
+      "jobs.JobEnvironmentVariables": {
+        "description": "A named environment-variable entry, defined once at the job level and\nreferenced by key from one or more tasks. Entries live on\n`JobSettings.environment_variables`, and tasks select one via\n`TaskSettings.environment_variables_key`.",
+        "properties": {
+          "environment_variables_key": {
+            "description": "Identifier for this entry. Must be unique within\n`JobSettings.environment_variables`. Tasks reference it from\n`TaskSettings.environment_variables_key`.",
+            "type": "string"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/jobs.JobEnvironmentVariablesSpec",
+            "description": "The environment variable specification."
+          }
+        },
+        "required": [
+          "environment_variables_key"
+        ],
+        "type": "object"
+      },
+      "jobs.JobEnvironmentVariablesSpec": {
+        "description": "The environment variables and files associated with a job environment\nvariable entry. Runtime environment variables override inline `variables`,\nwhich override values from `files`, on duplicate keys.",
+        "properties": {
+          "files": {
+            "description": "Workspace (`/Workspace/...`) or UC Volumes (`/Volumes/...`) paths to\n`.env` files. Maximum 5 files. Files are read, parsed, and merged at task\nexecution time, not at job creation or update API call time.\n\nFile format: each line containing a variable must be exactly `KEY=VALUE`.\nEmpty and whitespace-only lines, and lines beginning with `#`, are\nignored. Keys must match the same regex as inlined variable names\n(`^[A-Za-z_][A-Za-z0-9_]*$`); the value continues to the end of the line.\nNo other syntax is supported — no inline comments, no quoted values, no\nescape sequences, no variable interpolation. Any other line that does not\nmatch the `KEY=VALUE` shape fails the run.\n\nSize limits: maximum 32,768 bytes (32 KiB) per file on disk; maximum\n1,024 bytes (1 KiB) per `KEY=VALUE` line combined. Files or lines\nexceeding these limits fail the run.\n\nOn a duplicate key, the later file wins; `variables` override values from\nany file.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "variables": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Environment variables specified directly as key/value pairs. Maximum 20\nentries.\n\nEach key must be 1 to 256 characters and match\n`^[A-Za-z_][A-Za-z0-9_]*$`: it must start with an ASCII letter or\nunderscore and contain only ASCII letters, digits, and underscores. Each\nvalue can be any Unicode string of up to 512 characters, including an\nempty string.",
+            "type": "object"
+          }
+        },
         "type": "object"
       },
       "jobs.JobNotificationSettings": {
@@ -23907,6 +24684,13 @@
           "email_notifications": {
             "$ref": "#/components/schemas/jobs.JobEmailNotifications",
             "description": "An optional set of email addresses that is notified when runs of this job\nbegin or complete as well as when this job is deleted."
+          },
+          "environment_variables": {
+            "description": "Named environment-variable entries that tasks can reference by key from\n`TaskSettings.environment_variables_key`. Each entry's `spec` holds\ninline `variables` and optional `.env` `files`. Maximum 10 entries per\njob. A task can reference at most one entry from this list.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.JobEnvironmentVariables"
+            },
+            "type": "array"
           },
           "environments": {
             "description": "A list of task execution environment specifications that can be\nreferenced by tasks that use serverless compute or a compute resource\nthat uses Environments mode.\n\nFor notebook tasks that use serverless compute or a compute resource that\nuses Environments mode, if the environment_key is not specified, the\nnotebook environment will be used if present. If a jobs environment is\nspecified, it will override the notebook environment. For other tasks\nthat use serverless compute or a compute resource that uses Environments\nmode, the task environment is required to be specified using\nenvironment_key in the task settings.",
@@ -25014,6 +25798,13 @@
             "format": "int64",
             "type": "integer"
           },
+          "environment_variables": {
+            "description": "Snapshot of `JobSettings.environment_variables` as it was at run launch\n— the full list of named environment-variable entries the job defined.\nTo find which entry a given task ran with, look at\n`RunTaskSettings.environment_variables_key`.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.JobEnvironmentVariables"
+            },
+            "type": "array"
+          },
           "execution_duration": {
             "description": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
             "format": "int64",
@@ -25738,6 +26529,10 @@
             "description": "The key that references an environment spec in a job. This field is\nrequired for Python script, Python wheel and dbt tasks when using\nserverless compute or a compute resource that uses Environments mode.",
             "type": "string"
           },
+          "environment_variables_key": {
+            "description": "Reference to a `JobEnvironmentVariables` entry defined in\n`RunSettings.environment_variables` for one-time runs or preserved in\n`Run.environment_variables` for run snapshots. The selected entry's\nvariables are applied to this task at execution time. This field supports\nserverless tasks using environment version 5 or later.",
+            "type": "string"
+          },
           "execution_duration": {
             "description": "The time in milliseconds it took to execute the commands in the JAR or\nnotebook until they completed, failed, timed out, were cancelled, or\nencountered an unexpected error. The duration of a task run is the sum of\nthe `setup_duration`, `execution_duration`, and the `cleanup_duration`.\nThe `execution_duration` field is set to 0 for multitask job runs. The\ntotal duration of a multitask job run is the value of the `run_duration`\nfield.",
             "format": "int64",
@@ -26373,6 +27168,13 @@
             "$ref": "#/components/schemas/jobs.JobEmailNotifications",
             "description": "An optional set of email addresses notified when the run begins or\ncompletes."
           },
+          "environment_variables": {
+            "description": "Named environment-variable entries that tasks of this one-time run can\nreference by key from `RunTaskSettings.environment_variables_key`. Each\nentry's `spec` holds inline `variables` and optional `.env` `files`.\nHandled identically to `JobSettings.environment_variables`. Maximum 10\nentries. Entries are independent of one another — there is no\ncross-entry merging.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.JobEnvironmentVariables"
+            },
+            "type": "array"
+          },
           "environments": {
             "description": "A list of task execution environment specifications that can be\nreferenced by tasks of this run.",
             "items": {
@@ -26506,6 +27308,10 @@
           },
           "environment_key": {
             "description": "The key that references an environment spec in a job. This field is\nrequired for Python script, Python wheel and dbt tasks when using\nserverless compute or a compute resource that uses Environments mode.",
+            "type": "string"
+          },
+          "environment_variables_key": {
+            "description": "Reference to a `JobEnvironmentVariables` entry defined in\n`RunSettings.environment_variables` for one-time runs or preserved in\n`Run.environment_variables` for run snapshots. The selected entry's\nvariables are applied to this task at execution time. This field supports\nserverless tasks using environment version 5 or later.",
             "type": "string"
           },
           "existing_cluster_id": {
@@ -26768,6 +27574,10 @@
             "description": "The key that references an environment spec in a job. This field is\nrequired for Python script, Python wheel and dbt tasks when using\nserverless compute or a compute resource that uses Environments mode.",
             "type": "string"
           },
+          "environment_variables_key": {
+            "description": "Reference to a `JobEnvironmentVariables` entry defined in\n`JobSettings.environment_variables`. The selected entry's variables are\napplied to this task at execution time. This field supports serverless\ntasks using environment version 5 or later.",
+            "type": "string"
+          },
           "existing_cluster_id": {
             "description": "If existing_cluster_id, the ID of an existing cluster that is used for\nall runs. When running jobs or tasks on an existing cluster, you may need\nto manually restart the cluster if it stops responding. We suggest\nrunning jobs and tasks on new clusters for greater reliability",
             "type": "string"
@@ -26909,6 +27719,20 @@
           },
           "on_failure": {
             "description": "A list of email addresses to be notified when a run unsuccessfully\ncompletes. A run is considered to have completed unsuccessfully if it\nends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or\n`TIMED_OUT` result_state. If this is not specified on job creation,\nreset, or update the list is empty, and notifications are not sent.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "on_maintenance_complete": {
+            "description": "A list of email addresses to notify when platform-initiated maintenance\ncompletes for a continuous job.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "on_maintenance_start": {
+            "description": "A list of email addresses to notify when platform-initiated maintenance\nstarts for a continuous job.",
             "items": {
               "type": "string"
             },
@@ -27315,6 +28139,20 @@
           },
           "on_failure": {
             "description": "An optional list of system notification IDs to call when the run fails. A\nmaximum of 3 destinations can be specified for the `on_failure` property.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.Webhook"
+            },
+            "type": "array"
+          },
+          "on_maintenance_complete": {
+            "description": "An optional list of system notification IDs to call when\nplatform-initiated maintenance completes for a continuous job. A maximum\nof 3 destinations can be specified for the `on_maintenance_complete`\nproperty.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.Webhook"
+            },
+            "type": "array"
+          },
+          "on_maintenance_start": {
+            "description": "An optional list of system notification IDs to call when\nplatform-initiated maintenance starts for a continuous job. A maximum of\n3 destinations can be specified for the `on_maintenance_start` property.",
             "items": {
               "$ref": "#/components/schemas/jobs.Webhook"
             },
@@ -29541,6 +30379,10 @@
             },
             "type": "array"
           },
+          "budget_policy_id": {
+            "description": "The budget policy ID, in UUID format, used to attribute the serverless\ncompute cost of this backfill. If not specified, a default budget policy\nmay be applied.",
+            "type": "string"
+          },
           "feature_full_names": {
             "description": "Full names of the features to backfill.",
             "items": {
@@ -29551,6 +30393,13 @@
           "request_id": {
             "description": "Idempotency token for the request.",
             "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom tags to associate with this backfill. They are applied to the\nbackfill job and forwarded to the underlying compute as Databricks\nresource tags, so backfill cost can be attributed in the billing system\ntables. These tags apply only to the backfill compute; they are not\napplied to the Unity Catalog Feature resources themselves, whose tags are\nmanaged separately through the Unity Catalog tagging API. A maximum of 25\ntags is supported; keys and values are subject to the same limitations as\nDatabricks resource tags.",
+            "type": "object"
           }
         },
         "required": [
@@ -30789,7 +31638,7 @@
             "type": "string"
           },
           "entities": {
-            "description": "The entity columns for the feature, used as aggregation keys and for\nquery-time lookup.",
+            "description": "The entity columns for the feature, used as aggregation keys and for\nquery-time lookup. Optional since entities are not set for RequestSource\nfeatures or on-demand calculated features.",
             "items": {
               "$ref": "#/components/schemas/ml.EntityColumn"
             },
@@ -30833,7 +31682,7 @@
           },
           "timeseries_column": {
             "$ref": "#/components/schemas/ml.TimeseriesColumn",
-            "description": "Column recording time, used for point-in-time joins, backfills, and\naggregations."
+            "description": "Column recording time, used for point-in-time joins, backfills, and\naggregations. Optional since a timeseries column is not set for\nRequestSource features or on-demand calculated features."
           }
         },
         "required": [
@@ -32188,6 +33037,64 @@
         },
         "type": "object"
       },
+      "ml.MaterializationFailureNotification": {
+        "description": "Recipients to notify when a materialization run fails.",
+        "properties": {
+          "destination_ids": {
+            "description": "IDs of the notification destinations (for example Slack, Microsoft Teams,\nPagerDuty, or a generic webhook) to notify. Not supported for streaming\nmaterialized features.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "email_addresses": {
+            "description": "Email addresses to notify.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "final_attempt_only": {
+            "description": "If true, notify only when the final attempt of a run fails. If false or\nunset, notify on every failed attempt, including attempts that will be\nretried.\n\nBatch materialization does not retry failures that need a fix on your\nside, such as missing permissions or invalid configuration, so the first\nattempt is the final one. Other batch failures are retried up to twice.\n\nStreaming materialization restarts a failed update indefinitely unless\nthe error cannot be retried. With this set, a streaming materialized\nfeature notifies only on errors that cannot be retried, and never on\nfailures that are restarted.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ml.MaterializationNotifications": {
+        "description": "Notifications for the jobs and pipelines that materialize a feature, one\nfield per trigger.",
+        "properties": {
+          "on_failure": {
+            "$ref": "#/components/schemas/ml.MaterializationFailureNotification",
+            "description": "Who to notify when a run fails, and on which attempts."
+          },
+          "on_success": {
+            "$ref": "#/components/schemas/ml.MaterializationSuccessNotification",
+            "description": "Who to notify when a run succeeds."
+          }
+        },
+        "type": "object"
+      },
+      "ml.MaterializationSuccessNotification": {
+        "description": "Recipients to notify when a materialization run succeeds.",
+        "properties": {
+          "destination_ids": {
+            "description": "IDs of the notification destinations (for example Slack, Microsoft Teams,\nPagerDuty, or a generic webhook) to notify. Not supported for streaming\nmaterialized features.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "email_addresses": {
+            "description": "Email addresses to notify.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "ml.MaterializedFeature": {
         "description": "A materialized feature represents a feature that is continuously computed and\nstored.",
         "properties": {
@@ -32210,6 +33117,11 @@
             "description": "True if this is an online materialized feature. False if it is an offline\nmaterialized feature.",
             "type": "boolean"
           },
+          "job_id": {
+            "description": "The ID of the job that materializes the feature. This is present for both\nbatch and streaming features.",
+            "format": "int64",
+            "type": "integer"
+          },
           "last_materialization_time": {
             "description": "The timestamp when the pipeline last ran and updated the materialized\nfeature values. If the pipeline has not run yet, this field will be null.",
             "type": "string"
@@ -32222,13 +33134,21 @@
             "description": "Server-assigned unique identifier for the materialized feature.",
             "type": "string"
           },
+          "notifications": {
+            "$ref": "#/components/schemas/ml.MaterializationNotifications",
+            "description": "Notification configuration around the materialization job or pipeline\nlifecycle. They are applied to every job and pipeline that materializes\nthis feature. Features which are materialized in the same pipeline will\nshare the same notification."
+          },
           "offline_store_config": {
             "$ref": "#/components/schemas/ml.OfflineStoreConfig",
-            "description": "Destination for writing feature values to an offline Delta table."
+            "description": "Destination for writing feature values to an offline Delta table. The\nresulting table is returned as `table_name`."
           },
           "online_store_config": {
             "$ref": "#/components/schemas/ml.OnlineStoreConfig",
-            "description": "Destination for writing feature values to an online Lakebase table."
+            "description": "Destination for writing feature values to an online Lakebase table. The\nresulting table is returned as `table_name`."
+          },
+          "pipeline_id": {
+            "description": "The ID of the pipeline that materializes this feature. This is only\npresent for streaming features.",
+            "type": "string"
           },
           "pipeline_schedule_state": {
             "$ref": "#/components/schemas/ml.MaterializedFeaturePipelineScheduleState",
@@ -32962,6 +33882,10 @@
       "ml.PurgeFeatureEntitiesRequest": {
         "description": "Request to purge materialized feature values for entities listed in a Unity\nCatalog Delta table.",
         "properties": {
+          "budget_policy_id": {
+            "description": "The budget policy ID, in UUID format, used to attribute the serverless\ncompute cost of this purge. If not specified, a default budget policy may\nbe applied.",
+            "type": "string"
+          },
           "entities_table": {
             "description": "Fully qualified name of the Unity Catalog Delta table containing the\nentity keys to purge. The table may contain a subset of each feature's\nentity-key columns. A partial key match deletes all feature rows matching\nthe provided key values. Non-key columns are rejected; null key values\nare allowed.",
             "type": "string"
@@ -32976,6 +33900,13 @@
           "request_id": {
             "description": "Optional UUID4 idempotency token for the request.",
             "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom tags to associate with this purge. They are applied to the purge\njob and forwarded to the underlying compute as Databricks resource tags,\nso purge cost can be attributed in the billing system tables. These tags\napply only to the purge compute; they are not applied to the Unity\nCatalog Feature resources themselves, whose tags are managed separately\nthrough the Unity Catalog tagging API. A maximum of 25 tags is supported;\nkeys and values are subject to the same limitations as Databricks\nresource tags.",
+            "type": "object"
           }
         },
         "required": [
@@ -33308,6 +34239,10 @@
       "ml.RequestSource": {
         "description": "A request-time data source whose value is provided at inference time: offline\nbatch scoring or online serving endpoint",
         "properties": {
+          "dataframe_schema": {
+            "description": "A schema containing scalar or nested fields, in Spark StructType JSON\nformat (from df.schema.json()). This preserves field, array-element, and\nmap-value nullability.",
+            "type": "string"
+          },
           "flat_schema": {
             "$ref": "#/components/schemas/ml.FlatSchema",
             "description": "A flat schema with scalar-typed fields only."
@@ -33624,7 +34559,7 @@
         "properties": {
           "api_secret_ref": {
             "$ref": "#/components/schemas/ml.SecretScopeReference",
-            "description": "Reference to the schema registry API secret in a Databricks secret scope."
+            "description": "Reference to the schema registry API secret in a Databricks secret scope.\nSet this only if required for authentication for the schema registry."
           },
           "key_schema_locator": {
             "$ref": "#/components/schemas/ml.SchemaLocator",
@@ -33639,9 +34574,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "api_secret_ref"
-        ],
         "type": "object"
       },
       "ml.SearchExperiments": {
@@ -34247,6 +35179,11 @@
           "mode": {
             "$ref": "#/components/schemas/ml.StreamingModeStreamingModeType",
             "description": "The type of streaming mode used by the materialization pipeline."
+          },
+          "shuffle_partitions": {
+            "description": "Number of shuffle partitions for streaming materialization of this\nfeature. Higher values process high-throughput features with more\nparallelism at higher compute cost. Materialized features which are\ncomputed together will use the largest value set among them.",
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -34846,7 +35783,7 @@
         "properties": {
           "parse_mode": {
             "$ref": "#/components/schemas/pipelines.ParseMode",
-            "description": "(Optional) Parse mode for Avro data. Valid values: FAILFAST, PERMISSIVE.\nDefaults to FAILFAST."
+            "description": "(Optional) Parse mode for Avro data. Valid values: FAILFAST, PERMISSIVE.\nDefaults to PERMISSIVE."
           },
           "schema": {
             "description": "Inline Avro JSON schema string.",
@@ -34915,7 +35852,7 @@
             "description": "Deployment type of this pipeline."
           },
           "development": {
-            "description": "Whether the pipeline is in Development mode. Defaults to false.",
+            "description": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
             "type": "boolean"
           },
           "edition": {
@@ -34968,6 +35905,10 @@
               "$ref": "#/components/schemas/pipelines.Notifications"
             },
             "type": "array"
+          },
+          "parent_path": {
+            "description": "Path of the pipeline parent folder in workspace file tree.\n\nIf absent, the pipeline doesn't have a workspace object.",
+            "type": "string"
           },
           "photon": {
             "description": "Whether Photon is enabled for this pipeline.",
@@ -35163,7 +36104,7 @@
             "description": "Deployment type of this pipeline."
           },
           "development": {
-            "description": "Whether the pipeline is in Development mode. Defaults to false.",
+            "description": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
             "type": "boolean"
           },
           "dry_run": {
@@ -35221,6 +36162,10 @@
             },
             "description": "Key/value map of default parameters to use for pipeline execution.\nMaximum total size: 10k characters (JSON format)",
             "type": "object"
+          },
+          "parent_path": {
+            "description": "Path of the pipeline parent folder in workspace file tree.\n\nIf absent, the pipeline doesn't have a workspace object.",
+            "type": "string"
           },
           "photon": {
             "description": "Whether Photon is enabled for this pipeline.",
@@ -35396,7 +36341,7 @@
             "description": "Deployment type of this pipeline."
           },
           "development": {
-            "description": "Whether the pipeline is in Development mode. Defaults to false.",
+            "description": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
             "type": "boolean"
           },
           "edition": {
@@ -35456,6 +36401,10 @@
             },
             "description": "Key/value map of default parameters to use for pipeline execution.\nMaximum total size: 10k characters (JSON format)",
             "type": "object"
+          },
+          "parent_path": {
+            "description": "Path of the pipeline parent folder in workspace file tree.\n\nIf absent, the pipeline doesn't have a workspace object.",
+            "type": "string"
           },
           "photon": {
             "description": "Whether Photon is enabled for this pipeline.",
@@ -37030,7 +37979,7 @@
             "description": "Deployment type of this pipeline."
           },
           "development": {
-            "description": "Whether the pipeline is in Development mode. Defaults to false.",
+            "description": "Whether the pipeline is in Development mode. Defaults to false.\n\nDeprecated: set development mode for each update instead.",
             "type": "boolean"
           },
           "edition": {
@@ -37078,6 +38027,10 @@
               "$ref": "#/components/schemas/pipelines.Notifications"
             },
             "type": "array"
+          },
+          "parent_path": {
+            "description": "Path of the pipeline parent folder in workspace file tree.\n\nIf absent, the pipeline doesn't have a workspace object.",
+            "type": "string"
           },
           "photon": {
             "description": "Whether Photon is enabled for this pipeline.",
@@ -37255,7 +38208,7 @@
           },
           "parse_mode": {
             "$ref": "#/components/schemas/pipelines.ParseMode",
-            "description": "(Optional) Parse mode for Protobuf data. Valid values: FAILFAST,\nPERMISSIVE. Defaults to FAILFAST."
+            "description": "(Optional) Parse mode for Protobuf data. Valid values: FAILFAST,\nPERMISSIVE. Defaults to PERMISSIVE."
           },
           "recursive_fields_max_depth": {
             "description": "(Optional) Maximum expansion depth for recursive protobuf fields. Spark\nSQL does not natively support recursive types, so recursive fields are\nexpanded up to this depth and truncated beyond it. Valid values: -1\n(disallow recursive fields), 0 (drop), 1-10.",
@@ -40383,12 +41336,56 @@
         },
         "type": "object"
       },
+      "sandbox.Command": {
+        "description": "A single command execution.",
+        "properties": {
+          "args": {
+            "description": "Arguments passed to the program.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cmd": {
+            "description": "The program that was executed.",
+            "type": "string"
+          },
+          "command_id": {
+            "description": "Stable identifier for this command.",
+            "type": "string"
+          },
+          "exit_code": {
+            "description": "Process exit code. Only present when finished is true and the process\nexited normally (not killed by signal or failed to start).",
+            "format": "int64",
+            "type": "integer"
+          },
+          "finished": {
+            "description": "Whether the command has finished executing.",
+            "type": "boolean"
+          },
+          "pid": {
+            "description": "PID of the spawned process. Absent if the process failed to start.",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "sandbox.ComputeSpec": {
         "properties": {
           "inactivity_timeout": {
             "description": "Idle duration after which the sandbox is automatically terminated.",
             "example": "3.5s",
             "format": "google-duration",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sandbox.EnvironmentSpec": {
+        "properties": {
+          "image_uri": {
+            "description": "A Unity Catalog container artifact (e.g.\n`catalog.schema.folder.image:tag`) to run as the sandbox environment.\nWhen set, this image is used as the environment instead of resolving a\nmanaged image from `environment_version`.",
             "type": "string"
           }
         },
@@ -40467,6 +41464,23 @@
         },
         "type": "object"
       },
+      "sandbox.ListCommandsResponse": {
+        "description": "Response listing tracked command executions.",
+        "properties": {
+          "commands": {
+            "description": "Commands in this page of results.",
+            "items": {
+              "$ref": "#/components/schemas/sandbox.Command"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "Token to retrieve the next page. Empty when there are no more results.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "sandbox.ListSandboxesResponse": {
         "description": "A list of Sandboxes.",
         "properties": {
@@ -40519,6 +41533,10 @@
           "compute": {
             "$ref": "#/components/schemas/sandbox.ComputeSpec",
             "description": "Compute configuration (size, inactivity timeout) requested for the\nsandbox."
+          },
+          "environment": {
+            "$ref": "#/components/schemas/sandbox.EnvironmentSpec",
+            "description": "The execution environment to use for the sandbox."
           }
         },
         "type": "object"
@@ -46944,6 +47962,10 @@
             "description": "Custom summary for the alert. support mustache template.",
             "type": "string"
           },
+          "custom_template_format": {
+            "$ref": "#/components/schemas/sql.CustomTemplateFormat",
+            "description": "The format used to interpret the `custom_summary` and\n`custom_description` templates.\n\n`HTML` treats both templates as HTML with Mustache `{{VARIABLE_NAME}}`\nplaceholders. `MARKDOWN` treats them as Markdown with allowlisted\n`@VARIABLE_NAME` placeholders and converts them to the format each\nnotification destination expects, so a single template renders correctly\nin email, Slack, and Microsoft Teams.\n\nWhen unset, the API applies no default. Responses omit the field unless a\nformat is stored, and a template with no format is rendered as HTML."
+          },
           "display_name": {
             "description": "The display name of the alert.",
             "type": "string"
@@ -47570,6 +48592,11 @@
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
             "description": "Configurations whether the endpoint should use spot instances."
           },
+          "statement_timeout": {
+            "description": "Warehouse statement timeout in seconds.",
+            "format": "int64",
+            "type": "integer"
+          },
           "tags": {
             "$ref": "#/components/schemas/sql.EndpointTags",
             "description": "A set of key-value pairs that will be tagged on all resources (e.g., AWS\ninstances and EBS volumes) associated with this SQL warehouse.\n\nSupported values: - Number of tags < 45."
@@ -47648,6 +48675,14 @@
           "timezone_id"
         ],
         "type": "object"
+      },
+      "sql.CustomTemplateFormat": {
+        "description": "Rendering format for the `custom_summary` and `custom_description` templates.",
+        "enum": [
+          "HTML",
+          "MARKDOWN"
+        ],
+        "type": "string"
       },
       "sql.Dashboard": {
         "description": "A JSON representing a dashboard containing widgets of visualizations and text\nboxes.",
@@ -48004,6 +49039,11 @@
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
             "description": "Configurations whether the endpoint should use spot instances."
           },
+          "statement_timeout": {
+            "description": "Warehouse statement timeout in seconds.",
+            "format": "int64",
+            "type": "integer"
+          },
           "tags": {
             "$ref": "#/components/schemas/sql.EndpointTags",
             "description": "A set of key-value pairs that will be tagged on all resources (e.g., AWS\ninstances and EBS volumes) associated with this SQL warehouse.\n\nSupported values: - Number of tags < 45."
@@ -48137,6 +49177,11 @@
           "state": {
             "$ref": "#/components/schemas/sql.State",
             "description": "state of the endpoint"
+          },
+          "statement_timeout": {
+            "description": "Warehouse statement timeout in seconds.",
+            "format": "int64",
+            "type": "integer"
           },
           "tags": {
             "$ref": "#/components/schemas/sql.EndpointTags",
@@ -48487,6 +49532,11 @@
           "state": {
             "$ref": "#/components/schemas/sql.State",
             "description": "state of the endpoint"
+          },
+          "statement_timeout": {
+            "description": "Warehouse statement timeout in seconds.",
+            "format": "int64",
+            "type": "integer"
           },
           "tags": {
             "$ref": "#/components/schemas/sql.EndpointTags",
@@ -50049,7 +51099,7 @@
         "type": "string"
       },
       "sql.SpotInstancePolicy": {
-        "description": "EndpointSpotInstancePolicy configures whether the endpoint should use spot\ninstances.\n\nThe breakdown of how the EndpointSpotInstancePolicy converts to per cloud\nconfigurations is:\n\n+-------+--------------------------------------+--------------------------------+\n| Cloud | COST_OPTIMIZED | RELIABILITY_OPTIMIZED |\n+-------+--------------------------------------+--------------------------------+\n| AWS | On Demand Driver with Spot Executors | On Demand Driver and Executors\n| | AZURE | On Demand Driver and Executors | On Demand Driver and Executors |\n+-------+--------------------------------------+--------------------------------+",
+        "description": "EndpointSpotInstancePolicy configures whether the endpoint should use spot\ninstances.\n\nThe breakdown of how the EndpointSpotInstancePolicy converts to per cloud\nconfigurations is:\n\n- AWS, COST_OPTIMIZED: On Demand Driver with Spot Executors. - AWS,\nRELIABILITY_OPTIMIZED: On Demand Driver and Executors. - AZURE,\nCOST_OPTIMIZED: On Demand Driver and Executors. - AZURE,\nRELIABILITY_OPTIMIZED: On Demand Driver and Executors.",
         "enum": [
           "COST_OPTIMIZED",
           "POLICY_UNSPECIFIED",
@@ -51305,7 +52355,7 @@
             "type": "string"
           },
           "entity_type": {
-            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
             "type": "string"
           },
           "tag_key": {
@@ -53692,15 +54742,15 @@
     }
   },
   "info": {
-    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.182.0 — itself generated from Databricks' OpenAPI spec `4648d66fa37e7683468dc92cc043c6aa7a34f301`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
+    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.187.0 — itself generated from Databricks' OpenAPI spec `325b3ae5c9d20d79a138802b02dc31ad9cd61b5d`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
     "license": {
       "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "Databricks Workspace API",
-    "version": "0.182.0",
-    "x-databricks-go-sdk-version": "v0.182.0",
-    "x-databricks-openapi-sha": "4648d66fa37e7683468dc92cc043c6aa7a34f301"
+    "version": "0.187.0",
+    "x-databricks-go-sdk-version": "v0.187.0",
+    "x-databricks-openapi-sha": "325b3ae5c9d20d79a138802b02dc31ad9cd61b5d"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -54333,6 +55383,1435 @@
         "x-databricks-workspace-header": true
       }
     },
+    "/api/2.0/agents/memory-stores": {
+      "get": {
+        "description": "Lists managed memory stores in the caller's workspace.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.list_memory_stores",
+        "parameters": [
+          {
+            "description": "Maximum number of stores to return. The service may return fewer stores\nthan requested. Defaults to 10; must be between 1 and 100.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Opaque pagination token from a previous ListManagedMemoryStores response.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ListManagedMemoryStoresResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists managed memory stores in the caller's workspace.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "managed_memory_stores",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "post": {
+        "description": "Creates a managed memory store in the caller's workspace.",
+        "operationId": "agent_kit.create_memory_store",
+        "parameters": [
+          {
+            "description": "Caller-provided, workspace-unique managed memory store ID. It must be\n3-56 characters, begin with a lowercase letter, contain only lowercase\nletters, digits, and hyphens, and end with a letter or digit.",
+            "in": "query",
+            "name": "managed_memory_store_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a managed memory store in the caller's workspace.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/session-stores": {
+      "get": {
+        "description": "Lists session stores.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.list_session_stores",
+        "parameters": [
+          {
+            "description": "Maximum number of session stores to return. Defaults to 10; must be\nbetween 1 and 100.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Token returned by a previous list request.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ListSessionStoresResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists session stores.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "session_stores",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "post": {
+        "description": "Creates a session store.",
+        "operationId": "agent_kit.create_session_store",
+        "parameters": [
+          {
+            "description": "Caller-provided, workspace-unique session store ID. It must be 3-55\ncharacters, begin with a lowercase letter, and contain only lowercase\nletters, digits, and hyphens.",
+            "in": "query",
+            "name": "session_store_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.SessionStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.SessionStore"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a session store.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{name}": {
+      "delete": {
+        "description": "Deletes a managed memory entry by resource name. Returns `NOT_FOUND` when the\nentry does not exist in the caller's workspace.",
+        "operationId": "agent_kit.delete_memory",
+        "parameters": [
+          {
+            "description": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Deletes a managed memory entry by resource name. Returns `NOT_FOUND` when the",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "get": {
+        "description": "Retrieves a managed memory entry, including its content, by resource name.\nReturns `NOT_FOUND` when the entry does not exist in the caller's workspace.",
+        "operationId": "agent_kit.get_memory",
+        "parameters": [
+          {
+            "description": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Fields to return, using proto field names such as `content` (not\n`contents`). An omitted or empty mask returns the full entry, including\n`content`; a non-empty mask returns only the requested fields.",
+            "in": "query",
+            "name": "read_mask",
+            "required": false,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Retrieves a managed memory entry, including its content, by resource name.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "patch": {
+        "description": "Updates selected mutable fields on a managed memory entry. Identity fields\nare immutable.",
+        "operationId": "agent_kit.update_memory",
+        "parameters": [
+          {
+            "description": "Resource name in the form\n`memory-stores/{managed_memory_store_id}/entries/{managed_memory_entry_id}`.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Fields to update. Only `content` and `description` may be updated.",
+            "in": "query",
+            "name": "update_mask",
+            "required": true,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Updates selected mutable fields on a managed memory entry. Identity fields",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "x-databricks-shared-path-operations": [
+        {
+          "description": "Deletes a managed memory store by resource name. Returns `NOT_FOUND` when the\nstore does not exist in the caller's workspace.",
+          "operationId": "agent_kit.delete_memory_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Deletes a managed memory store by resource name. Returns `NOT_FOUND` when the",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "DELETE",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Deletes a session, its items, and any descendant sessions recursively.\nIndependently retained memory is not deleted.",
+          "operationId": "agent_kit.delete_session",
+          "parameters": [
+            {
+              "description": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Deletes a session, its items, and any descendant sessions recursively.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "DELETE",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Deletes a session store, its sessions and items, and its service-managed\nstorage. Memory entries retained by a separate Memory Store are not deleted.",
+          "operationId": "agent_kit.delete_session_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `session-stores/{session_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Deletes a session store, its sessions and items, and its service-managed",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "DELETE",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Retrieves a managed memory store by resource name. Returns `NOT_FOUND` when\nthe store does not exist in the caller's workspace.",
+          "operationId": "agent_kit.get_memory_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Retrieves a managed memory store by resource name. Returns `NOT_FOUND` when",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "GET",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Gets a session by resource name.",
+          "operationId": "agent_kit.get_session",
+          "parameters": [
+            {
+              "description": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.Session"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Gets a session by resource name.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "GET",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Gets a session store by resource name.",
+          "operationId": "agent_kit.get_session_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `session-stores/{session_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.SessionStore"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Gets a session store by resource name.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "GET",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Updates a managed memory store's description.",
+          "operationId": "agent_kit.update_memory_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `memory-stores/{managed_memory_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            },
+            {
+              "description": "Only `description` may be updated.",
+              "in": "query",
+              "name": "update_mask",
+              "required": true,
+              "schema": {
+                "example": "name,owner",
+                "format": "google-fieldmask",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Updates a managed memory store's description.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "PATCH",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Updates a session's mutable fields.",
+          "operationId": "agent_kit.update_session",
+          "parameters": [
+            {
+              "description": "Resource name in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            },
+            {
+              "description": "Fields to update. Only `metadata` is mutable; any other path returns\n`INVALID_PARAMETER_VALUE`.",
+              "in": "query",
+              "name": "update_mask",
+              "required": true,
+              "schema": {
+                "example": "name,owner",
+                "format": "google-fieldmask",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.Session"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.Session"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Updates a session's mutable fields.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "PATCH",
+          "x-databricks-workspace-header": true
+        },
+        {
+          "description": "Updates a session store's description and metadata.",
+          "operationId": "agent_kit.update_session_store",
+          "parameters": [
+            {
+              "description": "Resource name in the form `session-stores/{session_store_id}`.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            },
+            {
+              "description": "Fields to update. Only `description` and `metadata` are mutable; any\nother path returns `INVALID_PARAMETER_VALUE`.",
+              "in": "query",
+              "name": "update_mask",
+              "required": true,
+              "schema": {
+                "example": "name,owner",
+                "format": "google-fieldmask",
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.SessionStore"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/agentkit.SessionStore"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Updates a session store's description and metadata.",
+          "tags": [
+            "AgentKit"
+          ],
+          "x-databricks-package": "agentkit",
+          "x-databricks-service": "AgentKit",
+          "x-databricks-verb": "PATCH",
+          "x-databricks-workspace-header": true
+        }
+      ]
+    },
+    "/api/2.0/agents/{parent}/entries": {
+      "get": {
+        "description": "Lists managed memory entries for one actor. An exact `path` filters entries\nacross sessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `read_mask` selects fields in\neach returned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.list_memories",
+        "parameters": [
+          {
+            "description": "Managed memory store whose entries are listed, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Customer-provided identifier for the actor whose entries are listed.",
+            "in": "query",
+            "name": "actor_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of entries to return. The service may return fewer entries\nthan requested. Defaults to 10; must be between 1 and 100.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Opaque pagination token from a previous ListManagedMemoryEntries\nresponse.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional path prefix used to restrict entries within the actor partition.",
+            "in": "query",
+            "name": "path_prefix",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Fields to return in each entry, using proto field names such as `content`\n(not `contents`). An omitted or empty mask returns each full entry,\nincluding `content`; a non-empty mask returns only the requested fields.",
+            "in": "query",
+            "name": "read_mask",
+            "required": false,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional session identifier. When set, only entries with this exact\n`session_id` are returned. Omitted-session (cross-session) entries are\nnot included. Ignored when path is set.",
+            "in": "query",
+            "name": "session_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ListManagedMemoryEntriesResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists managed memory entries for one actor. An exact `path` filters entries",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "managed_memory_entries",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "post": {
+        "description": "Creates a managed memory entry using exclusive-create semantics. Callers may\nchoose the entry ID; the service generates one when it is omitted. Returns\n`ALREADY_EXISTS` when an entry with the same actor, session, and path already\nexists. Omitted `session_id` is its own uniqueness key: two omitted-session\nentries with the same actor and path conflict, but an omitted-session entry\ndoes not conflict with a session-scoped entry at the same actor and path.",
+        "operationId": "agent_kit.create_memory",
+        "parameters": [
+          {
+            "description": "Managed memory store that will contain the entry, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Optional caller-selected managed memory entry ID. The service generates\nan ID when omitted.",
+            "in": "query",
+            "name": "managed_memory_entry_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a managed memory entry using exclusive-create semantics. Callers may",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/entries:search": {
+      "post": {
+        "description": "Searches managed memory entries by text query for one actor. Returns matching\nentries and scores ranked by relevance; `read_mask` selects fields in each\nreturned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.search_memories",
+        "parameters": [
+          {
+            "description": "Managed memory store whose entries are searched, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.SearchManagedMemoryEntriesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.SearchManagedMemoryEntriesResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Searches managed memory entries by text query for one actor. Returns matching",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "results",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/items": {
+      "get": {
+        "description": "Lists items in a session.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.list_session_items",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Sort order. Supported values are `create_time asc` and `create_time\ndesc`. The default is `create_time desc`, which returns the most recently\nappended items first. Equal timestamps are resolved by committed append\norder in the requested direction.",
+            "in": "query",
+            "name": "order_by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of items to return. Defaults to 10; must be between 1 and\n100.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Token returned by a previous list request.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ListSessionItemsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists items in a session.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "session_items",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/items:append": {
+      "post": {
+        "description": "Appends items to a session.",
+        "operationId": "agent_kit.append_session_items",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.AppendSessionItemsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.AppendSessionItemsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Appends items to a session.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/items:clear": {
+      "post": {
+        "description": "Clears all items from a session.",
+        "operationId": "agent_kit.clear_session_items",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ClearSessionItemsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ClearSessionItemsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Clears all items from a session.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/items:pop": {
+      "post": {
+        "description": "Pops the newest item from a session.",
+        "operationId": "agent_kit.pop_session_item",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session, in the form\n`session-stores/{session_store_id}/sessions/{session_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.PopSessionItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.PopSessionItemResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Pops the newest item from a session.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/sessions": {
+      "get": {
+        "description": "Lists sessions within a session store.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "agent_kit.list_sessions",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Filter expression. Supported fields include `actor_id` and `metadata`;\nfor example, `actor_id = \"support-customer-123\"`.",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort order. Defaults to `last_activity_time desc`. Page-token\ncontinuation is exactly-once when ordering by `create_time` (immutable);\nordering by `last_activity_time` is best-effort, because that value\nchanges as a session gains activity, so a session updated between page\nrequests may be repeated or skipped. To enumerate every session exactly\nonce, order by `create_time`.",
+            "in": "query",
+            "name": "order_by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of sessions to return. Defaults to 10; must be between 1\nand 100.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Token returned by a previous list request.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ListSessionsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists sessions within a session store.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-pagination": {
+          "items": "sessions",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      },
+      "post": {
+        "description": "Creates a session within a session store.",
+        "operationId": "agent_kit.create_session",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Optional caller-selected session ID. The service generates a UUID when\nthis field is omitted. The ID must be unique; a collision returns\n`ALREADY_EXISTS`.",
+            "in": "query",
+            "name": "session_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.Session"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.Session"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a session within a session store.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{parent}/sessions:fork": {
+      "post": {
+        "description": "Forks a session into an independent top-level copy.",
+        "operationId": "agent_kit.fork_session",
+        "parameters": [
+          {
+            "description": "Resource name of the containing session store, in the form\n`session-stores/{session_store_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ForkSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ForkSessionResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Forks a session into an independent top-level copy.",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/agents/{session_store}/sessions/{session_id}/extractions": {
+      "post": {
+        "description": "Synchronously extracts memories from a single session into the given memory\nstore, returning the entries that were written.",
+        "operationId": "agent_kit.extract_memories",
+        "parameters": [
+          {
+            "description": "Session store containing the session, in the form\n`session-stores/{session_store_id}`.",
+            "in": "path",
+            "name": "session_store",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Identifier of the session whose transcript is distilled into memories.",
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentkit.ExtractMemoriesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentkit.ExtractMemoriesResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Synchronously extracts memories from a single session into the given memory",
+        "tags": [
+          "AgentKit"
+        ],
+        "x-databricks-package": "agentkit",
+        "x-databricks-service": "AgentKit",
+        "x-databricks-workspace-header": true
+      }
+    },
     "/api/2.0/ai-functions/ai-classify": {
       "post": {
         "description": "Classifies content according to a set of provided labels. For REST API\nrequests, the default rate limit is 1,200 requests per minute per workspace.\nContact your Databricks account team to request a higher limit.",
@@ -54363,6 +56842,44 @@
           }
         },
         "summary": "Classifies content according to a set of provided labels. For REST API",
+        "tags": [
+          "AiFunctions"
+        ],
+        "x-databricks-package": "aifunctions",
+        "x-databricks-service": "AiFunctions",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/ai-functions/ai-decide": {
+      "post": {
+        "description": "Turn text and structured data into decisions your application can use. Define\nquestions and criteria to choose an option, estimate a probability, or assign\na score given a provided state.",
+        "operationId": "ai_functions.ai_decide",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aifunctions.AiDecideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aifunctions.AiDecideResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Turn text and structured data into decisions your application can use. Define",
         "tags": [
           "AiFunctions"
         ],
@@ -56428,7 +58945,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates the app with the supplied name.",
+        "description": "Updates the app with the supplied name. This is a full replacement: fields\nomitted from the request are cleared, so send the complete app.",
         "operationId": "apps.update",
         "parameters": [
           {
@@ -56466,7 +58983,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Updates the app with the supplied name.",
+        "summary": "Updates the app with the supplied name. This is a full replacement: fields",
         "tags": [
           "Apps"
         ],
@@ -59835,7 +62352,7 @@
     },
     "/api/2.0/database/instances/{instance_name}/synced_tables": {
       "get": {
-        "description": "This API is currently unimplemented, but exposed for Terraform support.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "List synced database tables in a Database Instance.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "database.list_synced_database_tables",
         "parameters": [
           {
@@ -59882,7 +62399,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "This API is currently unimplemented, but exposed for Terraform support.",
+        "summary": "List synced database tables in a Database Instance.",
         "tags": [
           "Database"
         ],
@@ -60723,7 +63240,7 @@
     },
     "/api/2.0/domains": {
       "get": {
-        "description": "List domains in the account. Set `parent_domain_id` to return only the direct\nsubdomains of a given domain.\n\nAuthorization: external callers must have the `MANAGE DISCOVERY` permission;\nonly domains the caller is authorized to read are returned.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "List domains in the account. Set `parent_domain_id` to return only the direct\nsubdomains of a given domain.\n\nAuthorization: external callers must have the `MANAGE DISCOVER` permission;\nonly domains the caller is authorized to read are returned.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "domains.list_domains",
         "parameters": [
           {
@@ -60874,7 +63391,7 @@
         "x-databricks-workspace-header": true
       },
       "get": {
-        "description": "Get a domain by resource name.\n\nAuthorization: external callers must have the `MANAGE DISCOVERY` permission.",
+        "description": "Get a domain by resource name.\n\nAuthorization: external callers must have the `MANAGE DISCOVER` permission.",
         "operationId": "domains.get_domain",
         "parameters": [
           {
@@ -61019,7 +63536,7 @@
         "operationId": "workspace_entity_tag_assignments.list_tag_assignments",
         "parameters": [
           {
-            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
             "in": "path",
             "name": "entity_type",
             "required": true,
@@ -61092,7 +63609,7 @@
         "operationId": "workspace_entity_tag_assignments.delete_tag_assignment",
         "parameters": [
           {
-            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
             "in": "path",
             "name": "entity_type",
             "required": true,
@@ -61140,7 +63657,7 @@
         "operationId": "workspace_entity_tag_assignments.get_tag_assignment",
         "parameters": [
           {
-            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
             "in": "path",
             "name": "entity_type",
             "required": true,
@@ -61195,7 +63712,7 @@
         "operationId": "workspace_entity_tag_assignments.update_tag_assignment",
         "parameters": [
           {
-            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, designerfiles, geniespaces, notebooks",
+            "description": "The type of entity to which the tag is assigned. Allowed values are apps,\ndashboards, geniespaces, notebooks",
             "in": "path",
             "name": "entity_type",
             "required": true,
@@ -61713,7 +64230,7 @@
             }
           },
           {
-            "description": "The list of fields to update.",
+            "description": "Fields to update. The only supported path is description.",
             "in": "query",
             "name": "update_mask",
             "required": true,
@@ -65195,7 +67712,7 @@
     },
     "/api/2.0/genie/{name}/download-visualization": {
       "get": {
-        "description": "Download a rendered image of a message visualization attachment. The response\nbody is the raw PNG image, not a JSON payload. This is only available if the\nattachment is a visualization and the message status is `COMPLETED`. This\nendpoint is not supported for Private Link workspaces.",
+        "description": "Download a rendered image of a message visualization attachment. The response\nbody is the raw PNG image, not a JSON payload. This is only available if the\nattachment is a visualization and the message status is `COMPLETED`.",
         "operationId": "genie.download_message_attachment_visualization",
         "parameters": [
           {
@@ -80169,7 +82686,7 @@
         "x-databricks-workspace-header": true
       },
       "get": {
-        "description": "Get a single Lakebase CDF configuration, including the source Postgres\nschema, target Unity Catalog schema, and the identity under which writes are\nauthorized.",
+        "description": "Get a single Lakebase CDF configuration, including the source Postgres schema\nand target Unity Catalog schema.",
         "operationId": "postgres.get_cdf_config",
         "parameters": [
           {
@@ -80220,7 +82737,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Get a single Lakebase CDF configuration, including the source Postgres",
+        "summary": "Get a single Lakebase CDF configuration, including the source Postgres schema",
         "tags": [
           "Postgres"
         ],
@@ -84268,6 +86785,65 @@
           }
         },
         "summary": "Runs a command in the sandbox and blocks until it exits, returning the",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-exec/{parent}/commands": {
+      "get": {
+        "description": "Lists the tracked command executions (running and completed) in a sandbox.",
+        "operationId": "sandbox.list_commands",
+        "parameters": [
+          {
+            "description": "The sandbox whose commands to list, in the form `sandboxes/{sandbox_id}`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Maximum number of commands to return. The server may return fewer. If\nunspecified, the server returns all commands.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page token returned by a previous ListCommands call. Use this to retrieve\nthe next page of results.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.ListCommandsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists the tracked command executions (running and completed) in a sandbox.",
         "tags": [
           "Sandbox"
         ],
@@ -96638,7 +99214,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates a model provider service. Only the fields named in `update_mask` are\nchanged; the resource name and provider type are immutable. Optionally supply\nan `etag` to make the update conditional on the model provider service not\nhaving changed since it was read.\n\nYou must be the owner of the model provider service or have `MANAGE` on it,\nplus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema.\n\nUpdating `config.provider` cannot change the provider type or switch between\nUnity Catalog service-credential authentication and inline authentication.",
+        "description": "Updates a model provider service. Only the fields named in `update_mask` are\nchanged; the resource name and provider type are immutable. Optionally supply\nan `etag` to make the update conditional on the model provider service not\nhaving changed since it was read.\n\nYou must be the owner of the model provider service or have `MANAGE` on it,\nplus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema.\n\nUpdating `config.provider` cannot change the provider type. Authentication\nmode changes require feature availability and support for both modes on the\nselected provider.",
         "operationId": "ai_gateway.update_model_provider_service",
         "parameters": [
           {
@@ -96659,7 +99235,7 @@
             }
           },
           {
-            "description": "Fields to update. Use `config` to replace the entire configuration. The\nreplacement must include every required field; any optional field you\nomit is cleared. To preserve sibling fields, use one or more granular\npaths: `comment`; `config.provider` to replace the active\nprovider-specific value (for example, `config.openai`; the mask path\nremains `config.provider`); `config.allow_all_targets`, `config.targets`,\n`config.forward_headers`, `config.forward_query_parameters`,\n`config.forward_unmanaged_paths`, `config.rate_limits`, or\n`config.inference_table`. The provider type is immutable.",
+            "description": "Fields to update. Use `config` to replace the entire configuration. The\nreplacement must include every required field; any optional field you\nomit is cleared. To preserve sibling fields, use one or more granular\npaths: `comment`; `config.provider` to replace the active\nprovider-specific value (for example, `config.openai`; the mask path\nremains `config.provider`); `config.allow_all_targets`, `config.targets`,\n`config.forward_headers`, `config.forward_query_parameters`,\n`config.forward_unmanaged_paths`, `config.rate_limits`, or\n`config.inference_table`. The provider type is immutable. A `config` or\n`config.provider` replacement that carries no authentication material\npreserves the existing authentication binding; input-only plaintext does\nnot need to be read back and re-sent.",
             "in": "query",
             "name": "update_mask",
             "required": true,
@@ -99747,6 +102323,280 @@
         "x-databricks-workspace-header": true
       }
     },
+    "/api/2.1/unity-catalog/skills": {
+      "get": {
+        "description": "Lists skills in a Unity Catalog schema. Provide `parent` as\n`schemas/{catalog}.{schema}`. Results are paginated; pass the returned\n`next_page_token` to fetch subsequent pages.\n\nRequires `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema. Only skills the caller can access as owner or through `READ_VOLUME`,\n`READ_METADATA`, or `MANAGE` are returned.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "ai_gateway.list_skills",
+        "parameters": [
+          {
+            "description": "Maximum number of skills to return. Defaults to 100 when unset or 0; the\nmaximum is 100. Use `page_token` to retrieve additional pages.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Opaque pagination token from a previous request.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name of the parent schema. Format: `schemas/{catalog}.{schema}`. Each\n`{...}` component is capped at 255 characters individually.\n\nRequired: skill listing is schema-scoped, so `parent` must be set; an\nunset or empty `parent` is rejected with INVALID_PARAMETER_VALUE.",
+            "in": "query",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/catalog.ListSkillsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists skills in a Unity Catalog schema. Provide `parent` as",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-pagination": {
+          "items": "skills",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AiGateway",
+        "x-databricks-workspace-header": true
+      },
+      "post": {
+        "description": "Creates a skill in a Unity Catalog schema and provisions its managed bundle\nstorage. Specify its name in `skill_id`. The request contains an optional\ncomment but no bundle bytes. Upload bundle files through the Files API, then\ncall FinalizeSkill.\n\nYou must be the owner of the parent schema or have `CREATE_VOLUME` and\n`USE_SCHEMA` on it, plus `USE_CATALOG` on the parent catalog.",
+        "operationId": "ai_gateway.create_skill",
+        "parameters": [
+          {
+            "description": "Name of the parent schema. Format: `schemas/{catalog}.{schema}`. Each\n`{...}` component is capped at 255 characters individually.",
+            "in": "query",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name for the skill, e.g. \"basic-math\". The server normalizes this\nidentifier to lowercase. It is independent of the bundle name read from\nSKILL.md.",
+            "in": "query",
+            "name": "skill_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/catalog.Skill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/catalog.Skill"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a skill in a Unity Catalog schema and provisions its managed bundle",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-service": "AiGateway",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.1/unity-catalog/skills/{catalog}": {
+      "delete": {
+        "description": "Deletes the skill identified by its resource name and makes its managed\nbundle path unavailable. Managed bundle data is deleted asynchronously.\nOptionally supply an `etag` to make the delete conditional on the skill not\nhaving changed since it was read.\n\nYou must be the owner of the skill or have `MANAGE` on it, plus `USE_CATALOG`\non the parent catalog and `USE_SCHEMA` on the parent schema.",
+        "operationId": "ai_gateway.delete_skill",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "catalog",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optimistic concurrency token from the most recent read. When set, the\ndelete succeeds only if the resource has not changed. Leave unset for an\nunconditional delete. For REST requests, URL-encode the base64 string\nreturned by the API when setting the `etag` query parameter.",
+            "in": "query",
+            "name": "etag",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Deletes the skill identified by its resource name and makes its managed",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-resource-name": {
+          "param": "name",
+          "pattern": "skills/{catalog}"
+        },
+        "x-databricks-service": "AiGateway",
+        "x-databricks-workspace-header": true
+      },
+      "get": {
+        "description": "Returns the skill identified by its resource name.\n\nYou must be the owner of the skill or have `READ_VOLUME`, `READ_METADATA`, or\n`MANAGE` on it, plus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on\nthe parent schema.",
+        "operationId": "ai_gateway.get_skill",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "catalog",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/catalog.Skill"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Returns the skill identified by its resource name.",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-resource-name": {
+          "param": "name",
+          "pattern": "skills/{catalog}"
+        },
+        "x-databricks-service": "AiGateway",
+        "x-databricks-workspace-header": true
+      },
+      "patch": {
+        "description": "Updates a skill. Only fields named in `update_mask` are changed; currently\nonly `comment` is supported. The resource name is immutable. Optionally\nsupply an `etag` to make the update conditional on the skill not having\nchanged since it was read. Bundle files, grants, tags, and ownership are\nunchanged.\n\nYou must be the owner of the skill or have `MANAGE` on it, plus `USE_CATALOG`\non the parent catalog and `USE_SCHEMA` on the parent schema.",
+        "operationId": "ai_gateway.update_skill",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "catalog",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optimistic concurrency token from the most recent read. When set, the\nupdate succeeds only if the resource has not changed. Leave unset for an\nunconditional update. For REST requests, URL-encode the base64 string\nreturned by the API when setting the `etag` query parameter.",
+            "in": "query",
+            "name": "etag",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Fields to update; validated against `skill`. REQUIRED, matching the\nsibling Update RPCs. `comment` is the only mutable field.",
+            "in": "query",
+            "name": "update_mask",
+            "required": true,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/catalog.Skill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/catalog.Skill"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Updates a skill. Only fields named in `update_mask` are changed; currently",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-resource-name": {
+          "param": "name",
+          "pattern": "skills/{catalog}"
+        },
+        "x-databricks-service": "AiGateway",
+        "x-databricks-workspace-header": true
+      }
+    },
     "/api/2.1/unity-catalog/storage-credentials": {
       "get": {
         "description": "Gets an array of storage credentials (as __StorageCredentialInfo__ objects).\nThe array is limited to only those storage credentials the caller has\npermission to access. If the caller is a metastore admin, retrieval of\ncredentials is unrestricted. There is no guarantee of a specific ordering of\nthe elements in the array.\n\nNOTE: we recommend using max_results=0 to use the paginated version of this\nAPI. Unpaginated calls will be deprecated soon.\n\nPAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may\ncontain zero results while still providing a next_page_token. Clients must\ncontinue reading pages until next_page_token is absent, which is the only\nindication that the end of results has been reached.\n\nThis method is generated by Databricks SDK Code Generator.",
@@ -101312,6 +104162,56 @@
         ],
         "x-databricks-package": "catalog",
         "x-databricks-service": "Metastores",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.1/unity-catalog/{name}/finalize": {
+      "post": {
+        "description": "Finalizes a skill after its bundle is uploaded. This method reads SKILL.md\nthrough the Files API using the caller's authorization. Its YAML frontmatter\nmust contain an agentskills.io-compliant `name` and a nonblank `description`\nwithin the configured UTF-8 byte limit. On success, it replaces `bundle_name`\nand `description`; refreshes `finalize_time`, `update_time`, and\n`updated_by`; and returns the updated skill. `comment` is preserved.\nRe-finalization uses the latest SKILL.md and is last-write-wins without an\netag precondition. Validation failures do not change metadata.\n\nYou must be the owner of the skill or have `READ_VOLUME` on it, plus\n`USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.",
+        "operationId": "ai_gateway.finalize_skill",
+        "parameters": [
+          {
+            "description": "Full resource name of the skill. Format:\n`skills/{catalog}.{schema}.{skill}`. Each `{...}` component is capped at\n255 characters individually.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/catalog.FinalizeSkillRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/catalog.Skill"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Finalizes a skill after its bundle is uploaded. This method reads SKILL.md",
+        "tags": [
+          "AiGateway"
+        ],
+        "x-databricks-package": "catalog",
+        "x-databricks-service": "AiGateway",
         "x-databricks-workspace-header": true
       }
     },
@@ -104347,6 +107247,11 @@
       "x-databricks-package": "agentbricks"
     },
     {
+      "description": "APIs for managing agent memory and durable session state. This interface\nis under active development and may change.",
+      "name": "AgentKit",
+      "x-databricks-package": "agentkit"
+    },
+    {
       "description": "Transform and enrich data with AI on Databricks.",
       "name": "AiFunctions",
       "x-databricks-package": "aifunctions"
@@ -104562,7 +107467,7 @@
       "x-databricks-package": "catalog"
     },
     {
-      "description": "[description]",
+      "description": "Feature Engineering provides APIs for managing features and materialized\nfeatures.",
       "name": "FeatureEngineering",
       "x-databricks-package": "ml"
     },

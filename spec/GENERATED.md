@@ -2,15 +2,27 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.182.0 (OpenAPI `4648d66fa37e7683468dc92cc043c6aa7a34f301`).
+Source: databricks-sdk-go v0.187.0 (OpenAPI `325b3ae5c9d20d79a138802b02dc31ad9cd61b5d`).
 
-- 39 packages, 191 services, 1268 operations (1268 generated), 3550 types.
+- 40 packages, 193 services, 1313 operations (1313 generated), 3653 types.
 
 ## Not generated (binary or streaming payloads)
 
 
 ## OpenAPI path collisions (moved to `x-databricks-shared-path-operations`)
 
+- account: DELETE /api/networking/v1/{name} (PrivateNetworkGateways.DeletePrivateNetworkGateway)
+- account: GET /api/networking/v1/{name} (PrivateNetworkGateways.GetPrivateNetworkGateway)
+- account: GET /api/networking/v1/{name} (PrivateNetworkGateways.GetPrivateNetworkGatewayOperation)
+- workspace: DELETE /api/2.0/agents/{name} (AgentKit.DeleteMemoryStore)
+- workspace: DELETE /api/2.0/agents/{name} (AgentKit.DeleteSession)
+- workspace: DELETE /api/2.0/agents/{name} (AgentKit.DeleteSessionStore)
+- workspace: GET /api/2.0/agents/{name} (AgentKit.GetMemoryStore)
+- workspace: GET /api/2.0/agents/{name} (AgentKit.GetSession)
+- workspace: GET /api/2.0/agents/{name} (AgentKit.GetSessionStore)
+- workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateMemoryStore)
+- workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSession)
+- workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSessionStore)
 - workspace: GET /api/environments/v1/{name} (Environments.GetOperation)
 - workspace: PATCH /api/environments/v1/{name} (Environments.UpdateWorkspaceBaseEnvironment)
 - workspace: DELETE /api/2.0/postgres/{name} (Postgres.DeleteSyncedTable)

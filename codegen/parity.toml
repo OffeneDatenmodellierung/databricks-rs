@@ -18,6 +18,7 @@
 [methods]
 "serving.ServingEndpointsDataPlane.Query" = { status = "gap", issue = 16 }
 "bundle.Bundle.*" = { status = "na", reason = "Go's `service/bundle` isn't wired into its WorkspaceClient or AccountClient, so it isn't reachable API surface there; `bundledeployments` is generated." }
+"mason.Mason.*" = { status = "na", reason = "databricks-sdk-go v0.187.0 renamed `mason` to `agentkit` and unwired `w.Mason`; the stale `service/mason` package is no longer reachable API surface there. `agentkit` is generated." }
 
 [helpers]
 # Implemented here.

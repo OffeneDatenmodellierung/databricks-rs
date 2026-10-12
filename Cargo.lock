@@ -322,6 +322,7 @@ version = "0.1.1"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-agentbricks",
+ "community-databricks-sdk-agentkit",
  "community-databricks-sdk-aifunctions",
  "community-databricks-sdk-aisearch",
  "community-databricks-sdk-apps",
@@ -372,6 +373,15 @@ dependencies = [
 [[package]]
 name = "community-databricks-sdk-agentbricks"
 version = "0.1.1"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-agentkit"
+version = "0.1.0"
 dependencies = [
  "community-databricks-core",
  "serde",
