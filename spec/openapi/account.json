@@ -2594,6 +2594,19 @@
         ],
         "type": "string"
       },
+      "iamv2.ExactMatchRule": {
+        "description": "A rule that matches an identity whose external ID (from the identity\nprovider) equals the value.",
+        "properties": {
+          "external_id": {
+            "description": "The external ID to match exactly.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "external_id"
+        ],
+        "type": "object"
+      },
       "iamv2.ExternalGroup": {
         "description": "An external group from the customer's Identity Provider, resolved into\nDatabricks. This is a read-only resource keyed by the IdP external ID. The\nGet method may trigger an idempotent sync from the customer's IdP to\nprovision or refresh the group's data in Databricks.",
         "properties": {
@@ -2736,6 +2749,31 @@
         ],
         "type": "string"
       },
+      "iamv2.IdentityVisibilityFilter": {
+        "description": "A rule controlling which externally provisioned identities are visible in the\naccount. Filters are scoped by principal_type: an identity is only ever\nevaluated against filters whose principal_type matches its own. When the\naccount has no filter for an identity's principal_type, all identities of\nthat type are visible; once it has at least one filter for that type, an\nidentity of that type is visible only if it matches at least one of those\nfilters. So a set of group-only filters gates groups but leaves users and\nservice principals fully visible.",
+        "properties": {
+          "exact": {
+            "$ref": "#/components/schemas/iamv2.ExactMatchRule",
+            "description": "Exact match on the identity's external ID."
+          },
+          "name": {
+            "description": "The resource name of the identity-visibility filter. Format:\naccounts/{account_id}/identity-visibility-filters/{identity_visibility_filter_id}",
+            "type": "string"
+          },
+          "prefix": {
+            "$ref": "#/components/schemas/iamv2.PrefixMatchRule",
+            "description": "Prefix match on the identity's display name."
+          },
+          "principal_type": {
+            "$ref": "#/components/schemas/iamv2.PrincipalType",
+            "description": "Which type of principal (user, service principal, or group) this rule\napplies to."
+          }
+        },
+        "required": [
+          "principal_type"
+        ],
+        "type": "object"
+      },
       "iamv2.ListDirectGroupMembersResponse": {
         "description": "Response message for listing direct group members.",
         "properties": {
@@ -2764,6 +2802,22 @@
           },
           "next_page_token": {
             "description": "A token, which can be sent as page_token to retrieve the next page. If\nthis field is omitted, there are no subsequent pages.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "iamv2.ListIdentityVisibilityFiltersResponse": {
+        "description": "Response message containing a page of identity-visibility filters in the\naccount.",
+        "properties": {
+          "identity_visibility_filters": {
+            "items": {
+              "$ref": "#/components/schemas/iamv2.IdentityVisibilityFilter"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "A token, which can be sent as page_token to retrieve the next page. If\nomitted, there are no subsequent pages.",
             "type": "string"
           }
         },
@@ -2847,6 +2901,19 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "iamv2.PrefixMatchRule": {
+        "description": "A rule that matches an identity whose display name starts with the value.",
+        "properties": {
+          "display_name_prefix": {
+            "description": "The display-name prefix to match.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name_prefix"
+        ],
         "type": "object"
       },
       "iamv2.PrincipalType": {
@@ -3216,6 +3283,25 @@
         ],
         "type": "object"
       },
+      "networking.DatabricksServiceExceptionWithDetailsProto": {
+        "description": "Databricks Error that is returned by all Databricks APIs.",
+        "properties": {
+          "details": {
+            "items": {},
+            "type": "array"
+          },
+          "error_code": {
+            "$ref": "#/components/schemas/networking.ErrorCode"
+          },
+          "message": {
+            "type": "string"
+          },
+          "stack_trace": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "networking.Endpoint": {
         "description": "Endpoint represents a cloud networking resource in a user's cloud account and\nbinds it to the Databricks account.",
         "properties": {
@@ -3286,6 +3372,93 @@
         ],
         "type": "string"
       },
+      "networking.ErrorCode": {
+        "description": "Error codes returned by Databricks APIs to indicate specific failure\nconditions.",
+        "enum": [
+          "ABORTED",
+          "ALREADY_EXISTS",
+          "BAD_REQUEST",
+          "CANCELLED",
+          "CATALOG_ALREADY_EXISTS",
+          "CATALOG_DOES_NOT_EXIST",
+          "CATALOG_NOT_EMPTY",
+          "COULD_NOT_ACQUIRE_LOCK",
+          "CUSTOMER_UNAUTHORIZED",
+          "DAC_ALREADY_EXISTS",
+          "DAC_DOES_NOT_EXIST",
+          "DATA_LOSS",
+          "DEADLINE_EXCEEDED",
+          "DEPLOYMENT_TIMEOUT",
+          "DIRECTORY_NOT_EMPTY",
+          "DIRECTORY_PROTECTED",
+          "DRY_RUN_FAILED",
+          "ENDPOINT_NOT_FOUND",
+          "EXTERNAL_LOCATION_ALREADY_EXISTS",
+          "EXTERNAL_LOCATION_DOES_NOT_EXIST",
+          "FEATURE_DISABLED",
+          "GIT_CONFLICT",
+          "GIT_REMOTE_ERROR",
+          "GIT_SENSITIVE_TOKEN_DETECTED",
+          "GIT_UNKNOWN_REF",
+          "GIT_URL_NOT_ON_ALLOW_LIST",
+          "INSECURE_PARTNER_RESPONSE",
+          "INTERNAL_ERROR",
+          "INVALID_PARAMETER_VALUE",
+          "INVALID_STATE",
+          "INVALID_STATE_TRANSITION",
+          "IO_ERROR",
+          "IPYNB_FILE_IN_REPO",
+          "MALFORMED_PARTNER_RESPONSE",
+          "MALFORMED_REQUEST",
+          "MANAGED_RESOURCE_GROUP_DOES_NOT_EXIST",
+          "MAX_BLOCK_SIZE_EXCEEDED",
+          "MAX_CHILD_NODE_SIZE_EXCEEDED",
+          "MAX_LIST_SIZE_EXCEEDED",
+          "MAX_NOTEBOOK_SIZE_EXCEEDED",
+          "MAX_READ_SIZE_EXCEEDED",
+          "METASTORE_ALREADY_EXISTS",
+          "METASTORE_DOES_NOT_EXIST",
+          "METASTORE_NOT_EMPTY",
+          "NOT_FOUND",
+          "NOT_IMPLEMENTED",
+          "PARTIAL_DELETE",
+          "PERMISSION_DENIED",
+          "PERMISSION_NOT_PROPAGATED",
+          "PRINCIPAL_DOES_NOT_EXIST",
+          "PROJECTS_OPERATION_TIMEOUT",
+          "PROVIDER_ALREADY_EXISTS",
+          "PROVIDER_DOES_NOT_EXIST",
+          "PROVIDER_SHARE_NOT_ACCESSIBLE",
+          "QUOTA_EXCEEDED",
+          "RECIPIENT_ALREADY_EXISTS",
+          "RECIPIENT_DOES_NOT_EXIST",
+          "REQUEST_LIMIT_EXCEEDED",
+          "RESOURCE_ALREADY_EXISTS",
+          "RESOURCE_CONFLICT",
+          "RESOURCE_DOES_NOT_EXIST",
+          "RESOURCE_EXHAUSTED",
+          "RESOURCE_LIMIT_EXCEEDED",
+          "SCHEMA_ALREADY_EXISTS",
+          "SCHEMA_DOES_NOT_EXIST",
+          "SCHEMA_NOT_EMPTY",
+          "SEARCH_QUERY_TOO_LONG",
+          "SEARCH_QUERY_TOO_SHORT",
+          "SERVICE_UNDER_MAINTENANCE",
+          "SHARE_ALREADY_EXISTS",
+          "SHARE_DOES_NOT_EXIST",
+          "STORAGE_CREDENTIAL_ALREADY_EXISTS",
+          "STORAGE_CREDENTIAL_DOES_NOT_EXIST",
+          "TABLE_ALREADY_EXISTS",
+          "TABLE_DOES_NOT_EXIST",
+          "TEMPORARILY_UNAVAILABLE",
+          "UNAUTHENTICATED",
+          "UNAVAILABLE",
+          "UNKNOWN",
+          "UNPARSEABLE_HTTP_ERROR",
+          "WORKSPACE_TEMPORARILY_UNAVAILABLE"
+        ],
+        "type": "string"
+      },
       "networking.GcpPscEndpointInfo": {
         "properties": {
           "endpoint_region": {
@@ -3329,6 +3502,276 @@
           }
         },
         "type": "object"
+      },
+      "networking.ListPrivateNetworkGatewaysResponse": {
+        "properties": {
+          "next_page_token": {
+            "description": "An opaque token for the next page, or empty when there are no more\nresults.",
+            "type": "string"
+          },
+          "private_network_gateways": {
+            "items": {
+              "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "networking.Operation": {
+        "description": "This resource represents a long-running operation that is the result of a\nnetwork API call.",
+        "properties": {
+          "done": {
+            "description": "If the value is `false`, it means the operation is still in progress. If\n`true`, the operation is completed, and either `error` or `response` is\navailable.",
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/networking.DatabricksServiceExceptionWithDetailsProto",
+            "description": "The error result of the operation in case of failure or cancellation."
+          },
+          "metadata": {
+            "description": "Service-specific metadata associated with the operation. It typically\ncontains progress information and common metadata such as create time.\nSome services might not provide such metadata."
+          },
+          "name": {
+            "description": "The server-assigned name, which is only unique within the same service\nthat originally returns it. If you use the default HTTP mapping, the\n`name` should be a resource name ending with `operations/{unique_id}`.",
+            "type": "string"
+          },
+          "response": {
+            "description": "The normal, successful response of the operation."
+          }
+        },
+        "type": "object"
+      },
+      "networking.PrivateNetworkGateway": {
+        "description": "A private network gateway connects serverless compute to destinations in a\ncustomer-managed VPC or VNet.",
+        "properties": {
+          "aws_cloud_connection": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayAwsCloudConnection",
+            "description": "The AWS connection used by the gateway."
+          },
+          "azure_cloud_connection": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayAzureCloudConnection",
+            "description": "The Azure connection used by the gateway."
+          },
+          "bandwidth_tier_gigabits_per_second": {
+            "description": "The provisioned bandwidth tier for an Azure gateway, in gigabits per\nsecond. Required when creating an Azure gateway.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "create_time": {
+            "description": "The time when the gateway was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "destinations": {
+            "description": "The destinations routed through this gateway.",
+            "items": {
+              "$ref": "#/components/schemas/networking.PrivateNetworkGatewayDestination"
+            },
+            "type": "array"
+          },
+          "display_name": {
+            "description": "The human-readable name of the gateway.",
+            "type": "string"
+          },
+          "error_message": {
+            "description": "The failure reason when the gateway is in the FAILED state.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The canonical resource name of the gateway, in the form\n`accounts/{account_id}/network-connectivity-configs/{ncc_id}/private-network-gateways/{gateway_id}`.",
+            "type": "string"
+          },
+          "private_dns_resolvers": {
+            "description": "The DNS resolvers used for private name resolution.",
+            "items": {
+              "$ref": "#/components/schemas/networking.PrivateNetworkGatewayPrivateDnsResolver"
+            },
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayGatewayState",
+            "description": "The current lifecycle state of the gateway."
+          },
+          "traffic_mode": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayTrafficMode",
+            "description": "The traffic routed through this gateway."
+          },
+          "update_time": {
+            "description": "The time when the gateway was last updated.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name",
+          "traffic_mode"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayAwsCloudConnection": {
+        "description": "AWS connection configuration.",
+        "properties": {
+          "cross_account_role": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayAwsCloudConnectionCrossAccountRole",
+            "description": "The IAM role that Databricks assumes to manage gateway resources."
+          },
+          "gateway_subnets": {
+            "description": "The subnets where the gateway establishes connectivity.",
+            "items": {
+              "$ref": "#/components/schemas/networking.PrivateNetworkGatewayAwsCloudConnectionAwsGatewaySubnet"
+            },
+            "type": "array"
+          },
+          "security_group_ids": {
+            "description": "The security groups attached to the gateway network interface.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "cross_account_role",
+          "gateway_subnets",
+          "security_group_ids"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayAwsCloudConnectionAwsGatewaySubnet": {
+        "description": "An AWS subnet used by the gateway.",
+        "properties": {
+          "subnet_id": {
+            "description": "The AWS subnet ID.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subnet_id"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayAwsCloudConnectionCrossAccountRole": {
+        "description": "A cross-account IAM role used to manage gateway resources.",
+        "properties": {
+          "role_arn": {
+            "description": "The ARN of the IAM role.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role_arn"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayAzureCloudConnection": {
+        "description": "Azure connection configuration.",
+        "properties": {
+          "gateway_subnet": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayAzureCloudConnectionAzureGatewaySubnet",
+            "description": "The subnet where the gateway establishes connectivity."
+          }
+        },
+        "required": [
+          "gateway_subnet"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayAzureCloudConnectionAzureGatewaySubnet": {
+        "description": "An Azure subnet used by the gateway.",
+        "properties": {
+          "resource_id": {
+            "description": "The full Azure resource ID of the subnet.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_id"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayDestination": {
+        "description": "A destination routed through the gateway.",
+        "properties": {
+          "destination_type": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayDestinationDestinationType",
+            "description": "The destination type."
+          },
+          "value": {
+            "description": "The destination value.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination_type",
+          "value"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayDestinationDestinationType": {
+        "description": "The supported destination types.",
+        "enum": [
+          "DNS_NAME"
+        ],
+        "type": "string"
+      },
+      "networking.PrivateNetworkGatewayGatewayState": {
+        "description": "The lifecycle state of the gateway.",
+        "enum": [
+          "CREATING",
+          "DELETING",
+          "ESTABLISHED",
+          "FAILED"
+        ],
+        "type": "string"
+      },
+      "networking.PrivateNetworkGatewayOperationMetadata": {
+        "properties": {
+          "operation_type": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayOperationMetadataOperationType",
+            "description": "The operation performed on the gateway."
+          }
+        },
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayOperationMetadataOperationType": {
+        "enum": [
+          "CREATE"
+        ],
+        "type": "string"
+      },
+      "networking.PrivateNetworkGatewayPrivateDnsResolver": {
+        "description": "A private DNS resolver used by the gateway.",
+        "properties": {
+          "resolver_type": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayPrivateDnsResolverResolverType",
+            "description": "The resolver type."
+          },
+          "value": {
+            "description": "The resolver value.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolver_type",
+          "value"
+        ],
+        "type": "object"
+      },
+      "networking.PrivateNetworkGatewayPrivateDnsResolverResolverType": {
+        "description": "The supported resolver types.",
+        "enum": [
+          "IP_ADDRESS"
+        ],
+        "type": "string"
+      },
+      "networking.PrivateNetworkGatewayTrafficMode": {
+        "description": "The traffic routed through the gateway.",
+        "enum": [
+          "ALL_TRAFFIC",
+          "SPECIFIC_DESTINATIONS"
+        ],
+        "type": "string"
       },
       "oauth2.CreateCustomAppIntegration": {
         "properties": {
@@ -3464,7 +3907,8 @@
             "type": "string"
           },
           "oidc_policy": {
-            "$ref": "#/components/schemas/oauth2.OidcFederationPolicy"
+            "$ref": "#/components/schemas/oauth2.OidcFederationPolicy",
+            "description": "audit_mode INCLUDE is required on both this message field and its leaf\nfields so the OIDC policy configuration is captured in create/update\naudit logs (see go/auditlogs)."
           },
           "policy_id": {
             "description": "The ID of the federation policy. Output only.",
@@ -7090,15 +7534,15 @@
     }
   },
   "info": {
-    "description": "Databricks Account API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.182.0 — itself generated from Databricks' OpenAPI spec `4648d66fa37e7683468dc92cc043c6aa7a34f301`. Unofficial; see https://docs.databricks.com/api/account/introduction for the reference documentation.",
+    "description": "Databricks Account API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.187.0 — itself generated from Databricks' OpenAPI spec `325b3ae5c9d20d79a138802b02dc31ad9cd61b5d`. Unofficial; see https://docs.databricks.com/api/account/introduction for the reference documentation.",
     "license": {
       "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "Databricks Account API",
-    "version": "0.182.0",
-    "x-databricks-go-sdk-version": "v0.182.0",
-    "x-databricks-openapi-sha": "4648d66fa37e7683468dc92cc043c6aa7a34f301"
+    "version": "0.187.0",
+    "x-databricks-go-sdk-version": "v0.187.0",
+    "x-databricks-openapi-sha": "325b3ae5c9d20d79a138802b02dc31ad9cd61b5d"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -14519,7 +14963,7 @@
     },
     "/api/2.0/identity/accounts/{account_id}/groups/{group_id}": {
       "delete": {
-        "description": "Deletes a group from the Databricks account by its internal ID.",
+        "description": "Deletes a group from the Databricks account by its internal ID.\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
         "operationId": "iam_v2.delete_group",
         "parameters": [
           {
@@ -14602,7 +15046,7 @@
         "x-databricks-service": "AccountIamV2"
       },
       "patch": {
-        "description": "Updates an existing group in the Databricks account. Only the fields named in\nthe update mask are modified. Returns the updated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider.",
+        "description": "Updates an existing group in the Databricks account. Only the fields named in\nthe update mask are modified. Returns the updated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider.\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
         "operationId": "iam_v2.update_group",
         "parameters": [
           {
@@ -14739,7 +15183,7 @@
         "x-databricks-service": "AccountIamV2"
       },
       "post": {
-        "description": "Creates a group membership (assigns a principal to a group).",
+        "description": "Creates a group membership (assigns a principal to a group).\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
         "operationId": "iam_v2.create_direct_group_member",
         "parameters": [
           {
@@ -14797,7 +15241,7 @@
     },
     "/api/2.0/identity/accounts/{account_id}/groups/{group_id}/direct-members/{principal_id}": {
       "delete": {
-        "description": "Deletes a group membership (unassigns a principal from a group).",
+        "description": "Deletes a group membership (unassigns a principal from a group).\n\nAuthorization: the caller must be an account admin or a manager of the group\n(holds the `roles/group.manager` role on it).",
         "operationId": "iam_v2.delete_direct_group_member",
         "parameters": [
           {
@@ -14899,6 +15343,55 @@
           "AccountIamV2"
         ],
         "x-databricks-package": "iamv2",
+        "x-databricks-service": "AccountIamV2"
+      }
+    },
+    "/api/2.0/identity/accounts/{account_id}/identity-visibility-filters/{identity_visibility_filter_id}": {
+      "get": {
+        "description": "Fetches an identity-visibility filter by resource name.",
+        "operationId": "iam_v2.get_identity_visibility_filter",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "identity_visibility_filter_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/iamv2.IdentityVisibilityFilter"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Fetches an identity-visibility filter by resource name.",
+        "tags": [
+          "AccountIamV2"
+        ],
+        "x-databricks-package": "iamv2",
+        "x-databricks-resource-name": {
+          "param": "name",
+          "pattern": "accounts/{account_id}/identity-visibility-filters/{identity_visibility_filter_id}"
+        },
         "x-databricks-service": "AccountIamV2"
       }
     },
@@ -16285,6 +16778,158 @@
           }
         },
         "summary": "Updates the entitlements of a directly assigned principal in a workspace.",
+        "tags": [
+          "AccountIamV2"
+        ],
+        "x-databricks-package": "iamv2",
+        "x-databricks-service": "AccountIamV2"
+      }
+    },
+    "/api/2.0/identity/{name}": {
+      "delete": {
+        "description": "Deletes an identity-visibility filter by resource name.",
+        "operationId": "iam_v2.delete_identity_visibility_filter",
+        "parameters": [
+          {
+            "description": "Required. The resource name of the filter. Format:\naccounts/{account_id}/identity-visibility-filters/{identity_visibility_filter_id}",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Deletes an identity-visibility filter by resource name.",
+        "tags": [
+          "AccountIamV2"
+        ],
+        "x-databricks-package": "iamv2",
+        "x-databricks-service": "AccountIamV2"
+      }
+    },
+    "/api/2.0/identity/{parent}/identity-visibility-filters": {
+      "get": {
+        "description": "Lists the identity-visibility filters in the account, returning one page per\ncall.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "iam_v2.list_identity_visibility_filters",
+        "parameters": [
+          {
+            "description": "Required. The parent account. Format: accounts/{account_id}",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "The maximum number of filters to return. The service may return fewer\nthan this value.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "A page token, received from a previous ListIdentityVisibilityFilters\ncall. Provide this to retrieve the subsequent page.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/iamv2.ListIdentityVisibilityFiltersResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists the identity-visibility filters in the account, returning one page per",
+        "tags": [
+          "AccountIamV2"
+        ],
+        "x-databricks-package": "iamv2",
+        "x-databricks-pagination": {
+          "items": "identity_visibility_filters",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "AccountIamV2"
+      },
+      "post": {
+        "description": "Creates an identity-visibility filter in the account.",
+        "operationId": "iam_v2.create_identity_visibility_filter",
+        "parameters": [
+          {
+            "description": "Required. The parent account. Format: accounts/{account_id}",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Optional. The ID to use for the filter, which becomes the final component\nof its resource name. If not specified, the server generates one.",
+            "in": "query",
+            "name": "identity_visibility_filter_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/iamv2.IdentityVisibilityFilter"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/iamv2.IdentityVisibilityFilter"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates an identity-visibility filter in the account.",
         "tags": [
           "AccountIamV2"
         ],
@@ -17957,7 +18602,174 @@
         ],
         "x-databricks-package": "networking",
         "x-databricks-service": "Endpoints"
-      }
+      },
+      "patch": {
+        "description": "Updates a private network gateway.",
+        "operationId": "private_network_gateways.update_private_network_gateway",
+        "parameters": [
+          {
+            "description": "The canonical resource name of the gateway, in the form\n`accounts/{account_id}/network-connectivity-configs/{ncc_id}/private-network-gateways/{gateway_id}`.",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "The fields to update.",
+            "in": "query",
+            "name": "update_mask",
+            "required": true,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Updates a private network gateway.",
+        "tags": [
+          "PrivateNetworkGateways"
+        ],
+        "x-databricks-package": "networking",
+        "x-databricks-service": "PrivateNetworkGateways"
+      },
+      "x-databricks-shared-path-operations": [
+        {
+          "description": "Permanently deletes a private network gateway.",
+          "operationId": "private_network_gateways.delete_private_network_gateway",
+          "parameters": [
+            {
+              "description": "The canonical resource name of the gateway.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Permanently deletes a private network gateway.",
+          "tags": [
+            "PrivateNetworkGateways"
+          ],
+          "x-databricks-package": "networking",
+          "x-databricks-service": "PrivateNetworkGateways",
+          "x-databricks-verb": "DELETE"
+        },
+        {
+          "description": "Gets a private network gateway.",
+          "operationId": "private_network_gateways.get_private_network_gateway",
+          "parameters": [
+            {
+              "description": "The canonical resource name of the gateway.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Gets a private network gateway.",
+          "tags": [
+            "PrivateNetworkGateways"
+          ],
+          "x-databricks-package": "networking",
+          "x-databricks-service": "PrivateNetworkGateways",
+          "x-databricks-verb": "GET"
+        },
+        {
+          "description": "Gets the status of a private network gateway create operation.",
+          "operationId": "private_network_gateways.get_private_network_gateway_operation",
+          "parameters": [
+            {
+              "description": "The name of the operation resource.",
+              "in": "path",
+              "name": "name",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "x-databricks-multi-segment": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/networking.Operation"
+                  }
+                }
+              },
+              "description": "Success."
+            },
+            "default": {
+              "$ref": "#/components/responses/Error"
+            }
+          },
+          "summary": "Gets the status of a private network gateway create operation.",
+          "tags": [
+            "PrivateNetworkGateways"
+          ],
+          "x-databricks-package": "networking",
+          "x-databricks-service": "PrivateNetworkGateways",
+          "x-databricks-verb": "GET"
+        }
+      ]
     },
     "/api/networking/v1/{parent}/endpoints": {
       "get": {
@@ -18066,6 +18878,123 @@
         ],
         "x-databricks-package": "networking",
         "x-databricks-service": "Endpoints"
+      }
+    },
+    "/api/networking/v1/{parent}/private-network-gateways": {
+      "get": {
+        "description": "Lists private network gateways under a network connectivity configuration.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "private_network_gateways.list_private_network_gateways",
+        "parameters": [
+          {
+            "description": "The network connectivity configuration containing the gateways.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "An opaque token returned by a previous list request.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/networking.ListPrivateNetworkGatewaysResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists private network gateways under a network connectivity configuration.",
+        "tags": [
+          "PrivateNetworkGateways"
+        ],
+        "x-databricks-package": "networking",
+        "x-databricks-pagination": {
+          "items": "private_network_gateways",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "PrivateNetworkGateways"
+      },
+      "post": {
+        "operationId": "private_network_gateways.create_private_network_gateway",
+        "parameters": [
+          {
+            "description": "The network connectivity configuration that will contain the gateway.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "A unique identifier for this request. The request is idempotent when this\nis provided.",
+            "in": "query",
+            "name": "request_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/networking.Operation"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "tags": [
+          "PrivateNetworkGateways"
+        ],
+        "x-databricks-long-running": {
+          "metadata": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGatewayOperationMetadata"
+          },
+          "poll": "GetPrivateNetworkGatewayOperation",
+          "result": {
+            "$ref": "#/components/schemas/networking.PrivateNetworkGateway"
+          }
+        },
+        "x-databricks-package": "networking",
+        "x-databricks-service": "PrivateNetworkGateways"
       }
     }
   },
@@ -18198,6 +19127,11 @@
       "description": "These APIs manage private access settings for this account.",
       "name": "PrivateAccess",
       "x-databricks-package": "provisioning"
+    },
+    {
+      "description": "These APIs manage private network gateways under network connectivity\nconfigurations.",
+      "name": "PrivateNetworkGateways",
+      "x-databricks-package": "networking"
     },
     {
       "description": "These APIs enable administrators to manage published OAuth app\nintegrations, which is required for adding/using Published OAuth App\nIntegration like Tableau Desktop for Databricks in AWS cloud.",
