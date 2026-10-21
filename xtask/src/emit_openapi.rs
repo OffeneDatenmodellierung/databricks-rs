@@ -79,6 +79,9 @@ fn type_schema(r: &TypeRef, reach: &mut BTreeSet<(String, String)>) -> Value {
         "map" => {
             json!({"type": "object", "additionalProperties": type_schema(r.elem.as_deref().expect("elem"), reach)})
         }
+        "optional" => {
+            json!({"anyOf": [type_schema(r.elem.as_deref().expect("elem"), reach), {"type": "null"}]})
+        }
         "ref" => {
             reach.insert((r.pkg.clone(), r.name.clone()));
             schema_ref(r)

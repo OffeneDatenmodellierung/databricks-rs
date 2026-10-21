@@ -50947,7 +50947,14 @@
             "description": "The `JSON_ARRAY` format is an array of arrays of values, where each\nnon-null value is formatted as a string. Null values are encoded as JSON\n`null`.",
             "items": {
               "items": {
-                "type": "string"
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "type": "array"
             },
@@ -53286,7 +53293,14 @@
             "description": "Data rows returned in the query.",
             "items": {
               "items": {
-                "type": "string"
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "type": "array"
             },
