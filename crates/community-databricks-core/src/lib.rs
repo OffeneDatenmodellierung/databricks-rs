@@ -34,7 +34,7 @@ pub mod wait;
 pub mod open_enum;
 
 pub use config::Config;
-pub use error::{ApiError, Error, ErrorKind, Result};
+pub use error::{ApiError, Error, ErrorKind, Result, TransportError};
 pub use http::ApiClient;
 
 /// Version of this crate, reported in the `User-Agent` header.

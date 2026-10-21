@@ -39,7 +39,7 @@ pub enum Error {
 
     /// The HTTP request could not be sent or the response could not be read.
     #[error("transport: {0}")]
-    Transport(#[from] reqwest::Error),
+    Transport(#[from] TransportError),
 
     /// A streamed request or response body failed part-way.
     #[error("body stream: {0}")]
@@ -71,6 +71,62 @@ pub enum Error {
     /// Local I/O failed (for example reading `~/.databrickscfg`).
     #[error("io: {0}")]
     Io(#[from] std::io::Error),
+}
+
+/// An HTTP transport failure: the request couldn't be sent, or the
+/// response couldn't be read.
+///
+/// The HTTP client's own error type is deliberately not part of the public
+/// API, so the SDK's reqwest version never constrains yours (#36). The
+/// underlying cause (connection, TLS, I/O) is available through
+/// [`source`](std::error::Error::source).
+#[derive(Debug)]
+pub struct TransportError(reqwest::Error);
+
+impl TransportError {
+    /// The request timed out.
+    #[must_use]
+    pub fn is_timeout(&self) -> bool {
+        self.0.is_timeout()
+    }
+
+    /// The connection could not be established.
+    #[must_use]
+    pub fn is_connect(&self) -> bool {
+        self.0.is_connect()
+    }
+
+    /// The HTTP status, when the failure came with a response.
+    #[must_use]
+    pub fn status(&self) -> Option<u16> {
+        self.0.status().map(|s| s.as_u16())
+    }
+
+    /// The URL of the failed request, if known.
+    #[must_use]
+    pub fn url(&self) -> Option<&str> {
+        self.0.url().map(url::Url::as_str)
+    }
+}
+
+impl std::fmt::Display for TransportError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl std::error::Error for TransportError {
+    // Skip the reqwest error itself: Display already shows its message.
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.0.source()
+    }
+}
+
+#[doc(hidden)]
+impl From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Self {
+        Self::Transport(TransportError(e))
+    }
 }
 
 impl Error {
