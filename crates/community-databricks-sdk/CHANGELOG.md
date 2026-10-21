@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-v0.1.1...community-databricks-sdk-v0.1.2) - 2026-10-21
+
+### Fixed
+
+- *(sql,vectorsearch)* keep null cells in ResultData.data_array ([#37](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/37))
+
+### Other
+
+- regenerate from databricks-sdk-go v0.188.0 ([#33](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/33))
+
 ## [0.1.1](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-v0.1.0...community-databricks-sdk-v0.1.1) - 2026-09-27
 
 ### Other
