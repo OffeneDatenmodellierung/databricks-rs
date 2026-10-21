@@ -11905,7 +11905,7 @@ pub struct ResultData {
     /// non-null value is formatted as a string. Null values are encoded as JSON
     /// `null`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub data_array: Vec<Vec<String>>,
+    pub data_array: Vec<Vec<Option<String>>>,
     /// `external_links`
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub external_links: Vec<ExternalLink>,
@@ -11979,7 +11979,7 @@ impl ResultData {
 
     /// Set `data_array`.
     #[must_use]
-    pub fn with_data_array(mut self, value: impl Into<Vec<Vec<String>>>) -> Self {
+    pub fn with_data_array(mut self, value: impl Into<Vec<Vec<Option<String>>>>) -> Self {
         self.data_array = value.into();
         self
     }

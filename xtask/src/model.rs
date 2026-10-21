@@ -141,6 +141,8 @@ pub fn rust_type(r: &TypeRef, from_pkg: &str) -> String {
         "int" | "int64" => "i64".into(),
         "float64" => "f64".into(),
         "list" => format!("Vec<{}>", rust_type(elem(r), from_pkg)),
+        // Only from codegen/ir_patches.json: the IR has no nullable elements.
+        "optional" => format!("Option<{}>", rust_type(elem(r), from_pkg)),
         "map" => format!(
             "::std::collections::BTreeMap<String, {}>",
             rust_type(elem(r), from_pkg)
@@ -154,7 +156,7 @@ pub fn rust_type(r: &TypeRef, from_pkg: &str) -> String {
 }
 
 fn elem(r: &TypeRef) -> &TypeRef {
-    r.elem.as_deref().expect("list/map has elem")
+    r.elem.as_deref().expect("list/map/optional has elem")
 }
 
 /// How a field is represented in Rust.

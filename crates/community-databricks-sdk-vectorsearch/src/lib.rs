@@ -2923,7 +2923,7 @@ impl RerankerConfigRerankerParameters {
 pub struct ResultData {
     /// Data rows returned in the query.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub data_array: Vec<Vec<String>>,
+    pub data_array: Vec<Vec<Option<String>>>,
     /// Number of rows in the result set.
     #[serde(
         deserialize_with = "::community_databricks_core::serde_num::opt_i64",
@@ -2958,7 +2958,7 @@ impl ResultData {
 
     /// Set `data_array`.
     #[must_use]
-    pub fn with_data_array(mut self, value: impl Into<Vec<Vec<String>>>) -> Self {
+    pub fn with_data_array(mut self, value: impl Into<Vec<Vec<Option<String>>>>) -> Self {
         self.data_array = value.into();
         self
     }

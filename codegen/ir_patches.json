@@ -4,6 +4,14 @@
     "sql.TransferOwnershipRequest.object_id": {
       "type": {"kind": "string"},
       "why": "The upstream spec types this path parameter as the struct TransferOwnershipObjectId ({new_owner}); databricks-sdk-go formats that struct into the URL (\"{alice@example.com}\"). The REST API takes the object's ID string, as documented at docs.databricks.com/api/workspace/dbsqlpermissions/transferownership."
+    },
+    "sql.ResultData.data_array": {
+      "type": {"kind": "list", "elem": {"kind": "list", "elem": {"kind": "optional", "elem": {"kind": "string"}}}},
+      "why": "The spec types this array<array<string>>, but its own description says null cells are encoded as JSON null, so any JSON_ARRAY result with a null failed to deserialise (#35). databricks-sdk-go's [][]string silently turns them into \"\"."
+    },
+    "vectorsearch.ResultData.data_array": {
+      "type": {"kind": "list", "elem": {"kind": "list", "elem": {"kind": "optional", "elem": {"kind": "string"}}}},
+      "why": "Same array<array<string>> shape as sql.ResultData.data_array; rows carry source-table column values, which can be null (#35)."
     }
   }
 }
