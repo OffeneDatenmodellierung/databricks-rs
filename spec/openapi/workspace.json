@@ -319,7 +319,7 @@
         "description": "Response containing managed memory entries.",
         "properties": {
           "managed_memory_entries": {
-            "description": "Managed memory entries matching the request and its read mask.",
+            "description": "Managed memory entries matching the request and selected response view.",
             "items": {
               "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
             },
@@ -561,7 +561,7 @@
             "type": "string"
           },
           "read_mask": {
-            "description": "Fields to return in each matching entry, using proto field names such as\n`content` (not `contents`). An omitted or empty mask returns each full\nentry, including `content`; a non-empty mask returns only the requested\nfields. Search scores are always returned.\n\nThe field mask must be a single string, with multiple fields separated by\ncommas (no spaces). The field path is relative to the resource object,\nusing a dot (`.`) to navigate sub-fields (e.g., `author.given_name`).\nSpecification of elements in sequence or map fields is not allowed, as\nonly the entire collection field can be specified. Field names must\nexactly match the resource field names.",
+            "description": "Deprecated. Use `view` for new clients. Fields to return in each entry,\nusing proto field names such as `content` (not `contents`). Search scores\nare always returned.\n\nThe field mask must be a single string, with multiple fields separated by\ncommas (no spaces). The field path is relative to the resource object,\nusing a dot (`.`) to navigate sub-fields (e.g., `author.given_name`).\nSpecification of elements in sequence or map fields is not allowed, as\nonly the entire collection field can be specified. Field names must\nexactly match the resource field names.",
             "example": "name,owner",
             "format": "google-fieldmask",
             "type": "string"
@@ -1332,7 +1332,7 @@
         "type": "object"
       },
       "aisearch.EndpointScalingInfo": {
-        "description": "Scaling information for a Storage Optimized endpoint — current scaling\nstate and the requested QPS target the system is scaling toward.",
+        "description": "Scaling information for a Standard endpoint: the current scaling state, the\nrequested QPS target, and the progress of an in-progress scaling change.",
         "properties": {
           "requested_target_qps": {
             "description": "The requested QPS target for the endpoint. Best-effort; the system does\nnot guarantee this QPS will be achieved.",
@@ -1804,7 +1804,7 @@
         "type": "object"
       },
       "aisearch.ScalingChangeState": {
-        "description": "State of the most recent scaling change request for a Storage Optimized\nendpoint.",
+        "description": "State of the most recent scaling change request for a Standard endpoint.",
         "enum": [
           "SCALING_CHANGE_APPLIED",
           "SCALING_CHANGE_IN_PROGRESS",
@@ -2402,6 +2402,7 @@
         "enum": [
           "CONNECTION",
           "FUNCTION",
+          "MODEL_SERVICE",
           "TABLE",
           "VOLUME"
         ],
@@ -2775,6 +2776,7 @@
         "enum": [
           "CONNECTION",
           "FUNCTION",
+          "MODEL_SERVICE",
           "TABLE",
           "VOLUME"
         ],
@@ -3776,12 +3778,12 @@
             "type": "integer"
           },
           "state": {
-            "description": "Serialized local config state after the operation. Its presence records\nwhether the resource still exists, so an operation that records no state\nremoves its resource from the deployment. It may be unset only for an\noperation that left no resource behind: a `DELETE` that succeeded, or a\n`CREATE` or `RECREATE` that failed. It is required otherwise, including\nfor a failed `DELETE`, whose resource survives.\n\nMutable: may be updated after creation via UpdateOperation. When\nupdating, the caller must echo the last-observed `sequence_id` as a\nconcurrency precondition.\n\nOpaque to this service: the string is stored and returned unchanged. This\nis deliberately not google.protobuf.Value, whose only numeric case is\n`double number_value`, so parsing the client's JSON into it rewrites\nevery integer as a double - `1` reads back as `1.0`, which no longer\ndeserializes into an integer field - and silently loses precision above\n2^53, which is within range for IDs the client records.\n\nA string rather than bytes: the payload is always UTF-8 JSON, and proto3\nJSON maps bytes to base64, which inflates every request and response by a\nthird and makes state unreadable in logs and API responses. Both generate\nthe same OpenAPI schema (\"type\": \"string\"), so the SDKs are identical\neither way.",
+            "description": "Serialized local config state after the operation. Its presence records\nwhether the resource still exists. Explicitly clearing state removes the\nresource; omitting it from the update mask leaves resource state\nunchanged. State is stored only on Resources. UpdateOperation accepts\nstate but omits it from its response, as do subsequent GetOperation and\nListOperations.\n\nMutable: may be updated after creation via UpdateOperation. When\nupdating, the caller must echo the last-observed `sequence_id` as a\nconcurrency precondition.\n\nThe string is not parsed; it is projected onto the corresponding\nResource's state. It is deliberately not google.protobuf.Value, whose\nonly numeric case is `double number_value`, so parsing the client's JSON\ninto it rewrites every integer as a double - `1` reads back as `1.0`,\nwhich no longer deserializes into an integer field - and silently loses\nprecision above 2^53, which is within range for IDs the client records.\n\nA string rather than bytes: the payload is always UTF-8 JSON, and proto3\nJSON maps bytes to base64, which inflates every request and response by a\nthird and makes state unreadable in logs and API responses. Both generate\nthe same OpenAPI schema (\"type\": \"string\"), so the SDKs are identical\neither way.",
             "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/bundledeployments.OperationStatus",
-            "description": "Status of the operation. Starts as OPERATION_STATUS_PENDING when the\nversion is created and moves to a terminal status once the resource is\napplied. Mutable: updated via UpdateOperation, e.g. when an operation\nrecorded as failed is retried and eventually succeeds. A succeeded\noperation cannot carry an `error_message`."
+            "description": "Status of the operation. Starts as OPERATION_STATUS_PENDING when the\nversion is created and moves to a terminal status once the resource is\napplied. Mutable: updated via UpdateOperation, e.g. when an operation\nrecorded as failed is retried and eventually succeeds."
           },
           "update_time": {
             "description": "When the operation was last updated. Set to `create_time` when the\noperation is created and to the server timestamp on each successful\nUpdateOperation.",
@@ -7965,6 +7967,9 @@
           "azure_openai": {
             "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigAzureOpenAiProviderConfig"
           },
+          "bedrock_mantle": {
+            "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigAmazonBedrockProviderConfig"
+          },
           "custom": {
             "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigCustomProviderConfig"
           },
@@ -7992,6 +7997,10 @@
           },
           "openai": {
             "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigOpenAiProviderConfig"
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigProviderPricingConfig",
+            "description": "Pricing configuration for this provider service. An explicitly empty\nconfiguration is retained on Create and Update and applies no adjustment."
           },
           "provider_type": {
             "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigExternalModelProviderType",
@@ -8183,6 +8192,7 @@
           "EXTERNAL_MODEL_PROVIDER_TYPE_AMAZON_BEDROCK",
           "EXTERNAL_MODEL_PROVIDER_TYPE_ANTHROPIC",
           "EXTERNAL_MODEL_PROVIDER_TYPE_AZURE_OPENAI",
+          "EXTERNAL_MODEL_PROVIDER_TYPE_BEDROCK_MANTLE",
           "EXTERNAL_MODEL_PROVIDER_TYPE_CUSTOM",
           "EXTERNAL_MODEL_PROVIDER_TYPE_GEMINI_ENTERPRISE",
           "EXTERNAL_MODEL_PROVIDER_TYPE_MICROSOFT_FOUNDRY",
@@ -8302,6 +8312,17 @@
           "organization": {
             "description": "Optional OpenAI organization ID. When set, the platform forwards it as\nthe `OpenAI-Organization` header.",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "catalog.ModelProviderServiceConfigProviderPricingConfig": {
+        "description": "Pricing adjustments applied to this provider service's external-model spend\nestimates.",
+        "properties": {
+          "default_discount_basis_points": {
+            "description": "Provider-wide adjustment to external-model spend estimates in basis\npoints: 2000 = 20% off; -2000 = a 20% markup. Negative values have no\nlower bound beyond the int32 range. Values cannot exceed 10000 (100%\noff). An omitted value or zero leaves the estimate unchanged.",
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -31308,7 +31329,7 @@
         "type": "object"
       },
       "ml.DirectMtlsConfig": {
-        "description": "Direct connection configs for mTLS, as Kafka Connections do not support mTLS\nyet . Temporarily used until UC Kafka Connections gain mTLS support.",
+        "description": "Direct connection configs for mTLS, as Kafka Connections do not support mTLS\nyet.",
         "properties": {
           "bootstrap_servers": {
             "description": "A comma-separated list of host:port pairs for the Kafka bootstrap\nservers.",
@@ -31648,7 +31669,7 @@
             "type": "string"
           },
           "full_name": {
-            "description": "The full three-part name (catalog, schema, name) of the feature. This is\nthe feature's resource identifier; the catalog_name, schema_name, and\nname fields below are OUTPUT_ONLY decomposed views of this value.",
+            "description": "The full three-part name (catalog, schema, name) of the feature.",
             "type": "string"
           },
           "function": {
@@ -33558,7 +33579,7 @@
         "type": "object"
       },
       "ml.MtlsConfig": {
-        "description": "Mutual-TLS (mTLS) authentication configuration. The keystore (client\ncertificate + private key) and truststore (CAs trusted to verify the broker)\nlive as JKS files on Unity Catalog volumes, with their passwords stored in\nDatabricks secret scopes. This matches the SSL setup pattern documented at\nhttps://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.\n\nAt materialization time, the generated PySpark code passes the JKS file paths\nand resolved passwords through to the Kafka SSL options\n(kafka.ssl.keystore.location, kafka.ssl.keystore.password,\nkafka.ssl.key.password, kafka.ssl.truststore.location,\nkafka.ssl.truststore.password). Passwords are resolved on the Spark cluster\nvia dbutils.secrets.get; this message stores only references, never password\nvalues.",
+        "description": "Mutual-TLS (mTLS) authentication configuration. The keystore (client\ncertificate + private key) and truststore (CAs trusted to verify the broker)\nlive as JKS files on Unity Catalog volumes, with their passwords stored in\nDatabricks secret scopes. This matches the SSL setup pattern documented at\nhttps://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.",
         "properties": {
           "disable_hostname_verification": {
             "description": "Set to true only when the broker certificate's SAN intentionally does not\nmatch the connection endpoint — for example when reaching the cluster\nthrough a PrivateLink endpoint whose DNS name is not in the broker\ncertificate. Skipping the hostname check removes a defense against\nman-in-the-middle attacks; do not enable casually. mTLS client\nauthentication is unaffected by this option.\n\nSee the Apache Kafka SSL security guide for background on this check:\nhttps://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/#host-name-verification",
@@ -34801,7 +34822,7 @@
         "type": "object"
       },
       "ml.SecretScopeReference": {
-        "description": "Reference to an entry in a Databricks secret scope. The referenced value is\nfetched on the Spark cluster at materialization time via\ndbutils.secrets.get(scope, key).",
+        "description": "Reference to an entry in a Databricks secret scope.",
         "properties": {
           "key": {
             "description": "The key within the scope.",
@@ -35007,7 +35028,7 @@
         "type": "object"
       },
       "ml.Stream": {
-        "description": "A Stream is a governed UC entity representing an external streaming data\nsource. The source_config oneof determines the streaming platform source\n(e.g. Kafka, Kinesis, etc.).",
+        "description": "A Stream is a governed UC entity representing an external streaming data\nsource. The source_config field determines the streaming platform source\n(e.g. Kafka, Kinesis).",
         "properties": {
           "browse_only": {
             "description": "Indicates whether the principal is limited to retrieving metadata for the\nassociated object through the BROWSE privilege when include_browse is\nenabled in the request.",
@@ -35094,7 +35115,7 @@
         "properties": {
           "direct_mtls_config": {
             "$ref": "#/components/schemas/ml.DirectMtlsConfig",
-            "description": "Direct mTLS configuration for stream platform access. This is only used\nin the short term until UC Kafka Connections support mTLS . Once UC Kafka\nConnections support mTLS, this will be deprecated."
+            "description": "Direct mTLS configuration for stream platform access."
           },
           "uc_connection_name": {
             "description": "Name of an existing UC Connection for stream platform access. Must be the\ncorrect type for the streaming platform (e.g. a Kafka Connection for a\nKafka Stream, or a Kinesis Connection for a Kinesis Stream).",
@@ -35830,7 +35851,7 @@
             "description": "The type of clone to perform. Currently, only deep copies are supported"
           },
           "clusters": {
-            "description": "Cluster settings for this pipeline deployment.",
+            "description": "Cluster settings for this pipeline deployment. Applies to classic\n(non-serverless) pipelines. Omit this field when `serverless` is `true`.",
             "items": {
               "$ref": "#/components/schemas/pipelines.PipelineCluster"
             },
@@ -35927,7 +35948,7 @@
             "type": "string"
           },
           "serverless": {
-            "description": "Whether serverless compute is enabled for this pipeline.",
+            "description": "Whether serverless compute is enabled for this pipeline. Serverless is\nthe recommended compute for new pipelines; set this to `true` to run the\npipeline on serverless. For notebook/file pipelines, omitting this field\nuses classic compute configured through the `clusters` field. When\n`true`, omit `clusters`; Photon is always enabled.",
             "type": "boolean"
           },
           "serverless_compute_id": {
@@ -36082,7 +36103,7 @@
             "type": "string"
           },
           "clusters": {
-            "description": "Cluster settings for this pipeline deployment.",
+            "description": "Cluster settings for this pipeline deployment. Applies to classic\n(non-serverless) pipelines. Omit this field when `serverless` is `true`.",
             "items": {
               "$ref": "#/components/schemas/pipelines.PipelineCluster"
             },
@@ -36187,7 +36208,7 @@
             "type": "string"
           },
           "serverless": {
-            "description": "Whether serverless compute is enabled for this pipeline.",
+            "description": "Whether serverless compute is enabled for this pipeline. Serverless is\nthe recommended compute for new pipelines; set this to `true` to run the\npipeline on serverless. For notebook/file pipelines, omitting this field\nuses classic compute configured through the `clusters` field. When\n`true`, omit `clusters`; Photon is always enabled.",
             "type": "boolean"
           },
           "serverless_compute_id": {
@@ -36319,7 +36340,7 @@
             "type": "string"
           },
           "clusters": {
-            "description": "Cluster settings for this pipeline deployment.",
+            "description": "Cluster settings for this pipeline deployment. Applies to classic\n(non-serverless) pipelines. Omit this field when `serverless` is `true`.",
             "items": {
               "$ref": "#/components/schemas/pipelines.PipelineCluster"
             },
@@ -36426,7 +36447,7 @@
             "type": "string"
           },
           "serverless": {
-            "description": "Whether serverless compute is enabled for this pipeline.",
+            "description": "Whether serverless compute is enabled for this pipeline. Serverless is\nthe recommended compute for new pipelines; set this to `true` to run the\npipeline on serverless. For notebook/file pipelines, omitting this field\nuses classic compute configured through the `clusters` field. When\n`true`, omit `clusters`; Photon is always enabled.",
             "type": "boolean"
           },
           "serverless_compute_id": {
@@ -37957,7 +37978,7 @@
             "type": "string"
           },
           "clusters": {
-            "description": "Cluster settings for this pipeline deployment.",
+            "description": "Cluster settings for this pipeline deployment. Applies to classic\n(non-serverless) pipelines. Omit this field when `serverless` is `true`.",
             "items": {
               "$ref": "#/components/schemas/pipelines.PipelineCluster"
             },
@@ -38049,7 +38070,7 @@
             "type": "string"
           },
           "serverless": {
-            "description": "Whether serverless compute is enabled for this pipeline.",
+            "description": "Whether serverless compute is enabled for this pipeline. Serverless is\nthe recommended compute for new pipelines; set this to `true` to run the\npipeline on serverless. For notebook/file pipelines, omitting this field\nuses classic compute configured through the `clusters` field. When\n`true`, omit `clusters`; Photon is always enabled.",
             "type": "boolean"
           },
           "serverless_compute_id": {
@@ -44044,6 +44065,12 @@
       },
       "settings.Config": {
         "properties": {
+          "databricks_app_slack": {
+            "$ref": "#/components/schemas/settings.DatabricksAppSlackConfig"
+          },
+          "databricks_app_teams": {
+            "$ref": "#/components/schemas/settings.DatabricksAppTeamsConfig"
+          },
           "email": {
             "$ref": "#/components/schemas/settings.EmailConfig"
           },
@@ -44207,6 +44234,58 @@
         "required": [
           "boolean_val"
         ],
+        "type": "object"
+      },
+      "settings.DatabricksAppSlackConfig": {
+        "description": "Slack channel reached through the Databricks app. The app must already be\ninstalled in the Slack workspace and connected to this Databricks workspace.",
+        "properties": {
+          "channel_id": {
+            "description": "[Input-Only] Slack channel ID notifications are posted to.",
+            "type": "string"
+          },
+          "channel_id_set": {
+            "description": "[Output-Only] Whether channel ID is set.",
+            "type": "boolean"
+          },
+          "team_id": {
+            "description": "[Input-Only] Slack workspace (team) ID the Databricks app is installed\nin.",
+            "type": "string"
+          },
+          "team_id_set": {
+            "description": "[Output-Only] Whether team ID is set.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "settings.DatabricksAppTeamsConfig": {
+        "description": "Microsoft Teams channel reached through the Databricks app. The app must\nalready be installed in the Microsoft 365 tenant and connected to this\nDatabricks workspace.",
+        "properties": {
+          "channel_id": {
+            "description": "[Input-Only] Teams channel ID notifications are posted to.",
+            "type": "string"
+          },
+          "channel_id_set": {
+            "description": "[Output-Only] Whether channel ID is set.",
+            "type": "boolean"
+          },
+          "team_id": {
+            "description": "[Input-Only] Microsoft Entra group ID of the team that owns the channel.",
+            "type": "string"
+          },
+          "team_id_set": {
+            "description": "[Output-Only] Whether team ID is set.",
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "description": "[Input-Only] Microsoft Entra tenant ID of the Microsoft 365 tenant the\napp is installed in.",
+            "type": "string"
+          },
+          "tenant_id_set": {
+            "description": "[Output-Only] Whether tenant ID is set.",
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "settings.DefaultNamespaceSetting": {
@@ -44380,6 +44459,8 @@
       },
       "settings.DestinationType": {
         "enum": [
+          "DATABRICKS_APP_SLACK",
+          "DATABRICKS_APP_TEAMS",
           "EMAIL",
           "MICROSOFT_TEAMS",
           "PAGERDUTY",
@@ -52770,6 +52851,7 @@
         "type": "object"
       },
       "vectorsearch.EndpointScalingInfo": {
+        "description": "Scaling information for a Standard endpoint: the current scaling state, the\nrequested QPS target, and the progress of an in-progress scaling change.",
         "properties": {
           "requested_target_qps": {
             "description": "The requested QPS target for the endpoint. Best-effort; the system does\nnot guarantee this QPS will be achieved.",
@@ -54756,15 +54838,15 @@
     }
   },
   "info": {
-    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.187.0 — itself generated from Databricks' OpenAPI spec `325b3ae5c9d20d79a138802b02dc31ad9cd61b5d`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
+    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.188.0 — itself generated from Databricks' OpenAPI spec `bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
     "license": {
       "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "Databricks Workspace API",
-    "version": "0.187.0",
-    "x-databricks-go-sdk-version": "v0.187.0",
-    "x-databricks-openapi-sha": "325b3ae5c9d20d79a138802b02dc31ad9cd61b5d"
+    "version": "0.188.0",
+    "x-databricks-go-sdk-version": "v0.188.0",
+    "x-databricks-openapi-sha": "bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -55634,7 +55716,7 @@
         "x-databricks-workspace-header": true
       },
       "get": {
-        "description": "Retrieves a managed memory entry, including its content, by resource name.\nReturns `NOT_FOUND` when the entry does not exist in the caller's workspace.",
+        "description": "Retrieves a managed memory entry by resource name. `view` controls whether\nthe response includes memory content. Returns `NOT_FOUND` when the entry does\nnot exist in the caller's workspace.",
         "operationId": "agent_kit.get_memory",
         "parameters": [
           {
@@ -55648,7 +55730,7 @@
             "x-databricks-multi-segment": true
           },
           {
-            "description": "Fields to return, using proto field names such as `content` (not\n`contents`). An omitted or empty mask returns the full entry, including\n`content`; a non-empty mask returns only the requested fields.",
+            "description": "Deprecated. Use `view` for new clients. Fields to return, using proto\nfield names such as `content` (not `contents`). An omitted or empty mask\nreturns the full entry.",
             "in": "query",
             "name": "read_mask",
             "required": false,
@@ -55674,7 +55756,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Retrieves a managed memory entry, including its content, by resource name.",
+        "summary": "Retrieves a managed memory entry by resource name. `view` controls whether",
         "tags": [
           "AgentKit"
         ],
@@ -55956,7 +56038,7 @@
           "x-databricks-workspace-header": true
         },
         {
-          "description": "Updates a managed memory store's description.",
+          "description": "Updates a managed memory store's description and metadata.",
           "operationId": "agent_kit.update_memory_store",
           "parameters": [
             {
@@ -55970,7 +56052,7 @@
               "x-databricks-multi-segment": true
             },
             {
-              "description": "Only `description` may be updated.",
+              "description": "Only `description` and `metadata` may be updated. Selecting `metadata`\nreplaces the entire map.",
               "in": "query",
               "name": "update_mask",
               "required": true,
@@ -56006,7 +56088,7 @@
               "$ref": "#/components/responses/Error"
             }
           },
-          "summary": "Updates a managed memory store's description.",
+          "summary": "Updates a managed memory store's description and metadata.",
           "tags": [
             "AgentKit"
           ],
@@ -56139,7 +56221,7 @@
     },
     "/api/2.0/agents/{parent}/entries": {
       "get": {
-        "description": "Lists managed memory entries for one actor. An exact `path` filters entries\nacross sessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `read_mask` selects fields in\neach returned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Lists managed memory entries for one actor. An exact `path` filters entries\nacross sessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `view` controls whether each\nreturned entry includes memory content.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "agent_kit.list_memories",
         "parameters": [
           {
@@ -56190,7 +56272,7 @@
             }
           },
           {
-            "description": "Fields to return in each entry, using proto field names such as `content`\n(not `contents`). An omitted or empty mask returns each full entry,\nincluding `content`; a non-empty mask returns only the requested fields.",
+            "description": "Deprecated. Use `view` for new clients. Fields to return in each entry,\nusing proto field names such as `content` (not `contents`). An omitted or\nempty mask returns full entries.",
             "in": "query",
             "name": "read_mask",
             "required": false,
@@ -56299,7 +56381,7 @@
     },
     "/api/2.0/agents/{parent}/entries:search": {
       "post": {
-        "description": "Searches managed memory entries by text query for one actor. Returns matching\nentries and scores ranked by relevance; `read_mask` selects fields in each\nreturned entry.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Searches managed memory entries by text query for one actor. Returns matching\nentries and scores ranked by relevance; `view` controls whether each returned\nentry includes content.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "agent_kit.search_memories",
         "parameters": [
           {
@@ -64235,7 +64317,7 @@
         "operationId": "feature_engineering.update_feature",
         "parameters": [
           {
-            "description": "The full three-part name (catalog, schema, name) of the feature. This is\nthe feature's resource identifier; the catalog_name, schema_name, and\nname fields below are OUTPUT_ONLY decomposed views of this value.",
+            "description": "The full three-part name (catalog, schema, name) of the feature.",
             "in": "path",
             "name": "full_name",
             "required": true,
@@ -68491,7 +68573,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates an existing group in the Databricks account that parents the calling\nworkspace. Only the fields named in the update mask are modified. Returns the\nupdated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider.",
+        "description": "Updates an existing group in the Databricks account that parents the calling\nworkspace. Only the fields named in the update mask are modified. Returns the\nupdated Group resource.\n\nWhen AIM is enabled and the group is an external identity (its external_id is\nset), only external_id can be updated; its other fields are sourced from your\nidentity provider. With AIM and group visibility filters, a new nonempty\nexternal_id must identify a visible group. Clearing external_id is allowed.",
         "operationId": "workspace_iam_v2.update_group_proxy",
         "parameters": [
           {
@@ -98340,7 +98422,7 @@
         "operationId": "ai_gateway.list_mcp_services",
         "parameters": [
           {
-            "description": "Maximum number of MCP services to return. Defaults to 100 when unset or\n0; the maximum is 100. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of MCP services to return. Defaults to 100 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -99021,7 +99103,7 @@
         "operationId": "ai_gateway.list_model_provider_services",
         "parameters": [
           {
-            "description": "Maximum number of provider services to return. Defaults to 100 when unset\nor 0; the maximum is 100. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of provider services to return. Defaults to 100 when unset\nor 0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -99249,7 +99331,7 @@
             }
           },
           {
-            "description": "Fields to update. Use `config` to replace the entire configuration. The\nreplacement must include every required field; any optional field you\nomit is cleared. To preserve sibling fields, use one or more granular\npaths: `comment`; `config.provider` to replace the active\nprovider-specific value (for example, `config.openai`; the mask path\nremains `config.provider`); `config.allow_all_targets`, `config.targets`,\n`config.forward_headers`, `config.forward_query_parameters`,\n`config.forward_unmanaged_paths`, `config.rate_limits`, or\n`config.inference_table`. The provider type is immutable. A `config` or\n`config.provider` replacement that carries no authentication material\npreserves the existing authentication binding; input-only plaintext does\nnot need to be read back and re-sent.",
+            "description": "Fields to update. Use `config` to replace the entire configuration. The\nreplacement must include every required field; any optional field you\nomit is cleared. To preserve sibling fields, use one or more granular\npaths: `comment`; `config.provider` to replace the active\nprovider-specific value (for example, `config.openai`; the mask path\nremains `config.provider`); `config.allow_all_targets`, `config.targets`,\n`config.forward_headers`, `config.forward_query_parameters`,\n`config.forward_unmanaged_paths`, `config.rate_limits`,\n`config.pricing.default_discount_basis_points`, or\n`config.inference_table`. For a pricing update, an explicitly empty\n`pricing` object clears the discount but retains the object; omitting\n`pricing` clears it. `config.pricing` is not a supported mask path. The\nprovider type is immutable. A `config` or `config.provider` replacement\nthat carries no authentication material preserves the existing\nauthentication binding; input-only plaintext does not need to be read\nback and re-sent.",
             "in": "query",
             "name": "update_mask",
             "required": true,
@@ -99304,7 +99386,7 @@
         "operationId": "ai_gateway.list_model_services",
         "parameters": [
           {
-            "description": "Maximum number of model services to return. Defaults to 100 when unset or\n0; the maximum is 100. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of model services to return. Defaults to 100 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -102343,7 +102425,7 @@
         "operationId": "ai_gateway.list_skills",
         "parameters": [
           {
-            "description": "Maximum number of skills to return. Defaults to 100 when unset or 0; the\nmaximum is 100. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of skills to return. Defaults to 100 when unset or 0; the\nmaximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,

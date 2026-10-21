@@ -2,9 +2,9 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.187.0 (OpenAPI `325b3ae5c9d20d79a138802b02dc31ad9cd61b5d`).
+Source: databricks-sdk-go v0.188.0 (OpenAPI `bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c`).
 
-- 40 packages, 193 services, 1313 operations (1313 generated), 3653 types.
+- 40 packages, 193 services, 1313 operations (1313 generated), 3656 types.
 
 ## Not generated (binary or streaming payloads)
 
