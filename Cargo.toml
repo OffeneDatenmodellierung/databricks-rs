@@ -15,7 +15,7 @@ categories = ["api-bindings", "asynchronous"]
 # Versions: newest non-yanked release published more than 48h before
 # 2026-09-25 (house rule). See the "Dependency policy" section of README.md.
 [workspace.dependencies]
-community-databricks-core = { path = "crates/community-databricks-core", version = "0.1.1" }
+community-databricks-core = { path = "crates/community-databricks-core", version = "0.2.0" }
 # The generated service crates, one per package (`cargo xtask codegen`).
 # BEGIN GENERATED WORKSPACE CRATES
 community-databricks-sdk-agentbricks = { path = "crates/community-databricks-sdk-agentbricks", version = "0.1.2" }
