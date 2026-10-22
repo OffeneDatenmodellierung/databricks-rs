@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-core-v0.1.1...community-databricks-core-v0.2.0) - 2026-10-22
+
+### Fixed
+
+- *(core)* [**breaking**] SDK-owned TransportError instead of reqwest::Error ([#40](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/40))
+
 ## [0.1.1](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-core-v0.1.0...community-databricks-core-v0.1.1) - 2026-09-27
 
 ### Other
