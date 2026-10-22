@@ -12,7 +12,7 @@ skipped, so a run that stops part-way can simply be started again.
 
     publish_new_crates.py                 publish what is missing
     publish_new_crates.py --dry-run       show the plan
-    publish_new_crates.py --check         exit 1 if any crate is missing
+    publish_new_crates.py --check         exit 1 if any crate has never been published
     publish_new_crates.py --max-minutes N stop cleanly after N minutes
 
 With --max-minutes the script stops before starting a wait that would run
@@ -87,8 +87,10 @@ def publish_order(packages: list[dict]) -> list[dict]:
     return [by_name[n] for n in order]
 
 
-def on_crates_io(name: str, version: str) -> bool:
-    req = urllib.request.Request(f"{CRATES_IO}/{name}/{version}", headers={"User-Agent": USER_AGENT})
+def on_crates_io(name: str, version: str | None = None) -> bool:
+    """Whether `name` (at `version`, if given) is on crates.io."""
+    url = f"{CRATES_IO}/{name}" + (f"/{version}" if version else "")
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return r.status == 200
@@ -131,14 +133,19 @@ def main(argv: list[str]) -> int:
 
     deadline = time.monotonic() + args.max_minutes * 60 if args.max_minutes else None
     packages = [p for p in publish_order(workspace_packages()) if publishable(p)]
+    if args.check:
+        # The release job's guard: new *versions* are release-plz's job, so
+        # only a crate that was never published at all blocks it.
+        new = [p["name"] for p in packages if not on_crates_io(p["name"])]
+        for name in new:
+            print(f"  new      {name}")
+        print(f"{len(new)} of {len(packages)} crates never published")
+        return 1 if new else 0
     missing = [p for p in packages if not on_crates_io(p["name"], p["version"])]
 
     for p in packages:
         mark = "publish" if p in missing else "present"
         print(f"  {mark:8} {p['name']} {p['version']}")
-    if args.check:
-        print(f"{len(missing)} of {len(packages)} crates not on crates.io")
-        return 1 if missing else 0
     if args.dry_run:
         write_output(len(missing))
         return 0
