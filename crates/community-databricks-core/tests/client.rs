@@ -633,3 +633,35 @@ fn path_param_escaping_by_segment_type() {
     assert_eq!(path_param("/a//b/", true), "/a//b/");
     assert_eq!(path_param("", false), "");
 }
+
+/// #36: transport failures come back as the SDK's own `TransportError`,
+/// not the HTTP client's error type.
+#[tokio::test]
+async fn connection_failures_are_sdk_transport_errors() {
+    // A port nothing listens on.
+    let port = std::net::TcpListener::bind("127.0.0.1:0")
+        .unwrap()
+        .local_addr()
+        .unwrap()
+        .port();
+    let mut c = Config::with_host(format!("http://127.0.0.1:{port}")).token("t");
+    c.host_metadata = Some(HostMetadata::default());
+    c.retry_timeout_seconds = Some(1);
+    let api = client(c).await;
+    let err = api
+        .query::<_, Value>(Method::GET, "/api/me", &())
+        .await
+        .unwrap_err();
+    let Error::Transport(t) = &err else {
+        panic!("expected a transport error, got {err:?}");
+    };
+    assert!(t.is_connect(), "{t}");
+    assert!(!t.is_timeout());
+    assert_eq!(t.status(), None);
+    assert!(
+        t.url().is_some_and(|u| u.ends_with("/api/me")),
+        "{:?}",
+        t.url()
+    );
+    assert!(err.to_string().starts_with("transport: "), "{err}");
+}
