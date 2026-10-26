@@ -246,7 +246,7 @@
             "type": "string"
           },
           "memory_store": {
-            "description": "Managed memory store the extracted entries are written to, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "description": "Memory store the extracted entries are written to, in the form\n`memory-stores/{managed_memory_store_id}`.",
             "type": "string"
           }
         },
@@ -316,10 +316,10 @@
         "type": "object"
       },
       "agentkit.ListManagedMemoryEntriesResponse": {
-        "description": "Response containing managed memory entries.",
+        "description": "Response containing memory entries.",
         "properties": {
           "managed_memory_entries": {
-            "description": "Managed memory entries matching the request and selected response view.",
+            "description": "Memory entries matching the request and selected response view.",
             "items": {
               "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry"
             },
@@ -333,10 +333,10 @@
         "type": "object"
       },
       "agentkit.ListManagedMemoryStoresResponse": {
-        "description": "Response containing managed memory stores in the caller's workspace.",
+        "description": "Response containing memory stores in the caller's workspace.",
         "properties": {
           "managed_memory_stores": {
-            "description": "Managed memory stores in the caller's workspace.",
+            "description": "Memory stores in the caller's workspace.",
             "items": {
               "$ref": "#/components/schemas/agentkit.ManagedMemoryStore"
             },
@@ -401,7 +401,7 @@
         "type": "object"
       },
       "agentkit.ManagedMemoryEntry": {
-        "description": "A workspace-scoped entry in a managed memory store.",
+        "description": "A workspace-scoped entry in a memory store.",
         "properties": {
           "actor_id": {
             "description": "Customer-provided identifier for the actor whose memory this entry\nrepresents.",
@@ -449,11 +449,11 @@
         "type": "object"
       },
       "agentkit.ManagedMemoryEntrySearchResult": {
-        "description": "One relevance-ranked managed memory search result.",
+        "description": "One relevance-ranked memory search result.",
         "properties": {
           "managed_memory_entry": {
             "$ref": "#/components/schemas/agentkit.ManagedMemoryEntry",
-            "description": "Managed memory entry matching the query."
+            "description": "Memory entry matching the query."
           },
           "score": {
             "description": "Relevance score for the result. Higher scores are more relevant.",
@@ -464,15 +464,23 @@
         "type": "object"
       },
       "agentkit.ManagedMemoryEntrySourceType": {
-        "description": "Identifies the source that created a managed memory entry.",
+        "description": "Identifies the source that created a memory entry.",
         "enum": [
           "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_AGENT",
           "MANAGED_MEMORY_ENTRY_SOURCE_TYPE_DREAMER"
         ],
         "type": "string"
       },
+      "agentkit.ManagedMemoryEntryView": {
+        "description": "Controls how much memory entry data is returned.",
+        "enum": [
+          "MANAGED_MEMORY_ENTRY_VIEW_BASIC",
+          "MANAGED_MEMORY_ENTRY_VIEW_FULL"
+        ],
+        "type": "string"
+      },
       "agentkit.ManagedMemoryStore": {
-        "description": "A workspace-scoped managed memory store backed by service-managed storage.",
+        "description": "A workspace-scoped memory store backed by service-managed storage.",
         "properties": {
           "create_time": {
             "description": "Time when the store was created.",
@@ -488,7 +496,7 @@
             "type": "string"
           },
           "display_name": {
-            "description": "Deprecated compatibility alias for the caller-provided managed memory\nstore ID. Canonical clients provide the ID through\n`CreateMemoryStoreRequest.managed_memory_store_id` and use `name` as the\nresource identifier.",
+            "description": "Deprecated compatibility alias for the caller-provided memory store ID.\nCanonical clients provide the ID through\n`CreateMemoryStoreRequest.managed_memory_store_id` and use `name` as the\nresource identifier.",
             "type": "string"
           },
           "name": {
@@ -532,7 +540,7 @@
         "type": "object"
       },
       "agentkit.SearchManagedMemoryEntriesRequest": {
-        "description": "Request to search managed memory entries by text query for one actor. Search\nreturns a relevance-ranked top-N result set and does not currently paginate.",
+        "description": "Request to search memory entries by text query for one actor. Search returns\na relevance-ranked top-N result set and does not currently paginate.",
         "properties": {
           "actor_id": {
             "description": "Customer-provided identifier for the actor whose entries are searched.",
@@ -560,15 +568,13 @@
             "description": "Free-form search query.",
             "type": "string"
           },
-          "read_mask": {
-            "description": "Deprecated. Use `view` for new clients. Fields to return in each entry,\nusing proto field names such as `content` (not `contents`). Search scores\nare always returned.\n\nThe field mask must be a single string, with multiple fields separated by\ncommas (no spaces). The field path is relative to the resource object,\nusing a dot (`.`) to navigate sub-fields (e.g., `author.given_name`).\nSpecification of elements in sequence or map fields is not allowed, as\nonly the entire collection field can be specified. Field names must\nexactly match the resource field names.",
-            "example": "name,owner",
-            "format": "google-fieldmask",
-            "type": "string"
-          },
           "session_id": {
             "description": "Optional session identifier. When set, only entries with this exact\n`session_id` are searched. Omitted-session (cross-session) entries are\nnot included.",
             "type": "string"
+          },
+          "view": {
+            "$ref": "#/components/schemas/agentkit.ManagedMemoryEntryView",
+            "description": "Controls whether each returned entry includes memory content. Search\nscores are always returned. Defaults to `FULL`."
           }
         },
         "required": [
@@ -578,7 +584,7 @@
         "type": "object"
       },
       "agentkit.SearchManagedMemoryEntriesResponse": {
-        "description": "Response containing managed memory entries ranked by relevance.",
+        "description": "Response containing memory entries ranked by relevance.",
         "properties": {
           "managed_memory_entries": {
             "description": "Deprecated compatibility alias for clients migrating to `results`. This\ncontains the same entries in the same order, but omits their relevance\nscores.",
@@ -709,7 +715,7 @@
         "type": "object"
       },
       "agentkit.StorageBackend": {
-        "description": "Service-managed storage backing a managed memory store.",
+        "description": "Service-managed storage backing a memory store.",
         "properties": {
           "backend_id": {
             "description": "Backend-specific identifier. For Lakebase, this is the project ID.",
@@ -723,7 +729,7 @@
         "type": "object"
       },
       "agentkit.StorageBackendType": {
-        "description": "Type of service-managed storage backing a managed memory store.",
+        "description": "Type of service-managed storage backing a memory store.",
         "enum": [
           "STORAGE_BACKEND_TYPE_LAKEBASE"
         ],
@@ -1036,7 +1042,7 @@
       "aifunctions.AiParseDocumentRequest": {
         "properties": {
           "content": {
-            "description": "The document to parse, given as a Unity Catalog volume path to the source\nfile (the REST API accepts only a UC volume path, not inline binary\ndata). Supported formats: PDF, DOCX, DOC, PPTX, PPT, JPG, JPEG, PNG,\nTIFF. Accepts up to 100 pages and 100 MB per document.",
+            "description": "The document to parse. The REST API accepts a Unity Catalog volume path\nto the source file or a base64 data URL containing the file bytes (for\nexample, data:application/pdf;base64,<encoded-file-bytes> or\ndata:image/jpeg;base64,<encoded-file-bytes>). Supported formats: PDF,\nDOCX, DOC, PPTX, PPT, JPG, JPEG, PNG, TIFF. Accepts up to 100 pages and\n100 MB per document.",
             "type": "string"
           },
           "options": {
@@ -3778,7 +3784,7 @@
             "type": "integer"
           },
           "state": {
-            "description": "Serialized local config state after the operation. Its presence records\nwhether the resource still exists. Explicitly clearing state removes the\nresource; omitting it from the update mask leaves resource state\nunchanged. State is stored only on Resources. UpdateOperation accepts\nstate but omits it from its response, as do subsequent GetOperation and\nListOperations.\n\nMutable: may be updated after creation via UpdateOperation. When\nupdating, the caller must echo the last-observed `sequence_id` as a\nconcurrency precondition.\n\nThe string is not parsed; it is projected onto the corresponding\nResource's state. It is deliberately not google.protobuf.Value, whose\nonly numeric case is `double number_value`, so parsing the client's JSON\ninto it rewrites every integer as a double - `1` reads back as `1.0`,\nwhich no longer deserializes into an integer field - and silently loses\nprecision above 2^53, which is within range for IDs the client records.\n\nA string rather than bytes: the payload is always UTF-8 JSON, and proto3\nJSON maps bytes to base64, which inflates every request and response by a\nthird and makes state unreadable in logs and API responses. Both generate\nthe same OpenAPI schema (\"type\": \"string\"), so the SDKs are identical\neither way.",
+            "description": "Serialized local config state after the operation. Its presence records\nwhether the resource is still tracked by the deployment. Explicitly\nclearing state removes the resource from the deployment; omitting it from\nthe update mask leaves resource state unchanged. State is stored only on\nResources. UpdateOperation accepts state but omits it from its response,\nas do subsequent GetOperation and ListOperations.\n\nMutable: may be updated after creation via UpdateOperation. When\nupdating, the caller must echo the last-observed `sequence_id` as a\nconcurrency precondition.\n\nThe string is not parsed; it is projected onto the corresponding\nResource's state. It is deliberately not google.protobuf.Value, whose\nonly numeric case is `double number_value`, so parsing the client's JSON\ninto it rewrites every integer as a double - `1` reads back as `1.0`,\nwhich no longer deserializes into an integer field - and silently loses\nprecision above 2^53, which is within range for IDs the client records.\n\nA string rather than bytes: the payload is always UTF-8 JSON, and proto3\nJSON maps bytes to base64, which inflates every request and response by a\nthird and makes state unreadable in logs and API responses. Both generate\nthe same OpenAPI schema (\"type\": \"string\"), so the SDKs are identical\neither way.",
             "type": "string"
           },
           "status": {
@@ -4747,6 +4753,13 @@
             "description": "If the connection is read only.",
             "type": "boolean"
           },
+          "secrets": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A map of option names to UC Secret references. Keys are connection option\nnames (same as in OptionsKVPairs) and values are UC Secret fully\nqualified names.",
+            "type": "object"
+          },
           "securable_type": {
             "$ref": "#/components/schemas/catalog.SecurableType"
           },
@@ -4953,6 +4966,13 @@
           "read_only": {
             "description": "If the connection is read only.",
             "type": "boolean"
+          },
+          "secrets": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A map of option names to UC Secret references. Keys are connection option\nnames (same as in OptionsKVPairs) and values are UC Secret fully\nqualified names.",
+            "type": "object"
           }
         },
         "required": [
@@ -7162,6 +7182,23 @@
         },
         "type": "object"
       },
+      "catalog.GovernedTagReference": {
+        "description": "A governed tag referenced by a policy condition.",
+        "properties": {
+          "tag_key": {
+            "description": "The governed tag key.",
+            "type": "string"
+          },
+          "tag_value": {
+            "description": "The governed tag value, when the policy references a specific value.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tag_key"
+        ],
+        "type": "object"
+      },
       "catalog.GrantOptions": {
         "properties": {
           "privileges": {
@@ -7982,7 +8019,7 @@
             "type": "boolean"
           },
           "forward_unmanaged_paths": {
-            "description": "Whether to proxy paths that AI Gateway does not recognize as configured\nprovider-native API types. Defaults to false. When true, these paths are\nforwarded unchanged to the upstream provider. When false, only recognized\nAPI paths are served. Enabling this broadens the upstream API surface\nexposed through the provider service.",
+            "description": "Whether to proxy paths that AI Gateway does not recognize as configured\nprovider-native API types. Defaults to false. When true, these paths are\nforwarded unchanged to the upstream provider. When false, only recognized\nAPI paths are served. Enabling this broadens the upstream API surface\nexposed through the provider service. AI Gateway cannot evaluate Service\nPolicies on opaque unmanaged requests, so unmanaged requests are rejected\nwhenever Service Policies are attached to this securable.",
             "type": "boolean"
           },
           "gemini_enterprise": {
@@ -8141,7 +8178,7 @@
         "type": "object"
       },
       "catalog.ModelProviderServiceConfigCustomProviderConfig": {
-        "description": "Custom OpenAI-compatible provider configuration with bearer-token\nauthentication.",
+        "description": "Custom OpenAI-compatible provider configuration.",
         "properties": {
           "direct": {
             "$ref": "#/components/schemas/catalog.ModelProviderServiceConfigCustomProviderDirectConfig",
@@ -8268,7 +8305,7 @@
         "description": "Model target configuration shared by model provider service targets and\nexternal model destinations on model services.",
         "properties": {
           "endpoint_route": {
-            "description": "Relative path appended to a custom provider's `base_url` for this model,\nsuch as `serve/openai/chat`. Only custom model provider service targets\nuse this field; other provider types ignore it, and model service\ndestinations reject it. Do not include URI templates, queries, or\nfragments. When empty, `base_url` is used unchanged.",
+            "description": "Relative path appended to a custom provider's `base_url` for this model,\nsuch as `serve/openai/chat`. Nonempty values are only supported for\ncustom model provider service targets; other provider types reject them.\nModel service destinations do not support this field. Do not include URI\ntemplates, queries, or fragments. When empty, `base_url` is used\nunchanged.",
             "type": "string"
           },
           "model": {
@@ -9354,6 +9391,13 @@
           "for_securable_type": {
             "$ref": "#/components/schemas/catalog.SecurableType",
             "description": "Type of securables that the policy should take effect on. Required on\ncreate and optional on update."
+          },
+          "governed_tags": {
+            "description": "Governed tag keys and values referenced by this policy's conditions and\nfunction arguments. Output only.",
+            "items": {
+              "$ref": "#/components/schemas/catalog.GovernedTagReference"
+            },
+            "type": "array"
           },
           "grant": {
             "$ref": "#/components/schemas/catalog.GrantOptions",
@@ -10823,6 +10867,13 @@
           "owner": {
             "description": "Username of current owner of the connection.",
             "type": "string"
+          },
+          "secrets": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A map of option names to UC Secret references. Keys are connection option\nnames (same as in OptionsKVPairs) and values are UC Secret fully\nqualified names.",
+            "type": "object"
           }
         },
         "required": [
@@ -12979,7 +13030,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -13199,7 +13250,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -13694,7 +13745,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -13931,7 +13982,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -14499,7 +14550,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -14805,7 +14856,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -17277,7 +17328,7 @@
             "description": "Flexible node type configuration for the driver node."
           },
           "driver_node_type_id": {
-            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.\n\nThis field, along with node_type_id, should not be set if\nvirtual_cluster_size is set. If both driver_node_type_id, node_type_id,\nand virtual_cluster_size are specified, driver_node_type_id and\nnode_type_id take precedence.",
+            "description": "The node type of the Spark driver. Note that this field is optional; if\nunset, the driver node type will be set as the same value as\n`node_type_id` defined above.",
             "type": "string"
           },
           "enable_elastic_disk": {
@@ -22955,6 +23006,10 @@
             "description": "Description of the run",
             "type": "string"
           },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
+            "type": "string"
+          },
           "effective_performance_target": {
             "$ref": "#/components/schemas/jobs.PerformanceTarget",
             "description": "The actual performance target used by the serverless run during\nexecution. This can differ from the client-set performance target on the\nrequest depending on whether the performance mode is supported by the job\ntype.\n\n* `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times\nthrough rapid scaling and optimized cluster performance. * `STANDARD`:\nEnables cost-efficient execution of serverless workloads. *\n`COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your\nselected target duration time. Must provide a duration target."
@@ -23433,6 +23488,10 @@
           },
           "description": {
             "description": "An optional description for the job. The maximum length is 27700\ncharacters in UTF-8 encoding.",
+            "type": "string"
+          },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
             "type": "string"
           },
           "edit_mode": {
@@ -24698,6 +24757,10 @@
             "description": "An optional description for the job. The maximum length is 27700\ncharacters in UTF-8 encoding.",
             "type": "string"
           },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
+            "type": "string"
+          },
           "edit_mode": {
             "$ref": "#/components/schemas/jobs.JobEditMode",
             "description": "Edit mode of the job.\n\n* `UI_LOCKED`: The job is in a locked UI state and cannot be modified. *\n`EDITABLE`: The job is in an editable state and can be modified."
@@ -25509,6 +25572,10 @@
             },
             "type": "array"
           },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
+            "type": "string"
+          },
           "jar_params": {
             "description": "A list of parameters for jobs with Spark JAR tasks, for example\n`\"jar_params\": [\"john doe\", \"35\"]`. The parameters are used to invoke the\nmain function of the main class specified in the Spark JAR task. If not\nspecified upon `run-now`, it defaults to an empty list. jar_params cannot\nbe specified in conjunction with notebook_params. The JSON representation\nof this field (for example `{\"jar_params\":[\"john doe\",\"35\"]}`) cannot\nexceed 10,000 bytes.\n\n⚠ **Deprecation note** Use [job parameters] to pass information down to\ntasks.\n\n[job parameters]: https://docs.databricks.com/jobs/job-parameters.html#job-parameter-pushdown",
             "items": {
@@ -25804,6 +25871,10 @@
           },
           "description": {
             "description": "Description of the run",
+            "type": "string"
+          },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
             "type": "string"
           },
           "effective_performance_target": {
@@ -26163,6 +26234,10 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
+            "type": "string"
           },
           "idempotency_token": {
             "description": "An optional token to guarantee the idempotency of job run requests. If a\nrun with the provided token already exists, the request does not create a\nnew run but returns the ID of the existing run instead. If a run with the\nprovided token is deleted, an error is returned.\n\nIf you specify the idempotency token, upon failure you can retry until\nthe request succeeds. Databricks guarantees that exactly one run is\nlaunched with that idempotency token.\n\nThis token must have at most 64 characters.",
@@ -26532,10 +26607,6 @@
           "effective_performance_target": {
             "$ref": "#/components/schemas/jobs.PerformanceTarget",
             "description": "The actual performance target used by the serverless run during\nexecution. This can differ from the client-set performance target on the\nrequest depending on whether the performance mode is supported by the job\ntype.\n\n* `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times\nthrough rapid scaling and optimized cluster performance. * `STANDARD`:\nEnables cost-efficient execution of serverless workloads. *\n`COST_OPTIMIZED`: Enables lower job costs by optimizing compute for your\nselected target duration time. Must provide a duration target."
-          },
-          "effective_serverless_compute_id": {
-            "description": "The id of the serverless compute this task ran on, either explicitly\nconfigured on the task or the workspace default. Only set once the\ncompute has been resolved at run trigger.",
-            "type": "string"
           },
           "email_notifications": {
             "$ref": "#/components/schemas/jobs.JobEmailNotifications",
@@ -27185,6 +27256,10 @@
             "description": "The user specified id of the budget policy to use for this one-time run.\nIf not specified, the run will be not be attributed to any budget policy.",
             "type": "string"
           },
+          "duration_target": {
+            "description": "The window the run aims to finish within, in hours, for a Cost-optimized\nserverless run. Required only when `performance_target` is\n`COST_OPTIMIZED`. Must be one of the supported values: `NO_FLEXIBILITY`,\n`4h`, `12h`, `24h`, `72h`. `NO_FLEXIBILITY` means the run uses the\ndefault cost-optimized performance level without additional cost-saving\noptimizations.",
+            "type": "string"
+          },
           "email_notifications": {
             "$ref": "#/components/schemas/jobs.JobEmailNotifications",
             "description": "An optional set of email addresses notified when the run begins or\ncompletes."
@@ -27443,6 +27518,10 @@
       },
       "jobs.Subscription": {
         "properties": {
+          "attachment": {
+            "$ref": "#/components/schemas/jobs.SubscriptionAttachment",
+            "description": "Optional: The configuration for the files attached to the dashboard\nsnapshot notification. It controls the underlying data of dashboard\nwidgets that is attached as data files and which pages are included in\nthe attached PDF. If not specified, the notification is sent with only\nthe default snapshot."
+          },
           "custom_subject": {
             "description": "Optional: Allows users to specify a custom subject line on the email sent\nto subscribers.",
             "type": "string"
@@ -27460,6 +27539,97 @@
           }
         },
         "type": "object"
+      },
+      "jobs.SubscriptionAttachment": {
+        "description": "The configuration for the files attached to the dashboard snapshot\nnotification sent to subscribers. `data_attachment` describes the underlying\ndata of dashboard widgets attached as data files, and `page_attachment`\ndescribes which dashboard pages are included in the attached PDF.",
+        "properties": {
+          "data_attachment": {
+            "$ref": "#/components/schemas/jobs.SubscriptionAttachmentDataAttachment",
+            "description": "Optional: The configuration for the underlying data of dashboard widgets\nattached as tabular data files. If not specified, no tabular data is\nattached."
+          },
+          "page_attachment": {
+            "$ref": "#/components/schemas/jobs.SubscriptionAttachmentPageAttachment",
+            "description": "Optional: The selection of dashboard pages included in the attached PDF.\nIf not specified, only the first page is included."
+          }
+        },
+        "type": "object"
+      },
+      "jobs.SubscriptionAttachmentDataAttachment": {
+        "description": "The configuration for the tabular data files attached to the dashboard\nsnapshot. `widgets` lists the widgets whose data is exported and\n`file_format` is the output format; each referenced widget's data is exported\nas a separate file.",
+        "properties": {
+          "file_format": {
+            "$ref": "#/components/schemas/jobs.SubscriptionAttachmentDataAttachmentFileFormat",
+            "description": "The file format of the exported tabular data files."
+          },
+          "include_applied_filters": {
+            "description": "When true, the dashboard's applied filter values are included alongside\nthe tabular data as an additional attached file.",
+            "type": "boolean"
+          },
+          "widgets": {
+            "description": "The widgets whose underlying data is exported. At least one widget must\nbe referenced.",
+            "items": {
+              "$ref": "#/components/schemas/jobs.SubscriptionAttachmentDataAttachmentWidget"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "file_format",
+          "widgets"
+        ],
+        "type": "object"
+      },
+      "jobs.SubscriptionAttachmentDataAttachmentFileFormat": {
+        "description": "The output format of an exported tabular data file. Must be set to a value\nother than `FILE_FORMAT_UNSPECIFIED`.",
+        "enum": [
+          "FILE_FORMAT_CSV",
+          "FILE_FORMAT_EXCEL",
+          "FILE_FORMAT_TSV"
+        ],
+        "type": "string"
+      },
+      "jobs.SubscriptionAttachmentDataAttachmentWidget": {
+        "description": "Identifies a dashboard widget whose data to attach. `page_id` and `widget_id`\nare the URL identifiers from the dashboard's serialized definition returned\nby the Get dashboard API (`serialized_dashboard`), and together they uniquely\nidentify the widget.",
+        "properties": {
+          "page_id": {
+            "description": "The URL identifier of the page containing the widget. This is the value\nof the `name` field of the corresponding entry under `pages` in the\nserialized dashboard definition. Format: alphanumeric, hyphen, and\nunderscore characters allowed, max length 63.",
+            "type": "string"
+          },
+          "widget_id": {
+            "description": "The URL identifier of the widget. This is the value of the `name` field\nof the corresponding widget under that page's `layout` in the serialized\ndashboard definition. Format: alphanumeric, hyphen, and underscore\ncharacters allowed, max length 63.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "page_id",
+          "widget_id"
+        ],
+        "type": "object"
+      },
+      "jobs.SubscriptionAttachmentPageAttachment": {
+        "description": "The selection of dashboard pages included in the attached PDF.\n`page_selection` chooses between all pages, the first page only, or an\nexplicit subset listed in `page_ids`.",
+        "properties": {
+          "page_ids": {
+            "description": "The identifiers of the pages to include in the PDF. Only specified when\n`page_selection` is `PAGE_SELECTION_SUBSET`. Each value is the identifier\nof a page in the dashboard's serialized definition returned by the Get\ndashboard API (`serialized_dashboard`): the value of the `name` field of\nan entry under `pages`. Format: alphanumeric, hyphen, and underscore\ncharacters allowed, max length 63.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "page_selection": {
+            "$ref": "#/components/schemas/jobs.SubscriptionAttachmentPageAttachmentPageSelection",
+            "description": "How the attached pages are selected. When set to `PAGE_SELECTION_SUBSET`,\nthe pages to include are listed in `page_ids`."
+          }
+        },
+        "type": "object"
+      },
+      "jobs.SubscriptionAttachmentPageAttachmentPageSelection": {
+        "description": "Determines which dashboard pages are attached to the notification.",
+        "enum": [
+          "PAGE_SELECTION_ALL",
+          "PAGE_SELECTION_SUBSET"
+        ],
+        "type": "string"
       },
       "jobs.SubscriptionSubscriber": {
         "properties": {
@@ -31130,6 +31300,10 @@
             "$ref": "#/components/schemas/ml.RequestSource",
             "description": "A request-time data source."
           },
+          "sdp_source": {
+            "$ref": "#/components/schemas/ml.SdpSource",
+            "description": "A Spark Declarative Pipeline data source."
+          },
           "stream_source": {
             "$ref": "#/components/schemas/ml.StreamSource",
             "description": "A Stream data source."
@@ -32306,6 +32480,158 @@
           "value"
         ],
         "type": "object"
+      },
+      "ml.Issue": {
+        "description": "A quality or operational problem found in an experiment's traces.",
+        "properties": {
+          "categories": {
+            "description": "At most 10 values of at most 64 UTF-8 bytes each, unique\ncase-insensitively. Leading and trailing whitespace is trimmed.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "create_time": {
+            "description": "When the Issue was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "The email of the user whose request created the Issue. source_type tells\nwhether issue detection created it.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Markdown, at most 32 KiB.",
+            "type": "string"
+          },
+          "issue_id": {
+            "description": "The last segment of `name`. Issue assessments on traces reference the\nIssue by this ID.",
+            "type": "string"
+          },
+          "last_seen_time": {
+            "description": "The request time of the latest trace the Issue affects. Required, and\ncan't be cleared, unless source_type is MANUAL. A MANUAL Issue without\none returns its create_time.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "last_updated_by": {
+            "description": "The email of the user whose request last updated the Issue.",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Additional details about the Issue, such as how issue detection observed\nit. Not a stable contract: keys and values can change without notice, so\nclients must tolerate unknown and missing keys. At most 20 entries, with\nkeys of at most 64 UTF-8 bytes.",
+            "type": "object"
+          },
+          "name": {
+            "description": "experiments/{experiment}/issues/{issue}",
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/ml.IssueSeverity",
+            "description": "Cannot be cleared: an Issue without a severity would match no severity\nfilter."
+          },
+          "source_id": {
+            "description": "Set once at create. For ADHOC_RUN and SCHEDULED_RUN, the ID of the issue\ndetection run in the same experiment that created the Issue. Absent for\nMANUAL.",
+            "type": "string"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/ml.IssueSourceType",
+            "description": "Set once at create. Defaults to MANUAL."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ml.IssueStatus",
+            "description": "Defaults to PENDING on create, and can't be cleared."
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Caller-owned; the server never writes system values here. At most 10\nentries. Keys match ^[A-Za-z0-9_.:/-]+$ and are at most 128 UTF-8 bytes;\nvalues are at most 256 UTF-8 bytes.",
+            "type": "object"
+          },
+          "title": {
+            "description": "Non-empty, at most 250 UTF-8 bytes.",
+            "type": "string"
+          },
+          "update_time": {
+            "description": "When the Issue was last updated.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "title"
+        ],
+        "type": "object"
+      },
+      "ml.IssueSeverity": {
+        "description": "How serious an Issue is, ordered LOW < MEDIUM < HIGH.",
+        "enum": [
+          "HIGH",
+          "LOW",
+          "MEDIUM"
+        ],
+        "type": "string"
+      },
+      "ml.IssueSortKey": {
+        "description": "The field that search results are ordered by. SEVERITY breaks ties by\nlast_seen_time, in the same direction. Results are grouped by status first\n(PENDING, RESOLVED, then REJECTED, whatever the sort_order), and remaining\nties are broken by issue ID, so paging is stable.",
+        "enum": [
+          "CREATE_TIME",
+          "LAST_SEEN_TIME",
+          "SEVERITY",
+          "UPDATE_TIME"
+        ],
+        "type": "string"
+      },
+      "ml.IssueSourceType": {
+        "description": "What created an Issue: ADHOC_RUN, an issue detection run started on demand;\nSCHEDULED_RUN, one started by a schedule; SINGLE_TRACE_ANALYSIS, an analysis\nof a single trace; or MANUAL, a person.",
+        "enum": [
+          "ADHOC_RUN",
+          "MANUAL",
+          "SCHEDULED_RUN",
+          "SINGLE_TRACE_ANALYSIS"
+        ],
+        "type": "string"
+      },
+      "ml.IssueStatus": {
+        "description": "The triage status of an Issue: PENDING means open and awaiting triage,\nRESOLVED means judged real and addressed, and REJECTED means judged not to be\nan issue.",
+        "enum": [
+          "PENDING",
+          "REJECTED",
+          "RESOLVED"
+        ],
+        "type": "string"
+      },
+      "ml.IssueTagFilter": {
+        "description": "One predicate over Issue.tags.",
+        "properties": {
+          "key": {
+            "description": "Matched exactly.",
+            "type": "string"
+          },
+          "values": {
+            "description": "Matched exactly, and ORed together. Empty matches any Issue carrying the\nkey.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "type": "object"
+      },
+      "ml.IssueView": {
+        "description": "Which fields each search result includes: BASIC has every field except\n`description`, and may omit large `metadata` entries; FULL has every field.",
+        "enum": [
+          "BASIC",
+          "FULL"
+        ],
+        "type": "string"
       },
       "ml.JobContext": {
         "properties": {
@@ -34597,6 +34923,52 @@
         },
         "type": "object"
       },
+      "ml.SdpSource": {
+        "description": "A Spark Declarative Pipeline (SDP) data source.",
+        "properties": {
+          "dataframe_schema": {
+            "description": "Schema of the resulting dataframe after transformations, in Spark\nStructType JSON format (from df.schema.json()). Required if\ntransformation_sql is specified. Example:\n{\"type\":\"struct\",\"fields\":[{\"name\":\"col_a\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}},{\"name\":\"col_c\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}}]}",
+            "type": "string"
+          },
+          "filter_condition": {
+            "description": "Single WHERE clause to filter the pipeline's output table before applying\ntransformations. Will be row-wise evaluated, so should only include\nconditionals and projections.",
+            "type": "string"
+          },
+          "input_tables": {
+            "description": "The full three-part names of the tables the pipeline reads from. Required\nto materialize this feature with a TableTrigger, which starts a run when\nthese tables update. Each table must exist when the feature is created.\nAfter the pipeline runs, Feature Store checks that it reads from these\ntables, and the run fails if it doesn't. At most 100 tables.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "output_table": {
+            "description": "The full three-part (catalog, schema, table) name of the pipeline's\noutput table to read from. The table doesn't need to exist until the\npipeline first runs. Required.",
+            "type": "string"
+          },
+          "pipeline_id": {
+            "description": "The ID of the Spark Declarative Pipeline that Feature Store runs to\nproduce this source, before each materialization or backfill. The\npipeline must already exist when the feature is created, and you need\nCAN_RUN, CAN_MANAGE, or owner permission on it. It doesn't need to have\nrun yet. Deleting the feature doesn't delete the pipeline. If the\npipeline is deleted, this field reads back empty. Required.",
+            "type": "string"
+          },
+          "pipeline_state": {
+            "$ref": "#/components/schemas/ml.SdpSourceState",
+            "description": "State tracking pipeline execution and output table validation. PENDING\nuntil the pipeline has run at least once and created the output table;\nthen RESOLVED on success, or ERROR on failure."
+          },
+          "transformation_sql": {
+            "description": "A single SQL SELECT expression applied after filter_condition. Should\ncontain all the columns needed (eg. \"SELECT *, col_a + col_b AS col_c\nFROM x.y.z WHERE col_a > 0\" would have `transformation_sql` \"*, col_a +\ncol_b AS col_c\") If transformation_sql is not provided, all columns of\nthe pipeline's output table are present in the DataSource dataframe.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ml.SdpSourceState": {
+        "description": "State of the SDP source relative to pipeline execution and output table\nvalidation.",
+        "enum": [
+          "ERROR",
+          "PENDING",
+          "RESOLVED"
+        ],
+        "type": "string"
+      },
       "ml.SearchExperiments": {
         "properties": {
           "filter": {
@@ -34638,6 +35010,87 @@
           "next_page_token": {
             "description": "Token that can be used to retrieve the next page of experiments. An empty\ntoken means that no more experiments are available for retrieval.",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ml.SearchIssuesRequest": {
+        "description": "Request for SearchIssues.",
+        "properties": {
+          "categories": {
+            "description": "Matches Issues with any of these categories, case-insensitively.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "page_size": {
+            "description": "Defaults to 20; values above 100 are clamped.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "page_token": {
+            "description": "Expires after 15 minutes. Every other argument except `view` must match\nthe request that returned the token.",
+            "type": "string"
+          },
+          "query": {
+            "description": "Case-insensitive substring match on title.",
+            "type": "string"
+          },
+          "severities": {
+            "description": "Matches Issues with any of these severities.",
+            "items": {
+              "$ref": "#/components/schemas/ml.IssueSeverity"
+            },
+            "type": "array"
+          },
+          "sort_key": {
+            "$ref": "#/components/schemas/ml.IssueSortKey",
+            "description": "Defaults to SEVERITY."
+          },
+          "sort_order": {
+            "$ref": "#/components/schemas/ml.SortOrder",
+            "description": "Defaults to DESCENDING."
+          },
+          "statuses": {
+            "description": "Matches Issues with any of these statuses. Different filters AND\ntogether, and an empty filter matches every Issue.",
+            "items": {
+              "$ref": "#/components/schemas/ml.IssueStatus"
+            },
+            "type": "array"
+          },
+          "tag_filters": {
+            "description": "Matches Issues that satisfy every filter. At most 10 filters of 20 values\neach.",
+            "items": {
+              "$ref": "#/components/schemas/ml.IssueTagFilter"
+            },
+            "type": "array"
+          },
+          "view": {
+            "$ref": "#/components/schemas/ml.IssueView",
+            "description": "Defaults to BASIC."
+          }
+        },
+        "type": "object"
+      },
+      "ml.SearchIssuesResponse": {
+        "description": "One page of SearchIssues results.",
+        "properties": {
+          "issues": {
+            "description": "The page's Issues, in the requested order.",
+            "items": {
+              "$ref": "#/components/schemas/ml.Issue"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
+            "description": "Absent on the last page.",
+            "type": "string"
+          },
+          "total_size": {
+            "description": "Exact number of matching Issues.",
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -34974,6 +35427,14 @@
           "slide_duration"
         ],
         "type": "object"
+      },
+      "ml.SortOrder": {
+        "description": "The direction of the ordering.",
+        "enum": [
+          "ASCENDING",
+          "DESCENDING"
+        ],
+        "type": "string"
       },
       "ml.SourceLateness": {
         "description": "Configures when event-time data from this source is considered complete for a\nFeature.",
@@ -35666,6 +36127,13 @@
           "lifetime": {
             "description": "The lifetime of the secret in seconds. If this parameter is not provided,\nthe secret will have a default lifetime of 730 days (63072000s).",
             "type": "string"
+          },
+          "scopes": {
+            "description": "OAuth API scopes to bind to the secret; a minted token cannot exceed\nthem. Empty = unrestricted (all-apis). E.g. all-apis, sql,\niam.groups:read.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -35683,6 +36151,13 @@
           "id": {
             "description": "ID of the secret",
             "type": "string"
+          },
+          "scopes": {
+            "description": "OAuth API scopes bound to this secret. Empty = unrestricted (all-apis).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "secret": {
             "description": "Secret Value",
@@ -35732,6 +36207,13 @@
           "id": {
             "description": "ID of the secret",
             "type": "string"
+          },
+          "scopes": {
+            "description": "OAuth API scopes bound to this secret. Empty = unrestricted (all-apis).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "secret_hash": {
             "description": "Secret Hash",
@@ -37021,6 +37503,7 @@
         "type": "object"
       },
       "pipelines.IngestionSourceType": {
+        "description": "Type of source system that a managed ingestion pipeline reads from.",
         "enum": [
           "BIGQUERY",
           "CONFLUENCE",
@@ -40617,6 +41100,21 @@
         },
         "type": "object"
       },
+      "postgres.RevealRolePasswordRequest": {
+        "description": "Request to reveal the current password for a password-authenticated Postgres\nrole.",
+        "properties": {},
+        "type": "object"
+      },
+      "postgres.RevealRolePasswordResponse": {
+        "description": "Response containing the password for a password-authenticated Postgres role.",
+        "properties": {
+          "password": {
+            "description": "The current password for the Postgres role.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "postgres.Role": {
         "description": "Role represents a Postgres role within a Branch.",
         "properties": {
@@ -41403,6 +41901,50 @@
         },
         "type": "object"
       },
+      "sandbox.CreateDirectoryRequest": {
+        "description": "Selects a sandbox directory to create and whether to create its parents.",
+        "properties": {
+          "parents": {
+            "description": "Defaults to true, which also succeeds when the directory already exists.",
+            "type": "boolean"
+          },
+          "path": {
+            "description": "Absolute UTF-8 path of the directory.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "sandbox.CreateDirectoryResponse": {
+        "description": "Confirms that the requested directory exists.",
+        "properties": {},
+        "type": "object"
+      },
+      "sandbox.DeletePathRequest": {
+        "description": "Selects a sandbox path to delete and whether to delete its contents.",
+        "properties": {
+          "path": {
+            "description": "Absolute UTF-8 path of the entry to delete.",
+            "type": "string"
+          },
+          "recursive": {
+            "description": "Required for a non-empty directory.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "sandbox.DeletePathResponse": {
+        "description": "Confirms that the requested path is absent.",
+        "properties": {},
+        "type": "object"
+      },
       "sandbox.EnvironmentSpec": {
         "properties": {
           "image_uri": {
@@ -41485,6 +42027,15 @@
         },
         "type": "object"
       },
+      "sandbox.GetMetadataResponse": {
+        "description": "Contains metadata for the requested path without following its final symlink.",
+        "properties": {
+          "file": {
+            "$ref": "#/components/schemas/sandbox.SandboxFileInfo"
+          }
+        },
+        "type": "object"
+      },
       "sandbox.ListCommandsResponse": {
         "description": "Response listing tracked command executions.",
         "properties": {
@@ -41497,6 +42048,21 @@
           },
           "next_page_token": {
             "description": "Token to retrieve the next page. Empty when there are no more results.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sandbox.ListDirectoryContentsResponse": {
+        "description": "Contains a page of immediate directory entries and an optional continuation\ntoken. An empty token marks the final page. Pages reflect concurrent\ndirectory changes.",
+        "properties": {
+          "contents": {
+            "items": {
+              "$ref": "#/components/schemas/sandbox.SandboxFileInfo"
+            },
+            "type": "array"
+          },
+          "next_page_token": {
             "type": "string"
           }
         },
@@ -41515,6 +42081,29 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "sandbox.RenamePathRequest": {
+        "description": "Identifies the source and exact destination for a sandbox path rename.",
+        "properties": {
+          "destination": {
+            "description": "Exact absolute UTF-8 destination; it must not already exist.",
+            "type": "string"
+          },
+          "source": {
+            "description": "Absolute UTF-8 path to move.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination",
+          "source"
+        ],
+        "type": "object"
+      },
+      "sandbox.RenamePathResponse": {
+        "description": "Confirms that the sandbox path was renamed.",
+        "properties": {},
         "type": "object"
       },
       "sandbox.Sandbox": {
@@ -41548,6 +42137,56 @@
           }
         },
         "type": "object"
+      },
+      "sandbox.SandboxFileInfo": {
+        "description": "Metadata for a sandbox filesystem entry, describing a final symlink itself.",
+        "properties": {
+          "file_type": {
+            "$ref": "#/components/schemas/sandbox.SandboxFileType"
+          },
+          "group": {
+            "type": "string"
+          },
+          "mode": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "modify_time": {
+            "description": "Nanosecond precision is preserved on the wire.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "string"
+          },
+          "size": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "symlink_target": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sandbox.SandboxFileType": {
+        "description": "Type of a sandbox filesystem entry without following its final symlink.",
+        "enum": [
+          "SANDBOX_FILE_TYPE_DIRECTORY",
+          "SANDBOX_FILE_TYPE_FILE",
+          "SANDBOX_FILE_TYPE_OTHER",
+          "SANDBOX_FILE_TYPE_SYMLINK"
+        ],
+        "type": "string"
       },
       "sandbox.SandboxSpec": {
         "properties": {
@@ -48643,6 +49282,10 @@
             "description": "warehouse creator name",
             "type": "string"
           },
+          "customer_version_label": {
+            "description": "Compute version label for a REALTIME warehouse. This field is output\nonly.",
+            "type": "string"
+          },
           "enable_photon": {
             "description": "Configures whether the warehouse should use Photon optimized clusters.\n\nDefaults to true.",
             "type": "boolean"
@@ -48654,6 +49297,11 @@
           "instance_profile_arn": {
             "description": "Deprecated. Instance profile used to pass IAM role to the cluster",
             "type": "string"
+          },
+          "max_dbu": {
+            "description": "Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.\nMust be a multiple of 3 between 3 and 960. The effective maximum cannot\nbe lower than the warehouse's minimum capacity.",
+            "format": "int64",
+            "type": "integer"
           },
           "max_num_clusters": {
             "description": "Maximum number of clusters that the autoscaler will create to handle\nconcurrent queries.\n\nSupported values: - Must be >= min_num_clusters - Must be <= 40.\n\nDefaults to min_clusters if unset.",
@@ -48668,6 +49316,11 @@
           "name": {
             "description": "Logical name for the cluster.\n\nSupported values: - Must be unique within an org. - Must be less than 100\ncharacters.",
             "type": "string"
+          },
+          "reyden_cluster_size_multiplier": {
+            "description": "Cluster size multiplier for Reyden warehouses. Scales the effective\ncompute capacity relative to the nominal virtual cluster size. Only\nmeaningful when the warehouse is of Reyden type.\n\nAccepted range: 1.0 to the workspace-configured maximum (decimals\nallowed). The default maximum is 100.0. - Values below 1.0 are normalized\nto 1.0. - Values above the configured maximum are capped at that maximum.\n- When absent, the warehouse is treated as having a multiplier of 1.0.",
+            "format": "double",
+            "type": "number"
           },
           "spot_instance_policy": {
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
@@ -48693,6 +49346,7 @@
         "enum": [
           "CLASSIC",
           "PRO",
+          "REALTIME",
           "TYPE_UNSPECIFIED"
         ],
         "type": "string"
@@ -49090,6 +49744,10 @@
             "description": "warehouse creator name",
             "type": "string"
           },
+          "customer_version_label": {
+            "description": "Compute version label for a REALTIME warehouse. This field is output\nonly.",
+            "type": "string"
+          },
           "enable_photon": {
             "description": "Configures whether the warehouse should use Photon optimized clusters.\n\nDefaults to true.",
             "type": "boolean"
@@ -49101,6 +49759,11 @@
           "instance_profile_arn": {
             "description": "Deprecated. Instance profile used to pass IAM role to the cluster",
             "type": "string"
+          },
+          "max_dbu": {
+            "description": "Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.\nMust be a multiple of 3 between 3 and 960. The effective maximum cannot\nbe lower than the warehouse's minimum capacity.",
+            "format": "int64",
+            "type": "integer"
           },
           "max_num_clusters": {
             "description": "Maximum number of clusters that the autoscaler will create to handle\nconcurrent queries.\n\nSupported values: - Must be >= min_num_clusters - Must be <= 40.\n\nDefaults to min_clusters if unset.",
@@ -49115,6 +49778,11 @@
           "name": {
             "description": "Logical name for the cluster.\n\nSupported values: - Must be unique within an org. - Must be less than 100\ncharacters.",
             "type": "string"
+          },
+          "reyden_cluster_size_multiplier": {
+            "description": "Cluster size multiplier for Reyden warehouses. Scales the effective\ncompute capacity relative to the nominal virtual cluster size. Only\nmeaningful when the warehouse is of Reyden type.\n\nAccepted range: 1.0 to the workspace-configured maximum (decimals\nallowed). The default maximum is 100.0. - Values below 1.0 are normalized\nto 1.0. - Values above the configured maximum are capped at that maximum.\n- When absent, the warehouse is treated as having a multiplier of 1.0.",
+            "format": "double",
+            "type": "number"
           },
           "spot_instance_policy": {
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
@@ -49140,6 +49808,7 @@
         "enum": [
           "CLASSIC",
           "PRO",
+          "REALTIME",
           "TYPE_UNSPECIFIED"
         ],
         "type": "string"
@@ -49199,6 +49868,10 @@
             "description": "warehouse creator name",
             "type": "string"
           },
+          "customer_version_label": {
+            "description": "Compute version label for a REALTIME warehouse. This field is output\nonly.",
+            "type": "string"
+          },
           "enable_photon": {
             "description": "Configures whether the warehouse should use Photon optimized clusters.\n\nDefaults to true.",
             "type": "boolean"
@@ -49222,6 +49895,11 @@
           "jdbc_url": {
             "description": "the jdbc connection string for this warehouse",
             "type": "string"
+          },
+          "max_dbu": {
+            "description": "Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.\nMust be a multiple of 3 between 3 and 960. The effective maximum cannot\nbe lower than the warehouse's minimum capacity.",
+            "format": "int64",
+            "type": "integer"
           },
           "max_num_clusters": {
             "description": "Maximum number of clusters that the autoscaler will create to handle\nconcurrent queries.\n\nSupported values: - Must be >= min_num_clusters - Must be <= 40.\n\nDefaults to min_clusters if unset.",
@@ -49251,6 +49929,11 @@
             "$ref": "#/components/schemas/sql.OdbcParams",
             "description": "ODBC parameters for the SQL warehouse"
           },
+          "reyden_cluster_size_multiplier": {
+            "description": "Cluster size multiplier for Reyden warehouses. Scales the effective\ncompute capacity relative to the nominal virtual cluster size. Only\nmeaningful when the warehouse is of Reyden type.\n\nAccepted range: 1.0 to the workspace-configured maximum (decimals\nallowed). The default maximum is 100.0. - Values below 1.0 are normalized\nto 1.0. - Values above the configured maximum are capped at that maximum.\n- When absent, the warehouse is treated as having a multiplier of 1.0.",
+            "format": "double",
+            "type": "number"
+          },
           "spot_instance_policy": {
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
             "description": "Configurations whether the endpoint should use spot instances."
@@ -49279,6 +49962,7 @@
         "enum": [
           "CLASSIC",
           "PRO",
+          "REALTIME",
           "TYPE_UNSPECIFIED"
         ],
         "type": "string"
@@ -49554,6 +50238,10 @@
             "description": "warehouse creator name",
             "type": "string"
           },
+          "customer_version_label": {
+            "description": "Compute version label for a REALTIME warehouse. This field is output\nonly.",
+            "type": "string"
+          },
           "enable_photon": {
             "description": "Configures whether the warehouse should use Photon optimized clusters.\n\nDefaults to true.",
             "type": "boolean"
@@ -49577,6 +50265,11 @@
           "jdbc_url": {
             "description": "the jdbc connection string for this warehouse",
             "type": "string"
+          },
+          "max_dbu": {
+            "description": "Maximum compute capacity of a real-time SQL warehouse, in DBU per hour.\nMust be a multiple of 3 between 3 and 960. The effective maximum cannot\nbe lower than the warehouse's minimum capacity.",
+            "format": "int64",
+            "type": "integer"
           },
           "max_num_clusters": {
             "description": "Maximum number of clusters that the autoscaler will create to handle\nconcurrent queries.\n\nSupported values: - Must be >= min_num_clusters - Must be <= 40.\n\nDefaults to min_clusters if unset.",
@@ -49606,6 +50299,11 @@
             "$ref": "#/components/schemas/sql.OdbcParams",
             "description": "ODBC parameters for the SQL warehouse"
           },
+          "reyden_cluster_size_multiplier": {
+            "description": "Cluster size multiplier for Reyden warehouses. Scales the effective\ncompute capacity relative to the nominal virtual cluster size. Only\nmeaningful when the warehouse is of Reyden type.\n\nAccepted range: 1.0 to the workspace-configured maximum (decimals\nallowed). The default maximum is 100.0. - Values below 1.0 are normalized\nto 1.0. - Values above the configured maximum are capped at that maximum.\n- When absent, the warehouse is treated as having a multiplier of 1.0.",
+            "format": "double",
+            "type": "number"
+          },
           "spot_instance_policy": {
             "$ref": "#/components/schemas/sql.SpotInstancePolicy",
             "description": "Configurations whether the endpoint should use spot instances."
@@ -49634,6 +50332,7 @@
         "enum": [
           "CLASSIC",
           "PRO",
+          "REALTIME",
           "TYPE_UNSPECIFIED"
         ],
         "type": "string"
@@ -51951,6 +52650,7 @@
         "enum": [
           "CLASSIC",
           "PRO",
+          "REALTIME",
           "TYPE_UNSPECIFIED"
         ],
         "type": "string"
@@ -54838,15 +55538,15 @@
     }
   },
   "info": {
-    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.188.0 — itself generated from Databricks' OpenAPI spec `bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
+    "description": "Databricks Workspace API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.190.0 — itself generated from Databricks' OpenAPI spec `155fbabb3529267ce58c1a37573911f59d90b06c`. Unofficial; see https://docs.databricks.com/api/workspace/introduction for the reference documentation.",
     "license": {
       "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "Databricks Workspace API",
-    "version": "0.188.0",
-    "x-databricks-go-sdk-version": "v0.188.0",
-    "x-databricks-openapi-sha": "bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c"
+    "version": "0.190.0",
+    "x-databricks-go-sdk-version": "v0.190.0",
+    "x-databricks-openapi-sha": "155fbabb3529267ce58c1a37573911f59d90b06c"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -55481,7 +56181,7 @@
     },
     "/api/2.0/agents/memory-stores": {
       "get": {
-        "description": "Lists managed memory stores in the caller's workspace.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Lists memory stores in the caller's workspace.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "agent_kit.list_memory_stores",
         "parameters": [
           {
@@ -55519,7 +56219,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Lists managed memory stores in the caller's workspace.",
+        "summary": "Lists memory stores in the caller's workspace.",
         "tags": [
           "AgentKit"
         ],
@@ -55534,11 +56234,11 @@
         "x-databricks-workspace-header": true
       },
       "post": {
-        "description": "Creates a managed memory store in the caller's workspace.",
+        "description": "Creates a memory store in the caller's workspace.",
         "operationId": "agent_kit.create_memory_store",
         "parameters": [
           {
-            "description": "Caller-provided, workspace-unique managed memory store ID. It must be\n3-56 characters, begin with a lowercase letter, contain only lowercase\nletters, digits, and hyphens, and end with a letter or digit.",
+            "description": "Caller-provided, workspace-unique memory store ID. It must be 3-56\ncharacters, begin with a lowercase letter, contain only lowercase\nletters, digits, and hyphens, and end with a letter or digit.",
             "in": "query",
             "name": "managed_memory_store_id",
             "required": true,
@@ -55572,7 +56272,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Creates a managed memory store in the caller's workspace.",
+        "summary": "Creates a memory store in the caller's workspace.",
         "tags": [
           "AgentKit"
         ],
@@ -55685,7 +56385,7 @@
     },
     "/api/2.0/agents/{name}": {
       "delete": {
-        "description": "Deletes a managed memory entry by resource name. Returns `NOT_FOUND` when the\nentry does not exist in the caller's workspace.",
+        "description": "Deletes a memory entry by resource name. Returns `NOT_FOUND` when the entry\ndoes not exist in the caller's workspace.",
         "operationId": "agent_kit.delete_memory",
         "parameters": [
           {
@@ -55707,7 +56407,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Deletes a managed memory entry by resource name. Returns `NOT_FOUND` when the",
+        "summary": "Deletes a memory entry by resource name. Returns `NOT_FOUND` when the entry",
         "tags": [
           "AgentKit"
         ],
@@ -55716,7 +56416,7 @@
         "x-databricks-workspace-header": true
       },
       "get": {
-        "description": "Retrieves a managed memory entry by resource name. `view` controls whether\nthe response includes memory content. Returns `NOT_FOUND` when the entry does\nnot exist in the caller's workspace.",
+        "description": "Retrieves a memory entry by resource name. `view` controls whether the\nresponse includes memory content. Returns `NOT_FOUND` when the entry does not\nexist in the caller's workspace.",
         "operationId": "agent_kit.get_memory",
         "parameters": [
           {
@@ -55730,14 +56430,12 @@
             "x-databricks-multi-segment": true
           },
           {
-            "description": "Deprecated. Use `view` for new clients. Fields to return, using proto\nfield names such as `content` (not `contents`). An omitted or empty mask\nreturns the full entry.",
+            "description": "Controls whether the response includes memory content. Defaults to\n`FULL`.",
             "in": "query",
-            "name": "read_mask",
+            "name": "view",
             "required": false,
             "schema": {
-              "example": "name,owner",
-              "format": "google-fieldmask",
-              "type": "string"
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntryView"
             }
           }
         ],
@@ -55756,7 +56454,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Retrieves a managed memory entry by resource name. `view` controls whether",
+        "summary": "Retrieves a memory entry by resource name. `view` controls whether the",
         "tags": [
           "AgentKit"
         ],
@@ -55765,7 +56463,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates selected mutable fields on a managed memory entry. Identity fields\nare immutable.",
+        "description": "Updates selected mutable fields on a memory entry. Identity fields are\nimmutable.",
         "operationId": "agent_kit.update_memory",
         "parameters": [
           {
@@ -55815,7 +56513,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Updates selected mutable fields on a managed memory entry. Identity fields",
+        "summary": "Updates selected mutable fields on a memory entry. Identity fields are",
         "tags": [
           "AgentKit"
         ],
@@ -55825,7 +56523,7 @@
       },
       "x-databricks-shared-path-operations": [
         {
-          "description": "Deletes a managed memory store by resource name. Returns `NOT_FOUND` when the\nstore does not exist in the caller's workspace.",
+          "description": "Deletes a memory store by resource name. Returns `NOT_FOUND` when the store\ndoes not exist in the caller's workspace.",
           "operationId": "agent_kit.delete_memory_store",
           "parameters": [
             {
@@ -55847,7 +56545,7 @@
               "$ref": "#/components/responses/Error"
             }
           },
-          "summary": "Deletes a managed memory store by resource name. Returns `NOT_FOUND` when the",
+          "summary": "Deletes a memory store by resource name. Returns `NOT_FOUND` when the store",
           "tags": [
             "AgentKit"
           ],
@@ -55921,7 +56619,7 @@
           "x-databricks-workspace-header": true
         },
         {
-          "description": "Retrieves a managed memory store by resource name. Returns `NOT_FOUND` when\nthe store does not exist in the caller's workspace.",
+          "description": "Retrieves a memory store by resource name. Returns `NOT_FOUND` when the store\ndoes not exist in the caller's workspace.",
           "operationId": "agent_kit.get_memory_store",
           "parameters": [
             {
@@ -55950,7 +56648,7 @@
               "$ref": "#/components/responses/Error"
             }
           },
-          "summary": "Retrieves a managed memory store by resource name. Returns `NOT_FOUND` when",
+          "summary": "Retrieves a memory store by resource name. Returns `NOT_FOUND` when the store",
           "tags": [
             "AgentKit"
           ],
@@ -56038,7 +56736,7 @@
           "x-databricks-workspace-header": true
         },
         {
-          "description": "Updates a managed memory store's description and metadata.",
+          "description": "Updates a memory store's description and metadata.",
           "operationId": "agent_kit.update_memory_store",
           "parameters": [
             {
@@ -56088,7 +56786,7 @@
               "$ref": "#/components/responses/Error"
             }
           },
-          "summary": "Updates a managed memory store's description and metadata.",
+          "summary": "Updates a memory store's description and metadata.",
           "tags": [
             "AgentKit"
           ],
@@ -56221,11 +56919,11 @@
     },
     "/api/2.0/agents/{parent}/entries": {
       "get": {
-        "description": "Lists managed memory entries for one actor. An exact `path` filters entries\nacross sessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `view` controls whether each\nreturned entry includes memory content.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Lists memory entries for one actor. An exact `path` filters entries across\nsessions, ignoring session metadata. Otherwise, `session_id` and\n`path_prefix` restrict the actor partition. `view` controls whether each\nreturned entry includes memory content.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "agent_kit.list_memories",
         "parameters": [
           {
-            "description": "Managed memory store whose entries are listed, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "description": "Memory store whose entries are listed, in the form\n`memory-stores/{managed_memory_store_id}`.",
             "in": "path",
             "name": "parent",
             "required": true,
@@ -56272,23 +56970,21 @@
             }
           },
           {
-            "description": "Deprecated. Use `view` for new clients. Fields to return in each entry,\nusing proto field names such as `content` (not `contents`). An omitted or\nempty mask returns full entries.",
-            "in": "query",
-            "name": "read_mask",
-            "required": false,
-            "schema": {
-              "example": "name,owner",
-              "format": "google-fieldmask",
-              "type": "string"
-            }
-          },
-          {
             "description": "Optional session identifier. When set, only entries with this exact\n`session_id` are returned. Omitted-session (cross-session) entries are\nnot included. Ignored when path is set.",
             "in": "query",
             "name": "session_id",
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "Controls whether each returned entry includes memory content. Defaults to\n`FULL`.",
+            "in": "query",
+            "name": "view",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/agentkit.ManagedMemoryEntryView"
             }
           }
         ],
@@ -56307,7 +57003,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Lists managed memory entries for one actor. An exact `path` filters entries",
+        "summary": "Lists memory entries for one actor. An exact `path` filters entries across",
         "tags": [
           "AgentKit"
         ],
@@ -56322,11 +57018,11 @@
         "x-databricks-workspace-header": true
       },
       "post": {
-        "description": "Creates a managed memory entry using exclusive-create semantics. Callers may\nchoose the entry ID; the service generates one when it is omitted. Returns\n`ALREADY_EXISTS` when an entry with the same actor, session, and path already\nexists. Omitted `session_id` is its own uniqueness key: two omitted-session\nentries with the same actor and path conflict, but an omitted-session entry\ndoes not conflict with a session-scoped entry at the same actor and path.",
+        "description": "Creates a memory entry using exclusive-create semantics. Callers may choose\nthe entry ID; the service generates one when it is omitted. Returns\n`ALREADY_EXISTS` when an entry with the same actor, session, and path already\nexists. Omitted `session_id` is its own uniqueness key: two omitted-session\nentries with the same actor and path conflict, but an omitted-session entry\ndoes not conflict with a session-scoped entry at the same actor and path.",
         "operationId": "agent_kit.create_memory",
         "parameters": [
           {
-            "description": "Managed memory store that will contain the entry, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "description": "Memory store that will contain the entry, in the form\n`memory-stores/{managed_memory_store_id}`.",
             "in": "path",
             "name": "parent",
             "required": true,
@@ -56336,7 +57032,7 @@
             "x-databricks-multi-segment": true
           },
           {
-            "description": "Optional caller-selected managed memory entry ID. The service generates\nan ID when omitted.",
+            "description": "Optional caller-selected memory entry ID. The service generates an ID\nwhen omitted.",
             "in": "query",
             "name": "managed_memory_entry_id",
             "required": false,
@@ -56370,7 +57066,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Creates a managed memory entry using exclusive-create semantics. Callers may",
+        "summary": "Creates a memory entry using exclusive-create semantics. Callers may choose",
         "tags": [
           "AgentKit"
         ],
@@ -56381,11 +57077,11 @@
     },
     "/api/2.0/agents/{parent}/entries:search": {
       "post": {
-        "description": "Searches managed memory entries by text query for one actor. Returns matching\nentries and scores ranked by relevance; `view` controls whether each returned\nentry includes content.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Searches memory entries by text query for one actor. Returns matching entries\nand scores ranked by relevance; `view` controls whether each returned entry\nincludes content.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "agent_kit.search_memories",
         "parameters": [
           {
-            "description": "Managed memory store whose entries are searched, in the form\n`memory-stores/{managed_memory_store_id}`.",
+            "description": "Memory store whose entries are searched, in the form\n`memory-stores/{managed_memory_store_id}`.",
             "in": "path",
             "name": "parent",
             "required": true,
@@ -56420,7 +57116,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Searches managed memory entries by text query for one actor. Returns matching",
+        "summary": "Searches memory entries by text query for one actor. Returns matching entries",
         "tags": [
           "AgentKit"
         ],
@@ -59429,6 +60125,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Whether to include soft-deleted deployments in the response. Defaults to\nfalse. When true, returns both live and soft-deleted deployments visible\nto the caller, subject to the filter. Soft-deleted deployments have\nstatus `DEPLOYMENT_STATUS_DELETED`.",
+            "in": "query",
+            "name": "show_deleted",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -59758,7 +60463,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates a resource operation's mutable fields.\n\n`state`, `error_message`, `resource_id`, `status`, and `dashboard_metadata`\nmay be updated, independently; `update_mask` must contain only those paths.\nAll other fields are immutable. The update is guarded by an\noptimistic-concurrency check: the caller sets `operation.sequence_id` to the\nvalue it last observed, and the server rejects the update with `ABORTED` if\nthe operation has been modified since. On success the server increments\n`sequence_id`; updates to `state`, `resource_id`, and `dashboard_metadata`\nare mirrored onto the corresponding deployment-level resource. Listing\n`state` in `update_mask` with no value clears it, which removes the resource,\nso a delete that is retried until it succeeds must clear `state`. The parent\nversion must be in progress, and after the update is applied a succeeded\noperation cannot carry an `error_message`. See the `state` and `resource_id`\nfields for the rest.",
+        "description": "Updates a resource operation's mutable fields.\n\n`state`, `error_message`, `resource_id`, `status`, and `dashboard_metadata`\nmay be updated, independently; `update_mask` must contain only those paths.\nAll other fields are immutable. The update is guarded by an\noptimistic-concurrency check: the caller sets `operation.sequence_id` to the\nvalue it last observed, and the server rejects the update with `ABORTED` if\nthe operation has been modified since. On success the server increments\n`sequence_id`; updates to `state`, `resource_id`, and `dashboard_metadata`\nare mirrored onto the corresponding deployment-level resource. Listing\n`state` in `update_mask` with no value clears it, which removes the tracked\nresource, so a delete or unbind that succeeds must clear `state`. The parent\nversion must be in progress, and after the update is applied a succeeded\noperation cannot carry an `error_message`. See the `state` and `resource_id`\nfields for the rest.",
         "operationId": "bundle_deployments.update_operation",
         "parameters": [
           {
@@ -76384,6 +77089,220 @@
         "x-databricks-workspace-header": true
       }
     },
+    "/api/2.0/mlflow/{name}": {
+      "get": {
+        "description": "Gets an issue.",
+        "operationId": "experiments.get_issue",
+        "parameters": [
+          {
+            "description": "experiments/{experiment}/issues/{issue}",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ml.Issue"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Gets an issue.",
+        "tags": [
+          "Experiments"
+        ],
+        "x-databricks-package": "ml",
+        "x-databricks-service": "Experiments",
+        "x-databricks-workspace-header": true
+      },
+      "patch": {
+        "description": "Updates the fields of an issue named in `update_mask`.",
+        "operationId": "experiments.update_issue",
+        "parameters": [
+          {
+            "description": "experiments/{experiment}/issues/{issue}",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Accepts title, description, status, severity, categories, tags,\nlast_seen_time, and metadata.<key>. A path with an empty value clears the\nfield, except that title, status, and severity can't be cleared, and\nlast_seen_time can be cleared only when source_type is MANUAL. categories\nand tags are replaced whole. metadata is updated per key: a\nmetadata.<key> path sets that key from issue.metadata, or removes it when\nissue.metadata lacks it, and leaves the other keys alone. A bare metadata\npath is rejected.",
+            "in": "query",
+            "name": "update_mask",
+            "required": true,
+            "schema": {
+              "example": "name,owner",
+              "format": "google-fieldmask",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ml.Issue"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ml.Issue"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Updates the fields of an issue named in `update_mask`.",
+        "tags": [
+          "Experiments"
+        ],
+        "x-databricks-package": "ml",
+        "x-databricks-service": "Experiments",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/mlflow/{parent}/issues": {
+      "post": {
+        "description": "Creates an issue in an experiment.",
+        "operationId": "experiments.create_issue",
+        "parameters": [
+          {
+            "description": "experiments/{experiment}",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          },
+          {
+            "description": "Optional client-chosen ID: iss- followed by 32 lowercase hex digits. A\nretry with the same ID fails with ALREADY_EXISTS rather than making a\nduplicate. The server generates one if unset.",
+            "in": "query",
+            "name": "issue_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ml.Issue"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ml.Issue"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates an issue in an experiment.",
+        "tags": [
+          "Experiments"
+        ],
+        "x-databricks-package": "ml",
+        "x-databricks-service": "Experiments",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/mlflow/{parent}/issues:search": {
+      "post": {
+        "description": "Searches the issues in an experiment, filtered and sorted.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "experiments.search_issues",
+        "parameters": [
+          {
+            "description": "experiments/{experiment}",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ml.SearchIssuesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ml.SearchIssuesResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Searches the issues in an experiment, filtered and sorted.",
+        "tags": [
+          "Experiments"
+        ],
+        "x-databricks-package": "ml",
+        "x-databricks-pagination": {
+          "items": "issues",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "Experiments",
+        "x-databricks-workspace-header": true
+      }
+    },
     "/api/2.0/notification-destinations": {
       "get": {
         "description": "Lists notification destinations.\n\nThis method is generated by Databricks SDK Code Generator.",
@@ -79854,7 +80773,7 @@
             }
           },
           {
-            "description": "A list of strings specifying the order of results. Supported order_by\nfields are id and name. The default is id asc. This field is optional.",
+            "description": "A list of strings specifying the order of results. The supported order_by\nfield is id. The default is id asc. This field is optional.",
             "explode": true,
             "in": "query",
             "name": "order_by",
@@ -83249,6 +84168,56 @@
           "x-databricks-workspace-header": true
         }
       ]
+    },
+    "/api/2.0/postgres/{name}/password": {
+      "post": {
+        "description": "Reveals the current password for a password-authenticated Postgres role.",
+        "operationId": "postgres.reveal_role_password",
+        "parameters": [
+          {
+            "description": "The full resource path of the role whose password should be revealed.\nFormat: projects/{project_id}/branches/{branch_id}/roles/{role_id}",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-databricks-multi-segment": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/postgres.RevealRolePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/postgres.RevealRolePasswordResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Reveals the current password for a password-authenticated Postgres role.",
+        "tags": [
+          "Postgres"
+        ],
+        "x-databricks-package": "postgres",
+        "x-databricks-service": "Postgres",
+        "x-databricks-workspace-header": true
+      }
     },
     "/api/2.0/postgres/{parent}/branches": {
       "get": {
@@ -86940,6 +87909,270 @@
           }
         },
         "summary": "Lists the tracked command executions (running and completed) in a sandbox.",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-files/{parent}/directories:make": {
+      "post": {
+        "description": "Creates a directory in a sandbox, including missing parents by default.",
+        "operationId": "sandbox.create_directory",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sandbox.CreateDirectoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.CreateDirectoryResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Creates a directory in a sandbox, including missing parents by default.",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-files/{parent}/directory-entries": {
+      "get": {
+        "description": "Lists a directory's immediate children in UTF-8 name order. Later pages may\nreflect concurrent changes.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "operationId": "sandbox.list_directory_contents",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Zero uses the default of 1000; values above 1000 are clamped to 1000.",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The token from a prior response. Keep parent and path unchanged between\npages.",
+            "in": "query",
+            "name": "page_token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Absolute UTF-8 path of the directory.",
+            "in": "query",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.ListDirectoryContentsResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Lists a directory's immediate children in UTF-8 name order. Later pages may",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-pagination": {
+          "items": "contents",
+          "kind": "token",
+          "request_field": "page_token",
+          "response_field": "next_page_token"
+        },
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-files/{parent}/paths:describe": {
+      "get": {
+        "description": "Returns metadata for a path without following its final symlink.",
+        "operationId": "sandbox.get_metadata",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Absolute UTF-8 path of the entry to inspect.",
+            "in": "query",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.GetMetadataResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Returns metadata for a path without following its final symlink.",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-files/{parent}/paths:remove": {
+      "post": {
+        "description": "Deletes a file, symlink, or empty directory, with an option for recursive\ndeletion. Succeeds if the path is already absent.",
+        "operationId": "sandbox.delete_path",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sandbox.DeletePathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.DeletePathResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Deletes a file, symlink, or empty directory, with an option for recursive",
+        "tags": [
+          "Sandbox"
+        ],
+        "x-databricks-package": "sandbox",
+        "x-databricks-service": "Sandbox",
+        "x-databricks-workspace-header": true
+      }
+    },
+    "/api/2.0/sandbox-files/{parent}/paths:rename": {
+      "post": {
+        "description": "Renames a path within a sandbox. The destination must be absent and on the\nsame filesystem.",
+        "operationId": "sandbox.rename_path",
+        "parameters": [
+          {
+            "description": "Sandbox resource name, for example `sandboxes/my-sandbox`.",
+            "in": "path",
+            "name": "parent",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sandbox.RenamePathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sandbox.RenamePathResponse"
+                }
+              }
+            },
+            "description": "Success."
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Renames a path within a sandbox. The destination must be absent and on the",
         "tags": [
           "Sandbox"
         ],
@@ -98422,7 +99655,7 @@
         "operationId": "ai_gateway.list_mcp_services",
         "parameters": [
           {
-            "description": "Maximum number of MCP services to return. Defaults to 100 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of MCP services to return. Defaults to 200 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -99103,7 +100336,7 @@
         "operationId": "ai_gateway.list_model_provider_services",
         "parameters": [
           {
-            "description": "Maximum number of provider services to return. Defaults to 100 when unset\nor 0; the maximum is 200. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of provider services to return. Defaults to 200 when unset\nor 0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -99386,7 +100619,7 @@
         "operationId": "ai_gateway.list_model_services",
         "parameters": [
           {
-            "description": "Maximum number of model services to return. Defaults to 100 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of model services to return. Defaults to 200 when unset or\n0; the maximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -102425,7 +103658,7 @@
         "operationId": "ai_gateway.list_skills",
         "parameters": [
           {
-            "description": "Maximum number of skills to return. Defaults to 100 when unset or 0; the\nmaximum is 200. Use `page_token` to retrieve additional pages.",
+            "description": "Maximum number of skills to return. Defaults to 200 when unset or 0; the\nmaximum is 200. Use `page_token` to retrieve additional pages.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -102483,7 +103716,7 @@
         "x-databricks-workspace-header": true
       },
       "post": {
-        "description": "Creates a skill in a Unity Catalog schema and provisions its managed bundle\nstorage. Specify its name in `skill_id`. The request contains an optional\ncomment but no bundle bytes. Upload bundle files through the Files API, then\ncall FinalizeSkill.\n\nYou must be the owner of the parent schema or have `CREATE_VOLUME` and\n`USE_SCHEMA` on it, plus `USE_CATALOG` on the parent catalog.",
+        "description": "Creates a skill in a Unity Catalog schema and provisions its managed bundle\nstorage. Specify its name in `skill_id`. The request contains an optional\ncomment but no bundle bytes.\n\nTo publish a skill:\n\n1. Call CreateSkill to create the skill in Unity Catalog. 2. Upload every\nbundle file, including `SKILL.md` at the bundle root, with the Files API:\n`PUT /api/2.0/fs/files/Skills/{catalog}/{schema}/{skill}/{file_path}`. The\nCreateSkill caller owns the skill and can upload. Other callers need\n`READ_VOLUME` and `WRITE_VOLUME` on the skill. 3. Call FinalizeSkill to\nvalidate `SKILL.md` and set the skill's `bundle_name` and `description` from\nits frontmatter `name` and `description`.\n\nYou must be the owner of the parent schema or have `CREATE_VOLUME` and\n`USE_SCHEMA` on it, plus `USE_CATALOG` on the parent catalog.",
         "operationId": "ai_gateway.create_skill",
         "parameters": [
           {
@@ -102623,7 +103856,7 @@
         "x-databricks-workspace-header": true
       },
       "patch": {
-        "description": "Updates a skill. Only fields named in `update_mask` are changed; currently\nonly `comment` is supported. The resource name is immutable. Optionally\nsupply an `etag` to make the update conditional on the skill not having\nchanged since it was read. Bundle files, grants, tags, and ownership are\nunchanged.\n\nYou must be the owner of the skill or have `MANAGE` on it, plus `USE_CATALOG`\non the parent catalog and `USE_SCHEMA` on the parent schema.",
+        "description": "Updates a skill. Only fields named in `update_mask` are changed; currently\nonly `comment` is supported. The resource name is immutable. Optionally\nsupply an `etag` to make the update conditional on the skill not having\nchanged since it was read. Bundle files, grants, tags, and ownership are\nunchanged.\n\nTo update the bundle, add, overwrite (`overwrite=true`), or delete files\nunder `/Skills/{catalog}/{schema}/{skill}/` with the Files API, then call\nFinalizeSkill. Changing bundle files requires being the owner of the skill or\nhaving `READ_VOLUME` and `WRITE_VOLUME` on it; `MANAGE` does not grant access\nto bundle files.\n\nTo call UpdateSkill, you must be the owner of the skill or have `MANAGE` on\nit, plus `USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent\nschema.",
         "operationId": "ai_gateway.update_skill",
         "parameters": [
           {
@@ -104263,7 +105496,7 @@
     },
     "/api/2.1/unity-catalog/{name}/finalize": {
       "post": {
-        "description": "Finalizes a skill after its bundle is uploaded. This method reads SKILL.md\nthrough the Files API using the caller's authorization. Its YAML frontmatter\nmust contain an agentskills.io-compliant `name` and a nonblank `description`\nwithin the configured UTF-8 byte limit. On success, it replaces `bundle_name`\nand `description`; refreshes `finalize_time`, `update_time`, and\n`updated_by`; and returns the updated skill. `comment` is preserved.\nRe-finalization uses the latest SKILL.md and is last-write-wins without an\netag precondition. Validation failures do not change metadata.\n\nYou must be the owner of the skill or have `READ_VOLUME` on it, plus\n`USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.",
+        "description": "Finalizes a skill after its bundle files are uploaded or changed through the\nFiles API. Call it again after every bundle change. This method reads\nSKILL.md through the Files API using the caller's authorization. Its YAML\nfrontmatter must contain an agentskills.io-compliant `name` and a nonblank\n`description` within the configured UTF-8 byte limit. On success, it replaces\n`bundle_name` and `description`; refreshes `finalize_time`, `update_time`,\nand `updated_by`; and returns the updated skill. `comment` is preserved.\nRe-finalization uses the latest SKILL.md and is last-write-wins without an\netag precondition. Validation failures do not change metadata.\n\nYou must be the owner of the skill or have `READ_VOLUME` on it, plus\n`USE_CATALOG` on the parent catalog and `USE_SCHEMA` on the parent schema.",
         "operationId": "ai_gateway.finalize_skill",
         "parameters": [
           {
@@ -104302,7 +105535,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Finalizes a skill after its bundle is uploaded. This method reads SKILL.md",
+        "summary": "Finalizes a skill after its bundle files are uploaded or changed through the",
         "tags": [
           "AiGateway"
         ],
@@ -105348,7 +106581,7 @@
     },
     "/api/2.2/jobs/runs/list": {
       "get": {
-        "description": "List runs in descending order by end time. If a run has not finished, it\nfalls back to start time.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "List runs in descending order by start time.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "jobs.list_runs",
         "parameters": [
           {
@@ -105462,7 +106695,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "List runs in descending order by end time. If a run has not finished, it",
+        "summary": "List runs in descending order by start time.",
         "tags": [
           "Jobs"
         ],
@@ -107633,7 +108866,7 @@
       "x-databricks-package": "jobs"
     },
     {
-      "description": "Manage Knowledge Assistants and related resources.",
+      "description": "Manage legacy Knowledge Assistants and related resources.",
       "name": "KnowledgeAssistants",
       "x-databricks-package": "knowledgeassistants"
     },
@@ -107968,7 +109201,7 @@
       "x-databricks-package": "catalog"
     },
     {
-      "description": "Manage Supervisor Agents and related resources.",
+      "description": "Manage legacy Supervisor Agents and related resources.",
       "name": "SupervisorAgents",
       "x-databricks-package": "supervisoragents"
     },
