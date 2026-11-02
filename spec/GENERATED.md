@@ -2,9 +2,9 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.188.0 (OpenAPI `bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c`).
+Source: databricks-sdk-go v0.191.1 (OpenAPI `1ffcd5d95ca7d798ee643728874f25352e976aaf`).
 
-- 40 packages, 193 services, 1313 operations (1313 generated), 3656 types.
+- 40 packages, 193 services, 1339 operations (1339 generated), 3740 types.
 
 ## Not generated (binary or streaming payloads)
 
@@ -20,6 +20,10 @@ Source: databricks-sdk-go v0.188.0 (OpenAPI `bb616cfe22844c61a00b33e9f3ea8deb3dd
 - workspace: GET /api/2.0/agents/{name} (AgentKit.GetMemoryStore)
 - workspace: GET /api/2.0/agents/{name} (AgentKit.GetSession)
 - workspace: GET /api/2.0/agents/{name} (AgentKit.GetSessionStore)
+- workspace: GET /api/2.0/agents/{name}/permissions/self (AgentKit.GetSessionStorePermission)
+- workspace: POST /api/2.0/agents/{name}/permissions:grant (AgentKit.GrantSessionStorePermission)
+- workspace: GET /api/2.0/agents/{parent}/permissions (AgentKit.ListSessionStorePermissions)
+- workspace: POST /api/2.0/agents/{name}/permissions:revoke (AgentKit.RevokeSessionStorePermission)
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateMemoryStore)
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSession)
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSessionStore)
