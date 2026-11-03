@@ -1,6 +1,6 @@
 # Spot-check against the published API reference
 
-Spec: databricks-sdk-go v0.188.0, OpenAPI `bb616cfe22844c61a00b33e9f3ea8deb3dd54c2c`. Sample: `sample-2026-09-25.json` (2026-09-25).
+Spec: databricks-sdk-go v0.191.1, OpenAPI `1ffcd5d95ca7d798ee643728874f25352e976aaf`. Sample: `sample-2026-09-25.json` (2026-09-25).
 
 > WebFetch of docs.databricks.com/api/<client>/<service>/<operation>. The site is a JS single-page app; only some pages expose server-rendered operation lists, which a summarising model extracts verbatim. Single-operation answers proved unreliable (e.g. clusters/list was first reported as /api/2.0/clusters/list; the verbatim list on clusters/get shows /api/2.1), so only verbatim per-service lists are recorded. Pages that returned nothing verbatim: workspace tables/get, jobs/runnow, clusters/list; account budgets/list, metastores/list (404).
 
