@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-knowledgeassistants-v0.1.2...community-databricks-sdk-knowledgeassistants-v0.1.3) - 2026-11-03
+
+### Other
+
+- databricks-sdk-go v0.191.1 (OpenAPI 1ffcd5d95ca7d798ee643728874f25352e976aaf) ([#45](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/45))
+
 ## [0.1.2](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-knowledgeassistants-v0.1.1...community-databricks-sdk-knowledgeassistants-v0.1.2) - 2026-10-21
 
 ### Other
