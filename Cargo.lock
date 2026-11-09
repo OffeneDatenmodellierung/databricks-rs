@@ -331,6 +331,7 @@ dependencies = [
  "community-databricks-sdk-catalog",
  "community-databricks-sdk-cleanrooms",
  "community-databricks-sdk-compute",
+ "community-databricks-sdk-computemigrations",
  "community-databricks-sdk-dashboards",
  "community-databricks-sdk-database",
  "community-databricks-sdk-dataclassification",
@@ -339,10 +340,12 @@ dependencies = [
  "community-databricks-sdk-domains",
  "community-databricks-sdk-environments",
  "community-databricks-sdk-files",
+ "community-databricks-sdk-genieagents",
  "community-databricks-sdk-iam",
  "community-databricks-sdk-iamv2",
  "community-databricks-sdk-jobs",
  "community-databricks-sdk-knowledgeassistants",
+ "community-databricks-sdk-lakewatch",
  "community-databricks-sdk-marketplace",
  "community-databricks-sdk-ml",
  "community-databricks-sdk-networking",
@@ -466,6 +469,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "community-databricks-sdk-computemigrations"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "community-databricks-sdk-dashboards"
 version = "0.2.2"
 dependencies = [
@@ -539,6 +551,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "community-databricks-sdk-genieagents"
+version = "0.1.0"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "community-databricks-sdk-iam"
 version = "0.1.3"
 dependencies = [
@@ -569,6 +590,15 @@ dependencies = [
 [[package]]
 name = "community-databricks-sdk-knowledgeassistants"
 version = "0.1.3"
+dependencies = [
+ "community-databricks-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "community-databricks-sdk-lakewatch"
+version = "0.1.0"
 dependencies = [
  "community-databricks-core",
  "serde",
