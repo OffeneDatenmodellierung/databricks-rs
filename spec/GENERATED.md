@@ -2,15 +2,18 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.191.1 (OpenAPI `1ffcd5d95ca7d798ee643728874f25352e976aaf`).
+Source: databricks-sdk-go v0.195.0 (OpenAPI `ced34d63e64d234affc3213758ac687edbf6f3c3`).
 
-- 40 packages, 193 services, 1339 operations (1339 generated), 3740 types.
+- 43 packages, 196 services, 1382 operations (1382 generated), 3903 types.
 
 ## Not generated (binary or streaming payloads)
 
 
 ## OpenAPI path collisions (moved to `x-databricks-shared-path-operations`)
 
+- account: PATCH /api/2.0/identity/{name} (AccountIamV2.UpdateServicePrincipal)
+- account: PATCH /api/2.0/identity/{name} (AccountIamV2.UpdateUser)
+- account: PATCH /api/2.0/identity/{name} (AccountIamV2.UpdateWorkspaceAssignment)
 - account: DELETE /api/networking/v1/{name} (PrivateNetworkGateways.DeletePrivateNetworkGateway)
 - account: GET /api/networking/v1/{name} (PrivateNetworkGateways.GetPrivateNetworkGateway)
 - account: GET /api/networking/v1/{name} (PrivateNetworkGateways.GetPrivateNetworkGatewayOperation)
@@ -29,8 +32,21 @@ Source: databricks-sdk-go v0.191.1 (OpenAPI `1ffcd5d95ca7d798ee643728874f25352e9
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSessionStore)
 - workspace: GET /api/environments/v1/{name} (Environments.GetOperation)
 - workspace: PATCH /api/environments/v1/{name} (Environments.UpdateWorkspaceBaseEnvironment)
+- workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetCommonConfig)
+- workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetDatasource)
+- workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetDatasourceConfig)
+- workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetRule)
+- workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetRuleConfig)
+- workspace: PATCH /api/2.0/lakewatch/{name} (Lakewatch.UpdateCommonConfig)
+- workspace: PATCH /api/2.0/lakewatch/{name} (Lakewatch.UpdateDatasource)
+- workspace: PATCH /api/2.0/lakewatch/{name} (Lakewatch.UpdateDatasourceConfig)
+- workspace: PATCH /api/2.0/lakewatch/{name} (Lakewatch.UpdateRule)
+- workspace: PATCH /api/2.0/lakewatch/{name} (Lakewatch.UpdateRuleConfig)
 - workspace: DELETE /api/2.0/postgres/{name} (Postgres.DeleteSyncedTable)
 - workspace: GET /api/2.0/postgres/{name} (Postgres.GetOperation)
+- workspace: PATCH /api/2.0/identity/{name} (WorkspaceIamV2.UpdateServicePrincipalProxy)
+- workspace: PATCH /api/2.0/identity/{name} (WorkspaceIamV2.UpdateUserProxy)
+- workspace: PATCH /api/2.0/identity/{name} (WorkspaceIamV2.UpdateWorkspaceAssignmentProxy)
 
 ## Skipped services
 
