@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-dashboards-v0.2.2...community-databricks-sdk-dashboards-v0.2.3) - 2026-11-19
+
+### Other
+
+- databricks-sdk-go v0.199.0 (OpenAPI e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c) ([#48](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/48))
+
 ## [0.2.2](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-dashboards-v0.2.1...community-databricks-sdk-dashboards-v0.2.2) - 2026-11-03
 
 ### Other
