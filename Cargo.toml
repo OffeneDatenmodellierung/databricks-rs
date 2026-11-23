@@ -58,6 +58,7 @@ community-databricks-sdk-settingsv2 = { path = "crates/community-databricks-sdk-
 community-databricks-sdk-sharing = { path = "crates/community-databricks-sdk-sharing", version = "0.1.3" }
 community-databricks-sdk-softwareartifacts = { path = "crates/community-databricks-sdk-softwareartifacts", version = "0.1.0" }
 community-databricks-sdk-sql = { path = "crates/community-databricks-sdk-sql", version = "0.1.3" }
+community-databricks-sdk-statementexecutionv2 = { path = "crates/community-databricks-sdk-statementexecutionv2", version = "0.1.0" }
 community-databricks-sdk-supervisoragents = { path = "crates/community-databricks-sdk-supervisoragents", version = "0.1.3" }
 community-databricks-sdk-tags = { path = "crates/community-databricks-sdk-tags", version = "0.1.3" }
 community-databricks-sdk-vectorsearch = { path = "crates/community-databricks-sdk-vectorsearch", version = "0.1.3" }

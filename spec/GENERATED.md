@@ -2,9 +2,9 @@
 
 Produced by `cargo xtask codegen` from `spec/ir.json`. DO NOT EDIT.
 
-Source: databricks-sdk-go v0.199.0 (OpenAPI `e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c`).
+Source: databricks-sdk-go v0.202.0 (OpenAPI `874d8f1733df5029f169c35ed088d2f081eb6687`).
 
-- 44 packages, 199 services, 1406 operations (1406 generated), 3988 types.
+- 45 packages, 200 services, 1427 operations (1427 generated), 4052 types.
 
 ## Not generated (binary or streaming payloads)
 
@@ -44,7 +44,6 @@ Source: databricks-sdk-go v0.199.0 (OpenAPI `e13a7b6206adbdb6c4008e2a58b7cc785e3
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSession)
 - workspace: PATCH /api/2.0/agents/{name} (AgentKit.UpdateSessionStore)
 - workspace: GET /api/environments/v1/{name} (Environments.GetOperation)
-- workspace: PATCH /api/environments/v1/{name} (Environments.UpdateWorkspaceBaseEnvironment)
 - workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetCommonConfig)
 - workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetDatasource)
 - workspace: GET /api/2.0/lakewatch/{name} (Lakewatch.GetDatasourceConfig)
@@ -61,6 +60,9 @@ Source: databricks-sdk-go v0.199.0 (OpenAPI `e13a7b6206adbdb6c4008e2a58b7cc785e3
 - workspace: GET /api/2.0/postgres/{name} (Postgres.GetMigration)
 - workspace: GET /api/2.0/postgres/{name} (Postgres.GetOperation)
 - workspace: PATCH /api/2.0/postgres/{name} (Postgres.UpdateMigration)
+- workspace: GET /api/2.0/{name} (Sandbox.GetSandbox)
+- workspace: PATCH /api/2.0/{name} (Sandbox.UpdateSandbox)
+- workspace: DELETE /api/2.1/unity-catalog/{name} (SoftwareArtifacts.DeleteSoftwareArtifactVersion)
 - workspace: GET /api/2.1/unity-catalog/{name} (SoftwareArtifacts.GetSoftwareArtifactVersion)
 - workspace: DELETE /api/2.0/identity/{name} (WorkspaceIamV2.DeleteGroupProxy)
 - workspace: DELETE /api/2.0/identity/{name} (WorkspaceIamV2.DeleteServicePrincipalProxy)
