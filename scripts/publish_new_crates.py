@@ -7,8 +7,9 @@ short period of time. Please try again after <RFC 1123 date>`. This script
 waits until that time (plus a minute for clock skew) and retries, instead of
 guessing the limit.
 
-It is idempotent: a crate whose current version is already on crates.io is
-skipped, so a run that stops part-way can simply be started again.
+It is idempotent: a crate that already exists on crates.io (any version) is
+skipped, so a run that stops part-way can simply be started again. New
+versions of existing crates are release-plz's job, so they are left alone.
 
     publish_new_crates.py                 publish what is missing
     publish_new_crates.py --dry-run       show the plan
@@ -141,7 +142,10 @@ def main(argv: list[str]) -> int:
             print(f"  new      {name}")
         print(f"{len(new)} of {len(packages)} crates never published")
         return 1 if new else 0
-    missing = [p for p in packages if not on_crates_io(p["name"], p["version"])]
+    # Only crates that were never published. New versions of existing crates
+    # are left to release-plz, which tags (and for core/sdk, releases) what it
+    # publishes; publishing them here would leave them untagged.
+    missing = [p for p in packages if not on_crates_io(p["name"])]
 
     for p in packages:
         mark = "publish" if p in missing else "present"

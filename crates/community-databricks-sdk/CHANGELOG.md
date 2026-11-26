@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other
 
 - databricks-sdk-go v0.191.1 (OpenAPI 1ffcd5d95ca7d798ee643728874f25352e976aaf) ([#45](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/45))
+- databricks-sdk-go v0.199.0 (OpenAPI e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c) ([#48](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/48)): new `computemigrations`, `genieagents`, `lakewatch` and `softwareartifacts` features
+- databricks-sdk-go v0.202.0 (OpenAPI 874d8f1733df5029f169c35ed088d2f081eb6687) ([#50](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/50)): new `statementexecutionv2` feature
 
 ## [0.1.2](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-v0.1.1...community-databricks-sdk-v0.1.2) - 2026-10-21
 
