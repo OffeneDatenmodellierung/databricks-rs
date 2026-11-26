@@ -46,10 +46,10 @@
           },
           "action_type": {
             "$ref": "#/components/schemas/billing.ActionConfigurationType",
-            "description": "The type of the action."
+            "description": "The action to take when the alert enters a triggered state.\n`EMAIL_NOTIFICATION` sends an email and `BLOCK_USAGE` blocks further\nusage. `BLOCK_USAGE` is only supported on Unity AI Gateway budgets, with\n`resource_type` set to `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`."
           },
           "target": {
-            "description": "Target for the action. For example, an email address.",
+            "description": "Target of the action. For `EMAIL_NOTIFICATION`, the email address that\nreceives the alert, up to 256 characters. Must be omitted for\n`BLOCK_USAGE`.",
             "type": "string"
           }
         },
@@ -66,7 +66,7 @@
       "billing.AlertConfiguration": {
         "properties": {
           "action_configurations": {
-            "description": "Configured actions for this alert. These define what happens when an\nalert enters a triggered state.",
+            "description": "Configured actions for this alert. These define what happens when an\nalert enters a triggered state. An alert can have up to 10 actions.",
             "items": {
               "$ref": "#/components/schemas/billing.ActionConfiguration"
             },
@@ -84,7 +84,7 @@
             "type": "array"
           },
           "quantity_threshold": {
-            "description": "The threshold for the budget alert to determine if it is in a triggered\nstate. The number is evaluated based on `quantity_type`.",
+            "description": "The threshold for the budget alert to determine if it is in a triggered\nstate. The number is evaluated based on `quantity_type`. A decimal number\npassed as a string, from 0 to 1,000,000,000.",
             "type": "string"
           },
           "quantity_type": {
@@ -122,6 +122,7 @@
       },
       "billing.AlertConfigurationTimePeriod": {
         "enum": [
+          "DAY",
           "MONTH"
         ],
         "type": "string"
@@ -159,6 +160,7 @@
         "type": "object"
       },
       "billing.BudgetConfiguration": {
+        "description": "A budget tracks the spend of your account, or of the workspaces and custom\ntags selected by its filter, against one or more alert thresholds. Spend is\nmeasured in US dollars at list price. For an overview, see\nhttps://docs.databricks.com/en/admin/account-settings/budgets.html.",
         "properties": {
           "account_id": {
             "description": "Databricks account ID.",
@@ -176,7 +178,7 @@
             "type": "string"
           },
           "create_time": {
-            "description": "Creation time of this budget configuration.",
+            "description": "Creation time of this budget configuration, in milliseconds since the\nUnix epoch.",
             "format": "int64",
             "type": "integer"
           },
@@ -186,7 +188,7 @@
           },
           "filter": {
             "$ref": "#/components/schemas/billing.BudgetConfigurationFilter",
-            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included."
+            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included. The filter cannot be changed after the\nbudget is created. To change it, delete the budget and create a new one."
           },
           "include_external_spend": {
             "description": "Whether this budget tracks external pass-through spend (third-party costs\nbilled through a Databricks product) in addition to internal Databricks\nspend. Only applicable to Unity Gateway budgets, i.e. when\n`resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is\nimmutable after create.",
@@ -197,7 +199,7 @@
             "description": "The resource scope for this budget. Determines whether the budget tracks\nall resources or a specific resource."
           },
           "update_time": {
-            "description": "Update time of this budget configuration.",
+            "description": "Time of the most recent update to this budget configuration, in\nmilliseconds since the Unix epoch.",
             "format": "int64",
             "type": "integer"
           }
@@ -223,9 +225,11 @@
       "billing.BudgetConfigurationFilterClause": {
         "properties": {
           "operator": {
-            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterOperator"
+            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterOperator",
+            "description": "How usage is compared with `values`. `IN` matches usage whose value is\none of `values`."
           },
           "values": {
+            "description": "Values to match. A clause can list up to 30 values.",
             "items": {
               "type": "string"
             },
@@ -243,10 +247,12 @@
       "billing.BudgetConfigurationFilterTagClause": {
         "properties": {
           "key": {
+            "description": "The custom tag key to match, exactly as it appears in your usage data. A\nkey can appear in at most one clause per operator.",
             "type": "string"
           },
           "value": {
-            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterClause"
+            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterClause",
+            "description": "The tag values to match for `key`. Usage is included when its value for\n`key` is one of the listed values."
           }
         },
         "type": "object"
@@ -254,9 +260,11 @@
       "billing.BudgetConfigurationFilterWorkspaceIdClause": {
         "properties": {
           "operator": {
-            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterOperator"
+            "$ref": "#/components/schemas/billing.BudgetConfigurationFilterOperator",
+            "description": "How usage is compared with `values`. `IN` matches usage from any of the\nlisted workspaces."
           },
           "values": {
+            "description": "IDs of the workspaces whose usage is included. A clause can list up to 30\nworkspaces, all of which must belong to this account.",
             "items": {
               "format": "int64",
               "type": "integer"
@@ -267,7 +275,7 @@
         "type": "object"
       },
       "billing.BudgetPolicy": {
-        "description": "Contains the BudgetPolicy details.",
+        "description": "A serverless usage policy is a set of tags that are applied to the serverless\nusage of the workloads that use the policy. Each usage record in the billable\nusage system table carries the policy ID and these tags, so that serverless\nusage can be attributed to the policy.",
         "properties": {
           "binding_workspace_ids": {
             "description": "List of workspaces that this budget policy will be exclusively bound to.\nAn empty binding implies that this budget policy is open to any workspace\nin the account.",
@@ -324,14 +332,14 @@
         "properties": {
           "dashboard_type": {
             "$ref": "#/components/schemas/billing.UsageDashboardType",
-            "description": "Workspace level usage dashboard shows usage data for the specified\nworkspace ID. Global level usage dashboard shows usage data for all\nworkspaces in the account."
+            "description": "Workspace level usage dashboard shows usage data for the specified\nworkspace ID. Global level usage dashboard shows usage data for all\nworkspaces in the account. The request fails if the type is not set."
           },
           "major_version": {
             "$ref": "#/components/schemas/billing.UsageDashboardMajorVersion",
-            "description": "The major version of the usage dashboard template to use. Defaults to\nVERSION_1."
+            "description": "The major version of the usage dashboard template to import. Version 2\nadds cost forecasting and object-level cost drill-down."
           },
           "workspace_id": {
-            "description": "The workspace ID of the workspace in which the usage dashboard is\ncreated.",
+            "description": "The ID of the workspace to import the usage dashboard into. The workspace\nmust be running, belong to the account, and not be a disaster recovery\nsecondary.",
             "format": "int64",
             "type": "integer"
           }
@@ -341,13 +349,14 @@
       "billing.CreateBillingUsageDashboardResponse": {
         "properties": {
           "dashboard_id": {
-            "description": "The unique id of the usage dashboard.",
+            "description": "The ID of the AI/BI dashboard that was created.",
             "type": "string"
           }
         },
         "type": "object"
       },
       "billing.CreateBudgetConfigurationBudget": {
+        "description": "A budget tracks the spend of your account, or of the workspaces and custom\ntags selected by its filter, against one or more alert thresholds. Spend is\nmeasured in US dollars at list price. For an overview, see\nhttps://docs.databricks.com/en/admin/account-settings/budgets.html.",
         "properties": {
           "account_id": {
             "description": "Databricks account ID.",
@@ -366,7 +375,7 @@
           },
           "filter": {
             "$ref": "#/components/schemas/billing.BudgetConfigurationFilter",
-            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included."
+            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included. The filter cannot be changed after the\nbudget is created. To change it, delete the budget and create a new one."
           },
           "include_external_spend": {
             "description": "Whether this budget tracks external pass-through spend (third-party costs\nbilled through a Databricks product) in addition to internal Databricks\nspend. Only applicable to Unity Gateway budgets, i.e. when\n`resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is\nimmutable after create.",
@@ -383,10 +392,10 @@
         "properties": {
           "action_type": {
             "$ref": "#/components/schemas/billing.ActionConfigurationType",
-            "description": "The type of the action."
+            "description": "The action to take when the alert enters a triggered state.\n`EMAIL_NOTIFICATION` sends an email and `BLOCK_USAGE` blocks further\nusage. `BLOCK_USAGE` is only supported on Unity AI Gateway budgets, with\n`resource_type` set to `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`."
           },
           "target": {
-            "description": "Target for the action. For example, an email address.",
+            "description": "Target of the action. For `EMAIL_NOTIFICATION`, the email address that\nreceives the alert, up to 256 characters. Must be omitted for\n`BLOCK_USAGE`.",
             "type": "string"
           }
         },
@@ -395,7 +404,7 @@
       "billing.CreateBudgetConfigurationBudgetAlertConfigurations": {
         "properties": {
           "action_configurations": {
-            "description": "Configured actions for this alert. These define what happens when an\nalert enters a triggered state.",
+            "description": "Configured actions for this alert. These define what happens when an\nalert enters a triggered state. An alert can have up to 10 actions.",
             "items": {
               "$ref": "#/components/schemas/billing.CreateBudgetConfigurationBudgetActionConfigurations"
             },
@@ -409,7 +418,7 @@
             "type": "array"
           },
           "quantity_threshold": {
-            "description": "The threshold for the budget alert to determine if it is in a triggered\nstate. The number is evaluated based on `quantity_type`.",
+            "description": "The threshold for the budget alert to determine if it is in a triggered\nstate. The number is evaluated based on `quantity_type`. A decimal number\npassed as a string, from 0 to 1,000,000,000.",
             "type": "string"
           },
           "quantity_type": {
@@ -457,7 +466,7 @@
         "properties": {
           "policy": {
             "$ref": "#/components/schemas/billing.BudgetPolicy",
-            "description": "The policy to create. `policy_id` needs to be empty as it will be\ngenerated `policy_name` must be provided, custom_tags may need to be\nprovided depending on the cloud provider. All other fields are optional."
+            "description": "The policy to create. `policy_name` must be provided, and `custom_tags`\nmay be required depending on the cloud provider. Leave `policy_id` empty\nbecause Databricks generates it. All other fields are optional."
           },
           "request_id": {
             "description": "A unique identifier for this request. Restricted to 36 ASCII characters.\nA random UUID is recommended. This request is only idempotent if a\n`request_id` is provided.",
@@ -532,11 +541,11 @@
       "billing.GetBillingUsageDashboardResponse": {
         "properties": {
           "dashboard_id": {
-            "description": "The unique id of the usage dashboard.",
+            "description": "The ID of the AI/BI dashboard. The ID is empty if no matching dashboard\nis found.",
             "type": "string"
           },
           "dashboard_url": {
-            "description": "The URL of the usage dashboard.",
+            "description": "The URL of the dashboard in its workspace. The URL is empty if no\nmatching dashboard is found.",
             "type": "string"
           }
         },
@@ -545,7 +554,8 @@
       "billing.GetBudgetConfigurationResponse": {
         "properties": {
           "budget": {
-            "$ref": "#/components/schemas/billing.BudgetConfiguration"
+            "$ref": "#/components/schemas/billing.BudgetConfiguration",
+            "description": "The requested budget configuration."
           }
         },
         "type": "object"
@@ -757,6 +767,7 @@
         "type": "string"
       },
       "billing.UpdateBudgetConfigurationBudget": {
+        "description": "A budget tracks the spend of your account, or of the workspaces and custom\ntags selected by its filter, against one or more alert thresholds. Spend is\nmeasured in US dollars at list price. For an overview, see\nhttps://docs.databricks.com/en/admin/account-settings/budgets.html.",
         "properties": {
           "account_id": {
             "description": "Databricks account ID.",
@@ -779,7 +790,7 @@
           },
           "filter": {
             "$ref": "#/components/schemas/billing.BudgetConfigurationFilter",
-            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included."
+            "description": "Configured filters for this budget. These are applied to your account's\nusage to limit the scope of what is considered for this budget. Leave\nempty to include all usage for this account. All provided filters must be\nmatched for usage to be included. The filter cannot be changed after the\nbudget is created. To change it, delete the budget and create a new one."
           },
           "include_external_spend": {
             "description": "Whether this budget tracks external pass-through spend (third-party costs\nbilled through a Databricks product) in addition to internal Databricks\nspend. Only applicable to Unity Gateway budgets, i.e. when\n`resource_type` is `BUDGET_RESOURCE_TYPE_UNITY_AI_GATEWAY`. This field is\nimmutable after create.",
@@ -796,7 +807,7 @@
         "properties": {
           "budget": {
             "$ref": "#/components/schemas/billing.UpdateBudgetConfigurationBudget",
-            "description": "The updated budget. This will overwrite the budget specified by the\nbudget ID."
+            "description": "The updated budget. This will overwrite the budget specified by the\nbudget ID. Alerts and actions are matched by ID: those omitted from the\nrequest are removed, and those without an ID are created."
           }
         },
         "required": [
@@ -1181,6 +1192,7 @@
         "type": "object"
       },
       "catalog.CreateAccountsStorageCredential": {
+        "description": "A storage credential represents an authentication and authorization mechanism\nfor accessing data stored on your cloud tenant. It holds exactly one cloud\ncredential, for example an AWS IAM role, an Azure managed identity or service\nprincipal, or a GCP service account. Only the field for the selected\ncredential type is set in requests and responses.",
         "properties": {
           "aws_iam_role": {
             "$ref": "#/components/schemas/catalog.AwsIamRoleRequest",
@@ -1403,6 +1415,7 @@
         "type": "object"
       },
       "catalog.StorageCredentialInfo": {
+        "description": "A storage credential represents an authentication and authorization mechanism\nfor accessing data stored on your cloud tenant. It holds exactly one cloud\ncredential, for example an AWS IAM role, an Azure managed identity or service\nprincipal, or a GCP service account. Only the field for the selected\ncredential type is set in requests and responses.",
         "properties": {
           "aws_iam_role": {
             "$ref": "#/components/schemas/catalog.AwsIamRoleResponse",
@@ -1516,6 +1529,7 @@
         "type": "object"
       },
       "catalog.UpdateAccountsStorageCredential": {
+        "description": "A storage credential represents an authentication and authorization mechanism\nfor accessing data stored on your cloud tenant. It holds exactly one cloud\ncredential, for example an AWS IAM role, an Azure managed identity or service\nprincipal, or a GCP service account. Only the field for the selected\ncredential type is set in requests and responses.",
         "properties": {
           "aws_iam_role": {
             "$ref": "#/components/schemas/catalog.AwsIamRoleRequest",
@@ -1594,7 +1608,7 @@
           },
           "failover_type": {
             "$ref": "#/components/schemas/disasterrecovery.FailoverFailoverGroupRequestFailoverType",
-            "description": "The type of failover to perform."
+            "description": "The type of failover to perform. FORCED is the only supported type."
           },
           "target_primary_region": {
             "description": "The target primary region. Must be one of the participating regions and\ndifferent from the current effective_primary_region. Serves as an\nidempotency check.",
@@ -1615,7 +1629,7 @@
         "type": "string"
       },
       "disasterrecovery.FailoverGroup": {
-        "description": "A failover group manages disaster recovery across workspace sets,\ncoordinating Unity Catalog and workspace assets replication.",
+        "description": "A failover group manages Databricks Managed Disaster Recovery for a pair of\nworkspaces in two regions. It continuously replicates the selected Unity\nCatalog catalogs and workspace assets from the primary region to the\nsecondary region and lets you fail over to the secondary region; at least one\nof the two replication types must be enabled. See\nhttps://docs.databricks.com/aws/en/admin/managed-disaster-recovery for the\nproduct documentation.",
         "properties": {
           "create_time": {
             "description": "Time at which this failover group was created.",
@@ -1631,11 +1645,11 @@
             "type": "string"
           },
           "has_replication_point_blocking_errors": {
-            "description": "True if errors currently block the replication point.",
+            "description": "True when replication errors are preventing the replication point from\nadvancing. Populated only while the failover group is INITIAL_REPLICATION\nor ACTIVE; the blocking errors are listed in the\nsystem.replication.states system table.",
             "type": "boolean"
           },
           "initial_primary_region": {
-            "description": "Initial primary region. Used only in Create requests to set the starting\nprimary region. Not returned in responses.",
+            "description": "Initial primary region. Used only in Create requests to set the starting\nprimary region, and must be one of the regions in `regions`. Not returned\nin responses.",
             "type": "string"
           },
           "initial_replication_progress": {
@@ -1647,24 +1661,24 @@
             "type": "string"
           },
           "regions": {
-            "description": "List of all regions participating in this failover group.",
+            "description": "The two cloud regions that participate in this failover group, the\nprimary and the secondary. Each workspace set contains one workspace in\neach region.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "replication_point": {
-            "description": "The latest point in time to which data has been replicated.",
+            "description": "The most recent point in time up to which all in-scope assets have been\nreplicated to the secondary region. Data written after this point might\nnot exist in the secondary yet and can be lost in an unplanned failover.\nWhen both Unity Catalog and workspace assets are replicated, this is the\nolder of the two replication points. Not populated until the first\nreplication point exists, and not populated in ListFailoverGroups\nresponses.",
             "format": "date-time",
             "type": "string"
           },
           "state": {
             "$ref": "#/components/schemas/disasterrecovery.FailoverGroupState",
-            "description": "Aggregate state of the failover group."
+            "description": "Aggregate state of the failover group across Unity Catalog and workspace\nasset replication. The group is INITIAL_REPLICATION until it has a\nreplication point, ACTIVE while replication is in steady state and\nfailover is available, and FAILING_OVER while a failover is in progress;\nthe `*_FAILED` values mean that the last operation did not complete. Not\npopulated in ListFailoverGroups responses."
           },
           "unity_catalog_assets": {
             "$ref": "#/components/schemas/disasterrecovery.UcReplicationConfig",
-            "description": "Unity Catalog replication configuration."
+            "description": "Unity Catalog replication configuration: the catalogs to replicate and\nthe storage location mappings for their data. Omit it to replicate\nworkspace assets only."
           },
           "update_time": {
             "description": "Time at which this failover group was last modified.",
@@ -1672,7 +1686,7 @@
             "type": "string"
           },
           "workspace_sets": {
-            "description": "Workspace sets, each containing workspaces that replicate to each other.",
+            "description": "Workspace sets, each containing workspaces that replicate to each other.\nA failover group currently supports exactly one workspace set.",
             "items": {
               "$ref": "#/components/schemas/disasterrecovery.WorkspaceSet"
             },
@@ -1704,7 +1718,7 @@
         "description": "Progress of the initial replication of all in-scope assets (Unity Catalog and\nworkspace assets) of a FailoverGroup. Populated only while the FailoverGroup\nis in INITIAL_REPLICATION.",
         "properties": {
           "completed": {
-            "description": "Percent complete, 0-100.",
+            "description": "Percentage of in-scope assets replicated so far, from 0 to 100. Stays\nbelow 100 while errors block the first replication point.",
             "format": "int64",
             "type": "integer"
           }
@@ -1749,11 +1763,11 @@
         "description": "A location mapping identified by a name, with URIs per region. The system\nderives replication direction from effective_primary_region.",
         "properties": {
           "name": {
-            "description": "Resource name for this location.",
+            "description": "Identifier of this location mapping, unique within the failover group.",
             "type": "string"
           },
           "uri_by_region": {
-            "description": "URI for each region. Each entry maps a region name to a storage URI.",
+            "description": "The storage URI of this location in each region, with exactly one entry\nper region of the failover group.",
             "items": {
               "$ref": "#/components/schemas/disasterrecovery.LocationMappingEntry"
             },
@@ -1770,11 +1784,11 @@
         "description": "A single entry in a location mapping, mapping a region to a storage URI. Used\ninstead of map<string, string> for proto2 compatibility.",
         "properties": {
           "region": {
-            "description": "The region name.",
+            "description": "Cloud region this URI applies to. Must be one of the failover group's\nregions.",
             "type": "string"
           },
           "uri": {
-            "description": "The storage URI for this region.",
+            "description": "Cloud storage URI of the location in this region. End the URI with `/*`\nto map every path under it as a prefix; within one mapping, either all\nURIs or none carry the `/*` suffix.",
             "type": "string"
           }
         },
@@ -1821,7 +1835,7 @@
         "description": "A Unity Catalog catalog to replicate.",
         "properties": {
           "name": {
-            "description": "The name of the UC catalog to replicate.",
+            "description": "Name of the Unity Catalog catalog to replicate.",
             "type": "string"
           }
         },
@@ -1834,18 +1848,18 @@
         "description": "Unity Catalog replication configuration (top-level, not per-set).",
         "properties": {
           "catalogs": {
-            "description": "UC catalogs to replicate.",
+            "description": "Unity Catalog catalogs to replicate, including their metadata and managed\ntable data. Adding a catalog to an existing failover group returns the\ngroup to INITIAL_REPLICATION until the catalog has been replicated.",
             "items": {
               "$ref": "#/components/schemas/disasterrecovery.UcCatalog"
             },
             "type": "array"
           },
           "data_replication_workspace_set": {
-            "description": "The workspace set whose workspaces will be used for data replication of\nall UC catalogs' underlying storage.",
+            "description": "Name of the workspace set whose workspaces run the data replication for\nthe catalogs' underlying storage. Must match the name of a workspace set\nin this failover group.",
             "type": "string"
           },
           "location_mappings": {
-            "description": "Location mappings - storage URI per region for each location.",
+            "description": "Storage location mappings. Each mapping pairs a storage path used by the\nreplicated catalogs in one region with the corresponding path in the\nother region, so that replicated data is written to the matching storage\nin the secondary region.",
             "items": {
               "$ref": "#/components/schemas/disasterrecovery.LocationMapping"
             },
@@ -1862,22 +1876,22 @@
         "description": "A set of workspaces that replicate to each other across regions.",
         "properties": {
           "name": {
-            "description": "Resource name for this workspace set.",
+            "description": "Identifier of the workspace set, unique within the failover group and\nreferenced by unity_catalog_assets.data_replication_workspace_set. Cannot\nbe changed after creation.",
             "type": "string"
           },
           "replicate_workspace_assets": {
-            "description": "Whether to enable control plane DR (notebooks, jobs, clusters, etc.) for\nthis set. Defaults to false.",
+            "description": "Whether to replicate workspace assets (notebooks, jobs, clusters, SQL\nwarehouses and so on) and their ACLs for this set. Defaults to false. Can\nbe turned on or off with UpdateFailoverGroup.",
             "type": "boolean"
           },
           "stable_url_names": {
-            "description": "Resource names of stable URLs associated with this workspace set. Format:\naccounts/{account_id}/stable-urls/{stable_url_id}. The referenced stable\nURLs must already exist (via CreateStableUrl).",
+            "description": "Resource names of stable URLs associated with this workspace set. Format:\naccounts/{account_id}/stable-urls/{stable_url_id}. The referenced stable\nURLs must already exist (via CreateStableUrl), and the list can only be\nset when replicate_workspace_assets is true. While workspace asset\nreplication stays enabled, an update can attach or detach one stable URL\nat a time.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "workspace_ids": {
-            "description": "Workspace IDs in this set. The system derives and validates regions. All\nworkspaces must be in the Mission Critical tier.",
+            "description": "IDs of the two workspaces in this set, one in each of the failover\ngroup's regions. The system derives and validates each workspace's\nregion. Both workspaces must belong to the account and have the Mission\nCritical add-on enabled, and they cannot be changed after creation.",
             "items": {
               "type": "string"
             },
@@ -1891,24 +1905,26 @@
         "type": "object"
       },
       "iam.AccountGroup": {
+        "description": "Represents a group of users, service principals and other groups in the\nDatabricks account. Members inherit the permissions that are granted to the\ngroup.",
         "properties": {
           "account_id": {
-            "description": "Databricks account ID",
+            "description": "Identifies the Databricks account that the group belongs to.",
             "type": "string"
           },
           "displayName": {
-            "description": "String that represents a human-readable group name",
+            "description": "Identifies the group by a human-readable name. The name must be unique\nwithin the account and must not exceed 255 characters.",
             "type": "string"
           },
           "externalId": {
-            "description": "external_id should be unique for identifying groups",
+            "description": "Identifies the group in an external identity provider. Identity providers\nuse it to match the groups they manage to Databricks groups, so it should\nbe unique among the groups in the account.",
             "type": "string"
           },
           "id": {
-            "description": "Databricks group ID",
+            "description": "Identifies the group within Databricks. Databricks generates the ID when\nthe group is created.",
             "type": "string"
           },
           "members": {
+            "description": "Lists the members of the group. Each entry identifies a user, service\nprincipal or group in the account by its ID in the value sub-attribute.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -1919,7 +1935,7 @@
             "description": "Container for the group identifier. Workspace local versus account."
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the group. The only\nsupported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -1929,32 +1945,34 @@
         "type": "object"
       },
       "iam.AccountServicePrincipal": {
+        "description": "Represents a service principal in the Databricks account. Service principals\nare identities for jobs, automated tools and systems such as scripts, apps\nand CI/CD platforms.",
         "properties": {
           "account_id": {
-            "description": "Databricks account ID",
+            "description": "Identifies the Databricks account that the service principal belongs to.",
             "type": "string"
           },
           "active": {
-            "description": "If this user is active",
+            "description": "Indicates whether the service principal is active. A deactivated service\nprincipal cannot authenticate or access Databricks APIs, but it keeps its\npermissions.",
             "type": "boolean"
           },
           "applicationId": {
-            "description": "UUID relating to the service principal",
+            "description": "Identifies the service principal when it authenticates to Databricks.\nDatabricks generates the application ID, except on Azure, where it can be\nthe application ID of a Microsoft Entra ID service principal.",
             "type": "string"
           },
           "displayName": {
-            "description": "String that represents a concatenation of given and family names.",
+            "description": "Identifies the service principal by a human-readable name.",
             "type": "string"
           },
           "externalId": {
+            "description": "Identifies the service principal in an external identity provider.\nIdentity providers use it to match the service principals they manage to\nDatabricks service principals.",
             "type": "string"
           },
           "id": {
-            "description": "Databricks service principal ID.",
+            "description": "Identifies the service principal within Databricks. Databricks generates\nthe ID when the service principal is created.",
             "type": "string"
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the service principal. The\nonly supported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2032,17 +2050,19 @@
       "iam.CreateAccountGroupRequest": {
         "properties": {
           "displayName": {
-            "description": "String that represents a human-readable group name",
+            "description": "Sets the human-readable name of the group. The name must be unique within\nthe account and must not exceed 255 characters.",
             "type": "string"
           },
           "externalId": {
+            "description": "Sets the identifier of the group in an external identity provider.",
             "type": "string"
           },
           "id": {
-            "description": "Databricks group ID",
+            "description": "Identifies the group within Databricks.",
             "type": "string"
           },
           "members": {
+            "description": "Lists the members of the group. Each entry identifies a user, service\nprincipal or group in the account by its ID in the value sub-attribute.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2053,7 +2073,7 @@
             "description": "Container for the group identifier. Workspace local versus account."
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the group. The only\nsupported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2065,26 +2085,27 @@
       "iam.CreateAccountServicePrincipalRequest": {
         "properties": {
           "active": {
-            "description": "If this user is active",
+            "description": "Indicates whether the service principal is active. A deactivated service\nprincipal cannot authenticate or access Databricks APIs, but it keeps its\npermissions.",
             "type": "boolean"
           },
           "applicationId": {
-            "description": "UUID relating to the service principal",
+            "description": "Sets the application ID of a Microsoft Entra ID service principal. Only\nAzure accepts this field. On AWS and GCP, Databricks generates the\napplication ID and rejects requests that set it.",
             "type": "string"
           },
           "displayName": {
-            "description": "String that represents a concatenation of given and family names.",
+            "description": "Sets the human-readable name of the service principal. The name is\nrequired unless the request sets `applicationId`.",
             "type": "string"
           },
           "externalId": {
+            "description": "Sets the identifier of the service principal in an external identity\nprovider.",
             "type": "string"
           },
           "id": {
-            "description": "Databricks service principal ID.",
+            "description": "Identifies the service principal within Databricks.",
             "type": "string"
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the service principal. The\nonly supported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2175,7 +2196,7 @@
       "iam.ListAccountGroupsResponse": {
         "properties": {
           "Resources": {
-            "description": "User objects returned in the response.",
+            "description": "Group objects returned in the response.",
             "items": {
               "$ref": "#/components/schemas/iam.AccountGroup"
             },
@@ -2202,7 +2223,7 @@
       "iam.ListAccountServicePrincipalsResponse": {
         "properties": {
           "Resources": {
-            "description": "User objects returned in the response.",
+            "description": "Lists the service principals that are returned in the response.",
             "items": {
               "$ref": "#/components/schemas/iam.AccountServicePrincipal"
             },
@@ -2292,6 +2313,7 @@
       "iam.PatchAccountGroupRequest": {
         "properties": {
           "Operations": {
+            "description": "Lists the patch operations to apply to the group.",
             "items": {
               "$ref": "#/components/schemas/iam.Patch"
             },
@@ -2310,6 +2332,7 @@
       "iam.PatchAccountServicePrincipalRequest": {
         "properties": {
           "Operations": {
+            "description": "Lists the patch operations to apply to the service principal.",
             "items": {
               "$ref": "#/components/schemas/iam.Patch"
             },
@@ -2500,13 +2523,15 @@
       "iam.UpdateAccountGroupRequest": {
         "properties": {
           "displayName": {
-            "description": "String that represents a human-readable group name",
+            "description": "Sets the human-readable name of the group. The name must be unique within\nthe account and must not exceed 255 characters.",
             "type": "string"
           },
           "externalId": {
+            "description": "Sets the identifier of the group in an external identity provider.",
             "type": "string"
           },
           "members": {
+            "description": "Lists the members of the group. Each entry identifies a user, service\nprincipal or group in the account by its ID in the value sub-attribute.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2517,7 +2542,7 @@
             "description": "Container for the group identifier. Workspace local versus account."
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the group. The only\nsupported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2529,22 +2554,23 @@
       "iam.UpdateAccountServicePrincipalRequest": {
         "properties": {
           "active": {
-            "description": "If this user is active",
+            "description": "Indicates whether the service principal is active. A deactivated service\nprincipal cannot authenticate or access Databricks APIs, but it keeps its\npermissions.",
             "type": "boolean"
           },
           "applicationId": {
-            "description": "UUID relating to the service principal",
+            "description": "Sets the application ID of a Microsoft Entra ID service principal. Only\nAzure accepts this field. On AWS and GCP, Databricks generates the\napplication ID and rejects requests that set it.",
             "type": "string"
           },
           "displayName": {
-            "description": "String that represents a concatenation of given and family names.",
+            "description": "Sets the human-readable name of the service principal. The name is\nrequired unless the request sets `applicationId`.",
             "type": "string"
           },
           "externalId": {
+            "description": "Sets the identifier of the service principal in an external identity\nprovider.",
             "type": "string"
           },
           "roles": {
-            "description": "Indicates if the group has the admin role.",
+            "description": "Lists the account roles that are assigned to the service principal. The\nonly supported role value is `account_admin`.",
             "items": {
               "$ref": "#/components/schemas/iam.ComplexValue"
             },
@@ -2640,7 +2666,7 @@
         "type": "object"
       },
       "iamv2.DirectGroupMember": {
-        "description": "A user, service principal, or group that's a direct member of a group.",
+        "description": "A user, service principal, or group that's a direct member of a group. To\naddress a membership, put its resource name in the URL: `GET\n/api/2.0/identity/accounts/{account_id}/groups/{group_id}/direct-members/{principal_id}`\nin account APIs, or `GET\n/api/2.0/identity/groups/{group_id}/direct-members/{principal_id}` in\nworkspace APIs.",
         "properties": {
           "display_name": {
             "description": "The member's display name.",
@@ -2708,7 +2734,7 @@
         "type": "object"
       },
       "iamv2.ExternalGroup": {
-        "description": "A group from your identity provider (IdP), identified by its ID in your IdP.\nThis resource is read-only. Getting an external group syncs its name and\nparent groups from your IdP, and adds it to your account if it isn't already\nthere. If your account has group visibility filters, the group must match\nthem.",
+        "description": "A group from your identity provider (IdP), identified by its ID in your IdP.\nThis resource is read-only. Getting an external group syncs its name and\nparent groups from your IdP, and adds it to your account if it isn't already\nthere. If your account has group visibility filters, the group must match\nthem. To address an external group, put its resource name in the URL: `GET\n/api/2.0/identity/accounts/{account_id}/external-groups/{external_group_id}`\nin account APIs, or `GET\n/api/2.0/identity/external-groups/{external_group_id}` in workspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the group.",
@@ -2734,7 +2760,7 @@
         "type": "object"
       },
       "iamv2.ExternalServicePrincipal": {
-        "description": "A service principal from your identity provider (IdP), identified by its ID\nin your IdP. This resource is read-only and requires Microsoft Entra ID as\nyour IdP. Getting an external service principal syncs its details and group\nmemberships from your IdP, and adds it to your account if it isn't already\nthere.",
+        "description": "A service principal from your identity provider (IdP), identified by its ID\nin your IdP. This resource is read-only and requires Microsoft Entra ID as\nyour IdP. Getting an external service principal syncs its details and group\nmemberships from your IdP, and adds it to your account if it isn't already\nthere. To address an external service principal, put its resource name in the\nURL: `GET\n/api/2.0/identity/accounts/{account_id}/external-service-principals/{external_service_principal_id}`\nin account APIs, or `GET\n/api/2.0/identity/external-service-principals/{external_service_principal_id}`\nin workspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the service principal.",
@@ -2768,7 +2794,7 @@
         "type": "object"
       },
       "iamv2.ExternalUser": {
-        "description": "A user from your identity provider (IdP), identified by their ID in your IdP.\nThis resource is read-only. Getting an external user syncs the user's details\nand group memberships from your IdP, and adds the user to your account if\nthey aren't already there.",
+        "description": "A user from your identity provider (IdP), identified by their ID in your IdP.\nThis resource is read-only. Getting an external user syncs the user's details\nand group memberships from your IdP, and adds the user to your account if\nthey aren't already there. To address an external user, put its resource name\nin the URL: `GET\n/api/2.0/identity/accounts/{account_id}/external-users/{external_user_id}` in\naccount APIs, or `GET /api/2.0/identity/external-users/{external_user_id}` in\nworkspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the user.",
@@ -2820,7 +2846,7 @@
         "type": "object"
       },
       "iamv2.Group": {
-        "description": "A group in your Databricks account.",
+        "description": "A group in your Databricks account. To address a group, put its resource name\nin the URL: `GET /api/2.0/identity/accounts/{account_id}/groups/{group_id}`\nin account APIs, or `GET /api/2.0/identity/groups/{group_id}` in workspace\nAPIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the group.",
@@ -2831,11 +2857,11 @@
             "type": "string"
           },
           "group_id": {
-            "description": "The Databricks ID of the group.",
+            "description": "The Databricks ID of the group. It is a numeric string that Databricks\nassigns when the group is created, and it is the `{group_id}` segment of\n`name`.",
             "type": "string"
           },
           "group_name": {
-            "description": "The name of the group.",
+            "description": "The display name of the group. It must be unique in the account, must not\nbe blank, and must be shorter than 255 characters. Databricks trims\nsurrounding whitespace. You can't use the name of a group that Databricks\nmanages, such as `admins` or `users`.",
             "type": "string"
           },
           "name": {
@@ -2858,7 +2884,7 @@
         "type": "string"
       },
       "iamv2.IdentityVisibilityFilter": {
-        "description": "An account-level rule that controls which groups from your identity provider\n(IdP) can be found in directory search and group pickers when automatic\nidentity management is on. Filters apply to every workspace in the account.\n\nIf you have no group filters, all groups are visible. Otherwise, a group is\nvisible if it or any of its parent groups matches at least one filter. A\ngroup is also visible if it or any of its parent groups is already in your\naccount. Local Databricks groups are always visible.\n\nYou can only create group filters. Filters don't affect provisioning or\nsign-in for users and service principals. You can't change a filter: to\nchange a rule, delete it and create a new one.",
+        "description": "An account-level rule that controls which groups from your identity provider\n(IdP) can be found in directory search and group pickers when automatic\nidentity management is on. Filters apply to every workspace in the account.\n\nIf you have no group filters, all groups are visible. Otherwise, a group is\nvisible if it or any of its parent groups matches at least one filter. A\ngroup is also visible if it or any of its parent groups is already in your\naccount. Local Databricks groups are always visible.\n\nYou can only create group filters. Filters don't affect provisioning or\nsign-in for users and service principals. You can't change a filter: to\nchange a rule, delete it and create a new one.\n\nTo address a filter, put its resource name in the URL: `GET\n/api/2.0/identity/accounts/{account_id}/identity-visibility-filters/{identity_visibility_filter_id}`.",
         "properties": {
           "exact": {
             "$ref": "#/components/schemas/iamv2.ExactMatchRule",
@@ -3126,7 +3152,7 @@
         "type": "object"
       },
       "iamv2.ServicePrincipal": {
-        "description": "A service principal in your Databricks account.",
+        "description": "A service principal in your Databricks account. To address a service\nprincipal, put its resource name in the URL: `GET\n/api/2.0/identity/accounts/{account_id}/service-principals/{service_principal_id}`\nin account APIs, or `GET\n/api/2.0/identity/service-principals/{service_principal_id}` in workspace\nAPIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the service principal.",
@@ -3176,7 +3202,7 @@
         "type": "string"
       },
       "iamv2.TransitiveParentGroup": {
-        "description": "A group that a principal belongs to, either directly or through another\ngroup.",
+        "description": "A group that a principal belongs to, either directly or through another\ngroup. To list a principal's parent groups, put the principal's resource name\nin the URL: `GET\n/api/2.0/identity/accounts/{account_id}/principals/{principal_id}/transitive-parent-groups`\nin account APIs, or `GET\n/api/2.0/identity/principals/{principal_id}/transitive-parent-groups` in\nworkspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the group.",
@@ -3198,7 +3224,7 @@
         "type": "object"
       },
       "iamv2.User": {
-        "description": "A user in your Databricks account.",
+        "description": "A user in your Databricks account. To address a user, put its resource name\nin the URL: `GET /api/2.0/identity/accounts/{account_id}/users/{user_id}` in\naccount APIs, or `GET /api/2.0/identity/users/{user_id}` in workspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the user.",
@@ -3312,7 +3338,7 @@
         "type": "string"
       },
       "iamv2.WorkspaceAssignment": {
-        "description": "A principal's direct assignment to a workspace, and the entitlements it\ngrants there.\n\nOnly principals assigned directly to the workspace have an assignment. A\nprincipal that gets access only through a group doesn't. Creating an\nassignment gives the principal access to the workspace, and deleting it\nremoves that direct access. These APIs replace managing workspace assignments\nthrough SCIM and the permission assignment APIs. They require a workspace\nwith identity federation enabled. You can't assign, change, or unassign\nprincipals that Databricks manages.\n\n`entitlements` is the only field you set. `effective_entitlements` also\nincludes the entitlements the principal gets through its groups. An\nassignment must grant at least one entitlement. To remove a principal's\ndirect access, delete the assignment.",
+        "description": "A principal's direct assignment to a workspace, and the entitlements it\ngrants there.\n\nOnly principals assigned directly to the workspace have an assignment. A\nprincipal that gets access only through a group doesn't. Creating an\nassignment gives the principal access to the workspace, and deleting it\nremoves that direct access. These APIs replace managing workspace assignments\nthrough SCIM and the permission assignment APIs. They require a workspace\nwith identity federation enabled. You can't assign, change, or unassign\nprincipals that Databricks manages.\n\n`entitlements` is the only field you set. `effective_entitlements` also\nincludes the entitlements the principal gets through its groups. An\nassignment must grant at least one entitlement. To remove a principal's\ndirect access, delete the assignment.\n\nTo address an assignment, put its resource name in the URL: `GET\n/api/2.0/identity/accounts/{account_id}/workspaces/{workspace_id}/workspace-assignments/{principal_id}`\nin account APIs, or `GET\n/api/2.0/identity/workspace-assignments/{principal_id}` in workspace APIs.",
         "properties": {
           "account_id": {
             "description": "The ID of the account that contains the workspace.",
@@ -3946,7 +3972,7 @@
       "oauth2.CreateCustomAppIntegration": {
         "properties": {
           "confidential": {
-            "description": "This field indicates whether an OAuth client secret is required to\nauthenticate this client.",
+            "description": "Whether to create a confidential client that authenticates with a client\nsecret. Public clients receive no client secret.",
             "type": "boolean"
           },
           "name": {
@@ -3954,14 +3980,14 @@
             "type": "string"
           },
           "redirect_urls": {
-            "description": "List of OAuth redirect urls",
+            "description": "OAuth redirect URLs for the application. Each URL must use https, except\nloopback URLs (localhost, 127.0.0.1 or ::1), which may use http. At most\n100 URLs of at most 256 characters each.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "scopes": {
-            "description": "OAuth scopes granted to the application. Supported scopes: all-apis, sql,\noffline_access, openid, profile, email.",
+            "description": "OAuth scopes granted to the application. At least one scope is required.\nSupported scopes: all-apis, sql, offline_access, openid, profile, email,\nand the fine-grained API scopes listed at\nhttps://docs.databricks.com/api/account/scopes.",
             "items": {
               "type": "string"
             },
@@ -3969,7 +3995,7 @@
           },
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy"
+            "description": "Lifetimes of the tokens issued to the application. If omitted, access\ntokens are valid for 60 minutes and refresh tokens for 7 days (10080\nminutes). If set, both TTL fields are required."
           },
           "user_authorized_scopes": {
             "description": "Scopes that will need to be consented by end user to mint the access\ntoken. If the user does not authorize the access token will not be\nminted. Must be a subset of scopes.",
@@ -3984,11 +4010,11 @@
       "oauth2.CreateCustomAppIntegrationOutput": {
         "properties": {
           "client_id": {
-            "description": "OAuth client-id generated by the Databricks",
+            "description": "OAuth client ID generated by Databricks.",
             "type": "string"
           },
           "client_secret": {
-            "description": "OAuth client-secret generated by the Databricks. If this is a\nconfidential OAuth app client-secret will be generated.",
+            "description": "OAuth client secret generated by Databricks for confidential apps; empty\nfor public apps. It is only returned in this response and cannot be\nretrieved later, so store it securely.",
             "type": "string"
           },
           "integration_id": {
@@ -4001,12 +4027,12 @@
       "oauth2.CreatePublishedAppIntegration": {
         "properties": {
           "app_id": {
-            "description": "App id of the OAuth published app integration. For example power-bi,\ntableau-deskop",
+            "description": "ID of the published OAuth app to enable, as returned in app_id by the\nlist of published OAuth apps. The short legacy IDs of the original\npublished apps, such as power-bi and tableau-desktop, are also accepted.\nThe request fails if the app is already enabled for the account.",
             "type": "string"
           },
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy"
+            "description": "Lifetimes of the tokens issued to the app. If omitted, the app's default\ntoken lifetimes apply. If set, both TTL fields are required."
           }
         },
         "type": "object"
@@ -4014,7 +4040,7 @@
       "oauth2.CreatePublishedAppIntegrationOutput": {
         "properties": {
           "integration_id": {
-            "description": "Unique integration id for the published OAuth app",
+            "description": "ID of the published OAuth app integration.",
             "type": "string"
           }
         },
@@ -4117,21 +4143,24 @@
       "oauth2.GetCustomAppIntegrationOutput": {
         "properties": {
           "client_id": {
-            "description": "The client id of the custom OAuth app",
+            "description": "OAuth client ID that the application uses as client_id in the OAuth flow.",
             "type": "string"
           },
           "confidential": {
-            "description": "This field indicates whether an OAuth client secret is required to\nauthenticate this client.",
+            "description": "Whether the application is a confidential client that authenticates with\na client secret. Public clients have no client secret.",
             "type": "boolean"
           },
           "create_time": {
+            "description": "Time the integration was created, as an ISO 8601 timestamp.",
             "type": "string"
           },
           "created_by": {
+            "description": "ID of the user who created the integration.",
             "format": "int64",
             "type": "integer"
           },
           "creator_username": {
+            "description": "Username of the user who created the integration. Only returned by the\nlist method when include_creator_username is true.",
             "type": "string"
           },
           "integration_id": {
@@ -4143,13 +4172,14 @@
             "type": "string"
           },
           "redirect_urls": {
-            "description": "List of OAuth redirect urls",
+            "description": "OAuth redirect URLs the application is allowed to use in the\nauthorization flow.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "scopes": {
+            "description": "OAuth scopes the application is allowed to request.",
             "items": {
               "type": "string"
             },
@@ -4157,7 +4187,7 @@
           },
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy"
+            "description": "Lifetimes of the access and refresh tokens issued to the application."
           },
           "user_authorized_scopes": {
             "description": "Scopes that will need to be consented by end user to mint the access\ntoken. If the user does not authorize the access token will not be\nminted. Must be a subset of scopes.",
@@ -4179,35 +4209,39 @@
             "type": "array"
           },
           "next_page_token": {
+            "description": "Token for the next page of results. If not present, there are no more\nresults to show.",
             "type": "string"
           }
         },
         "type": "object"
       },
       "oauth2.GetPublishedAppIntegrationOutput": {
+        "description": "A published OAuth app integration enables an OAuth app published by\nDatabricks, such as Power BI or Tableau Desktop, for the account. Databricks\nmanages the app's client ID, redirect URLs and scopes; the integration only\nsets the lifetimes of the tokens issued to the app. To register your own\napplication, use a custom OAuth app integration instead. See\nhttps://docs.databricks.com/aws/en/integrations/enable-disable-oauth.",
         "properties": {
           "app_id": {
-            "description": "App-id of the published app integration",
+            "description": "ID of the published OAuth app, as returned in app_id by the list of\npublished OAuth apps.",
             "type": "string"
           },
           "create_time": {
+            "description": "Time the integration was created, as an ISO 8601 timestamp.",
             "type": "string"
           },
           "created_by": {
+            "description": "ID of the user who created the integration.",
             "format": "int64",
             "type": "integer"
           },
           "integration_id": {
-            "description": "Unique integration id for the published OAuth app",
+            "description": "ID of the published OAuth app integration in the account.",
             "type": "string"
           },
           "name": {
-            "description": "Display name of the published OAuth app",
+            "description": "Display name of the published OAuth app.",
             "type": "string"
           },
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy"
+            "description": "Lifetimes of the access and refresh tokens issued to the app."
           }
         },
         "type": "object"
@@ -4222,6 +4256,7 @@
             "type": "array"
           },
           "next_page_token": {
+            "description": "Token for the next page of results. If not present, there are no more\nresults to show.",
             "type": "string"
           }
         },
@@ -4313,7 +4348,7 @@
             "type": "string"
           },
           "client_id": {
-            "description": "Client ID of the published OAuth app. It is the client_id in the OAuth\nflow",
+            "description": "Client ID of the published OAuth app. The app sends it as client_id in\nthe OAuth flow.",
             "type": "string"
           },
           "description": {
@@ -4384,12 +4419,12 @@
       "oauth2.TokenAccessPolicy": {
         "properties": {
           "absolute_session_lifetime_in_minutes": {
-            "description": "Absolute OAuth session TTL in minutes. Effective only when the single-use\nrefresh token feature is enabled. This is the absolute TTL of all refresh\ntokens issued in one OAuth session. When a new refresh token is issued\nduring refresh token rotation, it will inherit the same absolute TTL as\nthe old refresh token. In other words, this represents the maximum amount\nof time a user can stay logged in without re-authenticating.",
+            "description": "Absolute OAuth session TTL in minutes. Can only be set when\nenable_single_use_refresh_tokens is true, and must be at least\nrefresh_token_ttl_in_minutes and at most 525600 (one year). This is the\nabsolute TTL of all refresh tokens issued in one OAuth session. When a\nnew refresh token is issued during refresh token rotation, it will\ninherit the same absolute TTL as the old refresh token. In other words,\nthis represents the maximum amount of time a user can stay logged in\nwithout re-authenticating.",
             "format": "int64",
             "type": "integer"
           },
           "access_token_ttl_in_minutes": {
-            "description": "access token time to live in minutes",
+            "description": "Lifetime of access tokens, in minutes.",
             "format": "int64",
             "type": "integer"
           },
@@ -4398,7 +4433,7 @@
             "type": "boolean"
           },
           "refresh_token_ttl_in_minutes": {
-            "description": "Refresh token time to live in minutes. When single-use refresh tokens are\nenabled, this represents the TTL of an individual refresh token. If the\nrefresh token is used before it expires, a new one is issued with a\nrenewed individual TTL.",
+            "description": "Lifetime of refresh tokens, in minutes. Must not be shorter than\naccess_token_ttl_in_minutes. When single-use refresh tokens are enabled,\nthis represents the TTL of an individual refresh token. If the refresh\ntoken is used before it expires, a new one is issued with a renewed\nindividual TTL.",
             "format": "int64",
             "type": "integer"
           }
@@ -4408,7 +4443,7 @@
       "oauth2.UpdateCustomAppIntegration": {
         "properties": {
           "redirect_urls": {
-            "description": "List of OAuth redirect urls to be updated in the custom OAuth app\nintegration",
+            "description": "New OAuth redirect URLs for the application. Replaces the existing list;\nsame constraints as on create.",
             "items": {
               "type": "string"
             },
@@ -4423,7 +4458,7 @@
           },
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy to be updated in the custom OAuth app integration"
+            "description": "New token lifetimes for the application. Both TTL fields are required\nwhen the policy is set; the single-use refresh token settings keep their\ncurrent values when omitted."
           },
           "user_authorized_scopes": {
             "description": "Scopes that will need to be consented by end user to mint the access\ntoken. If the user does not authorize the access token will not be\nminted. Must be a subset of scopes.",
@@ -4439,7 +4474,7 @@
         "properties": {
           "token_access_policy": {
             "$ref": "#/components/schemas/oauth2.TokenAccessPolicy",
-            "description": "Token access policy to be updated in the published OAuth app integration"
+            "description": "New token lifetimes for the app. Both TTL fields are required when the\npolicy is set; the single-use refresh token settings keep their current\nvalues when omitted. If the policy is omitted, the integration is left\nunchanged."
           }
         },
         "type": "object"
@@ -5967,7 +6002,7 @@
         "properties": {
           "authentication": {
             "$ref": "#/components/schemas/settings.CustomerFacingIngressNetworkPolicyAuthentication",
-            "description": "The authenticated identity the request must match. When unset, the rule\nmatches all users and service principals. On the account-level network\npolicy, scoping to specific identities is not currently supported, so\nthis field must be unset (the rule matches all users and service\nprincipals)."
+            "description": "The authenticated identity the request must match. When unset, the rule\nmatches all users and service principals."
           },
           "destination": {
             "$ref": "#/components/schemas/settings.CustomerFacingIngressNetworkPolicyRequestDestination",
@@ -7267,7 +7302,8 @@
       "settingsv2.AibiDashboardEmbeddingAccessPolicy": {
         "properties": {
           "access_policy_type": {
-            "$ref": "#/components/schemas/settingsv2.AibiDashboardEmbeddingAccessPolicyAccessPolicyType"
+            "$ref": "#/components/schemas/settingsv2.AibiDashboardEmbeddingAccessPolicyAccessPolicyType",
+            "description": "Where AI/BI dashboards can be embedded: in any domain\n(ALLOW_ALL_DOMAINS), only in the approved domains configured for the\nworkspace (ALLOW_APPROVED_DOMAINS), or nowhere (DENY_ALL_DOMAINS).\nDefaults to ALLOW_APPROVED_DOMAINS."
           }
         },
         "required": [
@@ -7286,6 +7322,7 @@
       "settingsv2.AibiDashboardEmbeddingApprovedDomains": {
         "properties": {
           "approved_domains": {
+            "description": "Domains allowed to host embedded AI/BI dashboards. A leading wildcard\nallows every subdomain of a domain. The list applies, and can only be\nchanged, while the embedding access policy is ALLOW_APPROVED_DOMAINS.",
             "items": {
               "type": "string"
             },
@@ -7297,6 +7334,7 @@
       "settingsv2.AllowedAppsUserApiScopesMessage": {
         "properties": {
           "allowed_scopes": {
+            "description": "OAuth scopes that app developers can request when an app acts on behalf\nof a user. A list with the single entry * allows every supported scope\nand cannot be combined with other scopes. An empty list disables user\nauthorization for apps.",
             "items": {
               "type": "string"
             },
@@ -7316,18 +7354,23 @@
       "settingsv2.ClusterAutoRestartMessage": {
         "properties": {
           "can_toggle": {
+            "description": "Whether the workspace can change the enabled state. Databricks computes\nthis value: it is false when the compliance security profile forces the\nfeature on or when the workspace lacks the Enhanced Security and\nCompliance entitlement. A value sent in an update request has no effect.",
             "type": "boolean"
           },
           "enabled": {
+            "description": "Whether automatic cluster update is enabled for the workspace. The\neffective value is always true while the compliance security profile is\nenabled on the workspace.",
             "type": "boolean"
           },
           "enablement_details": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageEnablementDetails"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageEnablementDetails",
+            "description": "Why the feature is forced on or unavailable. Databricks sets these\ndetails for information only; they do not determine whether the feature\nis enabled."
           },
           "maintenance_window": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindow"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindow",
+            "description": "When the maintenance window runs. When unset, it defaults to the first\nSunday of every month at 01:00 UTC."
           },
           "restart_even_if_no_updates_available": {
+            "description": "Whether compute resources restart during every maintenance window even\nwhen no update is available. When false, they restart only when an update\nis available.",
             "type": "boolean"
           }
         },
@@ -7341,7 +7384,7 @@
             "type": "boolean"
           },
           "unavailable_for_disabled_entitlement": {
-            "description": "The feature is unavailable if the corresponding entitlement disabled (see\ngetShieldEntitlementEnable)",
+            "description": "The feature is unavailable because the workspace does not have the\nEnhanced Security and Compliance entitlement.",
             "type": "boolean"
           },
           "unavailable_for_non_enterprise_tier": {
@@ -7354,7 +7397,8 @@
       "settingsv2.ClusterAutoRestartMessageMaintenanceWindow": {
         "properties": {
           "week_day_based_schedule": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule",
+            "description": "Schedule anchored to a day of the week, either every week or on given\nweeks of the month."
           }
         },
         "type": "object"
@@ -7374,13 +7418,16 @@
       "settingsv2.ClusterAutoRestartMessageMaintenanceWindowWeekDayBasedSchedule": {
         "properties": {
           "day_of_week": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowDayOfWeek"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowDayOfWeek",
+            "description": "Day of the week on which the maintenance window starts."
           },
           "frequency": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWeekDayFrequency"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWeekDayFrequency",
+            "description": "How often the maintenance window occurs: every week, or only on the\nlisted occurrences of the day of the week within each month."
           },
           "window_start_time": {
-            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWindowStartTime"
+            "$ref": "#/components/schemas/settingsv2.ClusterAutoRestartMessageMaintenanceWindowWindowStartTime",
+            "description": "Time of day, in UTC, at which the maintenance window starts."
           }
         },
         "type": "object"
@@ -7400,10 +7447,12 @@
       "settingsv2.ClusterAutoRestartMessageMaintenanceWindowWindowStartTime": {
         "properties": {
           "hours": {
+            "description": "Hour of the day on a 24-hour clock.",
             "format": "int64",
             "type": "integer"
           },
           "minutes": {
+            "description": "Minute of the hour.",
             "format": "int64",
             "type": "integer"
           }
@@ -7848,6 +7897,7 @@
       "settingsv2.OperationalEmailCustomRecipientMessage": {
         "properties": {
           "email": {
+            "description": "Email address that receives this workspace's operational emails in\naddition to the workspace admins. Use a distribution list address to\nreach several people. An empty string clears the additional recipient.",
             "type": "string"
           }
         },
@@ -7856,7 +7906,8 @@
       "settingsv2.PersonalComputeMessage": {
         "properties": {
           "value": {
-            "$ref": "#/components/schemas/settingsv2.PersonalComputeMessagePersonalComputeMessageEnum"
+            "$ref": "#/components/schemas/settingsv2.PersonalComputeMessagePersonalComputeMessageEnum",
+            "description": "ON grants all users in all workspaces of the account access to the\nPersonal Compute default policy. DELEGATE moves control to each\nworkspace, where users or groups must be added to the policy's\npermissions before they can create compute with it."
           }
         },
         "type": "object"
@@ -7887,7 +7938,8 @@
             "type": "boolean"
           },
           "status": {
-            "$ref": "#/components/schemas/settingsv2.RestrictWorkspaceAdminsMessageStatus"
+            "$ref": "#/components/schemas/settingsv2.RestrictWorkspaceAdminsMessageStatus",
+            "description": "Controls what workspace admins can do with service principal tokens and\njob identities. With ALLOW_ALL, workspace admins can create personal\naccess tokens on behalf of any service principal in the workspace, change\na job owner to any workspace user, and set a job's run_as identity to any\nworkspace user or to a service principal they have the Service Principal\nUser role on. With RESTRICT_TOKENS_AND_JOB_RUN_AS, they can only create\ntokens for service principals they have the Service Principal User role\non, change a job owner to themselves, and set run_as to themselves or to\na service principal they have that role on."
           }
         },
         "required": [
@@ -7903,6 +7955,7 @@
         "type": "string"
       },
       "settingsv2.Setting": {
+        "description": "A setting and its value at the workspace or account scope. Each setting has\none value type, so one value field applies to it: a primitive wrapper\n(boolean_val, string_val or integer_val) or a setting-specific message. The\nsettings metadata endpoint reports the field each setting uses. When updating\na setting, set only the value field that matches its type. Responses return\nthat field with the value configured at this scope, if one is set, together\nwith the matching effective_* field, which holds the value in effect after\nDatabricks applies account policies and defaults.",
         "properties": {
           "aibi_dashboard_embedding_access_policy": {
             "$ref": "#/components/schemas/settingsv2.AibiDashboardEmbeddingAccessPolicy",
@@ -7985,7 +8038,7 @@
             "description": "Setting value for integer type setting. This is the setting value set by\nconsumers, check effective_integer_val for final setting value."
           },
           "name": {
-            "description": "Name of the setting.",
+            "description": "Name of the setting. The settings metadata endpoint lists the names\navailable at each scope.",
             "type": "string"
           },
           "operational_email_custom_recipient": {
@@ -8083,9 +8136,11 @@
         "description": "Workspace label and color for display (e.g. in account console).",
         "properties": {
           "color": {
+            "description": "Color of the label badge. The supported colors are coral, lemon, lime,\nturquoise, indigo, purple and pink. It is an empty string when no label\nis set.",
             "type": "string"
           },
           "label": {
+            "description": "Text of the label shown next to the workspace name in the top navigation\nbar. An empty string means no label is set.",
             "type": "string"
           }
         },
@@ -8112,15 +8167,15 @@
     }
   },
   "info": {
-    "description": "Databricks Account API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.199.0 — itself generated from Databricks' OpenAPI spec `e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c`. Unofficial; see https://docs.databricks.com/api/account/introduction for the reference documentation.",
+    "description": "Databricks Account API, generated by databricks-rs (`cargo xtask codegen`) from databricks-sdk-go v0.202.0 — itself generated from Databricks' OpenAPI spec `874d8f1733df5029f169c35ed088d2f081eb6687`. Unofficial; see https://docs.databricks.com/api/account/introduction for the reference documentation.",
     "license": {
       "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "Databricks Account API",
-    "version": "0.199.0",
-    "x-databricks-go-sdk-version": "v0.199.0",
-    "x-databricks-openapi-sha": "e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c"
+    "version": "0.202.0",
+    "x-databricks-go-sdk-version": "v0.202.0",
+    "x-databricks-openapi-sha": "874d8f1733df5029f169c35ed088d2f081eb6687"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -8484,7 +8539,7 @@
     },
     "/api/2.0/accounts/{account_id}/dashboard": {
       "get": {
-        "description": "Get a usage dashboard specified by workspaceId, accountId, and dashboard\ntype.",
+        "description": "Gets the most recent usage dashboard of the given type that the caller\ncreated. The response is empty if no such dashboard exists, if it has been\ndeleted, or if the caller can no longer access its workspace.",
         "operationId": "usage_dashboards.get",
         "parameters": [
           {
@@ -8497,7 +8552,7 @@
             }
           },
           {
-            "description": "Workspace level usage dashboard shows usage data for the specified\nworkspace ID. Global level usage dashboard shows usage data for all\nworkspaces in the account.",
+            "description": "Workspace level usage dashboard shows usage data for the specified\nworkspace ID. Global level usage dashboard shows usage data for all\nworkspaces in the account. The request fails if the type is not set.",
             "in": "query",
             "name": "dashboard_type",
             "required": false,
@@ -8506,7 +8561,7 @@
             }
           },
           {
-            "description": "The workspace ID of the workspace in which the usage dashboard is\ncreated.",
+            "description": "The ID of the workspace that contains the usage dashboard. If omitted,\nthe most recently created dashboard of the given type across all\nworkspaces in the account is returned.",
             "in": "query",
             "name": "workspace_id",
             "required": false,
@@ -8531,7 +8586,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Get a usage dashboard specified by workspaceId, accountId, and dashboard",
+        "summary": "Gets the most recent usage dashboard of the given type that the caller",
         "tags": [
           "UsageDashboards"
         ],
@@ -8539,7 +8594,7 @@
         "x-databricks-service": "UsageDashboards"
       },
       "post": {
-        "description": "Create a usage dashboard specified by workspaceId, accountId, and dashboard\ntype.",
+        "description": "Imports a pre-built usage dashboard of the given type into a workspace. Each\ncall imports a new dashboard, even if the caller already created one of the\nsame type in that workspace. The caller must be an account admin and a user\nof the target workspace. See\nhttps://docs.databricks.com/admin/account-settings/usage.html.",
         "operationId": "usage_dashboards.create",
         "parameters": [
           {
@@ -8577,7 +8632,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Create a usage dashboard specified by workspaceId, accountId, and dashboard",
+        "summary": "Imports a pre-built usage dashboard of the given type into a workspace. Each",
         "tags": [
           "UsageDashboards"
         ],
@@ -10902,7 +10957,7 @@
     },
     "/api/2.0/accounts/{account_id}/oauth2/custom-app-integrations": {
       "get": {
-        "description": "Get the list of custom OAuth app integrations for the specified Databricks\naccount\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Get the list of custom OAuth app integrations for the specified Databricks\naccount.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "custom_app_integration.list",
         "parameters": [
           {
@@ -10915,6 +10970,7 @@
             }
           },
           {
+            "description": "When true, each returned integration includes creator_username.",
             "in": "query",
             "name": "include_creator_username",
             "required": false,
@@ -10923,6 +10979,7 @@
             }
           },
           {
+            "description": "Maximum number of integrations to return in one page, at most 1000.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -10932,6 +10989,7 @@
             }
           },
           {
+            "description": "Token from the next_page_token field of a previous response. Omit it to\nrequest the first page.",
             "in": "query",
             "name": "page_token",
             "required": false,
@@ -11030,6 +11088,7 @@
             }
           },
           {
+            "description": "ID of the custom OAuth app integration to delete.",
             "in": "path",
             "name": "integration_id",
             "required": true,
@@ -11112,6 +11171,7 @@
             }
           },
           {
+            "description": "ID of the custom OAuth app integration to update.",
             "in": "path",
             "name": "integration_id",
             "required": true,
@@ -11148,7 +11208,7 @@
     },
     "/api/2.0/accounts/{account_id}/oauth2/published-app-integrations": {
       "get": {
-        "description": "Get the list of published OAuth app integrations for the specified Databricks\naccount\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Get the list of published OAuth app integrations for the specified Databricks\naccount.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "published_app_integration.list",
         "parameters": [
           {
@@ -11161,6 +11221,7 @@
             }
           },
           {
+            "description": "Maximum number of integrations to return in one page, at most 1000.",
             "in": "query",
             "name": "page_size",
             "required": false,
@@ -11170,6 +11231,7 @@
             }
           },
           {
+            "description": "Token from the next_page_token field of a previous response. Omit it to\nrequest the first page.",
             "in": "query",
             "name": "page_token",
             "required": false,
@@ -11255,7 +11317,7 @@
     },
     "/api/2.0/accounts/{account_id}/oauth2/published-app-integrations/{integration_id}": {
       "delete": {
-        "description": "Delete an existing Published OAuth App Integration. You can retrieve the\npublished OAuth app integration via [PublishedAppIntegration/get].\n\n[PublishedAppIntegration/get]: https://docs.databricks.com/api/account/publishedappintegration/get",
+        "description": "Delete an existing Published OAuth App Integration. The app can no longer be\nused to sign in to the account until it is enabled again with\n[PublishedAppIntegration/create].\n\n[PublishedAppIntegration/create]: https://docs.databricks.com/api/account/publishedappintegration/create",
         "operationId": "published_app_integration.delete",
         "parameters": [
           {
@@ -11268,6 +11330,7 @@
             }
           },
           {
+            "description": "ID of the published OAuth app integration to delete.",
             "in": "path",
             "name": "integration_id",
             "required": true,
@@ -11284,7 +11347,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Delete an existing Published OAuth App Integration. You can retrieve the",
+        "summary": "Delete an existing Published OAuth App Integration. The app can no longer be",
         "tags": [
           "PublishedAppIntegration"
         ],
@@ -11305,6 +11368,7 @@
             }
           },
           {
+            "description": "ID of the published OAuth app integration.",
             "in": "path",
             "name": "integration_id",
             "required": true,
@@ -11349,6 +11413,7 @@
             }
           },
           {
+            "description": "ID of the published OAuth app integration to update.",
             "in": "path",
             "name": "integration_id",
             "required": true,
@@ -11702,7 +11767,7 @@
             }
           },
           {
-            "description": "Desired number of results per page. Default is 10000.",
+            "description": "Specifies the number of results per page. When omitted, the server uses\nits default page size.",
             "in": "query",
             "name": "count",
             "required": false,
@@ -11931,7 +11996,7 @@
             }
           },
           {
-            "description": "Unique ID in the Databricks workspace.",
+            "description": "Unique ID for a group in the Databricks account.",
             "in": "path",
             "name": "id",
             "required": true,
@@ -11979,7 +12044,7 @@
             }
           },
           {
-            "description": "Databricks group ID",
+            "description": "Identifies the group within Databricks.",
             "in": "path",
             "name": "id",
             "required": true,
@@ -12171,7 +12236,7 @@
     },
     "/api/2.0/accounts/{account_id}/scim/v2/ServicePrincipals/{id}": {
       "delete": {
-        "description": "Delete a single service principal in the Databricks account.",
+        "description": "Deletes a single service principal from the Databricks account.",
         "operationId": "service_principals_v2.delete",
         "parameters": [
           {
@@ -12201,7 +12266,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Delete a single service principal in the Databricks account.",
+        "summary": "Deletes a single service principal from the Databricks account.",
         "tags": [
           "AccountServicePrincipalsV2"
         ],
@@ -12209,7 +12274,7 @@
         "x-databricks-service": "AccountServicePrincipalsV2"
       },
       "get": {
-        "description": "Gets the details for a single service principal define in the Databricks\naccount.",
+        "description": "Gets the details for a single service principal in the Databricks account.",
         "operationId": "service_principals_v2.get",
         "parameters": [
           {
@@ -12246,7 +12311,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Gets the details for a single service principal define in the Databricks",
+        "summary": "Gets the details for a single service principal in the Databricks account.",
         "tags": [
           "AccountServicePrincipalsV2"
         ],
@@ -12267,7 +12332,7 @@
             }
           },
           {
-            "description": "Unique ID in the Databricks workspace.",
+            "description": "Unique ID for a service principal in the Databricks account.",
             "in": "path",
             "name": "id",
             "required": true,
@@ -12302,7 +12367,7 @@
         "x-databricks-service": "AccountServicePrincipalsV2"
       },
       "put": {
-        "description": "Updates the details of a single service principal.\n\nThis action replaces the existing service principal with the same name.",
+        "description": "Updates the details of a single service principal.\n\nThis action replaces the existing service principal that has the given ID.",
         "operationId": "service_principals_v2.update",
         "parameters": [
           {
@@ -12315,7 +12380,7 @@
             }
           },
           {
-            "description": "Databricks service principal ID.",
+            "description": "Identifies the service principal within Databricks.",
             "in": "path",
             "name": "id",
             "required": true,
@@ -17485,7 +17550,7 @@
     },
     "/api/2.1/accounts/{account_id}/budget-policies": {
       "get": {
-        "description": "Lists all policies. Policies are returned in the alphabetically ascending\norder of their names.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "Lists the usage policies that the caller has permission to view. Policies are\nsorted by name in ascending order unless `sort_spec` requests a different\norder.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "budget_policy.list",
         "parameters": [
           {
@@ -17498,7 +17563,7 @@
             }
           },
           {
-            "description": "The policy creator user id to be filtered on. If unspecified, all\npolicies will be returned.",
+            "description": "Deprecated: This field is ignored. Creator filtering will be removed in a\nfuture version.",
             "in": "query",
             "name": "filter_by.creator_user_id",
             "required": false,
@@ -17517,7 +17582,7 @@
             }
           },
           {
-            "description": "The partial name of policies to be filtered on. If unspecified, all\npolicies will be returned.",
+            "description": "Only policies whose name contains this string are returned. Matching is\ncase-insensitive. If unspecified, all policies are returned.",
             "in": "query",
             "name": "filter_by.policy_name",
             "required": false,
@@ -17536,7 +17601,7 @@
             }
           },
           {
-            "description": "A page token, received from a previous `ListServerlessPolicies` call.\nProvide this to retrieve the subsequent page. If unspecified, the first\npage will be returned.\n\nWhen paginating, all other parameters provided to\n`ListServerlessPoliciesRequest` must match the call that provided the\npage token.",
+            "description": "A page token, received from a previous `ListBudgetPolicies` call. Provide\nthis to retrieve the subsequent page. If unspecified, the first page will\nbe returned.\n\nWhen paginating, all other parameters provided to `ListBudgetPolicies`\nmust match the call that provided the page token.",
             "in": "query",
             "name": "page_token",
             "required": false,
@@ -17554,7 +17619,7 @@
             }
           },
           {
-            "description": "The filed to sort by",
+            "description": "The field to sort by. If unspecified, policies are sorted by name.",
             "in": "query",
             "name": "sort_spec.field",
             "required": false,
@@ -17578,7 +17643,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Lists all policies. Policies are returned in the alphabetically ascending",
+        "summary": "Lists the usage policies that the caller has permission to view. Policies are",
         "tags": [
           "BudgetPolicy"
         ],
@@ -17592,7 +17657,7 @@
         "x-databricks-service": "BudgetPolicy"
       },
       "post": {
-        "description": "Creates a new policy.",
+        "description": "Creates a new usage policy. The creator is granted the manager role on the\nnew policy.",
         "operationId": "budget_policy.create",
         "parameters": [
           {
@@ -17630,7 +17695,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Creates a new policy.",
+        "summary": "Creates a new usage policy. The creator is granted the manager role on the",
         "tags": [
           "BudgetPolicy"
         ],
@@ -17640,7 +17705,7 @@
     },
     "/api/2.1/accounts/{account_id}/budget-policies/{policy_id}": {
       "delete": {
-        "description": "Deletes a policy",
+        "description": "Deletes a usage policy.",
         "operationId": "budget_policy.delete",
         "parameters": [
           {
@@ -17670,7 +17735,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Deletes a policy",
+        "summary": "Deletes a usage policy.",
         "tags": [
           "BudgetPolicy"
         ],
@@ -17678,7 +17743,7 @@
         "x-databricks-service": "BudgetPolicy"
       },
       "get": {
-        "description": "Retrieves a policy by it's ID.",
+        "description": "Retrieves a usage policy by its ID.",
         "operationId": "budget_policy.get",
         "parameters": [
           {
@@ -17715,7 +17780,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Retrieves a policy by it's ID.",
+        "summary": "Retrieves a usage policy by its ID.",
         "tags": [
           "BudgetPolicy"
         ],
@@ -17723,7 +17788,7 @@
         "x-databricks-service": "BudgetPolicy"
       },
       "patch": {
-        "description": "Updates a policy",
+        "description": "Updates a usage policy. Changes apply only to serverless usage that starts\nafter the update, not to workloads that are already running.",
         "operationId": "budget_policy.update",
         "parameters": [
           {
@@ -17770,7 +17835,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Updates a policy",
+        "summary": "Updates a usage policy. Changes apply only to serverless usage that starts",
         "tags": [
           "BudgetPolicy"
         ],
@@ -18479,7 +18544,7 @@
     },
     "/api/disaster-recovery/v1/accounts/{account_id}/failover-groups/{failover_group_id}": {
       "delete": {
-        "description": "Delete a failover group.",
+        "description": "Delete a failover group. Deleting stops replication for the group; stable\nURLs linked to it are detached but not deleted.",
         "operationId": "disaster_recovery.delete_failover_group",
         "parameters": [
           {
@@ -18516,7 +18581,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Delete a failover group.",
+        "summary": "Delete a failover group. Deleting stops replication for the group; stable",
         "tags": [
           "DisasterRecovery"
         ],
@@ -18528,7 +18593,7 @@
         "x-databricks-service": "DisasterRecovery"
       },
       "get": {
-        "description": "Get a failover group.",
+        "description": "Get a failover group, including its current state and replication point.",
         "operationId": "disaster_recovery.get_failover_group",
         "parameters": [
           {
@@ -18563,7 +18628,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Get a failover group.",
+        "summary": "Get a failover group, including its current state and replication point.",
         "tags": [
           "DisasterRecovery"
         ],
@@ -18666,7 +18731,7 @@
     },
     "/api/disaster-recovery/v1/{name}": {
       "patch": {
-        "description": "Update a failover group.",
+        "description": "Update a failover group. Only the fields named in update_mask change. You can\nturn workspace asset replication on or off, attach or detach a stable URL,\nand change the Unity Catalog catalogs and location mappings; the regions, the\nworkspace set name and the workspace IDs cannot be changed. Updates are\nrejected while a create, failover or delete is in progress, and after a\ncreate or delete has failed.",
         "operationId": "disaster_recovery.update_failover_group",
         "parameters": [
           {
@@ -18689,7 +18754,7 @@
             }
           },
           {
-            "description": "Comma-separated list of fields to update.",
+            "description": "Comma-separated list of the fields to update. The supported paths are\n`workspace_sets`, `unity_catalog_assets`, `unity_catalog_assets.catalogs`\nand `unity_catalog_assets.location_mappings`; any other path is rejected.",
             "in": "query",
             "name": "update_mask",
             "required": true,
@@ -18725,7 +18790,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Update a failover group.",
+        "summary": "Update a failover group. Only the fields named in update_mask change. You can",
         "tags": [
           "DisasterRecovery"
         ],
@@ -18735,7 +18800,7 @@
     },
     "/api/disaster-recovery/v1/{name}/failover": {
       "post": {
-        "description": "Initiate a failover to a new primary region.",
+        "description": "Initiate a failover that makes target_primary_region the primary region.\nStable URLs linked to the group are pointed at the new primary workspace,\nreplication is reversed so that the former primary becomes the secondary, and\nthe group moves through FAILING_OVER to INITIAL_REPLICATION until it has a\nreplication point in the new direction. The group must be ACTIVE; repeating\nthe request while it is FAILING_OVER is accepted. To fail back, repeat the\nrequest with the former primary region as the target once the group is ACTIVE\nagain. In an unplanned failover, data written after the replication point can\nbe lost.",
         "operationId": "disaster_recovery.failover_failover_group",
         "parameters": [
           {
@@ -18774,7 +18839,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Initiate a failover to a new primary region.",
+        "summary": "Initiate a failover that makes target_primary_region the primary region.",
         "tags": [
           "DisasterRecovery"
         ],
@@ -18784,7 +18849,7 @@
     },
     "/api/disaster-recovery/v1/{parent}/failover-groups": {
       "get": {
-        "description": "List failover groups.\n\nList entries are abbreviated: `state` and `replication_point` are not\npopulated. Call GetFailoverGroup to retrieve the full resource.\n\nThis method is generated by Databricks SDK Code Generator.",
+        "description": "List the failover groups in an account.\n\nList entries are abbreviated: `state`, `replication_point` and\n`unity_catalog_assets.location_mappings` are not populated. Call\nGetFailoverGroup to retrieve the full resource.\n\nThis method is generated by Databricks SDK Code Generator.",
         "operationId": "disaster_recovery.list_failover_groups",
         "parameters": [
           {
@@ -18832,7 +18897,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "List failover groups.",
+        "summary": "List the failover groups in an account.",
         "tags": [
           "DisasterRecovery"
         ],
@@ -18846,7 +18911,7 @@
         "x-databricks-service": "DisasterRecovery"
       },
       "post": {
-        "description": "Create a new failover group.",
+        "description": "Create a failover group. The group starts in the CREATING state and moves to\nINITIAL_REPLICATION while the first replication cycle copies all in-scope\ndata to the secondary region; failover becomes available once the group is\nACTIVE. Set validate_only to check the request without creating anything.",
         "operationId": "disaster_recovery.create_failover_group",
         "parameters": [
           {
@@ -18903,7 +18968,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "summary": "Create a new failover group.",
+        "summary": "Create a failover group. The group starts in the CREATING state and moves to",
         "tags": [
           "DisasterRecovery"
         ],
