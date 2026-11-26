@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-marketplace-v0.1.3...community-databricks-sdk-marketplace-v0.1.4) - 2026-11-26
+
+### Other
+
+- databricks-sdk-go v0.202.0 (OpenAPI 874d8f1733df5029f169c35ed088d2f081eb6687) ([#50](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/50))
+- databricks-sdk-go v0.199.0 (OpenAPI e13a7b6206adbdb6c4008e2a58b7cc785e32cb1c) ([#48](https://github.com/OffeneDatenmodellierung/databricks-rs/pull/48))
+
 ## [0.1.3](https://github.com/OffeneDatenmodellierung/databricks-rs/compare/community-databricks-sdk-marketplace-v0.1.2...community-databricks-sdk-marketplace-v0.1.3) - 2026-11-03
 
 ### Other

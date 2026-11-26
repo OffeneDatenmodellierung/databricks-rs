@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-agentbricks"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -386,7 +386,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-agentkit"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -395,7 +395,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-aifunctions"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -404,7 +404,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-aisearch"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -413,7 +413,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-apps"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -422,7 +422,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-billing"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-compute",
@@ -432,7 +432,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-bundledeployments"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -441,7 +441,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-catalog"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -450,7 +450,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-cleanrooms"
-version = "0.1.3"
+version = "0.2.0"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-catalog",
@@ -463,7 +463,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-compute"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -481,7 +481,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-dashboards"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-sql",
@@ -491,7 +491,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-database"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -500,7 +500,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-dataclassification"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -509,7 +509,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-dataquality"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -518,7 +518,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-disasterrecovery"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -527,7 +527,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-domains"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -536,7 +536,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-environments"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -545,7 +545,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-files"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -563,7 +563,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-iam"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -572,7 +572,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-iamv2"
-version = "0.1.3"
+version = "0.2.0"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -581,7 +581,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-jobs"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-compute",
@@ -591,7 +591,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-knowledgeassistants"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -609,7 +609,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-marketplace"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -618,7 +618,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-ml"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-networking"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -636,7 +636,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-oauth2"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -645,7 +645,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-pipelines"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-compute",
@@ -655,7 +655,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-postgres"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -664,7 +664,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-provisioning"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -673,7 +673,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-qualitymonitorv2"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -682,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-sandbox"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
@@ -700,7 +700,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-settings"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-iam",
@@ -719,7 +719,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-sharing"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-catalog",
@@ -738,7 +738,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk-sql"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "serde",
