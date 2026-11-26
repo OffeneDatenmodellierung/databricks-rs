@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "community-databricks-sdk"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "community-databricks-core",
  "community-databricks-sdk-agentbricks",
